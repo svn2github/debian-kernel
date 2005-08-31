@@ -1,5 +1,0 @@
-.config
-arch/ppc/Makefile
-arch/ppc/kernel/Makefile
-include/linux/autoconf.h
-include/linux/version.h
