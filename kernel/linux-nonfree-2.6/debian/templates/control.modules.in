@@ -1,0 +1,6 @@
+Package: linux-modules-nonfree-@subarch@@version@-@abiname@-@flavour@
+Section: nonfree/base
+Priority: optional
+Description: Non-free modules for the Linux kernel version @version@
+ This package the nonfree modules for the Linux kernel version @version@.
+

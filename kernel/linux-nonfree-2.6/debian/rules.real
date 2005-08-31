@@ -1,0 +1,65 @@
+SHELL  := sh -e
+DEB_HOST_ARCH     := $(shell dpkg-architecture -a$(ARCH) -qDEB_HOST_ARCH)
+DEB_HOST_GNU_TYPE := $(shell dpkg-architecture -a$(ARCH) -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_ARCH    := $(shell dpkg-architecture -a$(ARCH) -qDEB_BUILD_ARCH)
+
+ifneq ($(SUBARCH),none)
+  KPGK_SUBARCH := $(SUBARCH)-
+endif
+
+HEADERS_DIR = /usr/src/linux-headers-$(KPGK_SUBARCH)$(UPSTREAM_VERSION)$(KPKG_ABINAME)-$(FLAVOUR)
+
+include debian/rules.defs
+
+#
+# Targets
+#
+binary-arch-flavour: install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+
+build: $(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+
+$(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DIR=$(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+$(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR): $(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+	cd $(DIR); env -u MAKEFLAGS ARCH=$(KERNEL_ARCH) $(MAKE) DIR=$(HEADERS_DIR) V=1
+	touch $@
+
+$(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DIR=$(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+$(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR):
+	rm -rf $(DIR)
+	mkdir -p $(DIR)
+	cp -al $(filter-out debian, $(wildcard *)) $(DIR)
+	cd $(HEADERS_DIR); \
+	for i in $$(find -follow -name "Kconfig*"); do \
+	  mkdir -p $(CURDIR)/$(DIR)/$$(dirname $$i); \
+	  ln -sf $(HEADERS_DIR)/$$i $(CURDIR)/$(DIR)/$$(dirname $$i); \
+	done
+	cat $(HEADERS_DIR)/.config debian/arch/kconfig > $(DIR)/.config
+	echo "source 'arch/$(KERNEL_ARCH)/Kconfig'" > $(DIR)/Kconfig.include
+	echo "source 'Kconfig'" >> $(DIR)/Kconfig.include
+	rm $(DIR)/Makefile
+	echo "include $(CURDIR)/$(DIR)/.config" > $(DIR)/Makefile
+	echo "include $(CURDIR)/Makefile" >> $(DIR)/Makefile
+	cd $(DIR); $(HEADERS_DIR)/scripts/kconfig/conf -s Kconfig.include
+	touch $@
+
+install-base:
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol -- $(GENCONTROL_ARGS)
+	dh_md5sums
+	dh_builddeb
+
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DIR = $(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DEST_DIR = $(CURDIR)/debian/linux-modules-nonfree-$(KPKG_SUBARCH)$(VERSION)-$(ABINAME)-$(FLAVOUR)/lib/modules/$(UPSTREAM_VERSION)$(KPKG_ABINAME)-$(FLAVOUR)
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DH_OPTIONS = -plinux-modules-nonfree-$(KPKG_SUBARCH)$(VERSION)-$(ABINAME)-$(FLAVOUR)
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR):
+	dh_testdir
+	dh_testroot
+	dh_installdirs $(DH_OPTIONS) 
+	cd $(DIR); env -u MAKEFLAGS ARCH=$(KERNEL_ARCH) make install DIR=/usr/src/linux-headers-$(KPGK_SUBARCH)$(UPSTREAM_VERSION)$(KPKG_ABINAME)-$(FLAVOUR) MODLIB=$(DEST_DIR) INSTALL_MOD_DIR=nonfree
+	dh_installdocs $(DH_OPTIONS)
+	dh_installchangelogs $(DH_OPTIONS)
+	$(MAKE) -f debian/rules.real install-base DH_OPTIONS=$(DH_OPTIONS)
+
+
