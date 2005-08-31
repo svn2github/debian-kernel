@@ -1,5 +1,0 @@
-Handle the vmlinuz symlink also.
-Polish the templates.
-Do real bootloader configuration stuff, including prep.
-
-

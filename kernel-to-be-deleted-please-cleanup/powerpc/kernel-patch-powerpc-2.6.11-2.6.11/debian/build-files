@@ -1,7 +1,0 @@
-.config
-Module.symvers
-arch/ppc/Makefile
-arch/ppc/kernel/Makefile
-arch/ppc/kernel/asm-offsets.c
-include/linux/autoconf.h
-include/linux/version.h
