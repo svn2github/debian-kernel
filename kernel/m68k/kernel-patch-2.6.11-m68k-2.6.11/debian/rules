@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+#                                             -*- makefile -*-
+# debian/rules file for the Debian/GNU Linux kernel-patch package
+# Copyright 2002 by Nick Holgate <holgate@debian.org>
+#
+
+ARCH	:= m68k
+VERSION := 2.6.11
+
+build:
+	dh_testdir
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep:
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	cp -a $(ARCH) debian/tmp/usr/src/kernel-patches/$(ARCH)
+	dh_installdocs
+	dh_installchangelogs
+#	dh_strip -v
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+#	dh_shlibdeps
+	dh_perl
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch:
+
+binary: binary-arch binary-indep
+
+source diff:
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+.PHONY: binary binary-arch binary-indep clean build

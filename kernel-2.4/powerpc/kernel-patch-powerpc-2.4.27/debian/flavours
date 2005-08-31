@@ -1,0 +1,5 @@
+# This file contains the arches, subarches and flavours we are handling.
+archs: powerpc
+subarchs powerpc: apus nubus powerpc
+flavours powerpc: powerpc powerpc-smp powerpc-small
+make-kpkg match powerpc: pmac

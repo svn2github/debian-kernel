@@ -1,0 +1,21 @@
+Notes for building the patch packages
+-------------------------------------
+
+ - Be sure to delete the include/asm symlink before attempting to make a
+   large kernel diff!  Otherwise patch behaves very badly...
+ - debian/rules now gets everything it needs from debian/changelog,
+   but control has a way to go.
+
+Notes about crosscompiling
+--------------------------
+ Be sure to tell the kernel-package to patch the kernel:
+   - export PATCH_THE_KERNEL=YES
+   - export PATCH_DIR=/usr/src/kernel-patches/mips/
+   - make-kpkg --arch mips debian (this applies the mips patches)
+   - configure the kernel as needed
+   - make-kpkg --arch mips kernel_image
+ Same applies for mipsel architecture. Remeber to have your mips(el)-linux 
+ crosstoolchain in your $PATH.
+ For 64bit kernel's use the %-64 config and additionally pass --subarch=mips64.
+
+-- Guido Günther <agx@debian.org> Sat, 27 Sep 2003 23:24:43 +0200

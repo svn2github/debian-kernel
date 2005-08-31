@@ -1,0 +1,183 @@
+#! /bin/sh -e
+## 12_cobalt-qube1-serial.dpatch by Peter Horton <pdh@colonel-panic.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Add proper detection for serial console, this fixes a crash for
+## DP: Qube1 without serials.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Index: kernel-source-2.4.27/include/asm-mips/serial.h
+===================================================================
+--- kernel-source-2.4.27.orig/include/asm-mips/serial.h	2005-05-01 15:26:34.000000000 +0100
++++ kernel-source-2.4.27/include/asm-mips/serial.h	2005-05-01 15:56:02.000000000 +0100
+@@ -97,16 +97,6 @@
+ #define SEAD_SERIAL_PORT_DEFNS
+ #endif
+ 
+-#ifdef CONFIG_MIPS_COBALT
+-#include <asm/cobalt/cobalt.h>
+-#define COBALT_BASE_BAUD  (18432000 / 16)
+-#define COBALT_SERIAL_PORT_DEFNS		\
+-	/* UART CLK   PORT  IRQ  FLAGS    */ 		\
+-	{ 0, COBALT_BASE_BAUD, 0xc800000, COBALT_SERIAL_IRQ, STD_COM_FLAGS },   /* ttyS0 */
+-#else
+-#define COBALT_SERIAL_PORT_DEFNS
+-#endif
+-
+ /*
+  * Both Galileo boards have the same UART mappings.
+  */
+@@ -452,7 +442,6 @@
+ #define SERIAL_PORT_DFNS			\
+ 	ATLAS_SERIAL_PORT_DEFNS			\
+ 	AU1000_SERIAL_PORT_DEFNS		\
+-	COBALT_SERIAL_PORT_DEFNS		\
+ 	DDB5477_SERIAL_PORT_DEFNS		\
+ 	EV96100_SERIAL_PORT_DEFNS		\
+ 	EXTRA_SERIAL_PORT_DEFNS			\
+Index: kernel-source-2.4.27/arch/mips/cobalt/setup.c
+===================================================================
+--- kernel-source-2.4.27.orig/arch/mips/cobalt/setup.c	2005-05-01 15:26:34.000000000 +0100
++++ kernel-source-2.4.27/arch/mips/cobalt/setup.c	2005-05-01 16:01:28.000000000 +0100
+@@ -16,6 +16,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/init.h>
+ #include <linux/ide.h>
++#include <linux/serial.h>
+ 
+ #include <asm/bootinfo.h>
+ #include <asm/time.h>
+@@ -24,6 +25,7 @@
+ #include <asm/processor.h>
+ #include <asm/reboot.h>
+ #include <asm/gt64120/gt64120.h>
++#include <asm/serial.h>
+ 
+ #include <asm/cobalt/cobalt.h>
+ 
+@@ -84,6 +86,32 @@
+ 	GALILEO_OUTL(0x100, GT_INTRMASK_OFS);
+ }
+ 
++static void __init cobalt_probe_unit(void)
++{
++	struct pci_dev dev;
++
++	/* Read the cobalt id register out of the PCI config space */
++	dev.devfn = PCI_DEVFN(COBALT_PCICONF_VIA, 0);
++	PCI_CFG_SET(&dev, (VIA_COBALT_BRD_ID_REG & ~0x3));
++	cobalt_board_id = GALILEO_INL(GT_PCI0_CFGDATA_OFS) >> ((VIA_COBALT_BRD_ID_REG & 3) * 8);
++	cobalt_board_id = VIA_COBALT_BRD_REG_to_ID(cobalt_board_id);
++
++	printk("Cobalt Board ID: %d\n", cobalt_board_id);
++}
++
++static void __init cobalt_console_setup(void)
++{
++	struct serial_struct cons;
++
++	memset(&cons, 0, sizeof(cons));
++	cons.irq		= COBALT_SERIAL_IRQ;
++	cons.flags		= STD_COM_FLAGS;
++	cons.io_type		= SERIAL_IO_MEM;
++	cons.baud_base		= 18432000 / 16;
++	cons.iomem_base		= KSEG1ADDR(0x1c800000);
++
++	register_serial(&cons);
++}
+ 
+ void __init cobalt_setup(void)
+ {
+@@ -101,13 +129,20 @@
+ 
+         set_io_port_base(KSEG1ADDR(0x10000000));
+ 
+-	/*
+-	 * This is a prom style console. We just poke at the
+-	 *  UART to make it talk.
+-	 * Only use this console if you really screw up and can't
+-	 *  get to the stage of setting up a real serial console.
+-	 */
+-	/*ns16550_setup_console();*/
++	cobalt_probe_unit();
++
++	if (cobalt_board_id != COBALT_BRD_ID_QUBE1) {
++
++		/*
++		 * This is a prom style console. We just poke at the
++		 *  UART to make it talk.
++		 * Only use this console if you really screw up and can't
++		 *  get to the stage of setting up a real serial console.
++		 */
++		/*ns16550_setup_console();*/
++
++		cobalt_console_setup();
++	}
+ }
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+Index: kernel-source-2.4.27/arch/mips/cobalt/pci.c
+===================================================================
+--- kernel-source-2.4.27.orig/arch/mips/cobalt/pci.c	2005-05-01 12:43:42.000000000 +0100
++++ kernel-source-2.4.27/arch/mips/cobalt/pci.c	2005-05-01 15:54:44.000000000 +0100
+@@ -283,10 +283,6 @@
+ 	return -1;  /* NOT ok device number */
+ }
+ 
+-#define PCI_CFG_SET(dev,where) \
+-       GALILEO_OUTL((0x80000000 | (((dev)->devfn) << 8) | \
+-                           (where)), GT_PCI0_CFGADDR_OFS)
+-
+ static int qube_pci_read_config_dword (struct pci_dev *dev,
+                                           int where,
+                                           u32 *val)
+@@ -391,18 +387,8 @@
+ 
+ void __init pcibios_init(void)
+ {
+-	struct pci_dev dev;
+-
+ 	printk("PCI: Probing PCI hardware\n");
+ 
+-	/* Read the cobalt id register out of the PCI config space */
+-	dev.devfn = PCI_DEVFN(COBALT_PCICONF_VIA, 0);
+-	PCI_CFG_SET(&dev, (VIA_COBALT_BRD_ID_REG & ~0x3));
+-	cobalt_board_id = GALILEO_INL(GT_PCI0_CFGDATA_OFS) >> ((VIA_COBALT_BRD_ID_REG & 3) * 8);
+-	cobalt_board_id = VIA_COBALT_BRD_REG_to_ID(cobalt_board_id);
+-
+-	printk("Cobalt Board ID: %d\n", cobalt_board_id);
+-
+ 	ioport_resource.start = 0x00000000;
+ 	ioport_resource.end = 0x0fffffff;
+ 
+Index: kernel-source-2.4.27/include/asm-mips/cobalt/cobalt.h
+===================================================================
+--- kernel-source-2.4.27.orig/include/asm-mips/cobalt/cobalt.h	2005-05-01 15:55:33.000000000 +0100
++++ kernel-source-2.4.27/include/asm-mips/cobalt/cobalt.h	2005-05-01 15:55:40.000000000 +0100
+@@ -93,4 +93,8 @@
+ #define GALILEO_ENTC0		0x01
+ #define GALILEO_SELTC0		0x02
+ 
++#define PCI_CFG_SET(dev,where) \
++       GALILEO_OUTL((0x80000000 | (((dev)->devfn) << 8) | \
++                           (where)), GT_PCI0_CFGADDR_OFS)
++
+ #endif /* __ASM_MIPS_COBALT_H */
+ 

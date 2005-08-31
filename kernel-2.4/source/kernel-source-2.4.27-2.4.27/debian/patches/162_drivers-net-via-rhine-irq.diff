@@ -1,0 +1,56 @@
+# origin: dilinger (BitKeeper)
+# cset: 1.2108 (2.6) key=423bbc05NDXpG43AD5mxHCl1xpVtDQ
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@423bbc05NDXpG43AD5mxHCl1xpVtDQ
+# inclusion: upstream
+# descrition: [PATCH] Possible VIA-Rhine free irq issue
+# revision date: Fri, 08 Apr 2005 14:56:09 +0900
+#
+# S rset: ChangeSet|1.2107..1.2108
+# R rset: drivers/net/via-rhine.c|1.90..1.91
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/18 21:43:33-08:00 dilinger@debian.org 
+#   [PATCH] Possible VIA-Rhine free irq issue
+#   
+#   It seems to me that in the VIA Rhine device driver the requested irq might
+#   not be freed in case the alloc_ring() function fails. alloc_ring()
+#   can fail with a ENOMEM return value because of possible
+#   pci_alloc_consistent() failures.
+#   
+#   Updated to CodingStyle.
+#   
+#   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+#   Signed-off-by: Chris Wright <chrisw@osdl.org>
+#   Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+# 
+# drivers/net/via-rhine.c
+#   2005/03/11 15:18:25-08:00 dilinger@debian.org +3 -1
+#   Possible VIA-Rhine free irq issue
+# 
+#
+--- a/drivers/net/via-rhine.c	2005-04-08 17:13:44.000000000 +0900
++++ b/drivers/net/via-rhine.c	2005-04-08 17:14:14.000000000 +0900
+@@ -1180,8 +1180,10 @@ static int rhine_open(struct net_device 
+ 		       dev->name, rp->pdev->irq);
+ 
+ 	i = alloc_ring(dev);
+-	if (i)
++	if (i) {
++		free_irq(np->pdev->irq, dev);
+ 		return i;
++	}
+ 	alloc_rbufs(dev);
+ 	alloc_tbufs(dev);
+ 	wait_for_reset(dev, np->quirks, dev->name);

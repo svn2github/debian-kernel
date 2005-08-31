@@ -1,0 +1,69 @@
+Some basic instructions :
+
+  Initial checkout :
+  
+    svn co svn+ssh://<user>@svn.debian.org/svn/kernel/trunk
+
+  Updating a checked out repository :
+
+    svn up (in the directory of the repository)
+
+  Checkin in changes :
+
+    svn ci (in the directory of the repository)
+
+  Adding files :
+
+    svn add <file or dir name>
+
+  Creating dirs :
+
+    svn mkdir <newdir>
+
+  Moving files or dirs :
+
+    svn mv <oldname> <newname>
+    
+  Tagging after an upload :
+
+    source:
+        svn mkdir svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/source/kernel-source-2.6.11-2.6.11
+        svn cp svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/source/kernel-source-2.6.11-2.6.11 svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/source/kernel-source-2.6.11-2.6.11/2.6.11-1
+
+    powerpc:
+        svn cp svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/powerpc \
+    	 svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/powerpc/2.6.7-3
+
+    i386:
+    	svn mkdir svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/i386/kernel-image-2.6.11-i386-2.6.11
+	svn cp svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/i386/kernel-image-2.6.11-i386-2.6.11 svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/i386/kernel-image-2.6.11-i386-2.6.11/2.6.11-1
+	svn cp svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/i386/kernel-latest-2.6-i386  svn+ssh://<user>@svn.debian.org/svn/kernel/tags/kernel/i386/kernel-latest-2.6-i386/100
+
+  Branching :
+
+    svn cp svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/powerpc
+  	 svn+ssh://<user>@svn.debian.org/svn/kernel/branches/kernel/powerpc/mybranch
+  	
+  Exporting before an upload :
+
+    svn export svn+ssh://<user>@svn.debian.org/svn/kernel/trunk/kernel/powerpc \
+    	/path/to/build/dir
+
+Upload procedure :
+
+  1) Change the changelog entry from UNRELEASED to unstable.
+  2) export the package.
+  3) go into the exported dir and do the build
+  4) upload.
+  5) checkin the changes.
+  6) tag the package.
+
+Changelog practice :
+
+  When making a change in a package, without having it uploaded,
+  please put the changelog entry to UNRELEASED instead of unstable.
+  When doing the upload, this UNRELEASED tag has to be changed back
+  to unstable.  Additionally, the trailer line should be updated (the
+  line containing the name of the person doing the upload and the
+  date). But then, dch takes care of this for you :)
+

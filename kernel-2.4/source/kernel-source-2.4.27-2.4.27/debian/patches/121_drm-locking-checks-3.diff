@@ -1,0 +1,156 @@
+diff -pru kernel-source-2.4.27.filp/drivers/char/drm/drmP.h kernel-source-2.4.27/drivers/char/drm/drmP.h
++++ kernel-source-2.4.27.filp/drivers/char/drm/drmP.h	2005-02-24 16:10:43.000000000 +0900
+--- kernel-source-2.4.27/drivers/char/drm/drmP.h	2005-01-19 18:57:58.000000000 +0900
+@@ -336,7 +336,7 @@ do {									\
+ 	(_map) = (_dev)->context_sareas[_ctx];		\
+ } while(0)
+ 
++#define LOCK_TEST_WITH_RETURN( dev )					\
+-#define LOCK_TEST_WITH_RETURN( dev, filp )				\
+ do {									\
+ 	if ( !_DRM_LOCK_IS_HELD( dev->lock.hw_lock->lock ) ||		\
+ 	     dev->lock.pid != current->pid ) {				\
+diff -pru kernel-source-2.4.27.filp/drivers/char/drm/i810_dma.c kernel-source-2.4.27/drivers/char/drm/i810_dma.c
++++ kernel-source-2.4.27.filp/drivers/char/drm/i810_dma.c	2005-02-24 16:15:07.000000000 +0900
+--- kernel-source-2.4.27/drivers/char/drm/i810_dma.c	2005-01-19 18:57:58.000000000 +0900
+@@ -952,7 +952,7 @@ int i810_flush_ioctl(struct inode *inode
+    	drm_file_t	  *priv	  = filp->private_data;
+    	drm_device_t	  *dev	  = priv->dev;
+ 
++	LOCK_TEST_WITH_RETURN( dev );
+-	LOCK_TEST_WITH_RETURN( dev, filp );
+ 
+    	i810_flush_queue(dev);
+    	return 0;
+@@ -974,7 +974,7 @@ int i810_dma_vertex(struct inode *inode,
+ 	if (copy_from_user(&vertex, (drm_i810_vertex_t *)arg, sizeof(vertex)))
+ 		return -EFAULT;
+ 
++	LOCK_TEST_WITH_RETURN( dev );
+-	LOCK_TEST_WITH_RETURN( dev, filp );
+ 
+ 	if(vertex.idx < 0 || vertex.idx > dma->buf_count) return -EINVAL;
+ 
+@@ -1002,7 +1002,7 @@ int i810_clear_bufs(struct inode *inode,
+    	if (copy_from_user(&clear, (drm_i810_clear_t *)arg, sizeof(clear)))
+ 		return -EFAULT;
+ 
++	LOCK_TEST_WITH_RETURN( dev );
+-	LOCK_TEST_WITH_RETURN( dev, filp );
+ 
+  	/* GH: Someone's doing nasty things... */
+  	if (!dev->dev_private) {
+@@ -1022,7 +1022,7 @@ int i810_swap_bufs(struct inode *inode, 
+ 	drm_device_t *dev = priv->dev;
+ 
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	i810_dma_dispatch_swap( dev );
+    	return 0;
+@@ -1057,7 +1057,7 @@ int i810_getbuf(struct inode *inode, str
+    	if (copy_from_user(&d, (drm_i810_dma_t *)arg, sizeof(d)))
+ 		return -EFAULT;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	d.granted = 0;
+ 
+@@ -1165,7 +1165,7 @@ int i810_dma_mc(struct inode *inode, str
+ 		return -EFAULT;
+ 
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	i810_dma_dispatch_mc(dev, dma->buflist[mc.idx], mc.used,
+ 		mc.last_render );
+@@ -1210,7 +1210,7 @@ int i810_fstatus(struct inode *inode, st
+ 	drm_device_t *dev = priv->dev;
+ 	drm_i810_private_t *dev_priv = (drm_i810_private_t *)dev->dev_private;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 	return I810_READ(0x30008);
+ }
+ 
+@@ -1221,7 +1221,7 @@ int i810_ov0_flip(struct inode *inode, s
+ 	drm_device_t *dev = priv->dev;
+ 	drm_i810_private_t *dev_priv = (drm_i810_private_t *)dev->dev_private;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	//Tell the overlay to update
+ 	I810_WRITE(0x30000,dev_priv->overlay_physical | 0x80000000);
+diff -pru kernel-source-2.4.27.filp/drivers/char/drm/i830_dma.c kernel-source-2.4.27/drivers/char/drm/i830_dma.c
++++ kernel-source-2.4.27.filp/drivers/char/drm/i830_dma.c	2005-02-24 16:16:44.000000000 +0900
+--- kernel-source-2.4.27/drivers/char/drm/i830_dma.c	2005-01-19 18:57:58.000000000 +0900
+@@ -1330,7 +1330,7 @@ int i830_flush_ioctl(struct inode *inode
+    	drm_file_t	  *priv	  = filp->private_data;
+    	drm_device_t	  *dev	  = priv->dev;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+    	i830_flush_queue(dev);
+    	return 0;
+@@ -1351,7 +1351,7 @@ int i830_dma_vertex(struct inode *inode,
+ 	if (copy_from_user(&vertex, (drm_i830_vertex_t *)arg, sizeof(vertex)))
+ 		return -EFAULT;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	DRM_DEBUG("i830 dma vertex, idx %d used %d discard %d\n",
+ 		  vertex.idx, vertex.used, vertex.discard);
+@@ -1378,7 +1378,7 @@ int i830_clear_bufs(struct inode *inode,
+    	if (copy_from_user(&clear, (drm_i830_clear_t *)arg, sizeof(clear)))
+ 		return -EFAULT;
+    
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	/* GH: Someone's doing nasty things... */
+ 	if (!dev->dev_private) {
+@@ -1400,7 +1400,7 @@ int i830_swap_bufs(struct inode *inode, 
+    
+ 	DRM_DEBUG("i830_swap_bufs\n");
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	i830_dma_dispatch_swap( dev );
+    	return 0;
+@@ -1441,7 +1441,7 @@ int i830_flip_bufs(struct inode *inode, 
+ 
+ 	DRM_DEBUG("%s\n", __FUNCTION__);
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	if (!dev_priv->page_flipping) 
+ 		i830_do_init_pageflip( dev );
+@@ -1480,7 +1480,7 @@ int i830_getbuf(struct inode *inode, str
+    	if (copy_from_user(&d, (drm_i830_dma_t *)arg, sizeof(d)))
+ 		return -EFAULT;
+    
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 	
+ 	d.granted = 0;
+ 
+diff -pru kernel-source-2.4.27.filp/drivers/char/drm/i830_irq.c kernel-source-2.4.27/drivers/char/drm/i830_irq.c
++++ kernel-source-2.4.27.filp/drivers/char/drm/i830_irq.c	2005-02-24 16:15:15.000000000 +0900
+--- kernel-source-2.4.27/drivers/char/drm/i830_irq.c	2005-01-19 18:57:58.000000000 +0900
+@@ -130,7 +130,7 @@ int i830_irq_emit( struct inode *inode, 
+ 	drm_i830_irq_emit_t emit;
+ 	int result;
+ 
++	LOCK_TEST_WITH_RETURN( dev ); 
+-	LOCK_TEST_WITH_RETURN( dev, filp ); 
+ 
+ 	if ( !dev_priv ) {
+ 		DRM_ERROR( "%s called with no initialization\n", __FUNCTION__ );

@@ -1,0 +1,46 @@
+# origin: len.brown (BitKeeper)
+# cset: 1.1458.1.5 (2.4) key=418a9d25yv7JoxiIALvGAlZMPl53Tw
+# inclusion: upstream
+# description: [ACPI] fix ASUS boot crash
+# revision date: Fri, 26 Nov 2004 14:59:39 +0900
+#
+# S rset: ChangeSet|1.1458.1.4..1.1458.1.5
+# I rset: drivers/acpi/dispatcher/dsopcode.c|1.23..1.24
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/04 16:20:37-05:00 len.brown@intel.com 
+#   [ACPI] fix ASUS boot crash
+#   http://bugzilla.kernel.org/show_bug.cgi?id=2755
+#   
+#   backported from ACPICA 20040527 in linux-2.6.9
+#   
+#   Signed-off-by: Len Brown <len.brown@intel.com>
+# 
+# drivers/acpi/dispatcher/dsopcode.c
+#   2004/06/01 21:39:21-04:00 len.brown@intel.com +0 -3
+#   remove stale code that crashes asus boxes.
+# 
+#
+===== drivers/acpi/dispatcher/dsopcode.c 1.23 vs 1.24 =====
+--- 1.23/drivers/acpi/dispatcher/dsopcode.c	2004-02-14 07:45:52 +09:00
++++ 1.24/drivers/acpi/dispatcher/dsopcode.c	2004-06-02 10:39:21 +09:00
+@@ -79,7 +79,6 @@
+ 	acpi_status                     status;
+ 	union acpi_parse_object         *op;
+ 	struct acpi_walk_state          *walk_state;
+-	union acpi_parse_object         *arg;
+ 
+ 
+ 	ACPI_FUNCTION_TRACE ("ds_execute_arguments");
+@@ -126,9 +125,7 @@
+ 
+ 	/* Get and init the Op created above */
+ 
+-	arg = op->common.value.arg;
+ 	op->common.node = node;
+-	arg->common.node = node;
+ 	acpi_ps_delete_parse_tree (op);
+ 
+ 	/* Evaluate the deferred arguments */

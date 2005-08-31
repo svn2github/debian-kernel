@@ -1,0 +1,5 @@
+kernel-patch-2.6.10-mips (2.6.10-1-0) UNRELEASED; urgency=low
+
+  * Initial mips/mipsel 2.6 kernel.
+
+ -- Thiemo Seufer <seufer@csv.ica-uni-stuttgart.de>  Tue, 18 Jan 2005 14:33:20 +0100

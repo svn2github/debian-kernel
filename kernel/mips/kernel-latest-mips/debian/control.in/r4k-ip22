@@ -1,0 +1,21 @@
+Package: kernel-image-@@KERNMAJ@@-r4k-ip22
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNVER@@-@@ABIVER@@-r4k-ip22
+Description: Linux kernel image for version @@KERNMAJ@@ on mips r4k-ip22
+ This package will always depend on the latest @@KERNMAJ@@ kernel image
+ available for the mips r4k-ip22 subarchitecture.
+ .
+ This covers the SGI Indy and Indigo2.
+
+Package: kernel-image-r4k-ip22
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNMAJ@@-r4k-ip22
+Description: Linux kernel image for mips r4k-ip22
+ This package will always depend on the latest kernel image
+ available for the mips r4k-ip22 subarchitecture.
+ .
+ This covers the SGI Indy and Indigo2.

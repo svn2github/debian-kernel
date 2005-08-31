@@ -1,0 +1,114 @@
+Source: kernel-latest-mips
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 4)
+
+Package: kernel-headers-2.6
+Architecture: mips
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.10-1
+Description: Linux kernel headers 2.6 for mips
+ This package will always depend on the latest 2.6 kernel headers
+ available for mips.
+
+Package: kernel-headers
+Architecture: mips
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6
+Description: Linux kernel headers for mips
+ This package will always depend on the latest kernel headers
+ available for mips.
+
+Package: kernel-image-2.6-r4k-ip22
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.10-1-r4k-ip22
+Description: Linux kernel image for version 2.6 on mips r4k-ip22
+ This package will always depend on the latest 2.6 kernel image
+ available for the mips r4k-ip22 subarchitecture.
+ .
+ This covers the SGI Indy and Indigo2.
+
+Package: kernel-image-r4k-ip22
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6-r4k-ip22
+Description: Linux kernel image for mips r4k-ip22
+ This package will always depend on the latest kernel image
+ available for the mips r4k-ip22 subarchitecture.
+ .
+ This covers the SGI Indy and Indigo2.
+
+Package: kernel-image-2.6-r10k-ip27
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.10-1-r10k-ip27
+Description: Linux kernel image for version 2.6 on mips r10k-ip27
+ This package will always depend on the latest 2.6 kernel image
+ available for the mips r10k-ip27 subarchitecture.
+ .
+ This covers the SGI Origin with R1X000 processors.
+
+Package: kernel-image-r10k-ip27
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6-r10k-ip27
+Description: Linux kernel image for mips r10k-ip27
+ This package will always depend on the latest kernel image
+ available for the mips r10k-ip27 subarchitecture.
+ .
+ This covers the SGI Origin with R1X000 processors.
+
+Package: kernel-image-2.6-r5k-ip32
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.10-1-r5k-ip32
+Description: Linux kernel image for version 2.6 on mips r5k-ip32
+ This package will always depend on the latest 2.6 kernel image
+ available for the mips r5k-ip32 subarchitecture.
+ .
+ This covers the SGI O2 with R5000/R5200/RM7000 processors.
+
+Package: kernel-image-r5k-ip32
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6-r5k-ip32
+Description: Linux kernel image for mips r5k-ip32
+ This package will always depend on the latest kernel image
+ available for the mips r5k-ip32 subarchitecture.
+ .
+ This covers the SGI O2 with R5000/R5200/RM7000 processors.
+
+Package: kernel-image-2.6-sb1-swarm-bn
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.10-1-sb1-swarm-bn
+Description: Linux kernel image for version 2.6 on mips sb1-swarm-bn
+ This package will always depend on the latest 2.6 kernel image
+ available for the mips sb1-swarm-bn subarchitecture.
+ .
+ This covers the Broadcom BCM91250A (aka SWARM), pass 2.2 and later.
+
+Package: kernel-image-sb1-swarm-bn
+Architecture: mips
+Section: base
+Priority: optional
+Depends: kernel-image-2.6-sb1-swarm-bn
+Description: Linux kernel image for mips sb1-swarm-bn
+ This package will always depend on the latest kernel image
+ available for the mips sb1-swarm-bn subarchitecture.
+ .
+ This covers the Broadcom BCM91250A (aka SWARM), pass 2.2 and later.
+

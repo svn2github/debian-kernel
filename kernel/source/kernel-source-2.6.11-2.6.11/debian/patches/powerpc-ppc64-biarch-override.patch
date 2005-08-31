@@ -1,0 +1,28 @@
+#! /bin/sh -e 
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: Works around using a biarch compiler and overriding CC on
+## DP: Description: command line, previously this lost the -m64 flag.
+## DP: Patch author: luther@debian.org
+## DP: Upstream status: accepted in -mm tree.
+## DP: Cc: Paul Mackerras <paulus@samba.org>
+## DP: Cc: Anton Blanchard <anton@samba.org>
+## DP: Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+## DP: Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+
+--- linux-2.6.11/arch/ppc64/Makefile.orig	2005-05-27 13:24:25.000000000 +0000
++++ linux-2.6.11/arch/ppc64/Makefile	2005-05-27 13:24:36.000000000 +0000
+@@ -17,9 +17,9 @@
+ 
+ HAS_BIARCH      := $(call cc-option-yn, -m64)
+ ifeq ($(HAS_BIARCH),y)
+-AS              := $(AS) -a64
+-LD              := $(LD) -m elf64ppc
+-CC		:= $(CC) -m64
++override AS	+= -a64
++override LD	+= -m elf64ppc
++override CC	+= -m64
+ endif
+ 
+ new_nm := $(shell if $(NM) --help 2>&1 | grep -- '--synthetic' > /dev/null; then echo y; else echo n; fi)

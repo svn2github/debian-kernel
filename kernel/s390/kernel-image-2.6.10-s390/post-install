@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+debhelper_pre() {
+	dh_clean -k --package="$1"
+	dh_installdirs --package="$1"
+}
+
+debhelper_post() {
+	dh_installdocs --package="$1"
+	dh_installchangelogs --package="$1"
+	dh_compress --package="$1"
+	dh_fixperms --package="$1"
+	dh_installdeb --package="$1"
+	dh_gencontrol --package="$1"
+	dh_md5sums --package="$1"
+	dh_builddeb --package="$1"
+}
+
+pkg=kernel-image-${version}${INT_SUBARCH}
+pkgsimple=kernel-image-${version}
+
+debhelper_pre $pkg
+debhelper_post $pkg

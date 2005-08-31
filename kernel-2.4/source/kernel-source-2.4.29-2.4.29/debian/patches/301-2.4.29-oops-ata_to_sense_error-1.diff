@@ -1,0 +1,27 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/28 22:30:08-05:00 mkrikis@yahoo.com 
+#   [PATCH] fix an oops in ata_to_sense_error
+#   
+#   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+# 
+# drivers/scsi/libata-scsi.c
+#   2005/01/28 22:29:43-05:00 mkrikis@yahoo.com +2 -1
+#   [PATCH] fix an oops in ata_to_sense_error
+#   
+#   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+# 
+diff -Nru a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
+--- a/drivers/scsi/libata-scsi.c	2005-02-03 05:58:31 -08:00
++++ b/drivers/scsi/libata-scsi.c	2005-02-03 05:58:31 -08:00
+@@ -283,7 +283,8 @@
+ 	/* No immediate match */
+ 	if(err)
+ 		printk(KERN_DEBUG "ata%u: no sense translation for 0x%02x\n", qc->ap->id, err);
+-	
++
++	i = 0;
+ 	/* Fall back to interpreting status bits */
+ 	while(stat_table[i][0] != 0xFF)
+ 	{

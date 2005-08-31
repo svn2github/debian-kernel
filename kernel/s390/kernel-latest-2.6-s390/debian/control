@@ -1,0 +1,44 @@
+Source: kernel-latest-2.6-s390
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Bastian Blank <waldi@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>> 4.0.0)
+
+Package: kernel-headers-2.6-s390
+Architecture: s390
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2
+Description: Header files related to latest Linux kernel version 2.6 on IBM S/390
+ This package will always depend on the latest 2.6 kernel headers available
+ for IBM S/390.
+
+Package: kernel-headers-2.6-s390x
+Architecture: s390
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-s390x
+Description: Header files related to latest Linux kernel version 2.6 on IBM zSeries
+ This package will always depend on the latest 2.6 kernel headers available
+ for IBM zSeries.
+
+Package: kernel-image-2.6-s390
+Architecture: s390
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-s390
+Description: Linux kernel image for kernel version 2.6 on IBM S/390
+ This package will always depend on the latest 2.6 kernel image available
+ for IBM S/390.
+
+Package: kernel-image-2.6-s390x
+Architecture: s390
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-s390x
+Description: Linux kernel image for kernel version 2.6 on IBM zSeries
+ This package will always depend on the latest 2.6 kernel image available
+ for IBM zSeries.
+

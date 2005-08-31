@@ -1,0 +1,75 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: restore mdio_sem that replaces rtnl_lock 
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/drivers/net/8139too.c kernel-source-2.4.26-1/drivers/net/8139too.c
+--- kernel-source-2.4.26/drivers/net/8139too.c	2004-04-14 23:05:30.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/8139too.c	2004-04-17 14:23:48.000000000 +1000
+@@ -111,6 +111,7 @@
+ #include <linux/completion.h>
+ #include <linux/crc32.h>
+ #include <asm/io.h>
++#include <asm/semaphore.h>
+ #include <asm/uaccess.h>
+ 
+ #define RTL8139_DRIVER_NAME   DRV_NAME " Fast Ethernet driver " DRV_VERSION
+@@ -591,6 +592,7 @@
+ 	struct rtl_extra_stats xstats;
+ 	int time_to_die;
+ 	struct mii_if_info mii;
++	struct semaphore mdio_sem;
+ 	unsigned int regs_len;
+ };
+ 
+@@ -1003,6 +1005,7 @@
+ 	tp->mii.mdio_write = mdio_write;
+ 	tp->mii.phy_id_mask = 0x3f;
+ 	tp->mii.reg_num_mask = 0x1f;
++	init_MUTEX (&tp->mdio_sem);
+ 
+ 	/* dev is fully set up and ready to use now */
+ 	DPRINTK("about to register device named %s (%p)...\n", dev->name, dev);
+@@ -1618,9 +1621,10 @@
+ 		if (tp->time_to_die)
+ 			break;
+ 
+-		rtnl_lock ();
++		if (down_interruptible (&tp->mdio_sem))
++			break;
+ 		rtl8139_thread_iter (dev, tp, tp->mmio_addr);
+-		rtnl_unlock ();
++		up (&tp->mdio_sem);
+ 	}
+ 
+ 	complete_and_exit (&tp->thr_exited, 0);
+@@ -2144,10 +2148,10 @@
+ 		wmb();
+ 		ret = kill_proc (tp->thr_pid, SIGTERM, 1);
+ 		if (ret) {
+-			printk (KERN_ERR "%s: unable to signal thread\n", dev->name);
+-			return ret;
++			printk (KERN_ERR "%s: unable to signal thread: %d\n", dev->name, ret);
++		} else {
++			wait_for_completion (&tp->thr_exited);
+ 		}
+-		wait_for_completion (&tp->thr_exited);
+ 	}
+ 	
+ 	if (netif_msg_ifdown(tp))
+@@ -2388,10 +2392,14 @@
+ 	if (!netif_running(dev))
+ 		return -EINVAL;
+ 
++	if (down_interruptible (&np->mdio_sem))
++		return -ERESTARTSYS;
++
+ 	spin_lock_irq(&np->lock);
+ 	rc = generic_mii_ioctl(&np->mii, data, cmd, NULL);
+ 	spin_unlock_irq(&np->lock);
+ 
++	up (&np->mdio_sem);
+ 	return rc;
+ }
+ 

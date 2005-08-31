@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# $Id: linuxrc,v 1.11 2004/04/26 12:04:46 herbert Exp $
+
+export PATH=/sbin:/bin
+
+mount -nt proc proc proc
+root=$(cat proc/sys/kernel/real-root-dev)
+echo 256 > proc/sys/kernel/real-root-dev
+mount -nt tmpfs tmpfs bin ||
+	mount -nt ramfs ramfs bin
+echo $root > bin/root

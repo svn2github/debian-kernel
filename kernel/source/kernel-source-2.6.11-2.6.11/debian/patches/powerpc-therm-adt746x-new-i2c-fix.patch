@@ -1,0 +1,29 @@
+#! /bin/sh -e 
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: Fixes new powerbook thermostat i2c bus detection
+## DP: Patch author: Colin Leroy <colin@colino.net>
+## DP: Upstream status: submitted
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+--- kernel-2.6.11-orig/drivers/macintosh/therm_adt746x.c	2005-03-07 09:03:58.000000000 +0100
++++ kernel-2.6.11/drivers/macintosh/therm_adt746x.c	2005-03-07 09:04:35.000000000 +0100
+@@ -548,7 +548,15 @@
+ 	prop = (u32 *)get_property(np, "reg", NULL);
+ 	if (!prop)
+ 		return -ENODEV;
+-	therm_bus = ((*prop) >> 8) & 0x0f;
++	
++	/* look for bus either by path or using "reg" */
++	if (strstr(np->full_name, "/i2c-bus@") != NULL) {
++		const char *tmp_bus = (strstr(np->full_name, "/i2c-bus@") + 9);
++		therm_bus = tmp_bus[0]-'0';
++	} else {
++		therm_bus = ((*prop) >> 8) & 0x0f;
++	}
++	
+ 	therm_address = ((*prop) & 0xff) >> 1;
+ 
+ 	printk(KERN_INFO "adt746x: Thermostat bus: %d, address: 0x%02x, "

@@ -1,0 +1,17 @@
+# origin: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=110421
+# cset: n/a (in 2.6 only)
+# inclusion: not submitted
+# description: fix possible data loss bug over NFS with root_squash
+# revision date: 2005-01-11
+
+--- linux-2.4.21/fs/nfsd/nfsfh.c.old	Sat Sep 25 05:11:04 2004
++++ linux-2.4.21/fs/nfsd/nfsfh.c	Fri Oct  1 07:43:32 2004
+@@ -712,7 +712,7 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 			tdentry = parent;
+ 		}
+ 		if (exp->ex_dentry != tdentry) {
+-			error = nfserr_stale;
++			error = nfserr_acces;
+ 			printk("fh_verify: no root_squashed access at %s/%s.\n",
+ 			       dentry->d_parent->d_name.name,
+ 			       dentry->d_name.name);

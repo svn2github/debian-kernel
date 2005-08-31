@@ -1,0 +1,336 @@
+# origin: sezeroz (BitKeeper)
+# cset: 1.1529 (2.4) key=41a309c0EsG_EEhEbvnte1Y7QYVHSQ
+# inclusion: upstream
+# description: [PATCH] intermezzo, fixes from cvs
+# revision date: Fri, 26 Nov 2004 14:59:39 +0900
+#
+# S rset: ChangeSet|1.1528..1.1529
+# I rset: fs/intermezzo/replicator.c|1.1..1.2
+# I rset: fs/intermezzo/dir.c|1.4..1.5
+# I rset: fs/intermezzo/psdev.c|1.8..1.9
+# I rset: fs/intermezzo/cache.c|1.3..1.4
+# I rset: include/linux/intermezzo_fs.h|1.5..1.6
+# I rset: fs/intermezzo/fileset.c|1.1..1.2
+# I rset: fs/intermezzo/dcache.c|1.5..1.6
+# I rset: fs/intermezzo/super.c|1.4..1.5
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/23 07:58:24-02:00 sezeroz@ttnet.net.tr 
+#   [PATCH] intermezzo, fixes from cvs
+#   
+#   While messing with intermezzo, I ran into this patch at sourceforge
+#   cvs which still isn't in 2.4. Please review, and apply if appropriate.
+#   
+#   
+#   from intermezzo cvs repo at Sourceforge:
+#   
+#   * Applied and tested Domen Puncer's patch to fs25/fs24 part code
+#     for list related processing
+#   * Applied and tested Renaud Duhaut(rd@duhaut.com)'s patch to solve
+#     fs24's InterMezzo's SLAB allocator leakage problem, on 2.4 kernel,
+#     now it can insmod and run, then rmmod. Insmod again won't cause
+#     Oops any more. :-)
+#   
+#   ===================================================================
+#   RCS file: /cvsroot/intermezzo/intermezzo/fs24/fileset.c,v
+#   retrieving revision 1.17
+#   retrieving revision 1.18
+# 
+# include/linux/intermezzo_fs.h
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +12 -4
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/super.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +6 -2
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/replicator.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +11 -14
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/psdev.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +7 -14
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/fileset.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +3 -1
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/dir.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +1 -4
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/dcache.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +5 -0
+#   intermezzo, fixes from cvs
+# 
+# fs/intermezzo/cache.c
+#   2003/09/30 12:51:52-03:00 sezeroz@ttnet.net.tr +3 -0
+#   intermezzo, fixes from cvs
+# 
+#
+===== fs/intermezzo/replicator.c 1.1 vs 1.2 =====
+--- 1.1/fs/intermezzo/replicator.c	2002-10-15 03:57:11 +09:00
++++ 1.2/fs/intermezzo/replicator.c	2003-10-01 00:51:52 +09:00
+@@ -70,7 +70,7 @@
+         return &cache[(RCACHE_MASK & uuid[1])];
+ }
+ 
+-static void
++void
+ izo_rep_cache_clean(struct presto_file_set *fset)
+ {
+ 	int i;
+@@ -80,28 +80,25 @@
+         if (fset->fset_clients == NULL)
+ 		return;
+         for (i = 0; i < RCACHE_SIZE; i++) {
+-		tmp = bucket = &fset->fset_clients[i];
+ 
+-		tmp = tmp->next;
+-                while (tmp != bucket) {
+-			struct izo_offset_rec *offrec;
+-			tmp = tmp->next;
+-			list_del(tmp);
+-			offrec = list_entry(tmp, struct izo_offset_rec,
+-					    or_list);
+-			PRESTO_FREE(offrec, sizeof(struct izo_offset_rec));
++				list_for_each_safe(tmp,bucket,&fset->fset_clients[i])
++				{
++						struct izo_offset_rec *offrec;
++						list_del(tmp);
++						offrec = list_entry(tmp, struct izo_offset_rec,or_list);
++						PRESTO_FREE(offrec, sizeof(struct izo_offset_rec)); 
++				}
+ 		}
+-	}
++		PRESTO_FREE(fset->fset_clients,sizeof(struct list_head) * RCACHE_SIZE);
+ }
+ 
+ struct izo_offset_rec *
+ izo_rep_cache_find(struct presto_file_set *fset, char *uuid)
+ {
+-	struct list_head *buck = izo_rep_hash(fset->fset_clients, uuid);
+-	struct list_head *tmp = buck;
++	struct list_head *tmp, *buck = izo_rep_hash(fset->fset_clients, uuid);
+         struct izo_offset_rec *rec = NULL;
+ 
+-        while ( (tmp = tmp->next) != buck ) {
++	list_for_each(tmp, buck) {
+ 		rec = list_entry(tmp, struct izo_offset_rec, or_list);
+                 if ( memcmp(rec->or_uuid, uuid, sizeof(rec->or_uuid)) == 0 )
+ 			return rec;
+===== fs/intermezzo/dir.c 1.4 vs 1.5 =====
+--- 1.4/fs/intermezzo/dir.c	2002-10-11 07:24:51 +09:00
++++ 1.5/fs/intermezzo/dir.c	2003-10-01 00:51:52 +09:00
+@@ -300,10 +300,7 @@
+         /* some file systems have no read_inode: set methods here */
+         if (dentry->d_inode)
+                 presto_set_ops(dentry->d_inode, cache->cache_filter);
+-
+-        filter_setup_dentry_ops(cache->cache_filter,
+-                                dentry->d_op, &presto_dentry_ops);
+-        dentry->d_op = filter_c2udops(cache->cache_filter);
++		/* dentry->d_op is now hooked in dcache.c:presto_set_dd */
+ 
+         /* In lookup we will tolerate EROFS return codes from presto_set_dd
+          * to placate NFS. EROFS indicates that a fileset was not found but
+===== fs/intermezzo/psdev.c 1.8 vs 1.9 =====
+--- 1.8/fs/intermezzo/psdev.c	2004-08-17 21:18:34 +09:00
++++ 1.9/fs/intermezzo/psdev.c	2003-10-01 00:51:52 +09:00
+@@ -102,8 +102,7 @@
+                 struct list_head *lh;
+                 struct upc_req *req;
+                 CERROR("WARNING: setpid & processing not empty!\n");
+-                lh = &channel->uc_processing;
+-                while ( (lh = lh->next) != &channel->uc_processing) {
++		list_for_each(lh, &channel->uc_processing) {
+                         req = list_entry(lh, struct upc_req, rq_chain);
+                         /* freeing of req and data is done by the sleeper */
+                         wake_up(&req->rq_sleep);
+@@ -208,8 +207,7 @@
+ 
+         spin_lock(&channel->uc_lock); 
+         /* Look for the message on the processing queue. */
+-        lh  = &channel->uc_processing;
+-        while ( (lh = lh->next) != &channel->uc_processing ) {
++	list_for_each(lh, &channel->uc_processing) {
+                 tmp = list_entry(lh, struct upc_req , rq_chain);
+                 if (tmp->rq_unique == hdr.unique) {
+                         req = tmp;
+@@ -340,8 +338,7 @@
+         /* Wake up clients so they can return. */
+         CDEBUG(D_PSDEV, "Wake up clients sleeping for pending.\n");
+         spin_lock(&channel->uc_lock); 
+-        lh = &channel->uc_pending;
+-        while ( (lh = lh->next) != &channel->uc_pending) {
++	list_for_each(lh, &channel->uc_pending) {
+                 req = list_entry(lh, struct upc_req, rq_chain);
+ 
+                 /* Async requests stay around for a new lento */
+@@ -354,8 +351,7 @@
+         }
+ 
+         CDEBUG(D_PSDEV, "Wake up clients sleeping for processing\n");
+-        lh = &channel->uc_processing;
+-        while ( (lh = lh->next) != &channel->uc_processing) {
++	list_for_each(lh, &channel->uc_processing) {
+                 req = list_entry(lh, struct upc_req, rq_chain);
+                 /* freeing of req and data is done by the sleeper */
+                 req->rq_flags |= REQ_DEAD; 
+@@ -421,7 +417,7 @@
+ 
+         for ( i = 0 ; i < MAX_CHANNEL ; i++ ) {
+                 struct upc_channel *channel = &(izo_channels[i]);
+-                struct list_head *lh;
++                struct list_head *lh, *next;
+ 
+                 spin_lock(&channel->uc_lock); 
+                 if ( ! list_empty(&channel->uc_pending)) { 
+@@ -433,12 +429,10 @@
+                 if ( ! list_empty(&channel->uc_cache_list)) { 
+                         CERROR("Weird, tell Peter: module cleanup and cache listnot empty dev %d\n", i);
+                 }
+-                lh = channel->uc_pending.next;
+-                while ( lh != &channel->uc_pending) {
++		list_for_each_safe(lh, next, &channel->uc_pending) {
+                         struct upc_req *req;
+ 
+                         req = list_entry(lh, struct upc_req, rq_chain);
+-                        lh = lh->next;
+                         if ( req->rq_flags & REQ_ASYNC ) {
+                                 list_del(&(req->rq_chain));
+                                 CDEBUG(D_UPCALL, "free pending upcall type %d\n",
+@@ -450,8 +444,7 @@
+                                 wake_up(&req->rq_sleep);
+                         }
+                 }
+-                lh = &channel->uc_processing;
+-                while ( (lh = lh->next) != &channel->uc_processing ) {
++		list_for_each(lh, &channel->uc_processing) {
+                         struct upc_req *req;
+                         req = list_entry(lh, struct upc_req, rq_chain);
+                         list_del(&(req->rq_chain));
+===== fs/intermezzo/cache.c 1.3 vs 1.4 =====
+--- 1.3/fs/intermezzo/cache.c	2004-08-17 11:02:58 +09:00
++++ 1.4/fs/intermezzo/cache.c	2003-10-01 00:51:52 +09:00
+@@ -163,6 +163,9 @@
+                 cache->cache_sb->s_root->d_fsdata = NULL;
+         }
+ 
++		if (cache->cache_type)
++				PRESTO_FREE(cache->cache_type, strlen(cache->cache_type) + 1 );
++
+         PRESTO_FREE(cache, sizeof(struct presto_cache));
+ }
+ 
+===== include/linux/intermezzo_fs.h 1.5 vs 1.6 =====
+--- 1.5/include/linux/intermezzo_fs.h	2004-08-17 20:45:58 +09:00
++++ 1.6/include/linux/intermezzo_fs.h	2003-10-01 00:51:52 +09:00
+@@ -651,6 +651,7 @@
+ int izo_repstatus(struct presto_file_set *fset, __u64 client_kmlsize, 
+                   struct izo_rcvd_rec *lr_client, struct izo_rcvd_rec *lr_server);
+ int izo_rep_cache_init(struct presto_file_set *);
++void izo_rep_cache_clean(struct presto_file_set *fset);
+ loff_t izo_rcvd_get(struct izo_rcvd_rec *, struct presto_file_set *, char *uuid);
+ loff_t izo_rcvd_write(struct presto_file_set *, struct izo_rcvd_rec *);
+ loff_t izo_rcvd_upd_remote(struct presto_file_set *fset, char * uuid,  __u64 remote_recno,
+@@ -708,10 +709,17 @@
+ static inline char *strdup(char *str)
+ {
+         char *tmp;
+-        tmp = kmalloc(strlen(str) + 1, GFP_KERNEL);
+-        if (tmp)
+-                memcpy(tmp, str, strlen(str) + 1);
+-               
++		long int s;
++
++		s=strlen(str) + 1;
++        tmp = kmalloc(s, GFP_KERNEL);
++        if (tmp){
++				  memcpy(tmp, str, s);
++				  presto_kmem_inc(tmp, s);
++		}
++        CDEBUG(D_MALLOC, "kmalloced: %ld at %p (tot %ld).\n",
++               s, tmp, presto_kmemory);
++				  
+         return tmp;
+ }
+ 
+===== fs/intermezzo/fileset.c 1.1 vs 1.2 =====
+--- 1.1/fs/intermezzo/fileset.c	2002-10-15 03:57:11 +09:00
++++ 1.2/fs/intermezzo/fileset.c	2003-10-01 00:51:52 +09:00
+@@ -159,7 +159,7 @@
+                 CDEBUG(D_INODE, "Error %d\n", error);
+         }
+ 
+-        PRESTO_FREE(path, strlen(path));
++        PRESTO_FREE(path, strlen(path)+1);
+ 
+         EXIT;
+         return f;
+@@ -259,6 +259,7 @@
+                 error = -ENOMEM;
+                 goto out_free;
+         }
++		
+         presto_d2d(dentry)->dd_fset = fset;
+         list_add(&fset->fset_list, &cache->cache_fset_list);
+ 
+@@ -343,6 +344,7 @@
+         dput(fset->fset_dentry);
+         mntput(fset->fset_mnt);
+ 
++		izo_rep_cache_clean(fset);
+         PRESTO_FREE(fset->fset_name, strlen(fset->fset_name) + 1);
+         PRESTO_FREE(fset->fset_reint_buf, 64 * 1024);
+         PRESTO_FREE(fset, sizeof(*fset));
+===== fs/intermezzo/dcache.c 1.5 vs 1.6 =====
+--- 1.5/fs/intermezzo/dcache.c	2002-10-21 19:56:57 +09:00
++++ 1.6/fs/intermezzo/dcache.c	2003-10-01 00:51:52 +09:00
+@@ -324,6 +324,11 @@
+                         dentry, dentry->d_name.len, dentry->d_name.name, 
+                         dentry->d_fsdata);
+         unlock_kernel();
++
++        filter_setup_dentry_ops(fset->fset_cache->cache_filter,
++                                dentry->d_op, &presto_dentry_ops);
++        dentry->d_op = filter_c2udops(fset->fset_cache->cache_filter);
++
+         return error; 
+ }
+ 
+===== fs/intermezzo/super.c 1.4 vs 1.5 =====
+--- 1.4/fs/intermezzo/super.c	2002-10-11 07:24:51 +09:00
++++ 1.5/fs/intermezzo/super.c	2003-10-01 00:51:52 +09:00
+@@ -23,8 +23,8 @@
+  *  presto's super.c
+  */
+ 
+-static char rcsid[] __attribute ((unused)) = "$Id: super.c,v 1.41 2002/10/03 03:50:49 rread Exp $";
+-#define INTERMEZZO_VERSION "$Revision: 1.41 $"
++static char rcsid[] __attribute ((unused)) = "$Id: super.c,v 1.42 2003/09/30 15:51:52 sunsetyang Exp $";
++#define INTERMEZZO_VERSION "$Revision: 1.42 $"
+ 
+ #include <stdarg.h>
+ 
+@@ -172,6 +172,7 @@
+                 minor = izo_psdev_get_free_channel();
+         } else {
+                 minor = simple_strtoul(channel, NULL, 0); 
++				PRESTO_FREE(channel, strlen(channel) + 1);
+         }
+         if (minor < 0 || minor >= MAX_CHANNEL) { 
+                 CERROR("all channels in use or channel too large %d\n", 
+@@ -286,6 +287,9 @@
+         /* we now know the dev of the cache: hash the cache */
+         presto_cache_add(cache, sb->s_dev);
+         err = izo_prepare_fileset(sb->s_root, fileset); 
++
++        if (fileset)
++                PRESTO_FREE(fileset, strlen(fileset) + 1);
+ 
+         filter_setup_journal_ops(cache->cache_filter, cache->cache_type); 
+ 

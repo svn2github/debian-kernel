@@ -1,0 +1,6 @@
+Release Notes
+-------------
+- lib/xor.o cannot be compiled as a module.  depmod complains because its
+  built with -mconstant-gp.  This is because xor.S is an assembly file, and
+  the build system happens to always build assembly objects w/ -mconstant-gp.
+  End result being that raid5.o also has to be statically linked.

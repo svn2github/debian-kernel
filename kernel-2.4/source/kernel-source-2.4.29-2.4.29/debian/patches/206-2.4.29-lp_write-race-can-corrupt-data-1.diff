@@ -1,0 +1,49 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/10 10:00:20-02:00 akpm@osdl.org 
+#   [PATCH] Kenneth Sumrall: In lp_write(), copy_from_user() is called to copy data into a statically allocated kernel buffer before down_interruptible().
+#   
+#   From: Kenneth Sumrall <ken@mvista.com>
+#   
+#   In lp_write(), copy_from_user() is called to copy data into a statically
+#   allocated kernel buffer before down_interruptible() is called.  If a second
+#   thread of execution comes in between the copy_from_user() and the
+#   down_interruptible() calls, silent data corruption could result.
+#   
+#   Signed-off-by: Andrew Morton <akpm@osdl.org>
+# 
+# drivers/char/lp.c
+#   2005/02/09 02:52:03-02:00 akpm@osdl.org +6 -4
+#   Kenneth Sumrall: In lp_write(), copy_from_user() is called to copy data into a statically allocated kernel buffer before down_interruptible().
+# 
+diff -Nru a/drivers/char/lp.c b/drivers/char/lp.c
+--- a/drivers/char/lp.c	2005-02-12 00:43:17 -08:00
++++ b/drivers/char/lp.c	2005-02-12 00:43:17 -08:00
+@@ -314,12 +314,14 @@
+ 	if (copy_size > LP_BUFFER_SIZE)
+ 		copy_size = LP_BUFFER_SIZE;
+ 
+-	if (copy_from_user (kbuf, buf, copy_size))
+-		return -EFAULT;
+-
+ 	if (down_interruptible (&lp_table[minor].port_mutex))
+ 		return -EINTR;
+ 
++	if (copy_from_user (kbuf, buf, copy_size)) {
++		retv = -EFAULT;
++		goto out_unlock;
++	}
++
+  	/* Claim Parport or sleep until it becomes available
+  	 */
+ 	lp_claim_parport_or_block (&lp_table[minor]);
+@@ -398,7 +400,7 @@
+ 		lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
+ 		lp_release_parport (&lp_table[minor]);
+ 	}
+-
++out_unlock:
+ 	up (&lp_table[minor].port_mutex);
+ 
+  	return retv;

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+	if [ -n "$2" ] && dpkg --compare-versions "$2" lt 0.1.22; then
+		update-modules
+	fi
+	update-rc.d initrd-tools.sh start 05 S . > /dev/null
+fi
+
+#DEBHELPER#

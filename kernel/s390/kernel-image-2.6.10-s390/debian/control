@@ -1,0 +1,81 @@
+Source: kernel-image-2.6.10-s390
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Bastian Blank <waldi@debian.org>, Jochen Röhrig <jr@debian.org>
+Standards-Version: 3.5.6
+Build-Depends: debhelper (>> 4.0.0), module-init-tools, kernel-tree-2.6.10-4, kernel-package (>= 8.084)
+
+Package: kernel-patch-2.6.10-s390
+Architecture: all
+Depends: ${kpatch:Depends}
+Recommends: kernel-source-2.6.10, kernel-package
+Description: Diffs to the Linux kernel source 2.6.10 for IBM S/390 and zSeries
+ Patches for the Linux kernel for the S/390 and zSeries architecture.
+ This package includes the patch for the Linux kernel version 2.6.10.
+
+Package: kernel-headers-2.6.10-1-s390
+Architecture: s390
+Section: devel
+Priority: optional
+Provides: kernel-headers, kernel-headers-2.6, kernel-headers-2.6.10, kernel-headers-2.6.10-1
+Description: Header files related to Linux kernel version 2.6.10 on IBM S/390
+ This package provides kernel header files for version 2.6.10 on IBM S/390.
+
+Package: kernel-headers-2.6.10-1-s390x
+Architecture: s390
+Section: devel
+Priority: optional
+Provides: kernel-headers, kernel-headers-2.6, kernel-headers-2.6.10, kernel-headers-2.6.10-1
+Description: Header files related to Linux kernel version 2.6.10 on IBM zSeries
+ This package provides kernel header files for version 2.6.10 on IBM zSeries.
+
+Package: kernel-image-2.6.10-1-s390
+Architecture: s390
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: module-init-tools, initrd-tools (>= 0.1.73)
+Suggests: s390-tools (>= 1.3.0), kernel-doc-2.6.10
+Description: Linux kernel image for kernel version 2.6.10 on IBM S/390
+ This package contains the Linux kernel image for kernel version 2.6.10
+ on IBM S/390 and zSeries, the corresponding System.map file, and the
+ modules built by the packager. It also contains scripts that try to
+ ensure that the system is not left in an unbootable state after an
+ update.
+ .
+ This kernel has support to IPL (boot) from a VM reader or DASD device.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+
+Package: kernel-image-2.6.10-1-s390-tape
+Architecture: s390
+Section: base
+Priority: extra
+Depends: kernel-image-2.6.10-1-s390 (= ${Source-Version})
+Description: Linux kernel image for kernel version 2.6.10 on IBM S/390
+ This package contains the Linux kernel image for kernel version 2.6.10
+ on IBM S/390 and zSeries.
+ .
+ This kernel has support to IPL (boot) from a tape.
+
+Package: kernel-image-2.6.10-1-s390x
+Architecture: s390
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: module-init-tools, initrd-tools (>= 0.1.73)
+Suggests: s390-tools (>= 1.3.0), kernel-doc-2.6.10
+Description: Linux kernel image for kernel version 2.6.10 on IBM zSeries.
+ This package contains the Linux kernel image for kernel version 2.6.10
+ on IBM zSeries, the corresponding System.map file, and the modules
+ built by the packager. It also contains scripts that try to ensure that
+ the system is not left in a unbootable state after an update.
+ .
+ This kernel has support to IPL (boot) from a VM reader or DASD device.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.

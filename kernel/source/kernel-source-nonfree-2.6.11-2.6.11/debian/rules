@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+
+
+# the archs, subarchs and flavours we are building for
+archs := $(shell grep ^archs: debian/flavours | sed -e 's/^archs: *//')
+arch := $(DEB_HOST_ARCH)
+#subarchs := $(shell grep "^subarchs $(arch):" debian/flavours | sed -e 's/^subarchs $(arch): *//')
+#flavours := $(shell grep "^flavours $(subarch):" debian/flavours | sed -e # 's/^flavours $(subarch): *//')
+abi := $(shell grep "^abi $(arch):" debian/flavours | sed -e 's/^abi $(arch): *//')
+
+upstream := $(shell dpkg-parsechangelog | sed -n 's/^Version: \?\([0-9\.]\+\)-.\+$$/\1/p')
+
+#| some files in debian/ get version numbers and stuff updated on the fly
+M4 = m4 -DM4UPSTREAM="$(upstram)" -DM4ABI="$(abi)" -DM4ARCH="$(arch)" -DM4SUBARCH="$(subarch)" -DM4FLAVOUR="$(flavour)"
+
+ifeq ($(DEB_HOST_ARCH), amd64)
+makeflags := "CC=gcc-3.4 V=1"
+endif
+mod-src-dir:
+	mkdir -p modules/kernel-nonfree-source/debian
+	cp -ra *.[ch] Makefile debian modules/kernel-nonfree-source
+	install -m755 debian/rules.modules modules/kernel-nonfree-source/debian/rules
+	sed -i 's/^kernel-source-nonfree-$(upstream)/kernel-nonfree-source/' \
+		modules/kernel-nonfree-source/debian/changelog
+
+clean::
+	rm -rf $(CURDIR)/modules
+	rm -f $(CURDIR)/*.deb
+
+$(patsubst %,build/%,$(DEB_ARCH_PACKAGES)):: mod-src-dir
+	cd modules/kernel-nonfree-source && \
+		fakeroot debian/rules binary-modules kdist_clean MAKEFLAGS=$(makeflags) \
+		KSRC=/usr/src/$(patsubst build/kernel-nonfree-modules-%,kernel-headers-%,$@) DEB_DESTDIR=$(CURDIR)
+
+$(patsubst %,binary/%,$(DEB_ARCH_PACKAGES))::
+	dpkg-distaddfile $(wildcard $(patsubst binary/%,%,$@)_*.deb) non-free/devel optional
+	mv $(wildcard $(patsubst binary/%,%,$@)_*.deb) ..
+
+install/kernel-nonfree-source:: mod-src-dir
+	mkdir -p debian/kernel-nonfree-source/usr/src
+	tar jcf debian/kernel-nonfree-source/usr/src/kernel-nonfree-source.tar.bz2 modules
+
+debian/control:: debian/control-common.m4 debian/control-flavour.m4
+	debian/gen-control

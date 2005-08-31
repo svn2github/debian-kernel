@@ -1,0 +1,6294 @@
+###############################################################################
+# ia64 architecture patch
+# http://www.kernel.org/pub/linux/kernel/ports/ia64/v2.4/linux-2.4.29-ia64-050312.diff.bz2
+# backported to 2.4.27 by dann frazier <dannf@hp.com>
+###############################################################################
+diff -urN kernel-source-2.4.27.orig/Documentation/Configure.help kernel-source-2.4.27.bjorn/Documentation/Configure.help
+--- kernel-source-2.4.27.orig/Documentation/Configure.help	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/Documentation/Configure.help	2005-03-14 10:36:16.625915701 -0700
+@@ -18856,6 +18856,11 @@
+   purpose port, say Y here. See
+   <http://www.dig64.org/specifications/DIG64_HCDPv10a_01.pdf>.
+ 
++Support for serial ports defined in ACPI namespace
++CONFIG_SERIAL_ACPI
++  If you wish to enable serial port discovery via the ACPI
++  namespace, say Y here.  If unsure, say N.
++
+ Support for PowerMac serial ports
+ CONFIG_MAC_SERIAL
+   If you have Macintosh style serial ports (8 pin mini-DIN), say Y
+diff -urN kernel-source-2.4.27.orig/Documentation/vm/hugetlbpage.txt kernel-source-2.4.27.bjorn/Documentation/vm/hugetlbpage.txt
+--- kernel-source-2.4.27.orig/Documentation/vm/hugetlbpage.txt	1969-12-31 17:00:00.000000000 -0700
++++ kernel-source-2.4.27.bjorn/Documentation/vm/hugetlbpage.txt	2005-03-14 10:36:16.626892264 -0700
+@@ -0,0 +1,217 @@
++
++The intent of this file is to give a brief summary of hugetlbpage support in
++the Linux kernel.  This support is built on top of multiple page size support
++that is provided by most of modern architectures.  For example, IA-32
++architecture supports 4K and 4M (2M in PAE mode) page sizes, IA-64
++architecture supports multiple page sizes 4K, 8K, 64K, 256K, 1M, 4M, 16M,
++256M.  A TLB is a cache of virtual-to-physical translations.  Typically this
++is a very scarce resource on processor.  Operating systems try to make best
++use of limited number of TLB resources.  This optimization is more critical
++now as bigger and bigger physical memories (several GBs) are more readily
++available.
++
++Users can use the huge page support in Linux kernel by either using the mmap
++system call or standard SYSv shared memory system calls (shmget, shmat).
++
++First the Linux kernel needs to be built with CONFIG_HUGETLB_PAGE (present
++under Processor types and feature)  and CONFIG_HUGETLBFS (present under file
++system option on config menu) config options.
++
++The kernel built with hugepage support should show the number of configured
++hugepages in the system by running the "cat /proc/meminfo" command.  
++
++/proc/meminfo also provides information about the total number of hugetlb
++pages configured in the kernel.  It also displays information about the
++number of free hugetlb pages at any time.  It also displays information about
++the configured hugepage size - this is needed for generating the proper
++alignment and size of the arguments to the above system calls.
++
++The output of "cat /proc/meminfo" will have output like:
++
++.....
++HugePages_Total: xxx
++HugePages_Free:  yyy
++Hugepagesize:    zzz KB
++
++/proc/filesystems should also show a filesystem of type "hugetlbfs" configured
++in the kernel.
++
++/proc/sys/vm/nr_hugepages indicates the current number of configured hugetlb
++pages in the kernel.  Super user can dynamically request more (or free some
++pre-configured) hugepages. 
++The allocation( or deallocation) of hugetlb pages is posible only if there are
++enough physically contiguous free pages in system (freeing of hugepages is
++possible only if there are enough hugetlb pages free that can be transfered 
++back to regular memory pool).
++
++Pages that are used as hugetlb pages are reserved inside the kernel and can
++not be used for other purposes. 
++
++Once the kernel with Hugetlb page support is built and running, a user can
++use either the mmap system call or shared memory system calls to start using
++the huge pages.  It is required that the system administrator preallocate
++enough memory for huge page purposes.  
++
++Use the following command to dynamically allocate/deallocate hugepages:
++
++	echo 20 > /proc/sys/vm/nr_hugepages
++
++This command will try to configure 20 hugepages in the system.  The success
++or failure of allocation depends on the amount of physically contiguous
++memory that is preset in system at this time.  System administrators may want
++to put this command in one of the local rc init file.  This will enable the
++kernel to request huge pages early in the boot process (when the possibility
++of getting physical contiguous pages is still very high).
++
++If the user applications are going to request hugepages using mmap system
++call, then it is required that system administrator mount a file system of
++type hugetlbfs:
++
++	mount none /mnt/huge -t hugetlbfs <uid=value> <gid=value> <mode=value>
++		 <size=value> <nr_inodes=value>
++
++This command mounts a (pseudo) filesystem of type hugetlbfs on the directory
++/mnt/huge.  Any files created on /mnt/huge use hugepages.  The uid and gid
++options set the owner and group of the root of the file system.  By default
++the uid and gid of the current process are taken.  The mode option sets the
++mode of root of file system to value & 0777.  This value is given in octal.
++By default the value 0755 is picked.  The size option sets the maximum value of
++memory (huge pages) allowed for that filesystem (/mnt/huge).  The size is
++rounded down to HPAGE_SIZE.  The option nr_inode sets the maximum number of
++inodes that /mnt/huge can use.  If the size or nr_inode options are not
++provided on command line then no limits are set.  For option size and option 
++nr_inodes, you can use [G|g]/[M|m]/[K|k] to represent giga/mega/kilo.  For 
++example, size=2K has the same meaning as size=2048.  An example is given at 
++the end of this document. 
++
++read and write system calls are not supported on files that reside on hugetlb
++file systems.
++
++Regular chown, chgrp and chmod commands can be used to change the file
++attributes on hugetlbfs.
++
++Also, it is important to note that no such mount command is required if the
++applications are going to use only shmat/shmget system calls.  It is possible
++for same or different applications to use any combination of mmaps and shm*
++calls.  Though the mount of filesystem will be required for using mmaps.
++
++/* Example of using hugepage in user application using Sys V shared memory
++ * system calls.  In this example, app is requesting memory of size 256MB that
++ * is backed by huge pages.  Application uses the flag SHM_HUGETLB in shmget
++ * system call to informt the kernel that it is requesting hugepages.  For
++ * IA-64 architecture, Linux kernel reserves Region number 4 for hugepages.
++ * That means the addresses starting with 0x800000....will need to be
++ * specified.
++ */
++#include <sys/types.h>
++#include <sys/shm.h>
++#include <sys/types.h>
++#include <sys/mman.h>
++
++extern int errno;
++#define SHM_HUGETLB 04000
++#define LPAGE_SIZE      (256UL*1024UL*1024UL)
++#define         dprintf(x)  printf(x)
++#define ADDR (0x8000000000000000UL)
++main()
++{
++        int shmid;
++        int     i, j, k;
++        volatile        char    *shmaddr;
++
++        if ((shmid =shmget(2, LPAGE_SIZE, SHM_HUGETLB|IPC_CREAT|SHM_R|SHM_W ))
++< 0) {
++                perror("Failure:");
++                exit(1);
++        }
++        printf("shmid: 0x%x\n", shmid);
++        shmaddr = shmat(shmid, (void *)ADDR, SHM_RND) ;
++        if (errno != 0) {
++                perror("Shared Memory Attach Failure:");
++                exit(2);
++        }
++        printf("shmaddr: %p\n", shmaddr);
++
++        dprintf("Starting the writes:\n");
++        for (i=0;i<LPAGE_SIZE;i++) {
++                shmaddr[i] = (char) (i);
++                if (!(i%(1024*1024))) dprintf(".");
++        }
++        dprintf("\n");
++        dprintf("Starting the Check...");
++        for (i=0; i<LPAGE_SIZE;i++)
++                if (shmaddr[i] != (char)i)
++                        printf("\nIndex %d mismatched.");
++        dprintf("Done.\n");
++        if (shmdt((const void *)shmaddr) != 0) {
++                perror("Detached Failure:");
++                exit (3);
++        }
++}
++*******************************************************************
++*******************************************************************
++
++
++/* Example of using hugepage in user application using mmap 
++ * system call.  Before running this application, make sure that
++ * administrator has mounted the hugetlbfs (on some directory like /mnt) using
++ * the command mount -t hugetlbfs nodev /mnt
++ * In this example, app is requesting memory of size 256MB that
++ * is backed by huge pages.  Application uses the flag SHM_HUGETLB in shmget
++ * system call to informt the kernel that it is requesting hugepages.  For
++ * IA-64 architecture, Linux kernel reserves Region number 4 for hugepages.
++ * That means the addresses starting with 0x800000....will need to be
++ * specified.
++ */
++#include <unistd.h>
++#include <stdio.h>
++#include <sys/mman.h>
++#include <fcntl.h>
++
++#define FILE_NAME "/mnt/hugepagefile"
++#define LENGTH (256*1024*1024)
++#define PROTECTION (PROT_READ | PROT_WRITE)
++#define FLAGS   MAP_SHARED |MAP_FIXED
++#define ADDRESS (char *)(0x60000000UL + 0x8000000000000000UL)
++
++extern errno;
++
++check_bytes(char *addr)
++{
++        printf("First hex is %x\n", *((unsigned int *)addr));
++}
++
++write_bytes(char *addr)
++{
++        int i;
++        for (i=0;i<LENGTH;i++)
++                *(addr+i)=(char)i;
++}
++read_bytes(char *addr)
++{
++        int i;
++        check_bytes(addr);
++        for (i=0;i<LENGTH;i++)
++                if (*(addr+i)!=(char)i) {
++                        printf("Mismatch at %d\n", i);
++                        break;
++                }
++}
++main()
++{
++        unsigned long addr = 0;
++        int fd ;
++
++        fd = open(FILE_NAME, O_CREAT|O_RDWR, 0755);
++        if (fd < 0) {
++                perror("Open failed");
++                exit(errno);
++        }
++        addr = (unsigned long)mmap(ADDRESS, LENGTH, PROTECTION, FLAGS, fd, 0);
++        if (errno != 0)
++                perror("mmap failed");
++        printf("Returned address is %p\n", addr);
++        check_bytes((char*)addr);
++        write_bytes((char*)addr);
++        read_bytes((char *)addr);
++}
+diff -urN kernel-source-2.4.27.orig/Makefile kernel-source-2.4.27.bjorn/Makefile
+--- kernel-source-2.4.27.orig/Makefile	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/Makefile	2005-03-14 10:40:05.015561341 -0700
+@@ -314,8 +314,7 @@
+ 	$(CONFIG_SHELL) scripts/Configure -d arch/$(ARCH)/config.in
+ 
+ xconfig: symlinks
+-	$(MAKE) -C scripts kconfig.tk
+-	wish -f scripts/kconfig.tk
++	@echo -e "***\n* Sorry, xconfig is broken; use \"make menuconfig\" instead.\n***"
+ 
+ menuconfig: include/linux/version.h symlinks
+ 	$(MAKE) -C scripts/lxdialog all
+diff -urN kernel-source-2.4.27.orig/arch/ia64/configs/dig kernel-source-2.4.27.bjorn/arch/ia64/configs/dig
+--- kernel-source-2.4.27.orig/arch/ia64/configs/dig	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/configs/dig	2005-03-14 10:36:16.628845389 -0700
+@@ -125,11 +125,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -174,6 +169,7 @@
+ # CONFIG_CISS_MONITOR_THREAD is not set
+ # CONFIG_BLK_DEV_DAC960 is not set
+ # CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_NBD is not set
+ # CONFIG_BLK_DEV_RAM is not set
+@@ -232,10 +228,12 @@
+ #
+ # CONFIG_BLK_DEV_HD_IDE is not set
+ # CONFIG_BLK_DEV_HD is not set
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ CONFIG_IDEDISK_MULTI_MODE=y
+ # CONFIG_IDEDISK_STROKE is not set
+ # CONFIG_BLK_DEV_IDECS is not set
++# CONFIG_BLK_DEV_DELKIN is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+@@ -346,6 +344,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/configs/generic kernel-source-2.4.27.bjorn/arch/ia64/configs/generic
+--- kernel-source-2.4.27.orig/arch/ia64/configs/generic	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/configs/generic	2005-03-14 10:36:16.629821951 -0700
+@@ -125,11 +125,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -174,6 +169,7 @@
+ # CONFIG_CISS_MONITOR_THREAD is not set
+ # CONFIG_BLK_DEV_DAC960 is not set
+ # CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_NBD is not set
+ # CONFIG_BLK_DEV_RAM is not set
+@@ -232,10 +228,12 @@
+ #
+ # CONFIG_BLK_DEV_HD_IDE is not set
+ # CONFIG_BLK_DEV_HD is not set
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ CONFIG_IDEDISK_MULTI_MODE=y
+ # CONFIG_IDEDISK_STROKE is not set
+ # CONFIG_BLK_DEV_IDECS is not set
++# CONFIG_BLK_DEV_DELKIN is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+@@ -347,6 +345,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/configs/numa kernel-source-2.4.27.bjorn/arch/ia64/configs/numa
+--- kernel-source-2.4.27.orig/arch/ia64/configs/numa	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/configs/numa	2005-03-14 10:36:16.629821951 -0700
+@@ -127,11 +127,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -176,6 +171,7 @@
+ # CONFIG_CISS_MONITOR_THREAD is not set
+ # CONFIG_BLK_DEV_DAC960 is not set
+ # CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_NBD is not set
+ # CONFIG_BLK_DEV_RAM is not set
+@@ -234,10 +230,12 @@
+ #
+ # CONFIG_BLK_DEV_HD_IDE is not set
+ # CONFIG_BLK_DEV_HD is not set
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ CONFIG_IDEDISK_MULTI_MODE=y
+ # CONFIG_IDEDISK_STROKE is not set
+ # CONFIG_BLK_DEV_IDECS is not set
++# CONFIG_BLK_DEV_DELKIN is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+@@ -349,6 +347,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/configs/ski kernel-source-2.4.27.bjorn/arch/ia64/configs/ski
+--- kernel-source-2.4.27.orig/arch/ia64/configs/ski	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/configs/ski	2005-03-14 10:36:16.630798514 -0700
+@@ -92,11 +92,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -166,6 +161,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_DMX3191D is not set
+ # CONFIG_SCSI_DTC3280 is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/configs/zx1 kernel-source-2.4.27.bjorn/arch/ia64/configs/zx1
+--- kernel-source-2.4.27.orig/arch/ia64/configs/zx1	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/configs/zx1	2005-03-14 10:36:16.630798514 -0700
+@@ -126,11 +126,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -175,6 +170,7 @@
+ # CONFIG_CISS_MONITOR_THREAD is not set
+ # CONFIG_BLK_DEV_DAC960 is not set
+ # CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_NBD is not set
+ # CONFIG_BLK_DEV_RAM is not set
+@@ -233,10 +229,12 @@
+ #
+ # CONFIG_BLK_DEV_HD_IDE is not set
+ # CONFIG_BLK_DEV_HD is not set
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ CONFIG_IDEDISK_MULTI_MODE=y
+ # CONFIG_IDEDISK_STROKE is not set
+ # CONFIG_BLK_DEV_IDECS is not set
++# CONFIG_BLK_DEV_DELKIN is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+@@ -347,6 +345,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/defconfig kernel-source-2.4.27.bjorn/arch/ia64/defconfig
+--- kernel-source-2.4.27.orig/arch/ia64/defconfig	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/arch/ia64/defconfig	2005-03-14 10:36:16.632751639 -0700
+@@ -136,11 +136,6 @@
+ #
+ # CONFIG_IPX is not set
+ # CONFIG_ATALK is not set
+-
+-#
+-# Appletalk devices
+-#
+-# CONFIG_DEV_APPLETALK is not set
+ # CONFIG_DECNET is not set
+ # CONFIG_BRIDGE is not set
+ # CONFIG_X25 is not set
+@@ -185,6 +180,7 @@
+ # CONFIG_CISS_MONITOR_THREAD is not set
+ # CONFIG_BLK_DEV_DAC960 is not set
+ # CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_SX8 is not set
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_NBD is not set
+ # CONFIG_BLK_DEV_RAM is not set
+@@ -243,10 +239,12 @@
+ #
+ # CONFIG_BLK_DEV_HD_IDE is not set
+ # CONFIG_BLK_DEV_HD is not set
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ CONFIG_IDEDISK_MULTI_MODE=y
+ # CONFIG_IDEDISK_STROKE is not set
+ # CONFIG_BLK_DEV_IDECS is not set
++# CONFIG_BLK_DEV_DELKIN is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+@@ -358,6 +356,18 @@
+ # CONFIG_SCSI_AM53C974 is not set
+ # CONFIG_SCSI_MEGARAID is not set
+ # CONFIG_SCSI_MEGARAID2 is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_SATA_AHCI is not set
++# CONFIG_SCSI_SATA_SVW is not set
++# CONFIG_SCSI_ATA_PIIX is not set
++# CONFIG_SCSI_SATA_NV is not set
++# CONFIG_SCSI_SATA_PROMISE is not set
++# CONFIG_SCSI_SATA_SX4 is not set
++# CONFIG_SCSI_SATA_SIL is not set
++# CONFIG_SCSI_SATA_SIS is not set
++# CONFIG_SCSI_SATA_ULI is not set
++# CONFIG_SCSI_SATA_VIA is not set
++# CONFIG_SCSI_SATA_VITESSE is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+diff -urN kernel-source-2.4.27.orig/arch/ia64/hp/common/sba_iommu.c kernel-source-2.4.27.bjorn/arch/ia64/hp/common/sba_iommu.c
+--- kernel-source-2.4.27.orig/arch/ia64/hp/common/sba_iommu.c	2004-02-18 06:36:30.000000000 -0700
++++ kernel-source-2.4.27.bjorn/arch/ia64/hp/common/sba_iommu.c	2005-03-14 10:36:16.633728201 -0700
+@@ -447,6 +447,14 @@
+ 
+ 	ASSERT(((unsigned long) ioc->res_hint & (sizeof(unsigned long) - 1UL)) == 0);
+ 	ASSERT(res_ptr < res_end);
++
++	/*
++	 * N.B.  REO/Grande defect AR2305 can cause TLB fetch timeouts
++	 * if a TLB entry is purged while in use.  sba_mark_invalid()
++	 * purges IOTLB entries in power-of-two sizes, so we also
++	 * allocate IOVA space in power-of-two sizes.
++	 */
++	bits_wanted = 1UL << get_iovp_order(bits_wanted << PAGE_SHIFT);
+ 	if (bits_wanted > (BITS_PER_LONG/2)) {
+ 		/* Search word at a time - no mask needed */
+ 		for(; res_ptr < res_end; ++res_ptr) {
+@@ -583,6 +591,7 @@
+ 	unsigned long *res_ptr = (unsigned long *) &((ioc)->res_map[ridx & ~RESMAP_IDX_MASK]);
+ 
+ 	int bits_not_wanted = size >> iovp_shift;
++	bits_not_wanted = 1UL << get_iovp_order(bits_not_wanted << PAGE_SHIFT);
+ 
+ 	/* 3-bits "bit" address plus 2 (or 3) bits for "byte" == bit in word */
+ 	unsigned long m = RESMAP_MASK(bits_not_wanted) << (pide & (BITS_PER_LONG - 1));
+diff -urN kernel-source-2.4.27.orig/arch/ia64/kernel/entry.S kernel-source-2.4.27.bjorn/arch/ia64/kernel/entry.S
+--- kernel-source-2.4.27.orig/arch/ia64/kernel/entry.S	2003-11-28 11:26:19.000000000 -0700
++++ kernel-source-2.4.27.bjorn/arch/ia64/kernel/entry.S	2005-03-14 10:36:16.633728201 -0700
+@@ -49,8 +49,11 @@
+ 	 * setup a null register window frame.
+ 	 */
+ ENTRY(ia64_execve)
+-	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(3)
+-	alloc loc1=ar.pfs,3,2,4,0
++	/*
++	 * Allocate 8 input registers since ptrace() may clobber them
++	 */
++	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
++	alloc loc1=ar.pfs,8,2,4,0
+ 	/* Leave from kernel and restore all pt_regs to correspending registers. This is special 
+ 	 * because ia32 application needs scratch registers after return from execve.
+ 	 */
+@@ -94,8 +97,11 @@
+ END(ia64_execve)
+ 
+ GLOBAL_ENTRY(sys_clone2)
+-	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(2)
+-	alloc r16=ar.pfs,3,2,4,0
++	/*
++	 * Allocate 8 input registers since ptrace() may clobber them
++	 */
++	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
++	alloc r16=ar.pfs,8,2,4,0
+ 	DO_SAVE_SWITCH_STACK
+ 	mov loc0=rp
+ 	mov loc1=r16				// save ar.pfs across do_fork
+@@ -113,8 +119,11 @@
+ END(sys_clone2)
+ 
+ GLOBAL_ENTRY(sys_clone)
+-	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(2)
+-	alloc r16=ar.pfs,2,2,4,0
++	/*
++	 * Allocate 8 input registers since ptrace() may clobber them
++	 */
++	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
++	alloc r16=ar.pfs,8,2,4,0
+ 	DO_SAVE_SWITCH_STACK
+ 	mov loc0=rp
+ 	mov loc1=r16				// save ar.pfs across do_fork
+@@ -1091,7 +1100,10 @@
+ 
+ ENTRY(sys_rt_sigreturn)
+ 	PT_REGS_UNWIND_INFO(0)
+-	alloc r2=ar.pfs,0,0,1,0
++	/*
++	 * Allocate 8 input registers since ptrace() may clobber them
++	 */
++	alloc r2=ar.pfs,8,0,1,0
+ 	.prologue
+ 	PT_REGS_SAVES(16)
+ 	adds sp=-16,sp
+@@ -1443,3 +1455,4 @@
+ 	data8 ia64_ni_syscall
+ 	data8 ia64_ni_syscall
+ 	data8 ia64_ni_syscall
++	data8 ia64_ni_syscall
+diff -urN kernel-source-2.4.27.orig/arch/ia64/kernel/ivt.S kernel-source-2.4.27.bjorn/arch/ia64/kernel/ivt.S
+--- kernel-source-2.4.27.orig/arch/ia64/kernel/ivt.S	2004-02-18 06:36:30.000000000 -0700
++++ kernel-source-2.4.27.bjorn/arch/ia64/kernel/ivt.S	2005-03-14 10:36:16.634704764 -0700
+@@ -48,6 +48,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+ #include <asm/unistd.h>
++#include <asm/errno.h>
+ 
+ #if 1
+ # define PSR_DEFAULT_BITS	psr.ac
+@@ -678,15 +679,29 @@
+ 	mov r1=IA64_KR(CURRENT);		/* r1 = current (physical) */
+ 	;;
+ 	invala;
++
++	/* adjust return address so we skip over the break instruction: */
++
++	extr.u r8=r29,41,2			// extract ei field from cr.ipsr
+ 	extr.u r16=r29,32,2;			/* extract psr.cpl */
+ 	;;
++	cmp.eq p6,p7=2,r8			// isr.ei==2?
+ 	cmp.eq pKern,pUser=r0,r16;		/* are we in kernel mode already? (psr.cpl==0) */
+-	/* switch from user to kernel RBS: */
+ 	;;
++(p6)	mov r8=0				// clear ei to 0
++(p6)	adds r28=16,r28				// switch cr.iip to next bundle cr.ipsr.ei wrapped
++(p7)	adds r8=1,r8				// increment ei to next slot
++	;;
++	dep r29=r8,r29,41,2			// insert new ei into cr.ipsr
++	;;
++
++	/* switch from user to kernel RBS: */
+ 	mov r30=r0
+ 	MINSTATE_START_SAVE_MIN_VIRT
+ 	br.call.sptk.many b7=ia64_syscall_setup
+ 	;;
++	// p10==true means out registers are more than 8 or r15's Nat is true
++(p10)	br.cond.spnt.many ia64_ret_from_syscall
+ 	mov r3=255
+ 	adds r15=-1024,r15			// r15 contains the syscall number---subtract 1024
+ 	adds r2=IA64_TASK_PTRACE_OFFSET,r13	// r2 = &current->ptrace
+@@ -704,28 +719,9 @@
+ 	ld8 r2=[r2]				// r2 = current->ptrace
+ 	mov b6=r16
+ 
+-	// arrange things so we skip over break instruction when returning:
+-
+-	adds r16=PT(CR_IPSR)+16,sp			// get pointer to cr_ipsr
+-	adds r17=PT(CR_IIP)+16,sp			// get pointer to cr_iip
+ 	;;
+-	ld8 r18=[r16]				// fetch cr_ipsr
+ 	tbit.z p8,p0=r2,PT_TRACESYS_BIT		// (current->ptrace & PF_TRACESYS) == 0?
+ 	;;
+-	ld8 r19=[r17]				// fetch cr_iip
+-	extr.u r20=r18,41,2			// extract ei field
+-	;;
+-	cmp.eq p6,p7=2,r20			// isr.ei==2?
+-	adds r19=16,r19				// compute address of next bundle
+-	;;
+-(p6)	mov r20=0				// clear ei to 0
+-(p7)	adds r20=1,r20				// increment ei to next slot
+-	;;
+-(p6)	st8 [r17]=r19				// store new cr.iip if cr.isr.ei wrapped around
+-	dep r18=r20,r18,41,2			// insert new ei into cr.isr
+-	;;
+-	st8 [r16]=r18				// store new value for cr.isr
+-
+ (p8)	br.call.sptk.many b6=b6			// ignore this return addr
+ 
+ 	br.cond.sptk ia64_trace_syscall
+@@ -807,8 +803,11 @@
+ 	 *	- psr.ic enabled, interrupts restored
+ 	 *	-  r1: kernel's gp
+ 	 *	-  r3: preserved (same as on entry)
++	 *	-  r8: -EINVAL if p10 is true
+ 	 *	- r12: points to kernel stack
+ 	 *	- r13: points to current task
++	 *	- p10: TRUE if syscall is invoked with more than 8 out
++	 *	       registers or r15's Nat is true
+ 	 *	- p15: TRUE if interrupts need to be re-enabled
+ 	 *	- ar.fpsr: set to kernel settings
+ 	 */
+@@ -825,12 +824,15 @@
+ 	st8 [r17]=r28,16;	/* save cr.iip */
+ 	mov r28=b0;                   
+ (pKern) mov r18=r0;             /* make sure r18 isn't NaT */
++	extr.u r11=r19,7,7	/* get sol of ar.pfs */
++	and r8=0x7f,r19		/* get sof of ar.pfs */
+ 	;;
+ (p9)	mov in1=-1
+ 	tnat.nz p10,p0=in2
+ 	st8 [r16]=r30,16;	/* save cr.ifs */
+ 	st8 [r17]=r25,16;	/* save ar.unat */
+ (pUser) sub r18=r18,r22;	/* r18=RSE.ndirty*8 */
++	add r11=8,r11
+ 	;;
+ 	st8 [r16]=r26,16;	/* save ar.pfs */
+ 	st8 [r17]=r27,16;	/* save ar.rsc */
+@@ -870,12 +872,13 @@
+ .mem.offset 8,0;                st8.spill [r17]=r15,16;
+ 	adds r12=-16,r1;        /* switch to kernel memory stack (with 16 bytes of scratch) */
+ 	;;
++	cmp.lt p10,p9=r11,r8	/* frame size can't be more than local+8 */
+ 	mov r13=IA64_KR(CURRENT);       /* establish `current' */
+ 	movl r1=__gp;           /* establish kernel global pointer */
+ 	;;
+ 	MINSTATE_END_SAVE_MIN_VIRT
+ 
+-	tnat.nz p9,p0=r15
++(p9)	tnat.nz p10,p0=r15
+ (p8)	mov in7=-1
+ 	ssm psr.ic | PSR_DEFAULT_BITS
+ 	movl r17=FPSR_DEFAULT
+@@ -883,10 +886,10 @@
+ 	;;
+ 	srlz.i					// guarantee that interruption collection is on
+ 	cmp.eq pSys,pNonSys=r0,r0		// set pSys=1, pNonSys=0
+-(p9)	mov r15=-1
+ (p15)	ssm psr.i		// restore psr.i
+ 	mov.m ar.fpsr=r17
+ 	stf8 [r8]=f1            // ensure pt_regs.r8 != 0 (see handle_syscall_error)
++(p10)	mov r8=-EINVAL
+ 	br.ret.sptk.many b7
+ END(ia64_syscall_setup)
+ 
+diff -urN kernel-source-2.4.27.orig/arch/ia64/kernel/palinfo.c kernel-source-2.4.27.bjorn/arch/ia64/kernel/palinfo.c
+--- kernel-source-2.4.27.orig/arch/ia64/kernel/palinfo.c	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/kernel/palinfo.c	2005-03-14 10:36:16.635681326 -0700
+@@ -473,7 +473,7 @@
+ 	"Enable CMCI promotion",
+ 	"Enable MCA to BINIT promotion",
+ 	"Enable MCA promotion",
+-	"Enable BEER promotion"
++	"Enable BERR promotion"
+ };
+ 
+ 
+diff -urN kernel-source-2.4.27.orig/arch/ia64/kernel/process.c kernel-source-2.4.27.bjorn/arch/ia64/kernel/process.c
+--- kernel-source-2.4.27.orig/arch/ia64/kernel/process.c	2003-11-28 11:26:19.000000000 -0700
++++ kernel-source-2.4.27.bjorn/arch/ia64/kernel/process.c	2005-03-14 10:36:16.635681326 -0700
+@@ -485,7 +485,7 @@
+ 	return 1;	/* f0-f31 are always valid so we always return 1 */
+ }
+ 
+-asmlinkage long
++long
+ sys_execve (char *filename, char **argv, char **envp, struct pt_regs *regs)
+ {
+ 	int error;
+diff -urN kernel-source-2.4.27.orig/arch/ia64/kernel/unwind.c kernel-source-2.4.27.bjorn/arch/ia64/kernel/unwind.c
+--- kernel-source-2.4.27.orig/arch/ia64/kernel/unwind.c	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/kernel/unwind.c	2005-03-14 10:36:16.636657889 -0700
+@@ -1916,7 +1916,7 @@
+ int
+ unw_unwind_to_user (struct unw_frame_info *info)
+ {
+-	unsigned long ip;
++	unsigned long ip, sp;
+ 
+ 	while (unw_unwind(info) >= 0) {
+ 		if (unw_get_rp(info, &ip) < 0) {
+@@ -1925,6 +1925,9 @@
+ 				   __FUNCTION__, ip);
+ 			return -1;
+ 		}
++		unw_get_sp(info, &sp);
++		if (sp >= (unsigned long)info->task + IA64_STK_OFFSET)
++			break;
+ 		/*
+ 		 * We don't have unwind info for the gate page, so we consider that part
+ 		 * of user-space for the purpose of unwinding.
+diff -urN kernel-source-2.4.27.orig/arch/ia64/vmlinux.lds.S kernel-source-2.4.27.bjorn/arch/ia64/vmlinux.lds.S
+--- kernel-source-2.4.27.orig/arch/ia64/vmlinux.lds.S	2003-08-25 05:44:39.000000000 -0600
++++ kernel-source-2.4.27.bjorn/arch/ia64/vmlinux.lds.S	2005-03-14 10:36:16.637634451 -0700
+@@ -7,6 +7,10 @@
+ OUTPUT_FORMAT("elf64-ia64-little")
+ OUTPUT_ARCH(ia64)
+ ENTRY(phys_start)
++PHDRS {
++  code   PT_LOAD;
++  data   PT_LOAD;
++}
+ SECTIONS
+ {
+   /* Sections to be discarded */
+@@ -23,6 +27,7 @@
+   v = PAGE_OFFSET;	/* this symbol is here to make debugging easier... */
+   phys_start = _start - PAGE_OFFSET;
+ 
++  code : { } :code
+   . = KERNEL_START;
+ 
+   _text = .;
+@@ -142,6 +147,7 @@
+   .kstrtab : AT(ADDR(.kstrtab) - PAGE_OFFSET)
+ 	{ *(.kstrtab) }
+ 
++  data : { } :data
+   .data : AT(ADDR(.data) - PAGE_OFFSET)
+ 	{ *(.data) *(.gnu.linkonce.d*) CONSTRUCTORS }
+ 
+@@ -165,6 +171,7 @@
+   . = ALIGN(64 / 8);
+   _end = .;
+ 
++  code : { } :code
+   /* Stabs debugging sections.  */
+   .stab 0 : { *(.stab) }
+   .stabstr 0 : { *(.stabstr) }
+diff -urN kernel-source-2.4.27.orig/drivers/acpi/bus.c kernel-source-2.4.27.bjorn/drivers/acpi/bus.c
+--- kernel-source-2.4.27.orig/drivers/acpi/bus.c	2005-01-19 02:57:58.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/acpi/bus.c	2005-03-14 10:36:16.638611014 -0700
+@@ -1405,17 +1405,15 @@
+ 	switch (type) {
+ 	case ACPI_BUS_TYPE_DEVICE:
+ 		result = acpi_bus_get_status(device);
+-		if (result)
+-			goto end;
+-		break;
++		if (!result)
++			break;
++		if (!device->status.present)
++			result = -ENOENT;
++		goto end;
+ 	default:
+ 		STRUCT_TO_INT(device->status) = 0x0F;
+ 		break;
+ 	}
+-	if (!device->status.present) {
+-		result = -ENOENT;
+-		goto end;
+-	}
+ 
+ 	/*
+ 	 * Initialize Device
+diff -urN kernel-source-2.4.27.orig/drivers/char/Config.in kernel-source-2.4.27.bjorn/drivers/char/Config.in
+--- kernel-source-2.4.27.orig/drivers/char/Config.in	2005-01-19 02:57:41.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/Config.in	2005-03-14 10:36:16.638611014 -0700
+@@ -24,6 +24,9 @@
+       tristate '   Atomwide serial port support' CONFIG_ATOMWIDE_SERIAL
+       tristate '   Dual serial port support' CONFIG_DUALSP_SERIAL
+    fi
++   if [ "$CONFIG_ACPI" = "y" ]; then
++      bool '  Support for serial ports defined in ACPI namespace' CONFIG_SERIAL_ACPI
++   fi
+ fi
+ dep_mbool 'Extended dumb serial driver options' CONFIG_SERIAL_EXTENDED $CONFIG_SERIAL
+ if [ "$CONFIG_SERIAL_EXTENDED" = "y" ]; then
+diff -urN kernel-source-2.4.27.orig/drivers/char/agp/agp.h kernel-source-2.4.27.bjorn/drivers/char/agp/agp.h
+--- kernel-source-2.4.27.orig/drivers/char/agp/agp.h	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/char/agp/agp.h	2005-03-14 10:36:16.639587576 -0700
+@@ -538,10 +538,6 @@
+ #define HP_ZX1_TCNFG		0x318
+ #define HP_ZX1_PDIR_BASE	0x320
+ 
+-/* HP ZX1 LBA registers */
+-#define HP_ZX1_AGP_STATUS	0x64
+-#define HP_ZX1_AGP_COMMAND	0x68
+-
+ /* ATI register */
+ #define ATI_APBASE                  0x10
+ #define ATI_GART_MMBASE_ADDR        0x14
+diff -urN kernel-source-2.4.27.orig/drivers/char/agp/agpgart_be.c kernel-source-2.4.27.bjorn/drivers/char/agp/agpgart_be.c
+--- kernel-source-2.4.27.orig/drivers/char/agp/agpgart_be.c	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/char/agp/agpgart_be.c	2005-03-14 10:36:16.645446951 -0700
+@@ -45,6 +45,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/miscdevice.h>
+ #include <linux/pm.h>
++#include <linux/acpi.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -217,10 +218,14 @@
+ 		agp_bridge.free_by_type(curr);
+ 		return;
+ 	}
+-	if (curr->page_count != 0) {
+-		for (i = 0; i < curr->page_count; i++) {
+-			agp_bridge.agp_destroy_page((unsigned long)
+-					 phys_to_virt(curr->memory[i]));
++	if (agp_bridge.cant_use_aperture) {
++		vfree(curr->vmptr);
++	} else {
++		if (curr->page_count != 0) {
++			for (i = 0; i < curr->page_count; i++) {
++				agp_bridge.agp_destroy_page((unsigned long)
++						 phys_to_virt(curr->memory[i]));
++			}
+ 		}
+ 	}
+ 	agp_free_key(curr->key);
+@@ -229,6 +234,8 @@
+ 	MOD_DEC_USE_COUNT;
+ }
+ 
++#define IN_VMALLOC(_x)	  (((_x) >= VMALLOC_START) && ((_x) < VMALLOC_END))
++
+ #define ENTRIES_PER_PAGE		(PAGE_SIZE / sizeof(unsigned long))
+ 
+ agp_memory *agp_allocate_memory(size_t page_count, u32 type)
+@@ -263,18 +270,43 @@
+ 	      	MOD_DEC_USE_COUNT;
+ 		return NULL;
+ 	}
+-	for (i = 0; i < page_count; i++) {
+-		new->memory[i] = agp_bridge.agp_alloc_page();
+ 
+-		if (new->memory[i] == 0) {
+-			/* Free this structure */
+-			agp_free_memory(new);
++	if (agp_bridge.cant_use_aperture) {
++		void *vmblock;
++		unsigned long vaddr;
++		struct page *page;
++
++		vmblock = __vmalloc(page_count << PAGE_SHIFT, GFP_KERNEL, PAGE_KERNEL);
++		if (vmblock == NULL) {
++			MOD_DEC_USE_COUNT;
+ 			return NULL;
+ 		}
+-		new->memory[i] = virt_to_phys((void *) new->memory[i]);
+-		new->page_count++;
+-	}
++		new->vmptr = vmblock;
++		vaddr = (unsigned long) vmblock;
++
++		for (i = 0; i < page_count; i++, vaddr += PAGE_SIZE) {
++			page = vmalloc_to_page((void *) vaddr);
++			if (!page) {
++				MOD_DEC_USE_COUNT;
++				return NULL;
++			}
++			new->memory[i] = virt_to_phys(page_address(page));
++		}
++
++		new->page_count = page_count;
++	} else {
++		for (i = 0; i < page_count; i++) {
++			new->memory[i] = agp_bridge.agp_alloc_page();
+ 
++			if (new->memory[i] == 0) {
++				/* Free this structure */
++				agp_free_memory(new);
++				return NULL;
++			}
++			new->memory[i] = virt_to_phys((void *) new->memory[i]);
++			new->page_count++;
++		}
++	}
+ 	return new;
+ }
+ 
+@@ -287,26 +319,18 @@
+ 
+ 	temp = agp_bridge.current_size;
+ 
+-	switch (agp_bridge.size_type) {
+-	case U8_APER_SIZE:
++	if (agp_bridge.size_type == U8_APER_SIZE)
+ 		current_size = A_SIZE_8(temp)->size;
+-		break;
+-	case U16_APER_SIZE:
++	else if (agp_bridge.size_type ==  U16_APER_SIZE)
+ 		current_size = A_SIZE_16(temp)->size;
+-		break;
+-	case U32_APER_SIZE:
++	else if (agp_bridge.size_type ==  U32_APER_SIZE)
+ 		current_size = A_SIZE_32(temp)->size;
+-		break;
+-	case LVL2_APER_SIZE:
++	else if (agp_bridge.size_type ==  LVL2_APER_SIZE)
+ 		current_size = A_SIZE_LVL2(temp)->size;
+-		break;
+-	case FIXED_APER_SIZE:
++	else if (agp_bridge.size_type ==  FIXED_APER_SIZE)
+ 		current_size = A_SIZE_FIX(temp)->size;
+-		break;
+-	default:
++	else
+ 		current_size = 0;
+-		break;
+-	}
+ 
+ 	current_size -= (agp_memory_reserved / (1024*1024));
+ 
+@@ -315,6 +339,9 @@
+ 
+ /* Routine to copy over information structure */
+ 
++/* AGP bridge need not be PCI device, but DRM thinks it is. */
++static struct pci_dev fake_bridge_dev;
++
+ int agp_copy_info(agp_kern_info * info)
+ {
+ 	memset(info, 0, sizeof(agp_kern_info));
+@@ -324,7 +351,7 @@
+ 	}
+ 	info->version.major = agp_bridge.version->major;
+ 	info->version.minor = agp_bridge.version->minor;
+-	info->device = agp_bridge.dev;
++	info->device = agp_bridge.dev ? agp_bridge.dev : &fake_bridge_dev;
+ 	info->chipset = agp_bridge.type;
+ 	info->mode = agp_bridge.mode;
+ 	info->aper_base = agp_bridge.gart_bus_addr;
+@@ -398,97 +425,104 @@
+ 
+ /* Generic Agp routines - Start */
+ 
+-static void agp_generic_agp_enable(u32 mode)
++static u32 agp_collect_device_status(u32 mode, u32 command)
+ {
+-	struct pci_dev *device = NULL;
+-	u32 command, scratch;
+-	u8 cap_ptr;
++	struct pci_dev *device;
++	u8 agp;
++	u32 scratch;
+ 
+-	pci_read_config_dword(agp_bridge.dev,
+-			      agp_bridge.capndx + 4,
+-			      &command);
++	pci_for_each_dev(device) {
++		agp = pci_find_capability(device, PCI_CAP_ID_AGP);
++		if (!agp)
++			continue;
+ 
+-	/*
+-	 * PASS1: go throu all devices that claim to be
+-	 *        AGP devices and collect their data.
+-	 */
++		/*
++		 * Ok, here we have a AGP device. Disable impossible 
++		 * settings, and adjust the readqueue to the minimum.
++		 */
++		pci_read_config_dword(device, agp + PCI_AGP_STATUS, &scratch);
+ 
++		/* adjust RQ depth */
++		command =
++		    ((command & ~0xff000000) |
++		     min_t(u32, (mode & 0xff000000),
++			 min_t(u32, (command & 0xff000000),
++			     (scratch & 0xff000000))));
++
++		/* disable SBA if it's not supported */
++		if (!((command & 0x00000200) &&
++		      (scratch & 0x00000200) &&
++		      (mode & 0x00000200)))
++			command &= ~0x00000200;
++
++		/* disable FW if it's not supported */
++		if (!((command & 0x00000010) &&
++		      (scratch & 0x00000010) &&
++		      (mode & 0x00000010)))
++			command &= ~0x00000010;
+ 
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00) {
+-			/*
+-			 * Ok, here we have a AGP device. Disable impossible 
+-			 * settings, and adjust the readqueue to the minimum.
+-			 */
+-
+-			pci_read_config_dword(device, cap_ptr + 4, &scratch);
+-
+-			/* adjust RQ depth */
+-			command =
+-			    ((command & ~0xff000000) |
+-			     min_t(u32, (mode & 0xff000000),
+-				 min_t(u32, (command & 0xff000000),
+-				     (scratch & 0xff000000))));
+-
+-			/* disable SBA if it's not supported */
+-			if (!((command & 0x00000200) &&
+-			      (scratch & 0x00000200) &&
+-			      (mode & 0x00000200)))
+-				command &= ~0x00000200;
+-
+-			/* disable FW if it's not supported */
+-			if (!((command & 0x00000010) &&
+-			      (scratch & 0x00000010) &&
+-			      (mode & 0x00000010)))
+-				command &= ~0x00000010;
+-
+-			if (!((command & 4) &&
+-			      (scratch & 4) &&
+-			      (mode & 4)))
+-				command &= ~0x00000004;
+-
+-			if (!((command & 2) &&
+-			      (scratch & 2) &&
+-			      (mode & 2)))
+-				command &= ~0x00000002;
+-
+-			if (!((command & 1) &&
+-			      (scratch & 1) &&
+-			      (mode & 1)))
+-				command &= ~0x00000001;
+-		}
++		if (!((command & 4) &&
++		      (scratch & 4) &&
++		      (mode & 4)))
++			command &= ~0x00000004;
++
++		if (!((command & 2) &&
++		      (scratch & 2) &&
++		      (mode & 2)))
++			command &= ~0x00000002;
++
++		if (!((command & 1) &&
++		      (scratch & 1) &&
++		      (mode & 1)))
++			command &= ~0x00000001;
+ 	}
+-	/*
+-	 * PASS2: Figure out the 4X/2X/1X setting and enable the
+-	 *        target (our motherboard chipset).
+-	 */
+ 
+-	if (command & 4) {
++	if (command & 4)
+ 		command &= ~3;	/* 4X */
++	if (command & 2)
++		command &= ~5;	/* 2X (8X for AGP3.0) */
++	if (command & 1)
++		command &= ~6;	/* 1X (4X for AGP3.0) */
++
++	return command;
++}
++
++static void agp_device_command(u32 command, int agp_v3)
++{
++	struct pci_dev *device;
++	int mode;
++
++	mode = command & 0x7;
++	if (agp_v3)
++		mode *= 4;
++
++	pci_for_each_dev(device) {
++		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
++		if (!agp)
++			continue;
++
++		printk(KERN_INFO PFX "Putting AGP V%d device at %s into %dx mode\n",
++				agp_v3 ? 3 : 2, device->slot_name, mode);
++		pci_write_config_dword(device, agp + PCI_AGP_COMMAND, command);
+ 	}
+-	if (command & 2) {
+-		command &= ~5;	/* 2X */
+-	}
+-	if (command & 1) {
+-		command &= ~6;	/* 1X */
+-	}
++}
++
++static void agp_generic_agp_enable(u32 mode)
++{
++	u32 command;
++
++	pci_read_config_dword(agp_bridge.dev,
++			      agp_bridge.capndx + PCI_AGP_STATUS,
++			      &command);
++
++	command = agp_collect_device_status(mode, command);
+ 	command |= 0x00000100;
+ 
+ 	pci_write_config_dword(agp_bridge.dev,
+-			       agp_bridge.capndx + 8,
++			       agp_bridge.capndx + PCI_AGP_COMMAND,
+ 			       command);
+ 
+-	/*
+-	 * PASS3: Go throu all AGP devices and update the
+-	 *        command registers.
+-	 */
+-
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command, 0);
+ }
+ 
+ static int agp_generic_create_gatt_table(void)
+@@ -3641,7 +3675,6 @@
+ 	struct pci_dev *device = NULL;
+ 	u32 command, scratch; 
+ 	u8 cap_ptr;
+-	u8 agp_v3;
+ 	u8 v3_devs=0;
+ 
+ 	/* FIXME: If 'mode' is x1/x2/x4 should we call the AGPv2 routines directly ?
+@@ -3674,77 +3707,14 @@
+ 	}
+ 
+ 
+-	pci_read_config_dword(agp_bridge.dev, agp_bridge.capndx + 4, &command);
+-
+-	/*
+-	 * PASS2: go through all devices that claim to be
+-	 *        AGP devices and collect their data.
+-	 */
+-
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00) {
+-			/*
+-			 * Ok, here we have a AGP device. Disable impossible 
+-			 * settings, and adjust the readqueue to the minimum.
+-			 */
+-
+-			printk (KERN_INFO "AGP: Setting up AGPv3 capable device at %d:%d:%d\n",
+-					device->bus->number, PCI_FUNC(device->devfn), PCI_SLOT(device->devfn));
+-			pci_read_config_dword(device, cap_ptr + 4, &scratch);
+-			agp_v3 = (scratch & (1<<3) ) >>3;
+-
+-			/* adjust RQ depth */
+-			command =
+-			    ((command & ~0xff000000) |
+-			     min_t(u32, (mode & 0xff000000),
+-				 min_t(u32, (command & 0xff000000),
+-				     (scratch & 0xff000000))));
+-
+-			/* disable SBA if it's not supported */
+-			if (!((command & 0x200) && (scratch & 0x200) && (mode & 0x200)))
+-				command &= ~0x200;
+-
+-			/* disable FW if it's not supported */
+-			if (!((command & 0x10) && (scratch & 0x10) && (mode & 0x10)))
+-				command &= ~0x10;
+-
+-			if (!((command & 2) && (scratch & 2) && (mode & 2))) {
+-				command &= ~2;		/* 8x */
+-				printk (KERN_INFO "AGP: Putting device into 8x mode\n");
+-			}
+-
+-			if (!((command & 1) && (scratch & 1) && (mode & 1))) {
+-				command &= ~1;		/* 4x */
+-				printk (KERN_INFO "AGP: Putting device into 4x mode\n");
+-			}
+-		}
+-	}
+-	/*
+-	 * PASS3: Figure out the 8X/4X setting and enable the
+-	 *        target (our motherboard chipset).
+-	 */
+-
+-	if (command & 2)
+-		command &= ~5;	/* 8X */
+-
+-	if (command & 1)
+-		command &= ~6;	/* 4X */
++	pci_read_config_dword(agp_bridge.dev, agp_bridge.capndx + PCI_AGP_STATUS, &command);
+ 
++	command = agp_collect_device_status(mode, command);
+ 	command |= 0x100;
+ 
+-	pci_write_config_dword(agp_bridge.dev, agp_bridge.capndx + 8, command);
+-
+-	/*
+-	 * PASS4: Go through all AGP devices and update the
+-	 *        command registers.
+-	 */
++	pci_write_config_dword(agp_bridge.dev, agp_bridge.capndx + PCI_AGP_COMMAND, command);
+ 
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command, 1);
+ }
+ 
+ 
+@@ -4457,7 +4427,7 @@
+ 
+ 	/* Fill in the mode register */
+ 	pci_read_config_dword(serverworks_private.svrwrks_dev,
+-			      agp_bridge.capndx + 4,
++			      agp_bridge.capndx + PCI_AGP_STATUS,
+ 			      &agp_bridge.mode);
+ 
+ 	pci_read_config_byte(agp_bridge.dev,
+@@ -4607,104 +4577,23 @@
+ 
+ static void serverworks_agp_enable(u32 mode)
+ {
+-	struct pci_dev *device = NULL;
+-	u32 command, scratch, cap_id;
+-	u8 cap_ptr;
++	u32 command;
+ 
+ 	pci_read_config_dword(serverworks_private.svrwrks_dev,
+-			      agp_bridge.capndx + 4,
++			      agp_bridge.capndx + PCI_AGP_STATUS,
+ 			      &command);
+ 
+-	/*
+-	 * PASS1: go throu all devices that claim to be
+-	 *        AGP devices and collect their data.
+-	 */
+-
+-
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00) {
+-			do {
+-				pci_read_config_dword(device,
+-						      cap_ptr, &cap_id);
+-
+-				if ((cap_id & 0xff) != 0x02)
+-					cap_ptr = (cap_id >> 8) & 0xff;
+-			}
+-			while (((cap_id & 0xff) != 0x02) && (cap_ptr != 0x00));
+-		}
+-		if (cap_ptr != 0x00) {
+-			/*
+-			 * Ok, here we have a AGP device. Disable impossible 
+-			 * settings, and adjust the readqueue to the minimum.
+-			 */
+-
+-			pci_read_config_dword(device, cap_ptr + 4, &scratch);
+-
+-			/* adjust RQ depth */
+-			command =
+-			    ((command & ~0xff000000) |
+-			     min_t(u32, (mode & 0xff000000),
+-				 min_t(u32, (command & 0xff000000),
+-				     (scratch & 0xff000000))));
+-
+-			/* disable SBA if it's not supported */
+-			if (!((command & 0x00000200) &&
+-			      (scratch & 0x00000200) &&
+-			      (mode & 0x00000200)))
+-				command &= ~0x00000200;
+-
+-			/* disable FW */
+-			command &= ~0x00000010;
+-
+-			command &= ~0x00000008;
+-
+-			if (!((command & 4) &&
+-			      (scratch & 4) &&
+-			      (mode & 4)))
+-				command &= ~0x00000004;
+-
+-			if (!((command & 2) &&
+-			      (scratch & 2) &&
+-			      (mode & 2)))
+-				command &= ~0x00000002;
+-
+-			if (!((command & 1) &&
+-			      (scratch & 1) &&
+-			      (mode & 1)))
+-				command &= ~0x00000001;
+-		}
+-	}
+-	/*
+-	 * PASS2: Figure out the 4X/2X/1X setting and enable the
+-	 *        target (our motherboard chipset).
+-	 */
++	command = agp_collect_device_status(mode, command);
+ 
+-	if (command & 4) {
+-		command &= ~3;	/* 4X */
+-	}
+-	if (command & 2) {
+-		command &= ~5;	/* 2X */
+-	}
+-	if (command & 1) {
+-		command &= ~6;	/* 1X */
+-	}
++	command &= ~0x00000010;	/* disable FW */
++	command &= ~0x00000008;
+ 	command |= 0x00000100;
+ 
+ 	pci_write_config_dword(serverworks_private.svrwrks_dev,
+-			       agp_bridge.capndx + 8,
++			       agp_bridge.capndx + PCI_AGP_COMMAND,
+ 			       command);
+ 
+-	/*
+-	 * PASS3: Go throu all AGP devices and update the
+-	 *        command registers.
+-	 */
+-
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command, 0);
+ }
+ 
+ static int __init serverworks_setup (struct pci_dev *pdev)
+@@ -5131,6 +5020,7 @@
+ static struct _hp_private {
+ 	volatile u8 *ioc_regs;
+ 	volatile u8 *lba_regs;
++	int lba_cap_offset;
+ 	u64 *io_pdir;		// PDIR for entire IOVA
+ 	u64 *gatt;		// PDIR just for GART (subset of above)
+ 	u64 gatt_entries;
+@@ -5183,6 +5073,7 @@
+ 	hp->gatt = &hp->io_pdir[HP_ZX1_IOVA_TO_PDIR(hp->gart_base)];
+ 
+ 	if (hp->gatt[0] != HP_ZX1_SBA_IOMMU_COOKIE) {
++		/* Normal case when no AGP device in system */
+ 	    	hp->gatt = 0;
+ 		hp->gatt_entries = 0;
+ 		printk(KERN_ERR PFX "No reserved IO PDIR entry found; "
+@@ -5228,12 +5119,13 @@
+ 	return 0;
+ }
+ 
+-static int __init hp_zx1_ioc_init(u64 ioc_hpa, u64 lba_hpa)
++static int __init hp_zx1_ioc_init(u64 hpa)
+ {
+ 	struct _hp_private *hp = &hp_private;
+ 
+-	hp->ioc_regs = ioremap(ioc_hpa, 1024);
+-	hp->lba_regs = ioremap(lba_hpa, 256);
++	hp->ioc_regs = ioremap(hpa, 1024);
++	if (!hp->ioc_regs)
++		return -ENOMEM;
+ 
+ 	/*
+ 	 * If the IOTLB is currently disabled, we can take it over.
+@@ -5247,6 +5139,50 @@
+ 	return hp_zx1_ioc_shared();
+ }
+ 
++static int
++hp_zx1_lba_find_capability(volatile u8 *hpa, int cap)
++{
++	u16 status;
++	u8 pos, id;
++	int ttl = 48;
++
++	status = INREG16(hpa, PCI_STATUS);
++	if (!(status & PCI_STATUS_CAP_LIST))
++		return 0;
++	pos = INREG8(hpa, PCI_CAPABILITY_LIST);
++	while (ttl-- && pos >= 0x40) {
++		pos &= ~3;
++		id = INREG8(hpa, pos + PCI_CAP_LIST_ID);
++		if (id == 0xff)
++			break;
++		if (id == cap)
++			return pos;
++		pos = INREG8(hpa, pos + PCI_CAP_LIST_NEXT);
++	}
++	return 0;
++}
++
++static int __init hp_zx1_lba_init(u64 hpa)
++{
++	struct _hp_private *hp = &hp_private;
++	int cap;
++
++	hp->lba_regs = ioremap(hpa, 256);
++	if (!hp->lba_regs)
++		return -ENOMEM;
++
++	hp->lba_cap_offset = hp_zx1_lba_find_capability(hp->lba_regs, PCI_CAP_ID_AGP);
++
++	cap = INREG32(hp->lba_regs, hp->lba_cap_offset) & 0xff;
++	if (cap != PCI_CAP_ID_AGP) {
++		printk(KERN_ERR PFX "Invalid capability ID 0x%02x at 0x%x\n",
++			cap, hp->lba_cap_offset);
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
+ static int hp_zx1_fetch_size(void)
+ {
+ 	int size;
+@@ -5262,7 +5198,7 @@
+ 	struct _hp_private *hp = &hp_private;
+ 
+ 	agp_bridge.gart_bus_addr = hp->gart_base;
+-	agp_bridge.mode = INREG32(hp->lba_regs, HP_ZX1_AGP_STATUS);
++	agp_bridge.mode = INREG32(hp->lba_regs, hp->lba_cap_offset + PCI_AGP_STATUS);
+ 
+ 	if (hp->io_pdir_owner) {
+ 		OUTREG64(hp->ioc_regs, HP_ZX1_PDIR_BASE,
+@@ -5282,10 +5218,13 @@
+ {
+ 	struct _hp_private *hp = &hp_private;
+ 
+-	if (hp->io_pdir_owner)
+-		OUTREG64(hp->ioc_regs, HP_ZX1_IBASE, 0);
+-	iounmap((void *) hp->ioc_regs);
+-	iounmap((void *) hp->lba_regs);
++	if (hp->ioc_regs) {
++		if (hp->io_pdir_owner)
++			OUTREG64(hp->ioc_regs, HP_ZX1_IBASE, 0);
++		iounmap((void *) hp->ioc_regs);
++	}
++	if (hp->lba_regs)
++		iounmap((void *) hp->lba_regs);
+ }
+ 
+ static void hp_zx1_tlbflush(agp_memory * mem)
+@@ -5405,18 +5344,23 @@
+ 	struct _hp_private *hp = &hp_private;
+ 	u32 command;
+ 
+-	command = INREG32(hp->lba_regs, HP_ZX1_AGP_STATUS);
++	command = INREG32(hp->lba_regs, hp->lba_cap_offset + PCI_AGP_STATUS);
+ 
+ 	command = agp_collect_device_status(mode, command);
+ 	command |= 0x00000100;
+ 
+-	OUTREG32(hp->lba_regs, HP_ZX1_AGP_COMMAND, command);
++	OUTREG32(hp->lba_regs, hp->lba_cap_offset + PCI_AGP_COMMAND, command);
+ 
+ 	agp_device_command(command, 0);
+ }
+ 
+ static int __init hp_zx1_setup(u64 ioc_hpa, u64 lba_hpa)
+ {
++	struct _hp_private *hp = &hp_private;
++	int error;
++
++	memset(hp, 0, sizeof(*hp));
++
+ 	agp_bridge.dev_private_data = NULL;
+ 	agp_bridge.size_type = FIXED_APER_SIZE;
+ 	agp_bridge.needs_scratch_page = FALSE;
+@@ -5441,7 +5385,16 @@
+ 	fake_bridge_dev.vendor = PCI_VENDOR_ID_HP;
+ 	fake_bridge_dev.device = PCI_DEVICE_ID_HP_PCIX_LBA;
+ 
+-	return hp_zx1_ioc_init(ioc_hpa, lba_hpa);
++	error = hp_zx1_ioc_init(ioc_hpa);
++	if (error)
++		goto fail;
++
++	error = hp_zx1_lba_init(lba_hpa);
++
++fail:
++	if (error)
++		hp_zx1_cleanup();
++	return error;
+ }
+ 
+ static acpi_status __init hp_zx1_gart_probe(acpi_handle obj, u32 depth, void *context, void **ret)
+@@ -5455,7 +5408,7 @@
+ 
+ 	status = acpi_hp_csr_space(obj, &lba_hpa, &length);
+ 	if (ACPI_FAILURE(status))
+-		return AE_OK;
++		return AE_OK; /* keep looking for another bridge */
+ 
+ 	/* Look for an enclosing IOC scope and find its CSR space */
+ 	handle = obj;
+@@ -5491,7 +5444,7 @@
+ 		(char *) context, sba_hpa + HP_ZX1_IOC_OFFSET, lba_hpa);
+ 
+ 	hp_zx1_gart_found = 1;
+-	return AE_CTRL_TERMINATE;
++	return AE_CTRL_TERMINATE; /* we only support one bridge; quit looking */
+ }
+ 
+ static int __init
+@@ -6473,7 +6426,6 @@
+ 	  "IGP9100/M",
+ 	  ati_generic_setup },
+ #endif /* CONFIG_AGP_ATI */
+-
+ 	{ 0, }, /* dummy final entry, always present */
+ };
+ 
+@@ -6556,7 +6508,6 @@
+ 	return -ENODEV;
+ }
+ 
+-
+ /* Supported Device Scanning routine */
+ 
+ static int __init agp_find_supported_device(void)
+@@ -6884,7 +6835,7 @@
+ 
+ 	/* Fill in the mode register */
+ 	pci_read_config_dword(agp_bridge.dev,
+-			      agp_bridge.capndx + 4,
++			      agp_bridge.capndx + PCI_AGP_STATUS,
+ 			      &agp_bridge.mode);
+ 
+ 	/* probe for known chipsets */
+@@ -7102,7 +7053,8 @@
+ 
+ 	inter_module_register("drm_agp", THIS_MODULE, &drm_agp);
+ 	
+-	pm_register(PM_PCI_DEV, PM_PCI_ID(agp_bridge.dev), agp_power);
++	if (agp_bridge.dev)
++		pm_register(PM_PCI_DEV, PM_PCI_ID(agp_bridge.dev), agp_power);
+ 	return 0;
+ }
+ 
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm/drm_bufs.h kernel-source-2.4.27.bjorn/drivers/char/drm/drm_bufs.h
+--- kernel-source-2.4.27.orig/drivers/char/drm/drm_bufs.h	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm/drm_bufs.h	2005-03-14 10:36:16.645446951 -0700
+@@ -106,7 +106,7 @@
+ 	switch ( map->type ) {
+ 	case _DRM_REGISTERS:
+ 	case _DRM_FRAME_BUFFER:
+-#if !defined(__sparc__) && !defined(__alpha__)
++#if !defined(__sparc__) && !defined(__alpha__) && !defined(__ia64__)
+ 		if ( map->offset + map->size < map->offset ||
+ 		     map->offset < virt_to_phys(high_memory) ) {
+ 			DRM(free)( map, sizeof(*map), DRM_MEM_MAPS );
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm/drm_memory.h kernel-source-2.4.27.bjorn/drivers/char/drm/drm_memory.h
+--- kernel-source-2.4.27.orig/drivers/char/drm/drm_memory.h	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm/drm_memory.h	2005-03-14 10:36:16.646423514 -0700
+@@ -293,6 +293,11 @@
+ void *DRM(ioremap)(unsigned long offset, unsigned long size, drm_device_t *dev)
+ {
+ 	void *pt;
++#if __REALLY_HAVE_AGP
++	drm_map_t *map = NULL;
++	drm_map_list_t *r_list;
++	struct list_head *list;
++#endif
+ 
+ 	if (!size) {
+ 		DRM_MEM_ERROR(DRM_MEM_MAPPINGS,
+@@ -300,12 +305,50 @@
+ 		return NULL;
+ 	}
+ 
++#if __REALLY_HAVE_AGP
++	if (!dev->agp || dev->agp->cant_use_aperture == 0)
++		goto standard_ioremap;
++
++	list_for_each(list, &dev->maplist->head) {
++		r_list = (drm_map_list_t *)list;
++		map = r_list->map;
++		if (!map) continue;
++		if (map->offset <= offset &&
++			(map->offset + map->size) >= (offset + size))
++			break;
++	}
++	
++	if (map && map->type == _DRM_AGP) {
++		struct drm_agp_mem *agpmem;
++
++		for (agpmem = dev->agp->memory; agpmem; agpmem = agpmem->next) {
++			if (agpmem->bound <= offset &&
++			   (agpmem->bound + (agpmem->pages
++				<< PAGE_SHIFT)) >= (offset + size))
++				break;
++		}
++
++		if (agpmem == NULL)
++			goto ioremap_failure;
++
++		pt = agpmem->memory->vmptr + (offset - agpmem->bound);
++		goto ioremap_success;
++	}
++
++standard_ioremap:
++#endif
+ 	if (!(pt = ioremap(offset, size))) {
++#if __REALLY_HAVE_AGP
++ioremap_failure:
++#endif
+ 		spin_lock(&DRM(mem_lock));
+ 		++DRM(mem_stats)[DRM_MEM_MAPPINGS].fail_count;
+ 		spin_unlock(&DRM(mem_lock));
+ 		return NULL;
+ 	}
++#if __REALLY_HAVE_AGP
++ioremap_success:
++#endif
+ 	spin_lock(&DRM(mem_lock));
+ 	++DRM(mem_stats)[DRM_MEM_MAPPINGS].succeed_count;
+ 	DRM(mem_stats)[DRM_MEM_MAPPINGS].bytes_allocated += size;
+@@ -316,6 +359,11 @@
+ void *DRM(ioremap_nocache)(unsigned long offset, unsigned long size, drm_device_t *dev)
+ {
+ 	void *pt;
++#if __REALLY_HAVE_AGP
++	drm_map_t *map = NULL;
++	drm_map_list_t *r_list;
++	struct list_head *list;
++#endif
+ 
+ 	if (!size) {
+ 		DRM_MEM_ERROR(DRM_MEM_MAPPINGS,
+@@ -323,12 +371,50 @@
+ 		return NULL;
+ 	}
+ 
++#if __REALLY_HAVE_AGP
++	if (!dev->agp || dev->agp->cant_use_aperture == 0)
++		goto standard_ioremap;
++
++	list_for_each(list, &dev->maplist->head) {
++		r_list = (drm_map_list_t *)list;
++		map = r_list->map;
++		if (!map) continue;
++		if (map->offset <= offset &&
++			(map->offset + map->size) >= (offset + size))
++			break;
++	}
++	
++	if (map && map->type == _DRM_AGP) {
++		struct drm_agp_mem *agpmem;
++
++		for (agpmem = dev->agp->memory; agpmem; agpmem = agpmem->next) {
++			if (agpmem->bound <= offset &&
++			   (agpmem->bound + (agpmem->pages
++				<< PAGE_SHIFT)) >= (offset + size))
++				break;
++		}
++
++		if (agpmem == NULL)
++			goto ioremap_failure;
++
++		pt = agpmem->memory->vmptr + (offset - agpmem->bound);
++		goto ioremap_success;
++	}
++
++standard_ioremap:
++#endif
+ 	if (!(pt = ioremap_nocache(offset, size))) {
++#if __REALLY_HAVE_AGP
++ioremap_failure:
++#endif
+ 		spin_lock(&DRM(mem_lock));
+ 		++DRM(mem_stats)[DRM_MEM_MAPPINGS].fail_count;
+ 		spin_unlock(&DRM(mem_lock));
+ 		return NULL;
+ 	}
++#if __REALLY_HAVE_AGP
++ioremap_success:
++#endif
+ 	spin_lock(&DRM(mem_lock));
+ 	++DRM(mem_stats)[DRM_MEM_MAPPINGS].succeed_count;
+ 	DRM(mem_stats)[DRM_MEM_MAPPINGS].bytes_allocated += size;
+@@ -344,7 +430,11 @@
+ 	if (!pt)
+ 		DRM_MEM_ERROR(DRM_MEM_MAPPINGS,
+ 			      "Attempt to free NULL pointer\n");
++#if __REALLY_HAVE_AGP
++	else if (!dev->agp || dev->agp->cant_use_aperture == 0)
++#else
+ 	else
++#endif
+ 		iounmap(pt);
+ 
+ 	spin_lock(&DRM(mem_lock));
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm/drm_vm.h kernel-source-2.4.27.bjorn/drivers/char/drm/drm_vm.h
+--- kernel-source-2.4.27.orig/drivers/char/drm/drm_vm.h	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm/drm_vm.h	2005-03-14 10:36:16.647400076 -0700
+@@ -368,6 +368,7 @@
+ 	drm_map_list_t  *r_list;
+ 	unsigned long   offset  = 0;
+ 	struct list_head *list;
++	struct page 	*page;
+ 
+ 	DRM_DEBUG("start = 0x%lx, end = 0x%lx, offset = 0x%lx\n",
+ 		  vma->vm_start, vma->vm_end, VM_OFFSET(vma));
+@@ -414,28 +415,30 @@
+ 
+ 	switch (map->type) {
+         case _DRM_AGP:
+-#if defined(__alpha__)
+-                /*
+-                 * On Alpha we can't talk to bus dma address from the
+-                 * CPU, so for memory of type DRM_AGP, we'll deal with
+-                 * sorting out the real physical pages and mappings
+-                 * in nopage()
+-                 */
+-                vma->vm_ops = &DRM(vm_ops);
+-                break;
++#if __REALLY_HAVE_AGP
++		if (dev->agp->cant_use_aperture) {
++                	/*
++                	 * On some systems we can't talk to bus dma address from
++                	 * the CPU, so for memory of type DRM_AGP, we'll deal
++                	 * with sorting out the real physical pages and mappings
++                	 * in nopage()
++                	 */
++                	vma->vm_ops = &DRM(vm_ops);
++			goto mapswitch_out;
++		}
+ #endif
+                 /* fall through to _DRM_FRAME_BUFFER... */        
+ 	case _DRM_FRAME_BUFFER:
+ 	case _DRM_REGISTERS:
+-		if (VM_OFFSET(vma) >= __pa(high_memory)) {
++		page = virt_to_page(__va(VM_OFFSET(vma)));
++		if (!VALID_PAGE(page) || PageReserved(page)) {
+ #if defined(__i386__) || defined(__x86_64__)
+ 			if (boot_cpu_data.x86 > 3 && map->type != _DRM_AGP) {
+ 				pgprot_val(vma->vm_page_prot) |= _PAGE_PCD;
+ 				pgprot_val(vma->vm_page_prot) &= ~_PAGE_PWT;
+ 			}
+ #elif defined(__ia64__)
+-			if (map->type != _DRM_AGP)
+-				vma->vm_page_prot =
++			vma->vm_page_prot =
+ 					pgprot_writecombine(vma->vm_page_prot);
+ #elif defined(__powerpc__)
+ 			pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE | _PAGE_GUARDED;
+@@ -474,6 +477,9 @@
+ 	default:
+ 		return -EINVAL;	/* This should never happen. */
+ 	}
++#if __REALLY_HAVE_AGP
++mapswitch_out:
++#endif
+ 	vma->vm_flags |= VM_RESERVED; /* Don't swap */
+ 
+ 	vma->vm_file  =	 filp;	/* Needed for drm_vm_open() */
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm/r128_cce.c kernel-source-2.4.27.bjorn/drivers/char/drm/r128_cce.c
+--- kernel-source-2.4.27.orig/drivers/char/drm/r128_cce.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm/r128_cce.c	2005-03-14 10:36:16.647400076 -0700
+@@ -216,7 +216,22 @@
+ 	int i;
+ 
+ 	for ( i = 0 ; i < dev_priv->usec_timeout ; i++ ) {
++#ifndef CONFIG_AGP_I460
+ 		if ( GET_RING_HEAD( &dev_priv->ring ) == dev_priv->ring.tail ) {
++#else
++		/*
++		 * XXX - this is (I think) a 460GX specific hack
++		 *
++		 * When doing texturing, ring.tail sometimes gets ahead of
++		 * PM4_BUFFER_DL_WPTR by 2; consequently, the card processes
++		 * its whole quota of instructions and *ring.head is still 2
++		 * short of ring.tail.  Work around this for now in lieu of
++		 * a better solution.
++		 */
++ 		if ( GET_RING_HEAD( &dev_priv->ring ) == dev_priv->ring.tail ||
++			( dev_priv->ring.tail -
++				GET_RING_HEAD( &dev_priv->ring ) ) == 2 ) {
++#endif
+ 			int pm4stat = R128_READ( R128_PM4_STAT );
+ 			if ( ( (pm4stat & R128_PM4_FIFOCNT_MASK) >=
+ 			       dev_priv->cce_fifo_size ) &&
+@@ -317,7 +332,7 @@
+ static void r128_cce_init_ring_buffer( drm_device_t *dev,
+ 				       drm_r128_private_t *dev_priv )
+ {
+-	u32 ring_start;
++	u32 ring_start, rptr_addr;
+ 	u32 tmp;
+ 
+ 	DRM_DEBUG( "\n" );
+@@ -341,8 +356,24 @@
+ 	SET_RING_HEAD( &dev_priv->ring, 0 );
+ 
+ 	if ( !dev_priv->is_pci ) {
+-		R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR,
+-			    dev_priv->ring_rptr->offset );
++		/*
++		 * 460GX doesn't claim PCI writes from the card into
++		 * the AGP aperture, so we have to get space outside
++		 * the aperture for RPTR_ADDR.
++		 */
++		if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off;
++
++			alt_rh_off = __get_free_page(GFP_KERNEL | GFP_DMA);
++			atomic_inc(&virt_to_page(alt_rh_off)->count);
++			set_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++
++			dev_priv->ring.head = (__volatile__ u32 *) alt_rh_off;
++			SET_RING_HEAD( &dev_priv->ring, 0 );
++			rptr_addr = __pa( dev_priv->ring.head );
++		} else
++			rptr_addr = dev_priv->ring_rptr->offset;
++		R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR, rptr_addr );
+ 	} else {
+ 		drm_sg_mem_t *entry = dev->sg;
+ 		unsigned long tmp_ofs, page_ofs;
+@@ -629,7 +660,19 @@
+ 				DRM_ERROR( "failed to cleanup PCI GART!\n" );
+ 		}
+ #endif
+-
++		/*
++		 * Free the page we grabbed for RPTR_ADDR
++		 */
++		if ( !dev_priv->is_pci && dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off =
++				(unsigned long) dev_priv->ring.head;
++			struct page *p = virt_to_page((void *)alt_rh_off);
++
++			put_page(p);
++			unlock_page(p);
++			free_page(alt_rh_off);
++		}
++	
+ 		DRM(free)( dev->dev_private, sizeof(drm_r128_private_t),
+ 			   DRM_MEM_DRIVER );
+ 		dev->dev_private = NULL;
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm/radeon_cp.c kernel-source-2.4.27.bjorn/drivers/char/drm/radeon_cp.c
+--- kernel-source-2.4.27.orig/drivers/char/drm/radeon_cp.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm/radeon_cp.c	2005-03-14 10:36:16.648376639 -0700
+@@ -854,7 +854,7 @@
+ static void radeon_cp_init_ring_buffer( drm_device_t *dev,
+ 				        drm_radeon_private_t *dev_priv )
+ {
+-	u32 ring_start, cur_read_ptr;
++	u32 ring_start, cur_read_ptr, rptr_addr;
+ 	u32 tmp;
+ 
+ 	/* Initialize the memory controller */
+@@ -892,8 +892,24 @@
+ 	dev_priv->ring.tail = cur_read_ptr;
+ 
+ 	if ( !dev_priv->is_pci ) {
+-		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
+-			      dev_priv->ring_rptr->offset );
++		/*
++		 * 460GX doesn't claim PCI writes from the card into
++		 * the AGP aperture, so we have to get space outside
++		 * the aperture for RPTR_ADDR.
++		 */
++		if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off;
++
++			alt_rh_off = __get_free_page(GFP_KERNEL | GFP_DMA);
++			atomic_inc(&virt_to_page(alt_rh_off)->count);
++			set_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++
++			dev_priv->ring.head = (__volatile__ u32 *) alt_rh_off;
++			*dev_priv->ring.head = cur_read_ptr;
++			rptr_addr = __pa( dev_priv->ring.head );
++		} else
++			rptr_addr = dev_priv->ring_rptr->offset;
++		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR, rptr_addr );
+ 	} else {
+ 		drm_sg_mem_t *entry = dev->sg;
+ 		unsigned long tmp_ofs, page_ofs;
+@@ -1278,6 +1294,19 @@
+ #endif /* __REALLY_HAVE_SG */
+ 		}
+ 
++		/*
++		 * Free the page we grabbed for RPTR_ADDR
++		 */
++		if ( !dev_priv->is_pci && dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off =
++				(unsigned long) dev_priv->ring.head;
++			struct page *p = virt_to_page((void *)alt_rh_off);
++
++			put_page(p);
++			unlock_page(p);
++			free_page(alt_rh_off);
++		}
++	
+ 		DRM(free)( dev->dev_private, sizeof(drm_radeon_private_t),
+ 			   DRM_MEM_DRIVER );
+ 		dev->dev_private = NULL;
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/agpsupport.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/agpsupport.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/agpsupport.c	2003-11-28 11:26:20.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/agpsupport.c	2005-03-14 10:36:16.649353201 -0700
+@@ -30,6 +30,7 @@
+ 
+ #define __NO_VERSION__
+ #include "drmP.h"
++#include <linux/config.h>
+ #include <linux/module.h>
+ #if LINUX_VERSION_CODE < 0x020400
+ #include "agpsupport-pre24.h"
+@@ -305,6 +306,13 @@
+ 
+ 		default:		head->chipset = "Unknown";       break;
+ 		}
++#if LINUX_VERSION_CODE <= 0x020408
++		head->cant_use_aperture = 0;
++		head->page_mask = ~(0xfff);
++#else
++		head->cant_use_aperture = head->agp_info.cant_use_aperture;
++		head->page_mask = head->agp_info.page_mask;
++#endif
+ 		DRM_INFO("AGP %d.%d on %s @ 0x%08lx %ZuMB\n",
+ 			 head->agp_info.version.major,
+ 			 head->agp_info.version.minor,
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/bufs.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/bufs.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/bufs.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/bufs.c	2005-03-14 10:36:16.649353201 -0700
+@@ -73,7 +73,7 @@
+ 	switch (map->type) {
+ 	case _DRM_REGISTERS:
+ 	case _DRM_FRAME_BUFFER:
+-#ifndef __sparc__
++#if !defined(__sparc__) && !defined(__ia64__)
+ 		if (map->offset + map->size < map->offset
+ 		    || map->offset < virt_to_phys(high_memory)) {
+ 			drm_free(map, sizeof(*map), DRM_MEM_MAPS);
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/drmP.h kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/drmP.h
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/drmP.h	2005-01-19 02:57:38.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/drmP.h	2005-03-14 10:36:16.650329763 -0700
+@@ -478,6 +478,8 @@
+ 	int                acquired;
+ 	unsigned long      base;
+    	int 		   agp_mtrr;
++	int		   cant_use_aperture;
++	unsigned long	   page_mask;
+ } drm_agp_head_t;
+ #endif
+ 
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/memory.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/memory.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/memory.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/memory.c	2005-03-14 10:36:16.650329763 -0700
+@@ -306,12 +306,44 @@
+ 		return NULL;
+ 	}
+ 	
++	if (dev->agp->cant_use_aperture) {
++		drm_map_t *map    = NULL;
++		int i;
++
++		for (i = 0; i < dev->map_count; i++) {
++			map = dev->maplist[i];
++			if (!map) continue;
++			if (map->offset <= offset &&
++				(map->offset + map->size) >= (offset + size))
++				break;
++		}
++		
++		if (map && map->type == _DRM_AGP) {
++			struct drm_agp_mem *agpmem;
++
++			for (agpmem = dev->agp->memory; agpmem;
++						agpmem = agpmem->next) {
++				if(agpmem->bound <= offset &&
++				   (agpmem->bound + (agpmem->pages
++					<< PAGE_SHIFT)) >= (offset + size))
++					break;
++			}
++
++			if (agpmem) {
++				pt = agpmem->memory->vmptr + (offset - agpmem->bound);
++				goto ioremap_success;
++			}
++		}
++	}
++
+ 	if (!(pt = ioremap(offset, size))) {
+ 		spin_lock(&drm_mem_lock);
+ 		++drm_mem_stats[DRM_MEM_MAPPINGS].fail_count;
+ 		spin_unlock(&drm_mem_lock);
+ 		return NULL;
+ 	}
++
++ioremap_success:
+ 	spin_lock(&drm_mem_lock);
+ 	++drm_mem_stats[DRM_MEM_MAPPINGS].succeed_count;
+ 	drm_mem_stats[DRM_MEM_MAPPINGS].bytes_allocated += size;
+@@ -327,7 +359,7 @@
+ 	if (!pt)
+ 		DRM_MEM_ERROR(DRM_MEM_MAPPINGS,
+ 			      "Attempt to free NULL pointer\n");
+-	else
++	else if (dev->agp->cant_use_aperture == 0)
+ 		iounmap(pt);
+ 	
+ 	spin_lock(&drm_mem_lock);
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/mga_dma.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/mga_dma.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/mga_dma.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/mga_dma.c	2005-03-14 10:36:16.651306326 -0700
+@@ -741,10 +741,18 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-   	/* Write status page when secend or softrap occurs */
++   	/* Write status page when secend or softrap occurs
++	 *
++	 * Disable this on ia64 on the off chance that real status page will be
++	 * above 4GB.
++	 */
++#if defined(__ia64__)
++   	MGA_WRITE(MGAREG_PRIMPTR,
++		  virt_to_bus((void *)dev_priv->real_status_page));
++#else
+    	MGA_WRITE(MGAREG_PRIMPTR,
+ 		  virt_to_bus((void *)dev_priv->real_status_page) | 0x00000003);
+-
++#endif
+ 
+ 	/* Private is now filled in, initialize the hardware */
+ 	{
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/mga_drv.h kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/mga_drv.h
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/mga_drv.h	2002-02-25 12:37:57.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/mga_drv.h	2005-03-14 10:36:16.651306326 -0700
+@@ -295,7 +295,7 @@
+ 		       num_dwords + 1 + outcount, ADRINDEX(reg), val);	\
+ 	if( ++outcount == 4) {						\
+ 		outcount = 0;						\
+-		dma_ptr[0] = *(unsigned long *)tempIndex;		\
++		dma_ptr[0] = *(u32 *)tempIndex;				\
+ 		dma_ptr+=5;						\
+ 		num_dwords += 5;					\
+ 	}								\
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/r128_cce.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/r128_cce.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/r128_cce.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/r128_cce.c	2005-03-14 10:36:16.652282888 -0700
+@@ -229,7 +229,21 @@
+ 	int i;
+ 
+ 	for ( i = 0 ; i < dev_priv->usec_timeout ; i++ ) {
++#ifndef CONFIG_AGP_I460
+ 		if ( *dev_priv->ring.head == dev_priv->ring.tail ) {
++#else
++		/*
++		 * XXX - this is (I think) a 460GX specific hack
++		 *
++		 * When doing texturing, ring.tail sometimes gets ahead of
++		 * PM4_BUFFER_DL_WPTR by 2; consequently, the card processes
++		 * its whole quota of instructions and *ring.head is still 2
++		 * short of ring.tail.  Work around this for now in lieu of
++		 * a better solution.
++		 */
++		if ( (*dev_priv->ring.head == dev_priv->ring.tail) ||
++			((dev_priv->ring.tail - *dev_priv->ring.head) == 2) ) {
++#endif
+ 			int pm4stat = R128_READ( R128_PM4_STAT );
+ 			if ( ( (pm4stat & R128_PM4_FIFOCNT_MASK) >=
+ 			       dev_priv->cce_fifo_size ) &&
+@@ -330,7 +344,7 @@
+ static void r128_cce_init_ring_buffer( drm_device_t *dev )
+ {
+ 	drm_r128_private_t *dev_priv = dev->dev_private;
+-	u32 ring_start;
++	u32 ring_start, rptr_addr;
+ 	u32 tmp;
+ 
+ 	/* The manual (p. 2) says this address is in "VM space".  This
+@@ -342,10 +356,27 @@
+ 	R128_WRITE( R128_PM4_BUFFER_DL_WPTR, 0 );
+ 	R128_WRITE( R128_PM4_BUFFER_DL_RPTR, 0 );
+ 
++	/*
++	 * 460GX doesn't claim PCI writes from the card into the AGP
++	 * aperture, so we have to get space outside the aperture for
++	 * RPTR_ADDR.
++	 */
++	if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++		unsigned long alt_rh_off;
++
++		alt_rh_off = __get_free_page(GFP_KERNEL | GFP_DMA);
++		atomic_inc(&virt_to_page(alt_rh_off)->count);
++		set_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++
++		dev_priv->ring.head = (__volatile__ u32 *) alt_rh_off;
++		rptr_addr = __pa( dev_priv->ring.head );
++	} else {
++		rptr_addr = dev_priv->ring_rptr->offset;
++	}
++
+ 	/* DL_RPTR_ADDR is a physical address in AGP space. */
+ 	*dev_priv->ring.head = 0;
+-	R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR,
+-		    dev_priv->ring_rptr->offset );
++	R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR, rptr_addr );
+ 
+ 	/* Set watermark control */
+ 	R128_WRITE( R128_PM4_BUFFER_WM_CNTL,
+@@ -530,6 +561,19 @@
+ 		}
+ #endif
+ 
++		/*
++		 * Free the page we grabbed for RPTR_ADDR
++		 */
++		if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off =
++				(unsigned long) dev_priv->ring.head;
++
++			atomic_dec(&virt_to_page(alt_rh_off)->count);
++			clear_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++			wake_up(&virt_to_page(alt_rh_off)->wait);
++			free_page(alt_rh_off);
++		}
++
+ 		drm_free( dev->dev_private, sizeof(drm_r128_private_t),
+ 			  DRM_MEM_DRIVER );
+ 		dev->dev_private = NULL;
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/radeon_cp.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/radeon_cp.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/radeon_cp.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/radeon_cp.c	2005-03-14 10:36:16.653259451 -0700
+@@ -569,7 +569,7 @@
+ static void radeon_cp_init_ring_buffer( drm_device_t *dev )
+ {
+ 	drm_radeon_private_t *dev_priv = dev->dev_private;
+-	u32 ring_start, cur_read_ptr;
++	u32 ring_start, cur_read_ptr, rptr_addr;
+ 	u32 tmp;
+ 
+ 	/* Initialize the memory controller */
+@@ -592,10 +592,29 @@
+ 	/* Initialize the ring buffer's read and write pointers */
+ 	cur_read_ptr = RADEON_READ( RADEON_CP_RB_RPTR );
+ 	RADEON_WRITE( RADEON_CP_RB_WPTR, cur_read_ptr );
++
+ 	*dev_priv->ring.head = cur_read_ptr;
+ 	dev_priv->ring.tail = cur_read_ptr;
+ 
+-	RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR, dev_priv->ring_rptr->offset );
++	/*
++	 * 460GX doesn't claim PCI writes from the card into the AGP
++	 * aperture, so we have to get space outside the aperture for
++	 * RPTR_ADDR.
++	 */
++	if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++		unsigned long alt_rh_off;
++
++		alt_rh_off = __get_free_page(GFP_KERNEL | GFP_DMA);
++		atomic_inc(&virt_to_page(alt_rh_off)->count);
++		set_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++
++		dev_priv->ring.head = (__volatile__ u32 *) alt_rh_off;
++		*dev_priv->ring.head = cur_read_ptr;
++		rptr_addr = __pa( dev_priv->ring.head );
++	} else
++		rptr_addr = dev_priv->ring_rptr->offset;
++
++	RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR, rptr_addr);
+ 
+ 	/* Set ring buffer size */
+ 	RADEON_WRITE( RADEON_CP_RB_CNTL, dev_priv->ring.size_l2qw );
+@@ -837,6 +856,19 @@
+ 		}
+ #endif
+ 
++		/*
++		 * Free the page we grabbed for RPTR_ADDR.
++		 */
++		if ( dev->agp->agp_info.chipset == INTEL_460GX ) {
++			unsigned long alt_rh_off =
++				(unsigned long) dev_priv->ring.head;
++
++			atomic_dec(&virt_to_page(alt_rh_off)->count);
++			clear_bit(PG_locked, &virt_to_page(alt_rh_off)->flags);
++			wake_up(&virt_to_page(alt_rh_off)->wait);
++			free_page(alt_rh_off);
++		}
++
+ 		drm_free( dev->dev_private, sizeof(drm_radeon_private_t),
+ 			  DRM_MEM_DRIVER );
+ 		dev->dev_private = NULL;
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/radeon_drv.h kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/radeon_drv.h
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/radeon_drv.h	2002-02-25 12:37:57.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/radeon_drv.h	2005-03-14 10:36:16.653259451 -0700
+@@ -535,7 +535,7 @@
+ #define RADEON_MAX_VB_VERTS		(0xffff)
+ 
+ 
+-#define RADEON_BASE(reg)	((u32)(dev_priv->mmio->handle))
++#define RADEON_BASE(reg)	((unsigned long)(dev_priv->mmio->handle))
+ #define RADEON_ADDR(reg)	(RADEON_BASE(reg) + reg)
+ 
+ #define RADEON_DEREF(reg)	*(__volatile__ u32 *)RADEON_ADDR(reg)
+diff -urN kernel-source-2.4.27.orig/drivers/char/drm-4.0/vm.c kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/vm.c
+--- kernel-source-2.4.27.orig/drivers/char/drm-4.0/vm.c	2002-02-25 12:37:57.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/drm-4.0/vm.c	2005-03-14 10:36:16.654236013 -0700
+@@ -30,6 +30,7 @@
+  */
+ 
+ #define __NO_VERSION__
++#include <linux/config.h>
+ #include "drmP.h"
+ 
+ struct vm_operations_struct   drm_vm_ops = {
+@@ -67,7 +68,56 @@
+ 			   int write_access)
+ #endif
+ {
+-	return NOPAGE_SIGBUS;		/* Disallow mremap */
++        drm_file_t *priv  = vma->vm_file->private_data;
++        drm_device_t *dev = priv->dev;
++        drm_map_t *map    = NULL;
++	int i;
++
++	if (!dev->agp->cant_use_aperture)
++		return NOPAGE_SIGBUS;		/* Disallow mremap */
++
++        /*
++         * Find the right map
++         */
++	for (i = 0; i < dev->map_count; i++) {
++                map = dev->maplist[i];
++                if (!map) continue;
++                if (map->offset == VM_OFFSET(vma)) break;
++        }
++
++        if (map && map->type == _DRM_AGP) {
++                unsigned long offset = address - vma->vm_start;
++                unsigned long baddr = VM_OFFSET(vma) + offset, paddr;
++                struct drm_agp_mem *agpmem;
++                struct page *page;
++
++                /*
++                 * It's AGP memory - find the real physical page to map
++                 */
++                for (agpmem = dev->agp->memory; agpmem; agpmem = agpmem->next) {
++                        if (agpmem->bound <= baddr &&
++                            agpmem->bound + agpmem->pages * PAGE_SIZE > baddr) 
++                                break;
++                }
++
++                if (!agpmem)
++			return NOPAGE_SIGBUS;
++
++                /*
++                 * Get the page, inc the use count, and return it
++                 */
++                offset = (baddr - agpmem->bound) >> PAGE_SHIFT;
++		paddr = agpmem->memory->memory[offset];
++                page = virt_to_page(__va(paddr));
++                get_page(page);
++
++#if LINUX_VERSION_CODE < 0x020317
++		return page_address(page);
++#else
++		return page;
++#endif
++        }
++	return NOPAGE_SIGBUS;
+ }
+ 
+ #if LINUX_VERSION_CODE < 0x020317
+@@ -272,6 +322,7 @@
+ 	drm_file_t	*priv	= filp->private_data;
+ 	drm_device_t	*dev	= priv->dev;
+ 	drm_map_t	*map	= NULL;
++	unsigned long	off;
+ 	int		i;
+ 	
+ 	DRM_DEBUG("start = 0x%lx, end = 0x%lx, offset = 0x%lx\n",
+@@ -288,7 +339,16 @@
+ 				   bit longer. */
+ 	for (i = 0; i < dev->map_count; i++) {
+ 		map = dev->maplist[i];
+-		if (map->offset == VM_OFFSET(vma)) break;
++		off = map->offset ^ VM_OFFSET(vma);
++#ifdef	__ia64__
++		/*
++		 * Ignore region bits, makes IA32 processes happier
++		 * XXX This is a hack...
++		 */
++		off &= ~0xe000000000000000;
++#endif
++		if (off == 0)
++			break;
+ 	}
+ 	
+ 	if (i >= dev->map_count) return -EINVAL;
+@@ -312,9 +372,19 @@
+ 	}
+ 
+ 	switch (map->type) {
++	case _DRM_AGP:
++		if (dev->agp->cant_use_aperture) {
++			/*
++			 * On some systems we can't talk to bus dma address from
++			 * the CPU, so for memory of type DRM_AGP, we'll deal
++			 * with sorting out the real physical pages and mappings
++			 * in nopage()
++			 */
++			vma->vm_ops = &drm_vm_ops;
++			break;
++		}
+ 	case _DRM_FRAME_BUFFER:
+ 	case _DRM_REGISTERS:
+-	case _DRM_AGP:
+ 		if (VM_OFFSET(vma) >= __pa(high_memory)) {
+ #if defined(__i386__) || defined(__x86_64__)
+ 			if (boot_cpu_data.x86 > 3 && map->type != _DRM_AGP) {
+diff -urN kernel-source-2.4.27.orig/drivers/char/mem.c kernel-source-2.4.27.bjorn/drivers/char/mem.c
+--- kernel-source-2.4.27.orig/drivers/char/mem.c	2004-08-07 17:26:04.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/char/mem.c	2005-03-14 10:36:16.655212576 -0700
+@@ -27,6 +27,10 @@
+ #include <asm/io.h>
+ #include <asm/pgalloc.h>
+ 
++#ifdef CONFIG_IA64
++# include <linux/efi.h>
++#endif
++
+ #ifdef CONFIG_I2C
+ extern int i2c_init_all(void);
+ #endif
+@@ -42,7 +46,46 @@
+ #if defined(CONFIG_S390_TAPE) && defined(CONFIG_S390_TAPE_CHAR)
+ extern void tapechar_init(void);
+ #endif
+-     
++
++/*
++ * Architectures vary in how they handle caching for addresses
++ * outside of main memory.
++ *
++ */
++static inline int uncached_access(struct file *file, unsigned long addr)
++{
++#if defined(__i386__)
++	/*
++	 * On the PPro and successors, the MTRRs are used to set
++	 * memory types for physical addresses outside main memory,
++	 * so blindly setting PCD or PWT on those pages is wrong.
++	 * For Pentiums and earlier, the surround logic should disable
++	 * caching for the high addresses through the KEN pin, but
++	 * we maintain the tradition of paranoia in this code.
++	 */
++	if (file->f_flags & O_SYNC)
++		return 1;
++ 	return !( test_bit(X86_FEATURE_MTRR, boot_cpu_data.x86_capability) ||
++		  test_bit(X86_FEATURE_K6_MTRR, boot_cpu_data.x86_capability) ||
++		  test_bit(X86_FEATURE_CYRIX_ARR, boot_cpu_data.x86_capability) ||
++		  test_bit(X86_FEATURE_CENTAUR_MCR, boot_cpu_data.x86_capability) )
++	  && addr >= __pa(high_memory);
++#elif defined(CONFIG_IA64)
++	/*
++	 * On ia64, we ignore O_SYNC because we cannot tolerate memory attribute aliases.
++	 */
++	return !(efi_mem_attributes(addr) & EFI_MEMORY_WB);
++#else
++	/*
++	 * Accessing memory above the top the kernel knows about or through a file pointer
++	 * that was marked O_SYNC will be done non-cached.
++	 */
++	if (file->f_flags & O_SYNC)
++		return 1;
++	return addr >= __pa(high_memory);
++#endif
++}
++
+ static ssize_t do_write_mem(struct file * file, void *p, unsigned long realp,
+ 			    const char * buf, size_t count, loff_t *ppos)
+ {
+@@ -79,7 +122,7 @@
+ 	unsigned long p = *ppos;
+ 	unsigned long end_mem;
+ 	ssize_t read;
+-	
++
+ 	end_mem = __pa(high_memory);
+ 	if (p >= end_mem)
+ 		return 0;
+@@ -123,77 +166,16 @@
+ 	return do_write_mem(file, __va(p), p, buf, count, ppos);
+ }
+ 
+-#ifndef pgprot_noncached
+-
+-/*
+- * This should probably be per-architecture in <asm/pgtable.h>
+- */
+-static inline pgprot_t pgprot_noncached(pgprot_t _prot)
+-{
+-	unsigned long prot = pgprot_val(_prot);
+-
+-#if defined(__i386__) || defined(__x86_64__)
+-	/* On PPro and successors, PCD alone doesn't always mean 
+-	    uncached because of interactions with the MTRRs. PCD | PWT
+-	    means definitely uncached. */ 
+-	if (boot_cpu_data.x86 > 3)
+-		prot |= _PAGE_PCD | _PAGE_PWT;
+-#elif defined(__powerpc__)
+-	prot |= _PAGE_NO_CACHE | _PAGE_GUARDED;
+-#elif defined(__mc68000__)
+-#ifdef SUN3_PAGE_NOCACHE
+-	if (MMU_IS_SUN3)
+-		prot |= SUN3_PAGE_NOCACHE;
+-	else
+-#endif
+-	if (MMU_IS_851 || MMU_IS_030)
+-		prot |= _PAGE_NOCACHE030;
+-	/* Use no-cache mode, serialized */
+-	else if (MMU_IS_040 || MMU_IS_060)
+-		prot = (prot & _CACHEMASK040) | _PAGE_NOCACHE_S;
+-#endif
+-
+-	return __pgprot(prot);
+-}
+-
+-#endif /* !pgprot_noncached */
+-
+-/*
+- * Architectures vary in how they handle caching for addresses 
+- * outside of main memory.
+- */
+-static inline int noncached_address(unsigned long addr)
+-{
+-#if defined(__i386__)
+-	/* 
+-	 * On the PPro and successors, the MTRRs are used to set
+-	 * memory types for physical addresses outside main memory, 
+-	 * so blindly setting PCD or PWT on those pages is wrong.
+-	 * For Pentiums and earlier, the surround logic should disable 
+-	 * caching for the high addresses through the KEN pin, but
+-	 * we maintain the tradition of paranoia in this code.
+-	 */
+- 	return !( test_bit(X86_FEATURE_MTRR, &boot_cpu_data.x86_capability) ||
+-		  test_bit(X86_FEATURE_K6_MTRR, &boot_cpu_data.x86_capability) ||
+-		  test_bit(X86_FEATURE_CYRIX_ARR, &boot_cpu_data.x86_capability) ||
+-		  test_bit(X86_FEATURE_CENTAUR_MCR, &boot_cpu_data.x86_capability) )
+-	  && addr >= __pa(high_memory);
+-#else
+-	return addr >= __pa(high_memory);
+-#endif
+-}
+-
+ static int mmap_mem(struct file * file, struct vm_area_struct * vma)
+ {
+ 	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
++	int uncached;
+ 
+-	/*
+-	 * Accessing memory above the top the kernel knows about or
+-	 * through a file pointer that was marked O_SYNC will be
+-	 * done non-cached.
+-	 */
+-	if (noncached_address(offset) || (file->f_flags & O_SYNC))
++	uncached = uncached_access(file, offset);
++#ifdef pgprot_noncached
++	if (uncached)
+ 		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++#endif
+ 
+ 	/* Don't try to swap out physical pages.. */
+ 	vma->vm_flags |= VM_RESERVED;
+@@ -201,7 +183,7 @@
+ 	/*
+ 	 * Don't dump addresses that are not real memory to a core file.
+ 	 */
+-	if (offset >= __pa(high_memory) || (file->f_flags & O_SYNC))
++	if (uncached)
+ 		vma->vm_flags |= VM_IO;
+ 
+ 	if (remap_page_range(vma->vm_start, offset, vma->vm_end-vma->vm_start,
+@@ -512,11 +494,13 @@
+ 			ret = file->f_pos;
+ 			force_successful_syscall_return();
+ 			break;
++
+ 		case 1:
+ 			file->f_pos += offset;
+ 			ret = file->f_pos;
+ 			force_successful_syscall_return();
+ 			break;
++
+ 		default:
+ 			ret = -EINVAL;
+ 	}
+@@ -581,6 +565,7 @@
+ {
+ 	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
+ 	unsigned long size = vma->vm_end - vma->vm_start;
++	int uncached;
+ 
+ 	/*
+ 	 * If the user is not attempting to mmap a high memory address then
+@@ -591,13 +576,11 @@
+ 	if ((offset + size) < (unsigned long) high_memory)
+ 		return mmap_mem(file, vma);
+ 
+-	/*
+-	 * Accessing memory above the top the kernel knows about or
+-	 * through a file pointer that was marked O_SYNC will be
+-	 * done non-cached.
+-	 */
+-	if (noncached_address(offset) || (file->f_flags & O_SYNC))
++	uncached = uncached_access(file, offset);
++#ifdef pgprot_noncached
++	if (uncached)
+ 		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++#endif
+ 
+ 	/* Don't do anything here; "nopage" will fill the holes */
+ 	vma->vm_ops = &kmem_vm_ops;
+@@ -608,7 +591,8 @@
+ 	/*
+ 	 * Don't dump addresses that are not real memory to a core file.
+ 	 */
+-	vma->vm_flags |= VM_IO;
++	if (uncached)
++		vma->vm_flags |= VM_IO;
+ 
+ 	return 0;
+ }
+diff -urN kernel-source-2.4.27.orig/drivers/char/serial.c kernel-source-2.4.27.bjorn/drivers/char/serial.c
+--- kernel-source-2.4.27.orig/drivers/char/serial.c	2005-01-19 02:57:54.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/char/serial.c	2005-03-14 10:36:16.659118826 -0700
+@@ -92,9 +92,8 @@
+  * 		ever possible.
+  *
+  * CONFIG_SERIAL_ACPI
+- *		Enable support for serial console port and serial 
+- *		debug port as defined by the SPCR and DBGP tables in 
+- *		ACPI 2.0.
++ *		Enable support for serial ports found in the ACPI
++ *		namespace.
+  */
+ 
+ #include <linux/config.h>
+@@ -222,6 +221,10 @@
+ #ifdef CONFIG_MAGIC_SYSRQ
+ #include <linux/sysrq.h>
+ #endif
++#ifdef ENABLE_SERIAL_ACPI
++#include <linux/acpi.h>
++#include <acpi/acpi_bus.h>
++#endif
+ 
+ /*
+  * All of the compatibilty code so we can compile serial.c against
+@@ -257,6 +260,10 @@
+ 
+ static struct timer_list serial_timer;
+ 
++#define HP_DIVA_CHECKTIME (1*HZ)
++static struct timer_list hp_diva_timer;
++static int hp_diva_count = 0;
++
+ /* serial subtype definitions */
+ #ifndef SERIAL_TYPE_NORMAL
+ #define SERIAL_TYPE_NORMAL	1
+@@ -793,6 +800,41 @@
+ }
+ 
+ #ifdef CONFIG_SERIAL_SHARE_IRQ
++static inline int is_hp_diva_info(struct async_struct *info) 
++{
++    struct pci_dev *dev = info->state->dev;
++    return (dev && dev->vendor == PCI_VENDOR_ID_HP &&
++		dev->device == PCI_DEVICE_ID_HP_SAS);
++}
++
++static inline int is_hp_diva_irq(int irq)
++{
++    struct async_struct *info = IRQ_ports[irq];
++    return (info && is_hp_diva_info(info));
++}
++
++/*
++ * It is possible to "use up" transmit empty interrupts in some
++ * cases with HP Diva cards.  Figure out if there _should_ be a
++ * transmit interrupt and if so, return a suitable iir value so
++ * that we can recover when called from rs_timer().
++ */
++static inline int hp_diva_iir(int irq, struct async_struct *info)
++{
++	int iir = serial_in(info, UART_IIR);
++
++	if (is_hp_diva_info(info) &&
++		(iir & UART_IIR_NO_INT) != 0 &&
++		(info->IER & UART_IER_THRI) != 0 &&
++		(info->xmit.head != info->xmit.tail || info->x_char) &&
++		(serial_in(info, UART_LSR) & UART_LSR_THRE) != 0) {
++		    iir &= ~(UART_IIR_ID | UART_IIR_NO_INT);
++		    iir |= UART_IIR_THRI;
++	}
++
++	return iir;
++}
++
+ /*
+  * This is the serial driver's generic interrupt routine
+  */
+@@ -823,7 +865,7 @@
+ 
+ 	do {
+ 		if (!info->tty ||
+-		    ((iir=serial_in(info, UART_IIR)) & UART_IIR_NO_INT)) {
++		    ((iir=hp_diva_iir(irq, info)) & UART_IIR_NO_INT)) {
+ 			if (!end_mark)
+ 				end_mark = info;
+ 			goto next;
+@@ -1095,9 +1137,11 @@
+ #ifdef CONFIG_SERIAL_SHARE_IRQ
+ 			if (info->next_port) {
+ 				do {
+-					serial_out(info, UART_IER, 0);
+-					info->IER |= UART_IER_THRI;
+-					serial_out(info, UART_IER, info->IER);
++					if (!is_hp_diva_info(info)) {
++						serial_out(info, UART_IER, 0);
++						info->IER |= UART_IER_THRI;
++						serial_out(info, UART_IER, info->IER);
++					}
+ 					info = info->next_port;
+ 				} while (info);
+ #ifdef CONFIG_SERIAL_MULTIPORT
+@@ -1129,6 +1173,35 @@
+ }
+ 
+ /*
++ * This subroutine is called when the hp_diva_timer goes off.  In
++ * certain cases (multiple gettys in particular) Diva seems to issue
++ * only a single transmit empty interrupt instead of one each time
++ * THRI is enabled, causing interrupts to be "used up".  This serves
++ * to poll the Diva UARTS more frequently than rs_timer() does.
++ */
++static void hp_diva_check(unsigned long dummy)
++{
++#ifdef CONFIG_SERIAL_SHARE_IRQ
++	static unsigned long last_strobe;
++	unsigned long flags;
++	int i;
++
++	if (time_after_eq(jiffies, last_strobe + HP_DIVA_CHECKTIME)) {
++		for (i = 0; i < NR_IRQS; i++) {
++			if (is_hp_diva_irq(i)) {
++			    save_flags(flags); cli();
++			    rs_interrupt(i, NULL, NULL);
++			    restore_flags(flags);
++			}
++		}
++	}
++	last_strobe = jiffies;
++	mod_timer(&hp_diva_timer, jiffies + HP_DIVA_CHECKTIME);
++#endif
++}
++
++
++/*
+  * ---------------------------------------------------------------
+  * Low level utility subroutines for the serial driver:  routines to
+  * figure out the appropriate timeout for an interrupt chain, routines
+@@ -4288,6 +4361,12 @@
+ 		break;
+ 	}
+ 
++	if (hp_diva_count++ == 0) {
++		init_timer(&hp_diva_timer);
++		hp_diva_timer.function = hp_diva_check;
++		mod_timer(&hp_diva_timer, jiffies + HP_DIVA_CHECKTIME);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -4591,6 +4670,129 @@
+ 	}
+ }
+ 
++#ifdef ENABLE_SERIAL_ACPI
++static acpi_status acpi_serial_address(struct serial_struct *req,
++				       struct acpi_resource_address64 *addr)
++{
++	unsigned long size;
++
++	size = addr->max_address_range - addr->min_address_range + 1;
++	req->iomem_base = ioremap(addr->min_address_range, size);
++	if (!req->iomem_base) {
++		printk("%s: couldn't ioremap 0x%lx-0x%lx\n", __FUNCTION__,
++			addr->min_address_range, addr->max_address_range);
++		return AE_ERROR;
++	}
++	req->io_type = SERIAL_IO_MEM;
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_ext_irq(struct serial_struct *req,
++				       struct acpi_resource_ext_irq *ext_irq)
++{
++	if (ext_irq->number_of_interrupts > 0) {
++#ifdef CONFIG_IA64
++		req->irq = acpi_register_irq(ext_irq->interrupts[0],
++	                  ext_irq->active_high_low, ext_irq->edge_level);
++#else
++		req->irq = ext_irq->interrupts[0];
++#endif
++	}
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_port(struct serial_struct *req,
++				    struct acpi_resource_io *io)
++{
++	req->port = io->min_base_address;
++	req->io_type = SERIAL_IO_PORT;
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_irq(struct serial_struct *req,
++				   struct acpi_resource_irq *irq)
++{
++	if (irq->number_of_interrupts > 0) {
++#ifdef CONFIG_IA64
++		req->irq = acpi_register_irq(irq->interrupts[0],
++	                  irq->active_high_low, irq->edge_level);
++#else
++		req->irq = irq->interrupts[0];
++#endif
++	}
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_resource(struct acpi_resource *res, void *data)
++{
++	struct serial_struct *serial_req = (struct serial_struct *) data;
++	struct acpi_resource_address64 addr;
++	acpi_status status;
++
++	status = acpi_resource_to_address64(res, &addr);
++	if (ACPI_SUCCESS(status))
++		return acpi_serial_address(serial_req, &addr);
++	else if (res->id == ACPI_RSTYPE_EXT_IRQ)
++		return acpi_serial_ext_irq(serial_req, &res->data.extended_irq);
++	else if (res->id == ACPI_RSTYPE_IO)
++		return acpi_serial_port(serial_req, &res->data.io);
++	else if (res->id == ACPI_RSTYPE_IRQ)
++		return acpi_serial_irq(serial_req, &res->data.irq);
++	return AE_OK;
++}
++
++static int acpi_serial_add(struct acpi_device *device)
++{
++	acpi_status status;
++	struct serial_struct serial_req;
++	int line;
++
++	memset(&serial_req, 0, sizeof(serial_req));
++
++	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
++				     acpi_serial_resource, &serial_req);
++	if (ACPI_FAILURE(status))
++		return -ENODEV;
++
++	if (!serial_req.iomem_base && !serial_req.port) {
++		printk("%s: no iomem or port address in %s _CRS\n", __FUNCTION__,
++			device->pnp.bus_id);
++		return -ENODEV;
++	}
++
++	serial_req.baud_base = BASE_BAUD;
++	serial_req.flags = ASYNC_SKIP_TEST|ASYNC_BOOT_AUTOCONF|ASYNC_AUTO_IRQ;
++	serial_req.xmit_fifo_size = serial_req.custom_divisor = 0;
++	serial_req.close_delay = serial_req.hub6 = serial_req.closing_wait = 0;
++	serial_req.iomem_reg_shift = 0;
++
++	line = register_serial(&serial_req);
++	if (line < 0)
++		return -ENODEV;
++
++	return 0;
++}
++
++static int acpi_serial_remove(struct acpi_device *device, int type)
++{
++	return 0;
++}
++
++static struct acpi_driver acpi_serial_driver = {
++	.name =		"serial",
++	.class =	"",
++	.ids =		"PNP0501",
++	.ops =	{
++		.add =		acpi_serial_add,
++		.remove =	acpi_serial_remove,
++	},
++};
++
++static void __devinit probe_serial_acpi(void)
++{
++	acpi_bus_register_driver(&acpi_serial_driver);
++}
++#endif /* ENABLE_SERIAL_ACPI */
+ 
+ static struct pci_device_id serial_pci_tbl[] __devinitdata = {
+ 	{	PCI_VENDOR_ID_V3, PCI_DEVICE_ID_V3_V960,
+@@ -5552,6 +5754,9 @@
+ 		tty_register_devfs(&callout_driver, 0,
+ 				   callout_driver.minor_start + state->line);
+ 	}
++#ifdef ENABLE_SERIAL_ACPI
++	probe_serial_acpi();
++#endif
+ #ifdef ENABLE_SERIAL_PCI
+ 	probe_serial_pci();
+ #endif
+@@ -5729,6 +5934,8 @@
+ 
+ 	/* printk("Unloading %s: version %s\n", serial_name, serial_version); */
+ 	del_timer_sync(&serial_timer);
++	if (hp_diva_count > 0)
++		del_timer_sync(&hp_diva_timer);
+ 	save_flags(flags); cli();
+         remove_bh(SERIAL_BH);
+ 	if ((e1 = tty_unregister_driver(&serial_driver)))
+diff -urN kernel-source-2.4.27.orig/drivers/net/tulip/media.c kernel-source-2.4.27.bjorn/drivers/net/tulip/media.c
+--- kernel-source-2.4.27.orig/drivers/net/tulip/media.c	2003-06-13 08:51:35.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/net/tulip/media.c	2005-03-14 10:36:16.660095388 -0700
+@@ -284,6 +284,10 @@
+ 				for (i = 0; i < init_length; i++)
+ 					outl(init_sequence[i], ioaddr + CSR12);
+ 			}
++
++			(void) inl(ioaddr + CSR6); /* flush CSR12 writes */
++			udelay(500);		/* Give MII time to recover */
++
+ 			tmp_info = get_u16(&misc_info[1]);
+ 			if (tmp_info)
+ 				tp->advertising[phy_num] = tmp_info | 1;
+diff -urN kernel-source-2.4.27.orig/drivers/pci/pci.c kernel-source-2.4.27.bjorn/drivers/pci/pci.c
+--- kernel-source-2.4.27.orig/drivers/pci/pci.c	2004-08-07 17:26:05.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/pci/pci.c	2005-03-14 10:36:16.661071951 -0700
+@@ -1061,8 +1061,14 @@
+ {
+ 	unsigned int pos, reg, next;
+ 	u32 l, sz;
++	u16 cmd;
+ 	struct resource *res;
+ 
++	/* Disable I/O & memory decoding while we size the BARs. */
++	pci_read_config_word(dev, PCI_COMMAND, &cmd);
++	pci_write_config_word(dev, PCI_COMMAND,
++		cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY));
++
+ 	for(pos=0; pos<howmany; pos = next) {
+ 		next = pos+1;
+ 		res = &dev->resource[pos];
+@@ -1127,13 +1133,16 @@
+ 		if (sz && sz != 0xffffffff) {
+ 			sz = pci_size(l, sz, PCI_ROM_ADDRESS_MASK);
+ 			if (!sz)
+-				return;
++				goto out;
+ 			res->flags = (l & PCI_ROM_ADDRESS_ENABLE) |
+ 			  IORESOURCE_MEM | IORESOURCE_PREFETCH | IORESOURCE_READONLY | IORESOURCE_CACHEABLE;
+ 			res->start = l & PCI_ROM_ADDRESS_MASK;
+ 			res->end = res->start + (unsigned long) sz;
+ 		}
+ 	}
++
++out:
++	pci_write_config_word(dev, PCI_COMMAND, cmd);
+ }
+ 
+ void __devinit pci_read_bridge_bases(struct pci_bus *child)
+@@ -2066,16 +2075,16 @@
+ 	int			map, block;
+ 
+ 	if ((page = pool_find_page (pool, dma)) == 0) {
+-		printk (KERN_ERR "pci_pool_free %s/%s, %p/%x (bad dma)\n",
++		printk (KERN_ERR "pci_pool_free %s/%s, %p/%lx (bad dma)\n",
+ 			pool->dev ? pool->dev->slot_name : NULL,
+-			pool->name, vaddr, (int) (dma & 0xffffffff));
++			pool->name, vaddr, (unsigned long) dma);
+ 		return;
+ 	}
+ #ifdef	CONFIG_PCIPOOL_DEBUG
+ 	if (((dma - page->dma) + (void *)page->vaddr) != vaddr) {
+-		printk (KERN_ERR "pci_pool_free %s/%s, %p (bad vaddr)/%x\n",
++		printk (KERN_ERR "pci_pool_free %s/%s, %p (bad vaddr)/%lx\n",
+ 			pool->dev ? pool->dev->slot_name : NULL,
+-			pool->name, vaddr, (int) (dma & 0xffffffff));
++			pool->name, vaddr, (unsigned long) dma);
+ 		return;
+ 	}
+ #endif
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/megaraid.c kernel-source-2.4.27.bjorn/drivers/scsi/megaraid.c
+--- kernel-source-2.4.27.orig/drivers/scsi/megaraid.c	2004-02-18 06:36:31.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/megaraid.c	2005-03-14 10:36:16.663025076 -0700
+@@ -2234,9 +2234,6 @@
+ 
+ 
+ #if DEBUG
+-static unsigned int cum_time = 0;
+-static unsigned int cum_time_cnt = 0;
+-
+ static void showMbox (mega_scb * pScb)
+ {
+ 	mega_mailbox *mbox;
+@@ -2245,7 +2242,7 @@
+ 		return;
+ 
+ 	mbox = (mega_mailbox *) pScb->mboxData;
+-	printk ("%u cmd:%x id:%x #scts:%x lba:%x addr:%x logdrv:%x #sg:%x\n",
++	printk ("%lu cmd:%x id:%x #scts:%x lba:%x addr:%x logdrv:%x #sg:%x\n",
+ 		pScb->SCpnt->pid,
+ 		mbox->cmd, mbox->cmdid, mbox->numsectors,
+ 		mbox->lba, mbox->xferaddr, mbox->logdrv, mbox->numsgelements);
+@@ -3569,10 +3566,14 @@
+ 	mbox[0] = IS_BIOS_ENABLED;
+ 	mbox[2] = GET_BIOS;
+ 
+-	mboxpnt->xferaddr = virt_to_bus ((void *) megacfg->mega_buffer);
++	mboxpnt->xferaddr = pci_map_single(megacfg->dev,
++				(void *) megacfg->mega_buffer, (2 * 1024L),
++				PCI_DMA_FROMDEVICE);
+ 
+ 	ret = megaIssueCmd (megacfg, mbox, NULL, 0);
+ 
++	pci_unmap_single(megacfg->dev, mboxpnt->xferaddr, 2 * 1024L, PCI_DMA_FROMDEVICE);
++
+ 	return (*(char *) megacfg->mega_buffer);
+ }
+ 
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/qla1280.c kernel-source-2.4.27.bjorn/drivers/scsi/qla1280.c
+--- kernel-source-2.4.27.orig/drivers/scsi/qla1280.c	2003-11-28 11:26:20.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/qla1280.c	2005-03-14 10:36:16.665954763 -0700
+@@ -2112,7 +2112,7 @@
+ 	ha->flags.abort_isp_active = 0;
+ 
+ 	ha->flags.ints_enabled = 0;
+-#if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
++#if defined(CONFIG_IA64_SGI_SN2)
+ 	if (ia64_platform_is("sn2")) {
+ 		int count1, count2;
+ 		int c;
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/scsi_dma.c kernel-source-2.4.27.bjorn/drivers/scsi/scsi_dma.c
+--- kernel-source-2.4.27.orig/drivers/scsi/scsi_dma.c	2002-02-25 12:38:04.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/scsi_dma.c	2005-03-14 10:36:16.665954763 -0700
+@@ -30,8 +30,69 @@
+ typedef unsigned char FreeSectorBitmap;
+ #elif SECTORS_PER_PAGE <= 32
+ typedef unsigned int FreeSectorBitmap;
+-#else
+-#error You lose.
++#elif SECTORS_PER_PAGE <= 64
++typedef u64 FreeSectorBitmap;
++#elif SECTORS_PER_PAGE <= 128
++
++typedef struct {
++	u64 hi, lo;
++} FreeSectorBitmap;
++
++/* No side effects on MAP-macro-arguments, please... */
++
++#define MAP_MAKE_MASK(m, nbits)					\
++do {								\
++	if ((nbits) >= 64) {					\
++		(m).hi = ((u64) 1 << ((nbits) - 64)) - 1;	\
++		(m).lo = ~(u64) 0;				\
++	} else {						\
++		(m).hi = 0;					\
++		(m).lo = ((u64) 1 << (nbits)) - 1;		\
++	}							\
++} while (0)
++
++#define MAP_SHIFT_LEFT(m, count)						\
++do {										\
++	if ((count) >= 64) {							\
++		(m).hi = (m).lo << ((count) - 64);				\
++		(m).lo = 0;							\
++	} else {								\
++		(m).hi = ((m).hi << (count)) | ((m).lo >> (64 - (count)));	\
++		(m).lo <<= count;						\
++	}									\
++} while (0)
++
++#define MAP_AND(r, left, right)			\
++do {						\
++	(r).hi = (left).hi & (right).hi;	\
++	(r).lo = (left).lo & (right).lo;	\
++} while (0)
++
++#define MAP_SET(r, mask)			\
++do {						\
++	(r).hi |= (mask).hi;			\
++	(r).lo |= (mask).lo;			\
++} while (0)
++
++#define MAP_CLEAR(r, mask)			\
++do {						\
++	(r).hi &= ~(mask).hi;			\
++	(r).lo &= ~(mask).lo;			\
++} while (0)
++
++#define MAP_EQUAL(left, right)		(((left.hi ^ right.hi) | (left.lo ^ right.lo)) == 0)
++#define MAP_EMPTY(m)			((m.lo | m.hi) == 0)
++
++#endif
++
++#ifndef MAP_MAKE_MASK
++# define MAP_MAKE_MASK(m,nbits)		((m) = (((u64) 1 << (nbits)) - 1))
++# define MAP_SHIFT_LEFT(m,nbits)	((m) <<= (nbits))
++# define MAP_AND(res,l,r)		((res) = (l) & (r))
++# define MAP_EQUAL(l,r)			((l) == (r))
++# define MAP_EMPTY(m)			((m) == 0)
++# define MAP_CLEAR(m, bits)		((m) &= ~(bits))
++# define MAP_SET(m, bits)		((m) |= (bits))
+ #endif
+ 
+ /*
+@@ -71,7 +132,8 @@
+  */
+ void *scsi_malloc(unsigned int len)
+ {
+-	unsigned int nbits, mask;
++	FreeSectorBitmap mask, busy_sectors, result;
++	unsigned int nbits;
+ 	unsigned long flags;
+ 
+ 	int i, j;
+@@ -79,23 +141,29 @@
+ 		return NULL;
+ 
+ 	nbits = len >> 9;
+-	mask = (1 << nbits) - 1;
+ 
+ 	spin_lock_irqsave(&allocator_request_lock, flags);
+ 
+-	for (i = 0; i < dma_sectors / SECTORS_PER_PAGE; i++)
++	for (i = 0; i < dma_sectors / SECTORS_PER_PAGE; i++) {
++		MAP_MAKE_MASK(mask, nbits);
++		busy_sectors = dma_malloc_freelist[i];
+ 		for (j = 0; j <= SECTORS_PER_PAGE - nbits; j++) {
+-			if ((dma_malloc_freelist[i] & (mask << j)) == 0) {
+-				dma_malloc_freelist[i] |= (mask << j);
++			MAP_AND(result, busy_sectors, mask);
++			if (MAP_EMPTY(result)) {
++				MAP_SET(dma_malloc_freelist[i], mask);
+ 				scsi_dma_free_sectors -= nbits;
+ #ifdef DEBUG
+-				SCSI_LOG_MLQUEUE(3, printk("SMalloc: %d %p [From:%p]\n", len, dma_malloc_pages[i] + (j << 9)));
+-				printk("SMalloc: %d %p [From:%p]\n", len, dma_malloc_pages[i] + (j << 9));
++				SCSI_LOG_MLQUEUE(3, printk("SMalloc: %d %p\n",
++							   len, dma_malloc_pages[i] + (j << 9)));
++				printk("SMalloc: %d %p\n",
++				       len, dma_malloc_pages[i] + (j << 9));
+ #endif
+ 				spin_unlock_irqrestore(&allocator_request_lock, flags);
+ 				return (void *) ((unsigned long) dma_malloc_pages[i] + (j << 9));
+ 			}
++			MAP_SHIFT_LEFT(mask, 1);
+ 		}
++	}
+ 	spin_unlock_irqrestore(&allocator_request_lock, flags);
+ 	return NULL;		/* Nope.  No more */
+ }
+@@ -121,7 +189,8 @@
+  */
+ int scsi_free(void *obj, unsigned int len)
+ {
+-	unsigned int page, sector, nbits, mask;
++	FreeSectorBitmap mask, result;
++	unsigned int page, sector, nbits;
+ 	unsigned long flags;
+ 
+ #ifdef DEBUG
+@@ -145,13 +214,14 @@
+ 			sector = (((unsigned long) obj) - page_addr) >> 9;
+ 
+ 			nbits = len >> 9;
+-			mask = (1 << nbits) - 1;
++			MAP_MAKE_MASK(mask, nbits);
+ 
+ 			if (sector + nbits > SECTORS_PER_PAGE)
+ 				panic("scsi_free:Bad memory alignment");
+ 
+-			if ((dma_malloc_freelist[page] &
+-			     (mask << sector)) != (mask << sector)) {
++			MAP_SHIFT_LEFT(mask, sector);
++			MAP_AND(result, mask, dma_malloc_freelist[page]);
++			if (!MAP_EQUAL(result, mask)) {
+ #ifdef DEBUG
+ 				printk("scsi_free(obj=%p, len=%d) called from %08lx\n",
+ 				       obj, len, ret);
+@@ -159,7 +229,7 @@
+ 				panic("scsi_free:Trying to free unused memory");
+ 			}
+ 			scsi_dma_free_sectors += nbits;
+-			dma_malloc_freelist[page] &= ~(mask << sector);
++			MAP_CLEAR(dma_malloc_freelist[page], mask);
+ 			spin_unlock_irqrestore(&allocator_request_lock, flags);
+ 			return 0;
+ 		}
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/scsi_ioctl.c kernel-source-2.4.27.bjorn/drivers/scsi/scsi_ioctl.c
+--- kernel-source-2.4.27.orig/drivers/scsi/scsi_ioctl.c	2003-08-25 05:44:42.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/scsi/scsi_ioctl.c	2005-03-14 10:36:16.666931326 -0700
+@@ -198,6 +198,9 @@
+ 	unsigned int needed, buf_needed;
+ 	int timeout, retries, result;
+ 	int data_direction;
++#if __GNUC__ < 3
++	int foo;
++#endif
+ 
+ 	if (!sic)
+ 		return -EINVAL;
+@@ -207,12 +210,21 @@
+ 	if (verify_area(VERIFY_READ, sic, sizeof(Scsi_Ioctl_Command)))
+ 		return -EFAULT;
+ 
+-	if(__get_user(inlen, &sic->inlen))
++#if __GNUC__ < 3
++	foo = __get_user(inlen, &sic->inlen);
++	if(foo)
+ 		return -EFAULT;
+ 		
+-	if(__get_user(outlen, &sic->outlen))
++	foo = __get_user(outlen, &sic->outlen);
++	if(foo)
++		return -EFAULT;
++#else
++	if(__get_user(inlen, &sic->inlen))
+ 		return -EFAULT;
+ 
++	if(__get_user(outlen, &sic->outlen))
++		return -EFAULT;
++#endif
+ 	/*
+ 	 * We do not transfer more than MAX_BUF with this interface.
+ 	 * If the user needs to transfer more data than this, they
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/scsi_merge.c kernel-source-2.4.27.bjorn/drivers/scsi/scsi_merge.c
+--- kernel-source-2.4.27.orig/drivers/scsi/scsi_merge.c	2002-11-28 16:53:14.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/scsi_merge.c	2005-03-14 10:36:16.667907888 -0700
+@@ -1155,7 +1155,7 @@
+ {
+ 	struct Scsi_Host *SHpnt = SDpnt->host;
+ 	request_queue_t *q = &SDpnt->request_queue;
+-	dma64_addr_t bounce_limit;
++	u64 bounce_limit;
+ 
+ 	/*
+ 	 * If this host has an unlimited tablesize, then don't bother with a
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx.c kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx.c
+--- kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx.c	2004-04-14 07:05:32.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx.c	2005-03-14 10:36:16.672790701 -0700
+@@ -12979,6 +12979,7 @@
+ 		}
+ 		if (pci_enable_device(pcidev)) /* @!*!$&*!%-*#;! */
+ 			continue;
++#ifdef CONFIG_X86
+ 		/* Some HW as the HP LH4 may report twice PCI devices */
+ 		for (i = 0; i < count ; i++) {
+ 			if (devtbl[i].slot.bus	     == PciBusNumber(pcidev) && 
+@@ -12987,6 +12988,7 @@
+ 		}
+ 		if (i != count)	/* Ignore this device if we already have it */
+ 			continue;
++#endif
+ 		devp = &devtbl[count];
+ 		devp->host_id = driver_setup.host_id;
+ 		devp->attach_done = 0;
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx_2/sym_glue.c kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx_2/sym_glue.c
+--- kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-01-19 02:57:52.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-03-14 10:36:16.674743826 -0700
+@@ -302,12 +302,8 @@
+ #ifndef SYM_LINUX_DYNAMIC_DMA_MAPPING
+ typedef u_long		bus_addr_t;
+ #else
+-#if	SYM_CONF_DMA_ADDRESSING_MODE > 0
+-typedef dma64_addr_t	bus_addr_t;
+-#else
+ typedef dma_addr_t	bus_addr_t;
+ #endif
+-#endif
+ 
+ /*
+  *  Used by the eh thread to wait for command completion.
+@@ -2803,6 +2799,7 @@
+ 		/* This one is guaranteed by AC to do nothing :-) */
+ 		if (pci_enable_device(pcidev))
+ 			continue;
++#ifdef CONFIG_X86
+ 		/* Some HW as the HP LH4 may report twice PCI devices */
+ 		for (i = 0; i < count ; i++) {
+ 			if (devtbl[i].s.bus       == PciBusNumber(pcidev) && 
+@@ -2811,6 +2808,7 @@
+ 		}
+ 		if (i != count)	/* Ignore this device if we already have it */
+ 			continue;
++#endif
+ 		devp = &devtbl[count];
+ 		devp->host_id = SYM_SETUP_HOST_ID;
+ 		devp->attach_done = 0;
+diff -urN kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx_comm.h kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx_comm.h
+--- kernel-source-2.4.27.orig/drivers/scsi/sym53c8xx_comm.h	2002-11-28 16:53:14.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/scsi/sym53c8xx_comm.h	2005-03-14 10:36:16.675720388 -0700
+@@ -2579,6 +2579,7 @@
+ 		}
+ 		if (pci_enable_device(pcidev)) /* @!*!$&*!%-*#;! */
+ 			continue;
++#ifdef CONFIG_X86
+ 		/* Some HW as the HP LH4 may report twice PCI devices */
+ 		for (i = 0; i < count ; i++) {
+ 			if (devtbl[i].slot.bus	     == PciBusNumber(pcidev) && 
+@@ -2587,6 +2588,7 @@
+ 		}
+ 		if (i != count)	/* Ignore this device if we already have it */
+ 			continue;
++#endif
+ 		devp = &devtbl[count];
+ 		devp->host_id = driver_setup.host_id;
+ 		devp->attach_done = 0;
+diff -urN kernel-source-2.4.27.orig/drivers/sound/.indent.pro kernel-source-2.4.27.bjorn/drivers/sound/.indent.pro
+--- kernel-source-2.4.27.orig/drivers/sound/.indent.pro	1997-09-30 09:46:46.000000000 -0600
++++ kernel-source-2.4.27.bjorn/drivers/sound/.indent.pro	1969-12-31 17:00:00.000000000 -0700
+@@ -1,8 +0,0 @@
+--bad 
+--bap 
+--nfca
+--bl 
+--psl 
+--di16
+--lp
+--ip5
+diff -urN kernel-source-2.4.27.orig/drivers/sound/.version kernel-source-2.4.27.bjorn/drivers/sound/.version
+--- kernel-source-2.4.27.orig/drivers/sound/.version	1997-11-10 00:01:54.000000000 -0700
++++ kernel-source-2.4.27.bjorn/drivers/sound/.version	1969-12-31 17:00:00.000000000 -0700
+@@ -1,2 +0,0 @@
+-3.8s
+-0x030804
+diff -urN kernel-source-2.4.27.orig/fs/Config.in kernel-source-2.4.27.bjorn/fs/Config.in
+--- kernel-source-2.4.27.orig/fs/Config.in	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/Config.in	2005-03-14 10:36:16.679626638 -0700
+@@ -63,6 +63,13 @@
+ bool 'Virtual memory file system support (former shm fs)' CONFIG_TMPFS
+ define_bool CONFIG_RAMFS y
+ 
++bool 'HugeTLB file system support' CONFIG_HUGETLBFS
++if [ "$CONFIG_HUGETLBFS" = "y" ] ; then
++	define_bool CONFIG_HUGETLB_PAGE y
++else
++	define_bool CONFIG_HUGETLB_PAGE n
++fi
++
+ tristate 'ISO 9660 CDROM file system support' CONFIG_ISO9660_FS
+ dep_mbool '  Microsoft Joliet CDROM extensions' CONFIG_JOLIET $CONFIG_ISO9660_FS
+ dep_mbool '  Transparent decompression extension' CONFIG_ZISOFS $CONFIG_ISO9660_FS
+@@ -81,13 +88,17 @@
+ 
+ bool '/proc file system support' CONFIG_PROC_FS
+ 
+-# For some reason devfs corrupts memory badly on x86-64. Disable it 
+-# for now.
+-if [ "$CONFIG_X86_64" != "y" ] ; then
+-dep_bool '/dev file system support (EXPERIMENTAL)' CONFIG_DEVFS_FS $CONFIG_EXPERIMENTAL
++if [ "$CONFIG_IA64_SGI_SN2" = "y" ] ; then
++   define_bool CONFIG_DEVFS_FS y
++else
++   # For some reason devfs corrupts memory badly on x86-64. Disable it
++   # for now.
++   if [ "$CONFIG_X86_64" != "y" ] ; then
++      dep_bool '/dev file system support (EXPERIMENTAL)' CONFIG_DEVFS_FS $CONFIG_EXPERIMENTAL
++   fi
++fi
+ dep_bool '  Automatically mount at boot' CONFIG_DEVFS_MOUNT $CONFIG_DEVFS_FS
+ dep_bool '  Debug devfs' CONFIG_DEVFS_DEBUG $CONFIG_DEVFS_FS
+-fi
+ 
+ # It compiles as a module for testing only.  It should not be used
+ # as a module in general.  If we make this "tristate", a bunch of people
+diff -urN kernel-source-2.4.27.orig/fs/Makefile kernel-source-2.4.27.bjorn/fs/Makefile
+--- kernel-source-2.4.27.orig/fs/Makefile	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/Makefile	2005-03-14 10:36:16.679626638 -0700
+@@ -28,6 +28,7 @@
+ subdir-$(CONFIG_EXT2_FS)	+= ext2
+ subdir-$(CONFIG_CRAMFS)		+= cramfs
+ subdir-$(CONFIG_RAMFS)		+= ramfs
++subdir-$(CONFIG_HUGETLBFS)	+= hugetlbfs
+ subdir-$(CONFIG_CODA_FS)	+= coda
+ subdir-$(CONFIG_INTERMEZZO_FS)	+= intermezzo
+ subdir-$(CONFIG_MINIX_FS)	+= minix
+diff -urN kernel-source-2.4.27.orig/fs/binfmt_misc.c kernel-source-2.4.27.bjorn/fs/binfmt_misc.c
+--- kernel-source-2.4.27.orig/fs/binfmt_misc.c	2005-01-19 02:57:40.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/binfmt_misc.c	2005-03-14 10:36:16.680603201 -0700
+@@ -35,6 +35,7 @@
+ static int enabled = 1;
+ 
+ enum {Enabled, Magic};
++#define MISC_FMT_PRESERVE_ARGV0 (1<<31)
+ 
+ typedef struct {
+ 	struct list_head list;
+@@ -121,7 +122,9 @@
+ 	bprm->file = NULL;
+ 
+ 	/* Build args for interpreter */
+-	remove_arg_zero(bprm);
++	if (!(fmt->flags & MISC_FMT_PRESERVE_ARGV0)) {
++		remove_arg_zero(bprm);
++	}
+ 	retval = copy_strings_kernel(1, &bprm->filename, bprm);
+ 	if (retval < 0) goto _ret; 
+ 	bprm->argc++;
+@@ -287,6 +290,11 @@
+ 	if (!e->interpreter[0])
+ 		goto Einval;
+ 
++	if (*p == 'P') {
++		p++;
++		e->flags |= MISC_FMT_PRESERVE_ARGV0;
++	}
++
+ 	if (*p == '\n')
+ 		p++;
+ 	if (p != buf + count)
+diff -urN kernel-source-2.4.27.orig/fs/hugetlbfs/Makefile kernel-source-2.4.27.bjorn/fs/hugetlbfs/Makefile
+--- kernel-source-2.4.27.orig/fs/hugetlbfs/Makefile	1969-12-31 17:00:00.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/hugetlbfs/Makefile	2005-03-14 10:36:16.680603201 -0700
+@@ -0,0 +1,11 @@
++#
++# Makefile for the linux hugetlbfs routines.
++#
++
++O_TARGET := hugetlbfs.o
++
++obj-y := inode.o
++
++obj-m := $(O_TARGET)
++
++include $(TOPDIR)/Rules.make
+diff -urN kernel-source-2.4.27.orig/fs/hugetlbfs/inode.c kernel-source-2.4.27.bjorn/fs/hugetlbfs/inode.c
+--- kernel-source-2.4.27.orig/fs/hugetlbfs/inode.c	1969-12-31 17:00:00.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/hugetlbfs/inode.c	2005-03-14 10:36:16.682556326 -0700
+@@ -0,0 +1,762 @@
++/*
++ * hugetlbpage-backed filesystem.  Based on ramfs.
++ *
++ * William Irwin, 2002
++ *
++ * Copyright (C) 2002 Linus Torvalds.
++ * Backported from 2.5.48 11/19/2002 Rohit Seth <rohit.seth@intel.com>
++ */
++
++#include <linux/module.h>
++#include <asm/current.h>
++#include <linux/sched.h>		/* remove ASAP */
++#include <linux/fs.h>
++#include <linux/mount.h>
++#include <linux/file.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/hugetlb.h>
++#include <linux/quotaops.h>
++#include <linux/slab.h>
++#include <linux/dnotify.h>
++
++#include <asm/uaccess.h>
++#include <asm/statfs.h>
++#include <asm/div64.h>
++
++extern struct list_head inode_unused;
++
++/* some random number */
++#define HUGETLBFS_MAGIC	0x958458f6
++
++static struct super_operations hugetlbfs_ops;
++static struct address_space_operations hugetlbfs_aops;
++struct file_operations hugetlbfs_file_operations;
++static struct inode_operations hugetlbfs_dir_inode_operations;
++static struct inode_operations hugetlbfs_inode_operations;
++
++static inline int hugetlbfs_positive(struct dentry *dentry)
++{
++	return dentry->d_inode && ! d_unhashed(dentry);
++}
++
++static int hugetlbfs_empty(struct dentry *dentry)
++{
++	struct list_head *list;
++	spin_lock (&dcache_lock);
++	list = dentry->d_subdirs.next;
++	while (list != &dentry->d_subdirs) {
++		struct dentry *de = list_entry(list, struct dentry, d_child);
++		if (hugetlbfs_positive(de)) {
++			spin_unlock(&dcache_lock);
++			return 0;
++		}
++		list = list->next;
++	}
++	spin_unlock(&dcache_lock);
++	return 1;
++}
++
++int hugetlbfs_sync_file(struct file * file, struct dentry *dentry, int datasync)
++{
++	return 0;
++}
++static int hugetlbfs_statfs(struct super_block *sb, struct statfs *buf)
++{
++	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(sb);
++
++	if (sbinfo) {
++		spin_lock(&sbinfo->stat_lock);
++		buf->f_blocks = sbinfo->max_blocks;
++		buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
++		buf->f_files = sbinfo->max_inodes;
++		buf->f_ffree = sbinfo->free_inodes;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++	buf->f_type = HUGETLBFS_MAGIC;
++	buf->f_bsize = HPAGE_SIZE;
++	buf->f_namelen = NAME_MAX;
++	return 0;
++}
++
++static int hugetlbfs_rename(struct inode *old_dir, struct dentry *old_dentry, struct inode *new_dir, struct dentry *new_dentry)
++{
++	int error = - ENOTEMPTY;
++
++	if (hugetlbfs_empty(new_dentry)) {
++		struct inode *inode = new_dentry->d_inode;
++		if (inode) {
++			inode->i_nlink--;
++			dput(new_dentry);
++		}
++		old_dir->i_size -= PSEUDO_DIRENT_SIZE;
++		new_dir->i_size += PSEUDO_DIRENT_SIZE;
++		old_dir->i_ctime = old_dir->i_mtime =
++		new_dir->i_ctime = new_dir->i_mtime =
++		inode->i_ctime = CURRENT_TIME;
++		error = 0;
++	}
++	return error;
++}
++static int hugetlbfs_unlink(struct inode *dir, struct dentry *dentry)
++{
++	struct inode *inode = dentry->d_inode;
++
++	if (!hugetlbfs_empty(dentry))
++		return -ENOTEMPTY;
++	dir->i_size -= PSEUDO_DIRENT_SIZE;
++	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
++	dentry->d_inode->i_nlink--;
++	dput (dentry);
++	return 0;
++}
++
++#define hugetlbfs_rmdir hugetlbfs_unlink
++
++static int hugetlbfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
++{
++	struct inode *inode = old_dentry->d_inode;
++	if (S_ISDIR(inode->i_mode))
++		return -EPERM;
++	dir->i_size += PSEUDO_DIRENT_SIZE;
++	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
++	inode->i_nlink++;
++	atomic_inc(&inode->i_count);
++	dget(dentry);
++	d_instantiate(dentry, inode);
++	return 0;
++}
++
++static struct dentry *hugetlbfs_lookup(struct inode *dir, struct dentry *dentry)
++{
++	d_add(dentry, NULL);
++	return NULL;
++}
++
++static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct address_space *mapping = inode->i_mapping;
++	loff_t len, vma_len;
++	int ret;
++
++	if (vma->vm_start & ~HPAGE_MASK)
++		return -EINVAL;
++
++	if (vma->vm_end & ~HPAGE_MASK)
++		return -EINVAL;
++
++	if (vma->vm_end - vma->vm_start < HPAGE_SIZE)
++		return -EINVAL;
++#ifdef CONFIG_IA64
++	if (vma->vm_start < (REGION_HPAGE << REGION_SHIFT))
++		return -EINVAL;
++#endif
++	vma_len = (loff_t)(vma->vm_end - vma->vm_start);
++
++	down(&inode->i_sem);
++
++	UPDATE_ATIME(inode);
++	vma->vm_flags |= VM_HUGETLB | VM_RESERVED;
++	vma->vm_ops = &hugetlb_vm_ops;
++	ret = hugetlb_prefault(mapping, vma);
++	len = vma_len + ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
++	if (ret == 0 && inode->i_size < len)
++		inode->i_size = len;
++	up(&inode->i_sem);
++
++	return ret;
++}
++
++/*
++ * Called under down_write(mmap_sem), page_table_lock is not held
++ */
++
++#ifdef HAVE_ARCH_HUGETLB_UNMAPPED_AREA
++unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
++		unsigned long len, unsigned long pgoff, unsigned long flags);
++#else
++static unsigned long
++hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
++		unsigned long len, unsigned long pgoff, unsigned long flags)
++{
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
++
++	if (len & ~HPAGE_MASK)
++		return -EINVAL;
++	if (len > TASK_SIZE)
++		return -ENOMEM;
++
++	if (addr) {
++		addr = COLOR_HALIGN(addr);
++		vma = find_vma(mm, addr);
++		if (TASK_SIZE - len >= addr &&
++		    (!vma || addr + len <= vma->vm_start))
++			return addr;
++	}
++
++	addr =  PAGE_ALIGN(TASK_UNMAPPED_BASE);
++
++	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
++		/* At this point:  (!vma || addr < vma->vm_end). */
++		if (TASK_SIZE - len < addr)
++			return -ENOMEM;
++		if (!vma || addr + len <= vma->vm_start)
++			return addr;
++		addr = COLOR_HALIGN(vma->vm_end);
++	}
++}
++#endif
++
++/*
++ * Read a page. Again trivial. If it didn't already exist
++ * in the page cache, it is zero-filled.
++ */
++static int hugetlbfs_readpage(struct file *file, struct page * page)
++{
++	return -EINVAL;
++}
++
++static int hugetlbfs_prepare_write(struct file *file,
++			struct page *page, unsigned offset, unsigned to)
++{
++	return -EINVAL;
++}
++
++static int hugetlbfs_commit_write(struct file *file,
++			struct page *page, unsigned offset, unsigned to)
++{
++	return -EINVAL;
++}
++
++void truncate_huge_page(struct address_space *mapping, struct page *page)
++{
++	if (page->mapping != mapping)
++		return;
++
++	ClearPageDirty(page);
++	ClearPageUptodate(page);
++	remove_inode_page(page);
++	set_page_count(page, 1);
++	huge_page_release(page);
++}
++
++void truncate_hugepages(struct inode *inode, struct address_space *mapping, loff_t lstart)
++{
++	unsigned long  start = lstart >> HPAGE_SHIFT;
++	unsigned long next;
++	unsigned long max_idx;
++	struct page *page;
++
++	max_idx = inode->i_size >> HPAGE_SHIFT;
++	next = start;
++	while (next < max_idx) {
++		page = find_lock_page(mapping, next);
++		next++;
++		if (page == NULL)
++			continue;
++		page_cache_release(page);
++		truncate_huge_page(mapping, page);
++		unlock_page(page);
++		hugetlb_put_quota(mapping);
++	}
++}
++
++static void hugetlbfs_delete_inode(struct inode *inode)
++{
++	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(inode->i_sb);
++
++	list_del_init(&inode->i_hash);
++	list_del_init(&inode->i_list);
++	inode->i_state |= I_FREEING;
++	inodes_stat.nr_inodes--;
++
++	if (inode->i_data.nrpages)
++		truncate_hugepages(inode, &inode->i_data, 0);
++	if (sbinfo->free_inodes >= 0) {
++		spin_lock(&sbinfo->stat_lock);
++		sbinfo->free_inodes++;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++
++}
++
++static void hugetlbfs_forget_inode(struct inode *inode)
++{
++	struct super_block *super_block = inode->i_sb;
++	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(super_block);
++
++	if (list_empty(&inode->i_hash))
++		goto out_truncate;
++
++	if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
++		list_del(&inode->i_list);
++		list_add(&inode->i_list, &inode_unused);
++	}
++	inodes_stat.nr_unused++;
++	if (!super_block || (super_block->s_flags & MS_ACTIVE)) {
++		return;
++	}
++
++	/* write_inode_now() ? */
++	inodes_stat.nr_unused--;
++	list_del_init(&inode->i_hash);
++out_truncate:
++	list_del_init(&inode->i_list);
++	inode->i_state |= I_FREEING;
++	inodes_stat.nr_inodes--;
++	if (inode->i_data.nrpages)
++		truncate_hugepages(inode, &inode->i_data, 0);
++
++	if (sbinfo->free_inodes >= 0) {
++		spin_lock(&sbinfo->stat_lock);
++		sbinfo->free_inodes++;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++}
++
++static void hugetlbfs_drop_inode(struct inode *inode)
++{
++	if (!inode->i_nlink)
++		hugetlbfs_delete_inode(inode);
++	else
++		hugetlbfs_forget_inode(inode);
++}
++
++static void
++hugetlb_vmtruncate_list(struct vm_area_struct *mpnt, unsigned long pgoff)
++{
++
++	do {
++		unsigned long h_vm_pgoff;
++		unsigned long v_length;
++		unsigned long h_length;
++		unsigned long v_offset;
++
++		h_vm_pgoff = mpnt->vm_pgoff << (HPAGE_SHIFT - PAGE_SHIFT);
++		v_length = mpnt->vm_end - mpnt->vm_start;
++		h_length = v_length >> HPAGE_SHIFT;
++		v_offset = (pgoff - h_vm_pgoff) << HPAGE_SHIFT;
++
++		/*
++		 * Is this VMA fully outside the truncation point?
++		 */
++		if (h_vm_pgoff >= pgoff) {
++			zap_hugepage_range(mpnt, mpnt->vm_start, v_length);
++			continue;
++		}
++
++		/*
++		 * Is this VMA fully inside the truncaton point?
++		 */
++		if (h_vm_pgoff + (v_length >> HPAGE_SHIFT) <= pgoff)
++			continue;
++
++		/*
++		 * The VMA straddles the truncation point.  v_offset is the
++		 * offset (in bytes) into the VMA where the point lies.
++		 */
++		zap_hugepage_range(mpnt,
++				mpnt->vm_start + v_offset,
++				v_length - v_offset);
++	} while ((mpnt = mpnt->vm_next_share) != NULL);
++}
++
++/*
++ * Expanding truncates are not allowed.
++ */
++static int hugetlb_vmtruncate(struct inode *inode, loff_t offset)
++{
++	unsigned long pgoff;
++	struct address_space *mapping = inode->i_mapping;
++
++	if (offset > inode->i_size)
++		return -EINVAL;
++
++	BUG_ON(offset & ~HPAGE_MASK);
++	pgoff = offset >> HPAGE_SHIFT;
++
++	spin_lock(&mapping->i_shared_lock);
++	if (mapping->i_mmap != NULL)
++		hugetlb_vmtruncate_list(mapping->i_mmap, pgoff);
++	if (mapping->i_mmap_shared != NULL)
++		hugetlb_vmtruncate_list(mapping->i_mmap_shared, pgoff);
++
++	spin_unlock(&mapping->i_shared_lock);
++	truncate_hugepages(inode, mapping, offset);
++	inode->i_size = offset;
++	return 0;
++}
++
++static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
++{
++	struct inode *inode = dentry->d_inode;
++	int error;
++	unsigned int ia_valid = attr->ia_valid;
++
++	BUG_ON(!inode);
++
++	error = inode_change_ok(inode, attr);
++	if (error)
++		goto out;
++
++	if ((ia_valid & ATTR_UID && attr->ia_uid != inode->i_uid) ||
++	    (ia_valid & ATTR_GID && attr->ia_gid != inode->i_gid))
++		error = DQUOT_TRANSFER(inode, attr) ? -EDQUOT : 0;
++	if (error)
++		goto out;
++	if (ia_valid & ATTR_SIZE) {
++		error = -EINVAL;
++		if (!(attr->ia_size & ~HPAGE_MASK))
++			error = hugetlb_vmtruncate(inode, attr->ia_size);
++		if (error)
++			goto out;
++		attr->ia_valid &= ~ATTR_SIZE;
++	}
++	error = inode_setattr(inode, attr);
++out:
++	return error;
++}
++
++static struct inode *hugetlbfs_get_inode(struct super_block *sb, uid_t uid,
++					gid_t gid, int mode, int dev)
++{
++	struct inode *inode;
++	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(sb);
++
++	if (sbinfo->free_inodes >= 0) {
++		spin_lock(&sbinfo->stat_lock);
++		if (!sbinfo->free_inodes) {
++			spin_unlock(&sbinfo->stat_lock);
++			return NULL;
++		}
++		sbinfo->free_inodes--;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++
++	inode = new_inode(sb);
++	if (inode) {
++		inode->i_mode = mode;
++		inode->i_uid = uid;
++		inode->i_gid = gid;
++		inode->i_blksize = HPAGE_SIZE;
++		inode->i_blocks = 0;
++		inode->i_rdev = NODEV;
++		inode->i_mapping->a_ops = &hugetlbfs_aops;
++		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++		switch (mode & S_IFMT) {
++		default:
++			init_special_inode(inode, mode, dev);
++			break;
++		case S_IFREG:
++			inode->i_op = &hugetlbfs_inode_operations;
++			inode->i_fop = &hugetlbfs_file_operations;
++			break;
++		case S_IFDIR:
++			inode->i_op = &hugetlbfs_dir_inode_operations;
++			inode->i_fop = &dcache_dir_ops;
++
++			break;
++		case S_IFLNK:
++			inode->i_op = &page_symlink_inode_operations;
++			break;
++		}
++	}
++	return inode;
++}
++
++/*
++ * File creation. Allocate an inode, and we're done..
++ */
++/* SMP-safe */
++static int hugetlbfs_mknod(struct inode *dir,
++			struct dentry *dentry, int mode, int dev)
++{
++	struct inode *inode = hugetlbfs_get_inode(dir->i_sb, current->fsuid,
++				current->fsgid, mode, dev);
++	int error = -ENOSPC;
++
++	if (inode) {
++		dir->i_size += PSEUDO_DIRENT_SIZE;
++		dir->i_ctime = dir->i_mtime = CURRENT_TIME;
++		d_instantiate(dentry, inode);
++		dget(dentry);		/* Extra count - pin the dentry in core */
++		error = 0;
++	}
++	return error;
++}
++
++static int hugetlbfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++{
++	int retval = hugetlbfs_mknod(dir, dentry, mode | S_IFDIR, 0);
++//	if (!retval)
++		//dir->i_nlink++;
++	return retval;
++}
++
++static int hugetlbfs_create(struct inode *dir, struct dentry *dentry, int mode)
++{
++	return hugetlbfs_mknod(dir, dentry, mode | S_IFREG, 0);
++}
++
++static int hugetlbfs_symlink(struct inode *dir,
++			struct dentry *dentry, const char *symname)
++{
++	int error = -ENOSPC;
++
++	error = hugetlbfs_mknod(dir, dentry, S_IFLNK|S_IRWXUGO, 0);
++	if (!error) {
++		int l = strlen(symname)+1;
++		struct inode *inode = dentry->d_inode;
++		error = block_symlink(inode, symname, l);
++	}
++	return error;
++}
++
++static struct address_space_operations hugetlbfs_aops = {
++	.readpage	= hugetlbfs_readpage,
++	.writepage	= fail_writepage,
++	.prepare_write	= hugetlbfs_prepare_write,
++	.commit_write	= hugetlbfs_commit_write,
++};
++
++struct file_operations hugetlbfs_file_operations = {
++	.mmap			= hugetlbfs_file_mmap,
++	.fsync			= hugetlbfs_sync_file,
++	.get_unmapped_area	= hugetlb_get_unmapped_area,
++};
++
++static struct inode_operations hugetlbfs_dir_inode_operations = {
++	.create		= hugetlbfs_create,
++	.lookup		= hugetlbfs_lookup,
++	.link		= hugetlbfs_link,
++	.unlink		= hugetlbfs_unlink,
++	.symlink	= hugetlbfs_symlink,
++	.mkdir		= hugetlbfs_mkdir,
++	.rmdir		= hugetlbfs_rmdir,
++	.mknod		= hugetlbfs_mknod,
++	.rename		= hugetlbfs_rename,
++	.setattr	= hugetlbfs_setattr,
++};
++
++static struct inode_operations hugetlbfs_inode_operations = {
++	.setattr	= hugetlbfs_setattr,
++};
++
++static struct super_operations hugetlbfs_ops = {
++	.statfs		= hugetlbfs_statfs,
++	.put_inode	= hugetlbfs_drop_inode,
++};
++
++static int hugetlbfs_parse_options(char *options, struct hugetlbfs_config *pconfig)
++{
++	char *opt, *value, *rest;
++
++	if (!options)
++		return 0;
++	while ((opt = strsep(&options, ",")) != NULL) {
++		if (!*opt)
++			continue;
++
++		value = strchr(opt, '=');
++		if (!value || !*value)
++			return -EINVAL;
++		else
++			*value++ = '\0';
++
++		if (!strcmp(opt, "uid"))
++			pconfig->uid = simple_strtoul(value, &value, 0);
++		else if (!strcmp(opt, "gid"))
++			pconfig->gid = simple_strtoul(value, &value, 0);
++		else if (!strcmp(opt, "mode"))
++			pconfig->mode = simple_strtoul(value, &value, 0) & 0777U;
++		else if (!strcmp(opt, "size")) {
++			unsigned long long size = memparse(value, &rest);
++			if (*rest == '%') {
++				size <<= HPAGE_SHIFT;
++				size *= htlbpage_max;
++				do_div(size, 100);
++				rest++;
++			}
++			size &= HPAGE_MASK;
++			pconfig->nr_blocks = (size >> HPAGE_SHIFT) ;
++			value = rest;
++		} else if (!strcmp(opt,"nr_inodes")) {
++			pconfig->nr_inodes = memparse(value, &rest);
++			value = rest;
++		} else 
++			return -EINVAL;
++
++		if (*value)
++			return -EINVAL;
++	}
++	return 0;
++}
++
++static struct super_block *
++hugetlbfs_fill_super(struct super_block * sb, void * data, int silent)
++{
++	struct inode * inode;
++	struct dentry * root;
++	struct hugetlbfs_config config;
++	struct hugetlbfs_sb_info *sbinfo;
++
++	config.nr_blocks = -1; /* No limit on size by default. */
++	config.nr_inodes = -1; /* No limit on number of inodes by default. */
++	config.uid = current->fsuid;
++	config.gid = current->fsgid;
++	config.mode = 0755;
++	if (hugetlbfs_parse_options(data, &config))
++		return NULL;
++
++	sbinfo = kmalloc(sizeof(struct hugetlbfs_sb_info), GFP_KERNEL);
++	if (!sbinfo)
++		return NULL;
++	sb->u.generic_sbp = sbinfo;
++
++	spin_lock_init(&sbinfo->stat_lock);
++	sbinfo->max_blocks = config.nr_blocks;
++	sbinfo->free_blocks = config.nr_blocks;
++	sbinfo->max_inodes = config.nr_inodes;
++	sbinfo->free_inodes = config.nr_inodes;
++	sb->s_blocksize = HPAGE_SIZE;
++	sb->s_blocksize_bits = HPAGE_SHIFT;
++	sb->s_magic = HUGETLBFS_MAGIC;
++	sb->s_op = &hugetlbfs_ops;
++	inode = hugetlbfs_get_inode(sb, config.uid, config.gid,
++				S_IFDIR | config.mode, 0);
++	if (!inode)
++		goto out_free;
++
++	root = d_alloc_root(inode);
++	if (!root) {
++		iput(inode);
++		goto out_free;
++	}
++	sb->s_root = root;
++	return sb;
++out_free:
++	kfree(sbinfo);
++	return NULL;
++}
++
++static DECLARE_FSTYPE(hugetlbfs_fs_type, "hugetlbfs", hugetlbfs_fill_super, FS_LITTER);
++
++static struct vfsmount *hugetlbfs_vfsmount;
++
++static atomic_t hugetlbfs_counter = ATOMIC_INIT(0);
++
++struct file *hugetlb_zero_setup(size_t size)
++{
++	int error, n;
++	struct file *file;
++	struct inode *inode;
++	struct dentry *dentry, *root;
++	struct qstr quick_string;
++	char buf[16];
++
++	if (!is_hugepage_mem_enough(size))
++		return ERR_PTR(-ENOMEM);
++	n = atomic_read(&hugetlbfs_counter);
++	atomic_inc(&hugetlbfs_counter);
++
++	root = hugetlbfs_vfsmount->mnt_root;
++	snprintf(buf, 16, "%d", n);
++	quick_string.name = buf;
++	quick_string.len = strlen(quick_string.name);
++	quick_string.hash = 0;
++	dentry = d_alloc(root, &quick_string);
++	if (!dentry)
++		return ERR_PTR(-ENOMEM);
++
++	error = -ENFILE;
++	file = get_empty_filp();
++	if (!file)
++		goto out_dentry;
++
++	error = -ENOSPC;
++	inode = hugetlbfs_get_inode(root->d_sb, current->fsuid,
++				current->fsgid, S_IFREG | S_IRWXUGO, 0);
++	if (!inode)
++		goto out_file;
++
++	d_instantiate(dentry, inode);
++	inode->i_size = size;
++	inode->i_nlink = 0;
++	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
++	file->f_dentry = dentry;
++	file->f_op = &hugetlbfs_file_operations;
++	file->f_mode = FMODE_WRITE | FMODE_READ;
++	return file;
++
++out_file:
++	put_filp(file);
++out_dentry:
++	dput(dentry);
++	return ERR_PTR(error);
++}
++
++int hugetlb_get_quota(struct address_space * mapping)
++{
++	int ret = 0;
++	struct hugetlbfs_sb_info *sbinfo =
++		HUGETLBFS_SB(mapping->host->i_sb);
++
++	if (sbinfo->free_blocks > -1) {
++		spin_lock(&sbinfo->stat_lock);
++		if (sbinfo->free_blocks > 0)
++			sbinfo->free_blocks--;
++		else
++			ret = -ENOMEM;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++
++	return ret;
++}
++
++void hugetlb_put_quota(struct address_space *mapping)
++{
++	struct hugetlbfs_sb_info *sbinfo =
++		HUGETLBFS_SB(mapping->host->i_sb);
++
++	if (sbinfo->free_blocks > -1) {
++		spin_lock(&sbinfo->stat_lock);
++		sbinfo->free_blocks++;
++		spin_unlock(&sbinfo->stat_lock);
++	}
++}
++
++static int __init init_hugetlbfs_fs(void)
++{
++	int error;
++	struct vfsmount *vfsmount;
++
++	error = register_filesystem(&hugetlbfs_fs_type);
++	if (error)
++		return error;
++
++	vfsmount = kern_mount(&hugetlbfs_fs_type);
++
++	if (!IS_ERR(vfsmount)) {
++		printk("Hugetlbfs mounted.\n");
++		hugetlbfs_vfsmount = vfsmount;
++		return 0;
++	}
++
++	printk("Error in  mounting hugetlbfs.\n");
++	error = PTR_ERR(vfsmount);
++	return error;
++}
++
++static void __exit exit_hugetlbfs_fs(void)
++{
++	unregister_filesystem(&hugetlbfs_fs_type);
++}
++
++module_init(init_hugetlbfs_fs)
++module_exit(exit_hugetlbfs_fs)
++
++MODULE_LICENSE("GPL");
+diff -urN kernel-source-2.4.27.orig/fs/inode.c kernel-source-2.4.27.bjorn/fs/inode.c
+--- kernel-source-2.4.27.orig/fs/inode.c	2004-04-14 07:05:40.000000000 -0600
++++ kernel-source-2.4.27.bjorn/fs/inode.c	2005-03-14 10:36:16.683532888 -0700
+@@ -57,7 +57,7 @@
+  */
+ 
+ static LIST_HEAD(inode_in_use);
+-static LIST_HEAD(inode_unused);
++LIST_HEAD(inode_unused);
+ static LIST_HEAD(inode_unused_pagecache);
+ static struct list_head *inode_hashtable;
+ static LIST_HEAD(anon_hash_chain); /* for inodes with NULL i_sb */
+diff -urN kernel-source-2.4.27.orig/fs/proc/array.c kernel-source-2.4.27.bjorn/fs/proc/array.c
+--- kernel-source-2.4.27.orig/fs/proc/array.c	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/proc/array.c	2005-03-14 10:36:16.683532888 -0700
+@@ -64,6 +64,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/ioport.h>
+ #include <linux/mm.h>
++#include <linux/hugetlb.h>
+ #include <linux/pagemap.h>
+ #include <linux/swap.h>
+ #include <linux/slab.h>
+@@ -490,6 +491,18 @@
+ 			pgd_t *pgd = pgd_offset(mm, vma->vm_start);
+ 			int pages = 0, shared = 0, dirty = 0, total = 0;
+ 
++			if (is_vm_hugetlb_page(vma)) {
++				int num_pages = ((vma->vm_end - vma->vm_start)/PAGE_SIZE);
++				resident +=num_pages;
++				if (!(vma->vm_flags & VM_DONTCOPY))
++					share += num_pages;
++				if (vma->vm_flags & VM_WRITE)
++					dt += num_pages;
++				drs += num_pages;
++				vma = vma->vm_next;
++				continue;
++					
++			}
+ 			statm_pgd_range(pgd, vma->vm_start, vma->vm_end, &pages, &shared, &dirty, &total);
+ 			resident += pages;
+ 			share += shared;
+diff -urN kernel-source-2.4.27.orig/fs/proc/proc_misc.c kernel-source-2.4.27.bjorn/fs/proc/proc_misc.c
+--- kernel-source-2.4.27.orig/fs/proc/proc_misc.c	2005-01-19 02:57:41.000000000 -0700
++++ kernel-source-2.4.27.bjorn/fs/proc/proc_misc.c	2005-03-14 10:36:16.684509451 -0700
+@@ -36,6 +36,7 @@
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
+ #include <linux/seq_file.h>
++#include <linux/hugetlb.h>
+ #include <linux/sysrq.h>
+ 
+ #include <asm/uaccess.h>
+@@ -207,6 +208,8 @@
+ 		K(i.totalswap),
+ 		K(i.freeswap));
+ 
++	len += hugetlb_report_meminfo(page + len);
++
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ #undef B
+ #undef K
+diff -urN kernel-source-2.4.27.orig/include/asm-generic/tlb.h kernel-source-2.4.27.bjorn/include/asm-generic/tlb.h
+--- kernel-source-2.4.27.orig/include/asm-generic/tlb.h	2002-08-02 18:39:45.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-generic/tlb.h	2005-03-14 10:36:16.685486013 -0700
+@@ -31,15 +31,18 @@
+ 	pte_t	ptes[FREE_PTE_NR];
+ } mmu_gather_t;
+ 
++#ifndef local_mmu_gathers
+ /* Users of the generic TLB shootdown code must declare this storage space. */
+ extern mmu_gather_t	mmu_gathers[NR_CPUS];
++#define local_mmu_gathers	&mmu_gathers[smp_processor_id()]
++#endif
+ 
+ /* tlb_gather_mmu
+  *	Return a pointer to an initialized mmu_gather_t.
+  */
+ static inline mmu_gather_t *tlb_gather_mmu(struct mm_struct *mm)
+ {
+-	mmu_gather_t *tlb = &mmu_gathers[smp_processor_id()];
++	mmu_gather_t *tlb = local_mmu_gathers;
+ 
+ 	tlb->mm = mm;
+ 	/* Use fast mode if there is only one user of this mm (this process) */
+diff -urN kernel-source-2.4.27.orig/include/asm-generic/xor.h kernel-source-2.4.27.bjorn/include/asm-generic/xor.h
+--- kernel-source-2.4.27.orig/include/asm-generic/xor.h	2000-11-12 20:39:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/asm-generic/xor.h	2005-03-14 10:36:16.686462576 -0700
+@@ -13,6 +13,8 @@
+  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <asm/processor.h>
++
+ static void
+ xor_8regs_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
+ {
+@@ -121,7 +123,7 @@
+ 		d5 ^= p2[5];
+ 		d6 ^= p2[6];
+ 		d7 ^= p2[7];
+-		p1[0] = d0;	/* Store the result (in burts)		*/
++		p1[0] = d0;	/* Store the result (in bursts)		*/
+ 		p1[1] = d1;
+ 		p1[2] = d2;
+ 		p1[3] = d3;
+@@ -166,7 +168,7 @@
+ 		d5 ^= p3[5];
+ 		d6 ^= p3[6];
+ 		d7 ^= p3[7];
+-		p1[0] = d0;	/* Store the result (in burts)		*/
++		p1[0] = d0;	/* Store the result (in bursts)		*/
+ 		p1[1] = d1;
+ 		p1[2] = d2;
+ 		p1[3] = d3;
+@@ -220,7 +222,7 @@
+ 		d5 ^= p4[5];
+ 		d6 ^= p4[6];
+ 		d7 ^= p4[7];
+-		p1[0] = d0;	/* Store the result (in burts)		*/
++		p1[0] = d0;	/* Store the result (in bursts)		*/
+ 		p1[1] = d1;
+ 		p1[2] = d2;
+ 		p1[3] = d3;
+@@ -283,7 +285,7 @@
+ 		d5 ^= p5[5];
+ 		d6 ^= p5[6];
+ 		d7 ^= p5[7];
+-		p1[0] = d0;	/* Store the result (in burts)		*/
++		p1[0] = d0;	/* Store the result (in bursts)		*/
+ 		p1[1] = d1;
+ 		p1[2] = d2;
+ 		p1[3] = d3;
+@@ -299,6 +301,382 @@
+ 	} while (--lines > 0);
+ }
+ 
++static void
++xor_8regs_p_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++	prefetchw(p1);
++	prefetch(p2);
++
++	do {
++		prefetchw(p1+8);
++		prefetch(p2+8);
++ once_more:
++		p1[0] ^= p2[0];
++		p1[1] ^= p2[1];
++		p1[2] ^= p2[2];
++		p1[3] ^= p2[3];
++		p1[4] ^= p2[4];
++		p1[5] ^= p2[5];
++		p1[6] ^= p2[6];
++		p1[7] ^= p2[7];
++		p1 += 8;
++		p2 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_8regs_p_3(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++
++	do {
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++ once_more:
++		p1[0] ^= p2[0] ^ p3[0];
++		p1[1] ^= p2[1] ^ p3[1];
++		p1[2] ^= p2[2] ^ p3[2];
++		p1[3] ^= p2[3] ^ p3[3];
++		p1[4] ^= p2[4] ^ p3[4];
++		p1[5] ^= p2[5] ^ p3[5];
++		p1[6] ^= p2[6] ^ p3[6];
++		p1[7] ^= p2[7] ^ p3[7];
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_8regs_p_4(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3, unsigned long *p4)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++	prefetch(p4);
++
++	do {
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++		prefetch(p4+8);
++ once_more:
++		p1[0] ^= p2[0] ^ p3[0] ^ p4[0];
++		p1[1] ^= p2[1] ^ p3[1] ^ p4[1];
++		p1[2] ^= p2[2] ^ p3[2] ^ p4[2];
++		p1[3] ^= p2[3] ^ p3[3] ^ p4[3];
++		p1[4] ^= p2[4] ^ p3[4] ^ p4[4];
++		p1[5] ^= p2[5] ^ p3[5] ^ p4[5];
++		p1[6] ^= p2[6] ^ p3[6] ^ p4[6];
++		p1[7] ^= p2[7] ^ p3[7] ^ p4[7];
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++		p4 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_8regs_p_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3, unsigned long *p4, unsigned long *p5)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++	prefetch(p4);
++	prefetch(p5);
++
++	do {
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++		prefetch(p4+8);
++		prefetch(p5+8);
++ once_more:
++		p1[0] ^= p2[0] ^ p3[0] ^ p4[0] ^ p5[0];
++		p1[1] ^= p2[1] ^ p3[1] ^ p4[1] ^ p5[1];
++		p1[2] ^= p2[2] ^ p3[2] ^ p4[2] ^ p5[2];
++		p1[3] ^= p2[3] ^ p3[3] ^ p4[3] ^ p5[3];
++		p1[4] ^= p2[4] ^ p3[4] ^ p4[4] ^ p5[4];
++		p1[5] ^= p2[5] ^ p3[5] ^ p4[5] ^ p5[5];
++		p1[6] ^= p2[6] ^ p3[6] ^ p4[6] ^ p5[6];
++		p1[7] ^= p2[7] ^ p3[7] ^ p4[7] ^ p5[7];
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++		p4 += 8;
++		p5 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_32regs_p_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++
++	do {
++		register long d0, d1, d2, d3, d4, d5, d6, d7;
++
++		prefetchw(p1+8);
++		prefetch(p2+8);
++ once_more:
++		d0 = p1[0];	/* Pull the stuff into registers	*/
++		d1 = p1[1];	/*  ... in bursts, if possible.		*/
++		d2 = p1[2];
++		d3 = p1[3];
++		d4 = p1[4];
++		d5 = p1[5];
++		d6 = p1[6];
++		d7 = p1[7];
++		d0 ^= p2[0];
++		d1 ^= p2[1];
++		d2 ^= p2[2];
++		d3 ^= p2[3];
++		d4 ^= p2[4];
++		d5 ^= p2[5];
++		d6 ^= p2[6];
++		d7 ^= p2[7];
++		p1[0] = d0;	/* Store the result (in bursts)		*/
++		p1[1] = d1;
++		p1[2] = d2;
++		p1[3] = d3;
++		p1[4] = d4;
++		p1[5] = d5;
++		p1[6] = d6;
++		p1[7] = d7;
++		p1 += 8;
++		p2 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_32regs_p_3(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++
++	do {
++		register long d0, d1, d2, d3, d4, d5, d6, d7;
++
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++ once_more:
++		d0 = p1[0];	/* Pull the stuff into registers	*/
++		d1 = p1[1];	/*  ... in bursts, if possible.		*/
++		d2 = p1[2];
++		d3 = p1[3];
++		d4 = p1[4];
++		d5 = p1[5];
++		d6 = p1[6];
++		d7 = p1[7];
++		d0 ^= p2[0];
++		d1 ^= p2[1];
++		d2 ^= p2[2];
++		d3 ^= p2[3];
++		d4 ^= p2[4];
++		d5 ^= p2[5];
++		d6 ^= p2[6];
++		d7 ^= p2[7];
++		d0 ^= p3[0];
++		d1 ^= p3[1];
++		d2 ^= p3[2];
++		d3 ^= p3[3];
++		d4 ^= p3[4];
++		d5 ^= p3[5];
++		d6 ^= p3[6];
++		d7 ^= p3[7];
++		p1[0] = d0;	/* Store the result (in bursts)		*/
++		p1[1] = d1;
++		p1[2] = d2;
++		p1[3] = d3;
++		p1[4] = d4;
++		p1[5] = d5;
++		p1[6] = d6;
++		p1[7] = d7;
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_32regs_p_4(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3, unsigned long *p4)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++	prefetch(p4);
++
++	do {
++		register long d0, d1, d2, d3, d4, d5, d6, d7;
++
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++		prefetch(p4+8);
++ once_more:
++		d0 = p1[0];	/* Pull the stuff into registers	*/
++		d1 = p1[1];	/*  ... in bursts, if possible.		*/
++		d2 = p1[2];
++		d3 = p1[3];
++		d4 = p1[4];
++		d5 = p1[5];
++		d6 = p1[6];
++		d7 = p1[7];
++		d0 ^= p2[0];
++		d1 ^= p2[1];
++		d2 ^= p2[2];
++		d3 ^= p2[3];
++		d4 ^= p2[4];
++		d5 ^= p2[5];
++		d6 ^= p2[6];
++		d7 ^= p2[7];
++		d0 ^= p3[0];
++		d1 ^= p3[1];
++		d2 ^= p3[2];
++		d3 ^= p3[3];
++		d4 ^= p3[4];
++		d5 ^= p3[5];
++		d6 ^= p3[6];
++		d7 ^= p3[7];
++		d0 ^= p4[0];
++		d1 ^= p4[1];
++		d2 ^= p4[2];
++		d3 ^= p4[3];
++		d4 ^= p4[4];
++		d5 ^= p4[5];
++		d6 ^= p4[6];
++		d7 ^= p4[7];
++		p1[0] = d0;	/* Store the result (in bursts)		*/
++		p1[1] = d1;
++		p1[2] = d2;
++		p1[3] = d3;
++		p1[4] = d4;
++		p1[5] = d5;
++		p1[6] = d6;
++		p1[7] = d7;
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++		p4 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
++static void
++xor_32regs_p_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
++	    unsigned long *p3, unsigned long *p4, unsigned long *p5)
++{
++	long lines = bytes / (sizeof (long)) / 8 - 1;
++
++	prefetchw(p1);
++	prefetch(p2);
++	prefetch(p3);
++	prefetch(p4);
++	prefetch(p5);
++
++	do {
++		register long d0, d1, d2, d3, d4, d5, d6, d7;
++
++		prefetchw(p1+8);
++		prefetch(p2+8);
++		prefetch(p3+8);
++		prefetch(p4+8);
++		prefetch(p5+8);
++ once_more:
++		d0 = p1[0];	/* Pull the stuff into registers	*/
++		d1 = p1[1];	/*  ... in bursts, if possible.		*/
++		d2 = p1[2];
++		d3 = p1[3];
++		d4 = p1[4];
++		d5 = p1[5];
++		d6 = p1[6];
++		d7 = p1[7];
++		d0 ^= p2[0];
++		d1 ^= p2[1];
++		d2 ^= p2[2];
++		d3 ^= p2[3];
++		d4 ^= p2[4];
++		d5 ^= p2[5];
++		d6 ^= p2[6];
++		d7 ^= p2[7];
++		d0 ^= p3[0];
++		d1 ^= p3[1];
++		d2 ^= p3[2];
++		d3 ^= p3[3];
++		d4 ^= p3[4];
++		d5 ^= p3[5];
++		d6 ^= p3[6];
++		d7 ^= p3[7];
++		d0 ^= p4[0];
++		d1 ^= p4[1];
++		d2 ^= p4[2];
++		d3 ^= p4[3];
++		d4 ^= p4[4];
++		d5 ^= p4[5];
++		d6 ^= p4[6];
++		d7 ^= p4[7];
++		d0 ^= p5[0];
++		d1 ^= p5[1];
++		d2 ^= p5[2];
++		d3 ^= p5[3];
++		d4 ^= p5[4];
++		d5 ^= p5[5];
++		d6 ^= p5[6];
++		d7 ^= p5[7];
++		p1[0] = d0;	/* Store the result (in bursts)		*/
++		p1[1] = d1;
++		p1[2] = d2;
++		p1[3] = d3;
++		p1[4] = d4;
++		p1[5] = d5;
++		p1[6] = d6;
++		p1[7] = d7;
++		p1 += 8;
++		p2 += 8;
++		p3 += 8;
++		p4 += 8;
++		p5 += 8;
++	} while (--lines > 0);
++	if (lines == 0)
++		goto once_more;
++}
++
+ static struct xor_block_template xor_block_8regs = {
+ 	name: "8regs",
+ 	do_2: xor_8regs_2,
+@@ -315,8 +693,26 @@
+ 	do_5: xor_32regs_5,
+ };
+ 
++static struct xor_block_template xor_block_8regs_p = {
++	name: "8regs_prefetch",
++	do_2: xor_8regs_p_2,
++	do_3: xor_8regs_p_3,
++	do_4: xor_8regs_p_4,
++	do_5: xor_8regs_p_5,
++};
++
++static struct xor_block_template xor_block_32regs_p = {
++	name: "32regs_prefetch",
++	do_2: xor_32regs_p_2,
++	do_3: xor_32regs_p_3,
++	do_4: xor_32regs_p_4,
++	do_5: xor_32regs_p_5,
++};
++
+ #define XOR_TRY_TEMPLATES			\
+ 	do {					\
+ 		xor_speed(&xor_block_8regs);	\
++		xor_speed(&xor_block_8regs_p);	\
+ 		xor_speed(&xor_block_32regs);	\
++		xor_speed(&xor_block_32regs_p);	\
+ 	} while (0)
+diff -urN kernel-source-2.4.27.orig/include/asm-i386/hw_irq.h kernel-source-2.4.27.bjorn/include/asm-i386/hw_irq.h
+--- kernel-source-2.4.27.orig/include/asm-i386/hw_irq.h	2003-08-25 05:44:43.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-i386/hw_irq.h	2005-03-14 10:36:16.686462576 -0700
+@@ -222,4 +222,6 @@
+ static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {}
+ #endif
+ 
++extern irq_desc_t irq_desc [NR_IRQS];
++
+ #endif /* _ASM_HW_IRQ_H */
+diff -urN kernel-source-2.4.27.orig/include/asm-i386/page.h kernel-source-2.4.27.bjorn/include/asm-i386/page.h
+--- kernel-source-2.4.27.orig/include/asm-i386/page.h	2002-08-02 18:39:45.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-i386/page.h	2005-03-14 10:36:16.687439138 -0700
+@@ -30,8 +30,8 @@
+ 
+ #endif
+ 
+-#define clear_user_page(page, vaddr)	clear_page(page)
+-#define copy_user_page(to, from, vaddr)	copy_page(to, from)
++#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+ /*
+  * These are used to make use of C type-checking..
+@@ -137,6 +137,8 @@
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+ 
++#define is_invalid_hugepage_range(addr, len) 0
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _I386_PAGE_H */
+diff -urN kernel-source-2.4.27.orig/include/asm-i386/pgtable.h kernel-source-2.4.27.bjorn/include/asm-i386/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-i386/pgtable.h	2002-11-28 16:53:15.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/asm-i386/pgtable.h	2005-03-14 10:36:16.687439138 -0700
+@@ -302,6 +302,13 @@
+ static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, ptep); }
+ 
+ /*
++ * Macro to mark a page protection value as "uncacheable".  On processors which do not support
++ * it, this is a no-op.
++ */
++#define pgprot_noncached(prot)	((boot_cpu_data.x86 > 3)					  \
++				 ? (__pgprot(pgprot_val(prot) | _PAGE_PCD | _PAGE_PWT)) : (prot))
++
++/*
+  * Conversion functions: convert a page and protection to a page entry,
+  * and a page entry and page directory to the page they refer to.
+  */
+diff -urN kernel-source-2.4.27.orig/include/asm-i386/ptrace.h kernel-source-2.4.27.bjorn/include/asm-i386/ptrace.h
+--- kernel-source-2.4.27.orig/include/asm-i386/ptrace.h	2001-09-14 15:04:08.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-i386/ptrace.h	2005-03-14 10:36:16.687439138 -0700
+@@ -58,6 +58,7 @@
+ #define user_mode(regs) ((VM_MASK & (regs)->eflags) || (3 & (regs)->xcs))
+ #define instruction_pointer(regs) ((regs)->eip)
+ extern void show_regs(struct pt_regs *);
++#define force_successful_syscall_return()	do { } while (0)
+ #endif
+ 
+ #endif
+diff -urN kernel-source-2.4.27.orig/include/asm-ia64/page.h kernel-source-2.4.27.bjorn/include/asm-ia64/page.h
+--- kernel-source-2.4.27.orig/include/asm-ia64/page.h	2004-04-14 07:05:40.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-ia64/page.h	2005-03-14 10:36:16.688415701 -0700
+@@ -59,6 +59,7 @@
+ #endif
+ #define RGN_MAP_LIMIT	((1UL << (4*PAGE_SHIFT - 12)) - PAGE_SIZE)	/* per region addr limit */
+ 
++
+ #ifdef __ASSEMBLY__
+ # define __pa(x)		((x) - PAGE_OFFSET)
+ # define __va(x)		((x) + PAGE_OFFSET)
+diff -urN kernel-source-2.4.27.orig/include/asm-ia64/pgtable.h kernel-source-2.4.27.bjorn/include/asm-ia64/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-ia64/pgtable.h	2004-02-18 06:36:32.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/asm-ia64/pgtable.h	2005-03-14 10:36:16.688415701 -0700
+@@ -60,7 +60,8 @@
+ #define _PAGE_PROTNONE		(__IA64_UL(1) << 63)
+ 
+ #define _PFN_MASK		_PAGE_PPN_MASK
+-#define _PAGE_CHG_MASK		(_PFN_MASK | _PAGE_A | _PAGE_D)
++/* Mask of bits which may be changed by pte_modify(); the odd bits are there for _PAGE_PROTNONE */
++#define _PAGE_CHG_MASK	(_PAGE_P | _PAGE_PROTNONE | _PAGE_PL_MASK | _PAGE_AR_MASK | _PAGE_ED)
+ 
+ #define _PAGE_SIZE_4K	12
+ #define _PAGE_SIZE_8K	13
+@@ -216,7 +217,7 @@
+ ({ pte_t __pte; pte_val(__pte) = physpage + pgprot_val(pgprot); __pte; })
+ 
+ #define pte_modify(_pte, newprot) \
+-	(__pte((pte_val(_pte) & _PAGE_CHG_MASK) | pgprot_val(newprot)))
++	(__pte((pte_val(_pte) & ~_PAGE_CHG_MASK) | (pgprot_val(newprot) & _PAGE_CHG_MASK)))
+ 
+ #define page_pte_prot(page,prot)	mk_pte(page, prot)
+ #define page_pte(page)			page_pte_prot(page, __pgprot(0))
+diff -urN kernel-source-2.4.27.orig/include/asm-m68k/pgtable.h kernel-source-2.4.27.bjorn/include/asm-m68k/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-m68k/pgtable.h	2004-02-18 06:36:32.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/asm-m68k/pgtable.h	2005-03-14 10:36:16.688415701 -0700
+@@ -180,6 +180,24 @@
+ 
+ #ifndef __ASSEMBLY__
+ #include <asm-generic/pgtable.h>
++
++/*
++ * Macro to mark a page protection value as "uncacheable".
++ */
++#ifdef SUN3_PAGE_NOCACHE
++# define __SUN3_PAGE_NOCACHE	SUN3_PAGE_NOCACHE
++#else
++# define __SUN3_PAGE_NOCACHE	0
++#endif
++#define pgprot_noncached(prot)							\
++	(MMU_IS_SUN3								\
++	 ? (__pgprot(pgprot_val(prot) | __SUN3_PAGE_NOCACHE))			\
++	 : ((MMU_IS_851 || MMU_IS_030)						\
++	    ? (__pgprot(pgprot_val(prot) | _PAGE_NOCACHE030))			\
++	    : (MMU_IS_040 || MMU_IS_060)					\
++	    ? (__pgprot((pgprot_val(prot) & _CACHEMASK040) | _PAGE_NOCACHE_S))	\
++	    : (prot)))
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ /*
+diff -urN kernel-source-2.4.27.orig/include/asm-ppc/pgtable.h kernel-source-2.4.27.bjorn/include/asm-ppc/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-ppc/pgtable.h	2004-02-18 06:36:32.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/asm-ppc/pgtable.h	2005-03-14 10:36:16.689392263 -0700
+@@ -587,6 +587,11 @@
+ 	pte_update(ptep, 0, _PAGE_DIRTY);
+ }
+ 
++/*
++ * Macro to mark a page protection value as "uncacheable".
++ */
++#define pgprot_noncached(prot)	(__pgprot(pgprot_val(prot) | _PAGE_NO_CACHE | _PAGE_GUARDED))
++
+ #define pte_same(A,B)	(((pte_val(A) ^ pte_val(B)) & ~_PAGE_HASHPTE) == 0)
+ 
+ #define pmd_page(pmd)	(pmd_val(pmd) & PAGE_MASK)
+diff -urN kernel-source-2.4.27.orig/include/asm-ppc64/pgtable.h kernel-source-2.4.27.bjorn/include/asm-ppc64/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-ppc64/pgtable.h	2003-08-25 05:44:44.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-ppc64/pgtable.h	2005-03-14 10:36:16.689392263 -0700
+@@ -317,6 +317,11 @@
+ 	pte_update(ptep, 0, _PAGE_DIRTY);
+ }
+ 
++/*
++ * Macro to mark a page protection value as "uncacheable".
++ */
++#define pgprot_noncached(prot)	(__pgprot(pgprot_val(prot) | _PAGE_NO_CACHE | _PAGE_GUARDED))
++
+ #define pte_same(A,B)	(((pte_val(A) ^ pte_val(B)) & ~_PAGE_HPTEFLAGS) == 0)
+ 
+ /*
+diff -urN kernel-source-2.4.27.orig/include/asm-x86_64/pgtable.h kernel-source-2.4.27.bjorn/include/asm-x86_64/pgtable.h
+--- kernel-source-2.4.27.orig/include/asm-x86_64/pgtable.h	2004-04-14 07:05:40.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/asm-x86_64/pgtable.h	2005-03-14 10:36:16.690368826 -0700
+@@ -342,6 +342,11 @@
+ static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, ptep); }
+ 
+ /*
++ * Macro to mark a page protection value as "uncacheable".
++ */
++#define pgprot_noncached(prot)	(__pgprot(pgprot_val(prot) | _PAGE_PCD | _PAGE_PWT))
++
++/*
+  * Conversion functions: convert a page and protection to a page entry,
+  * and a page entry and page directory to the page they refer to.
+  */
+diff -urN kernel-source-2.4.27.orig/include/linux/agp_backend.h kernel-source-2.4.27.bjorn/include/linux/agp_backend.h
+--- kernel-source-2.4.27.orig/include/linux/agp_backend.h	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/agp_backend.h	2005-03-14 10:36:16.690368826 -0700
+@@ -142,6 +142,7 @@
+ 	size_t page_count;
+ 	int num_scratch_pages;
+ 	unsigned long *memory;
++	void *vmptr;
+ 	off_t pg_start;
+ 	u32 type;
+ 	u32 physical;
+diff -urN kernel-source-2.4.27.orig/include/linux/fs.h kernel-source-2.4.27.bjorn/include/linux/fs.h
+--- kernel-source-2.4.27.orig/include/linux/fs.h	2005-01-19 02:57:51.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/fs.h	2005-03-14 10:36:16.691345388 -0700
+@@ -249,7 +249,7 @@
+ 	/* First cache line: */
+ 	struct buffer_head *b_next;	/* Hash queue list */
+ 	unsigned long b_blocknr;	/* block number */
+-	unsigned short b_size;		/* block size */
++	unsigned int b_size;		/* block size */
+ 	unsigned short b_list;		/* List that this buffer appears */
+ 	kdev_t b_dev;			/* device (B_FREE = free) */
+ 
+diff -urN kernel-source-2.4.27.orig/include/linux/highmem.h kernel-source-2.4.27.bjorn/include/linux/highmem.h
+--- kernel-source-2.4.27.orig/include/linux/highmem.h	2003-08-25 05:44:44.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/linux/highmem.h	2005-03-14 10:36:16.692321950 -0700
+@@ -84,7 +84,7 @@
+ static inline void clear_user_highpage(struct page *page, unsigned long vaddr)
+ {
+ 	void *addr = kmap_atomic(page, KM_USER0);
+-	clear_user_page(addr, vaddr);
++	clear_user_page(addr, vaddr, page);
+ 	kunmap_atomic(addr, KM_USER0);
+ }
+ 
+@@ -116,7 +116,7 @@
+ 
+ 	vfrom = kmap_atomic(from, KM_USER0);
+ 	vto = kmap_atomic(to, KM_USER1);
+-	copy_user_page(vto, vfrom, vaddr);
++	copy_user_page(vto, vfrom, vaddr, to);
+ 	kunmap_atomic(vfrom, KM_USER0);
+ 	kunmap_atomic(vto, KM_USER1);
+ }
+diff -urN kernel-source-2.4.27.orig/include/linux/hugetlb.h kernel-source-2.4.27.bjorn/include/linux/hugetlb.h
+--- kernel-source-2.4.27.orig/include/linux/hugetlb.h	1969-12-31 17:00:00.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/hugetlb.h	2005-03-14 10:36:16.692321950 -0700
+@@ -0,0 +1,102 @@
++#ifndef _LINUX_HUGETLB_H
++#define _LINUX_HUGETLB_H
++
++#ifdef CONFIG_HUGETLB_PAGE
++
++#define COLOR_HALIGN(addr) ((addr + HPAGE_SIZE - 1) & ~(HPAGE_SIZE - 1))
++struct ctl_table;
++
++static inline int is_vm_hugetlb_page(struct vm_area_struct *vma)
++{
++	return vma->vm_flags & VM_HUGETLB;
++}
++static inline int is_hugepage_addr(unsigned long addr)
++{
++	return (rgn_index(addr) == REGION_HPAGE);
++}
++
++int hugetlb_sysctl_handler(struct ctl_table *, int, struct file *, void *, size_t *);
++int copy_hugetlb_page_range(struct mm_struct *, struct mm_struct *, struct vm_area_struct *);
++int follow_hugetlb_page(struct mm_struct *, struct vm_area_struct *, struct page **, struct vm_area_struct **, unsigned long *, int *, int);
++void zap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
++void unmap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
++int hugetlb_prefault(struct address_space *, struct vm_area_struct *);
++void huge_page_release(struct page *);
++int hugetlb_report_meminfo(char *);
++int is_hugepage_mem_enough(size_t);
++int is_aligned_hugepage_range(unsigned long addr, unsigned long len);
++void hugetlb_free_pgtables(struct mm_struct * mm, struct vm_area_struct * prev,
++	unsigned long start, unsigned long end);
++
++extern int htlbpage_max;
++
++#else /* !CONFIG_HUGETLB_PAGE */
++static inline int is_vm_hugetlb_page(struct vm_area_struct *vma)
++{
++	return 0;
++}
++
++#define follow_hugetlb_page(m,v,p,vs,a,b,i)		({ BUG(); 0; })
++#define copy_hugetlb_page_range(src, dst, vma)	({ BUG(); 0; })
++#define hugetlb_prefault(mapping, vma)		({ BUG(); 0; })
++#define zap_hugepage_range(vma, start, len)	BUG()
++#define unmap_hugepage_range(vma, start, end)	BUG()
++#define huge_page_release(page)			BUG()
++#define hugetlb_report_meminfo(buf)		0
++#define is_hugepage_mem_enough(size)		0
++#define is_hugepage_addr(addr)			0
++#define is_aligned_hugepage_range(addr, len)    0
++#define hugetlb_free_pgtables(mm, prev, start, end) do { } while (0)
++
++#endif /* !CONFIG_HUGETLB_PAGE */
++
++#ifdef CONFIG_HUGETLBFS
++struct hugetlbfs_config {
++	uid_t	uid;
++	gid_t	gid;
++	umode_t	mode;
++	long	nr_blocks;
++	long	nr_inodes;
++};
++
++struct hugetlbfs_sb_info {
++	long		max_blocks;   /* How many blocks are allowed */
++	long		free_blocks;  /* How many are left for allocation */
++	long		max_inodes;   /* How many inodes are allowed */
++	long		free_inodes;  /* How many are left for allocation */
++	spinlock_t	stat_lock;
++};
++
++static inline struct hugetlbfs_sb_info *HUGETLBFS_SB(struct super_block *sb)
++{
++	return sb->u.generic_sbp;
++}
++
++#define PSEUDO_DIRENT_SIZE	20
++
++extern struct file_operations hugetlbfs_file_operations;
++extern struct vm_operations_struct hugetlb_vm_ops;
++struct file *hugetlb_zero_setup(size_t);
++int hugetlb_get_quota(struct address_space *mapping);
++void hugetlb_put_quota(struct address_space *mapping);
++
++static inline int is_file_hugepages(struct file *file)
++{
++	return file->f_op == &hugetlbfs_file_operations;
++}
++
++static inline void set_file_hugepages(struct file *file)
++{
++	file->f_op = &hugetlbfs_file_operations;
++}
++#else /* !CONFIG_HUGETLBFS */
++
++#define is_file_hugepages(file)		0
++#define set_file_hugepages(file)	BUG()
++#define hugetlb_zero_setup(size)	ERR_PTR(-ENOSYS)
++#define hugetlb_get_quota(mapping)	0
++#define hugetlb_put_quota(mapping)	0
++
++#endif /* !CONFIG_HUGETLBFS */
++
++#endif /* _LINUX_HUGETLB_H */
+diff -urN kernel-source-2.4.27.orig/include/linux/irq.h kernel-source-2.4.27.bjorn/include/linux/irq.h
+--- kernel-source-2.4.27.orig/include/linux/irq.h	2002-08-02 18:39:45.000000000 -0600
++++ kernel-source-2.4.27.bjorn/include/linux/irq.h	2005-03-14 10:36:16.693298513 -0700
+@@ -56,7 +56,7 @@
+  *
+  * Pad this out to 32 bytes for cache and indexing reasons.
+  */
+-typedef struct {
++typedef struct irq_desc {
+ 	unsigned int status;		/* IRQ status */
+ 	hw_irq_controller *handler;
+ 	struct irqaction *action;	/* IRQ action list */
+@@ -64,8 +64,6 @@
+ 	spinlock_t lock;
+ } ____cacheline_aligned irq_desc_t;
+ 
+-extern irq_desc_t irq_desc [NR_IRQS];
+-
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 
+ extern int handle_IRQ_event(unsigned int, struct pt_regs *, struct irqaction *);
+diff -urN kernel-source-2.4.27.orig/include/linux/irq_cpustat.h kernel-source-2.4.27.bjorn/include/linux/irq_cpustat.h
+--- kernel-source-2.4.27.orig/include/linux/irq_cpustat.h	2001-11-22 12:46:18.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/irq_cpustat.h	2005-03-14 10:38:36.533140550 -0700
+@@ -23,15 +23,31 @@
+ #define __IRQ_STAT(cpu, member)	(irq_stat[cpu].member)
+ #else
+ #define __IRQ_STAT(cpu, member)	((void)(cpu), irq_stat[0].member)
+-#endif	
++#endif
+ 
+   /* arch independent irq_stat fields */
+ #define softirq_pending(cpu)	__IRQ_STAT((cpu), __softirq_pending)
+-#define local_irq_count(cpu)	__IRQ_STAT((cpu), __local_irq_count)
+-#define local_bh_count(cpu)	__IRQ_STAT((cpu), __local_bh_count)
++#define irq_count(cpu)		__IRQ_STAT((cpu), __local_irq_count)
++#define bh_count(cpu)		__IRQ_STAT((cpu), __local_bh_count)
+ #define syscall_count(cpu)	__IRQ_STAT((cpu), __syscall_count)
+ #define ksoftirqd_task(cpu)	__IRQ_STAT((cpu), __ksoftirqd_task)
+   /* arch dependent irq_stat fields */
+ #define nmi_count(cpu)		__IRQ_STAT((cpu), __nmi_count)		/* i386, ia64 */
+ 
++#define local_hardirq_trylock()	hardirq_trylock(smp_processor_id())
++#define local_hardirq_endlock()	hardirq_trylock(smp_processor_id())
++#define local_irq_enter(irq)	irq_enter(smp_processor_id(), (irq))
++#define local_irq_exit(irq)	irq_exit(smp_processor_id(), (irq))
++#define local_softirq_pending()	softirq_pending(smp_processor_id())
++#define local_ksoftirqd_task()	ksoftirqd_task(smp_processor_id())
++
++/* These will lose the "really_" prefix when the interim macros below are removed.  */
++#define really_local_irq_count()irq_count(smp_processor_id())
++#define really_local_bh_count()	bh_count(smp_processor_id())
++
++/* Interim macros for backward compatibility.  They are deprecated.  Use irq_count() and
++   bh_count() instead.  --davidm 01/11/28 */
++#define local_irq_count(cpu)	irq_count(cpu)
++#define local_bh_count(cpu)	bh_count(cpu)
++
+ #endif	/* __irq_cpustat_h */
+diff -urN kernel-source-2.4.27.orig/include/linux/mm.h kernel-source-2.4.27.bjorn/include/linux/mm.h
+--- kernel-source-2.4.27.orig/include/linux/mm.h	2005-01-19 02:57:58.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/mm.h	2005-03-14 10:36:16.695251638 -0700
+@@ -103,6 +103,9 @@
+ #define VM_DONTCOPY	0x00020000      /* Do not copy this vma on fork */
+ #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
++#define VM_WRITECOMBINED 0x00100000	/* Write-combined */
++#define VM_NONCACHED	0x00200000	/* Noncached access */
++#define VM_HUGETLB	0x00400000  	/* Huge tlb Page*/
+ 
+ #ifndef VM_STACK_FLAGS
+ #define VM_STACK_FLAGS	0x00000177
+diff -urN kernel-source-2.4.27.orig/include/linux/mmzone.h kernel-source-2.4.27.bjorn/include/linux/mmzone.h
+--- kernel-source-2.4.27.orig/include/linux/mmzone.h	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/mmzone.h	2005-03-14 10:36:16.695251638 -0700
+@@ -8,6 +8,12 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/wait.h>
++#ifdef CONFIG_DISCONTIGMEM
++#include <asm/numnodes.h>
++#endif
++#ifndef MAX_NUMNODES
++#define MAX_NUMNODES 1
++#endif
+ 
+ /*
+  * Free memory management - zoned buddy allocator.
+@@ -134,7 +140,7 @@
+  * footprint of this construct is very small.
+  */
+ typedef struct zonelist_struct {
+-	zone_t * zones [MAX_NR_ZONES+1]; // NULL delimited
++	zone_t * zones [MAX_NUMNODES*MAX_NR_ZONES+1]; // NULL delimited
+ } zonelist_t;
+ 
+ #define GFP_ZONEMASK	0x0f
+@@ -236,6 +242,18 @@
+ #define for_each_zone(zone) \
+ 	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
+ 
++#ifdef CONFIG_NUMA
++#define MAX_NR_MEMBLKS  BITS_PER_LONG /* Max number of Memory Blocks */
++#include <asm/topology.h>
++#else /* !CONFIG_NUMA */
++#define MAX_NR_MEMBLKS  1
++#endif /* CONFIG_NUMA */
++
++/* Returns the number of the current Node. */
++
++#ifndef CONFIG_NUMA
++#define numa_node_id()          (__cpu_to_node(smp_processor_id()))
++#endif
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+ 
+diff -urN kernel-source-2.4.27.orig/include/linux/shm.h kernel-source-2.4.27.bjorn/include/linux/shm.h
+--- kernel-source-2.4.27.orig/include/linux/shm.h	2001-11-22 12:46:18.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/shm.h	2005-03-14 10:36:16.695251638 -0700
+@@ -75,6 +75,7 @@
+ /* shm_mode upper byte flags */
+ #define	SHM_DEST	01000	/* segment will be destroyed on last detach */
+ #define SHM_LOCKED      02000   /* segment will not be swapped */
++#define SHM_HUGETLB     04000   /* segment will use HugeTLB pages */
+ 
+ asmlinkage long sys_shmget (key_t key, size_t size, int flag);
+ asmlinkage long sys_shmat (int shmid, char *shmaddr, int shmflg, unsigned long *addr);
+diff -urN kernel-source-2.4.27.orig/include/linux/smp.h kernel-source-2.4.27.bjorn/include/linux/smp.h
+--- kernel-source-2.4.27.orig/include/linux/smp.h	2001-11-22 12:46:19.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/smp.h	2005-03-14 10:36:16.696228200 -0700
+@@ -35,11 +35,6 @@
+ extern void smp_boot_cpus(void);
+ 
+ /*
+- * Processor call in. Must hold processors until ..
+- */
+-extern void smp_callin(void);
+-
+-/*
+  * Multiprocessors may now schedule
+  */
+ extern void smp_commence(void);
+@@ -57,10 +52,6 @@
+ 
+ extern int smp_num_cpus;
+ 
+-extern volatile unsigned long smp_msg_data;
+-extern volatile int smp_src_cpu;
+-extern volatile int smp_msg_id;
+-
+ #define MSG_ALL_BUT_SELF	0x8000	/* Assume <32768 CPU's */
+ #define MSG_ALL			0x8001
+ 
+@@ -86,6 +77,7 @@
+ #define cpu_number_map(cpu)			0
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+ #define cpu_online_map				1
++#define cpu_online(cpu)				(cpu == 0)
+ 
+ #endif
+ #endif
+diff -urN kernel-source-2.4.27.orig/include/linux/sysctl.h kernel-source-2.4.27.bjorn/include/linux/sysctl.h
+--- kernel-source-2.4.27.orig/include/linux/sysctl.h	2005-01-19 02:57:42.000000000 -0700
++++ kernel-source-2.4.27.bjorn/include/linux/sysctl.h	2005-03-14 10:44:54.072198425 -0700
+@@ -157,6 +157,7 @@
+ 	VM_MAPPED_RATIO=20,     /* amount of unfreeable pages that triggers swapout */
+ 	VM_LAPTOP_MODE=21,	/* kernel in laptop flush mode */
+ 	VM_BLOCK_DUMP=22,	/* dump fs activity to log */
++	VM_HUGETLB_PAGES=23,	/* int: Number of available Huge Pages */
+ };
+ 
+ 
+diff -urN kernel-source-2.4.27.orig/init/main.c kernel-source-2.4.27.bjorn/init/main.c
+--- kernel-source-2.4.27.orig/init/main.c	2005-01-19 02:57:53.000000000 -0700
++++ kernel-source-2.4.27.bjorn/init/main.c	2005-03-14 10:36:16.697204763 -0700
+@@ -314,6 +314,7 @@
+ 
+ 
+ extern void setup_arch(char **);
++extern void __init build_all_zonelists(void);
+ extern void cpu_idle(void);
+ 
+ unsigned long wait_init_idle;
+@@ -384,6 +385,7 @@
+ 	lock_kernel();
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
++	build_all_zonelists();
+ 	printk("Kernel command line: %s\n", saved_command_line);
+ 	parse_options(command_line);
+ 	trap_init();
+diff -urN kernel-source-2.4.27.orig/ipc/shm.c kernel-source-2.4.27.bjorn/ipc/shm.c
+--- kernel-source-2.4.27.orig/ipc/shm.c	2002-08-02 18:39:46.000000000 -0600
++++ kernel-source-2.4.27.bjorn/ipc/shm.c	2005-03-14 10:36:16.698181325 -0700
+@@ -18,6 +18,7 @@
+ #include <linux/config.h>
+ #include <linux/slab.h>
+ #include <linux/shm.h>
++#include <linux/hugetlb.h>
+ #include <linux/init.h>
+ #include <linux/file.h>
+ #include <linux/mman.h>
+@@ -125,7 +126,8 @@
+ 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	shm_rmid (shp->id);
+ 	shm_unlock(shp->id);
+-	shmem_lock(shp->shm_file, 0);
++	if (!is_file_hugepages(shp->shm_file))
++		shmem_lock(shp->shm_file, 0);
+ 	fput (shp->shm_file);
+ 	kfree (shp);
+ }
+@@ -193,8 +195,12 @@
+ 	shp = (struct shmid_kernel *) kmalloc (sizeof (*shp), GFP_USER);
+ 	if (!shp)
+ 		return -ENOMEM;
+-	sprintf (name, "SYSV%08x", key);
+-	file = shmem_file_setup(name, size);
++	if (shmflg & SHM_HUGETLB)
++		file = hugetlb_zero_setup(size);
++	else {
++		sprintf (name, "SYSV%08x", key);
++		file = shmem_file_setup(name, size);
++	}
+ 	error = PTR_ERR(file);
+ 	if (IS_ERR(file))
+ 		goto no_file;
+@@ -214,7 +220,10 @@
+ 	shp->id = shm_buildid(id,shp->shm_perm.seq);
+ 	shp->shm_file = file;
+ 	file->f_dentry->d_inode->i_ino = shp->id;
+-	file->f_op = &shm_file_operations;
++	if (shmflg & SHM_HUGETLB)
++		set_file_hugepages(file);
++	else
++		file->f_op = &shm_file_operations;
+ 	shm_tot += numpages;
+ 	shm_unlock (id);
+ 	return shp->id;
+@@ -452,7 +461,10 @@
+ 		tbuf.shm_ctime	= shp->shm_ctim;
+ 		tbuf.shm_cpid	= shp->shm_cprid;
+ 		tbuf.shm_lpid	= shp->shm_lprid;
+-		tbuf.shm_nattch	= shp->shm_nattch;
++		if (!is_file_hugepages(shp->shm_file))
++			tbuf.shm_nattch	= shp->shm_nattch;
++		else
++			tbuf.shm_nattch = file_count(shp->shm_file)-1;
+ 		shm_unlock(shmid);
+ 		if(copy_shmid_to_user (buf, &tbuf, version))
+ 			return -EFAULT;
+@@ -474,10 +486,12 @@
+ 		if(err)
+ 			goto out_unlock;
+ 		if(cmd==SHM_LOCK) {
+-			shmem_lock(shp->shm_file, 1);
++			if (!is_file_hugepages(shp->shm_file))
++				shmem_lock(shp->shm_file, 1);
+ 			shp->shm_flags |= SHM_LOCKED;
+ 		} else {
+-			shmem_lock(shp->shm_file, 0);
++			if (!is_file_hugepages(shp->shm_file))
++				shmem_lock(shp->shm_file, 0);
+ 			shp->shm_flags &= ~SHM_LOCKED;
+ 		}
+ 		shm_unlock(shmid);
+@@ -678,7 +692,7 @@
+ 	down_write(&mm->mmap_sem);
+ 	for (shmd = mm->mmap; shmd; shmd = shmdnext) {
+ 		shmdnext = shmd->vm_next;
+-		if (shmd->vm_ops == &shm_vm_ops
++		if (((shmd->vm_ops == &shm_vm_ops) || is_vm_hugetlb_page(shmd))
+ 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+ 			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
+ 			retval = 0;
+@@ -718,7 +732,7 @@
+ 				shp->shm_segsz,
+ 				shp->shm_cprid,
+ 				shp->shm_lprid,
+-				shp->shm_nattch,
++				is_file_hugepages(shp->shm_file) ? (file_count(shp->shm_file)-1) : shp->shm_nattch,
+ 				shp->shm_perm.uid,
+ 				shp->shm_perm.gid,
+ 				shp->shm_perm.cuid,
+diff -urN kernel-source-2.4.27.orig/kernel/printk.c kernel-source-2.4.27.bjorn/kernel/printk.c
+--- kernel-source-2.4.27.orig/kernel/printk.c	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/kernel/printk.c	2005-03-14 10:36:16.699157888 -0700
+@@ -330,6 +330,12 @@
+ 			__call_console_drivers(start, end);
+ 		}
+ 	}
++#ifdef CONFIG_IA64_EARLY_PRINTK
++	if (!console_drivers) {
++		void early_printk (const char *str, size_t len);
++		early_printk(&LOG_BUF(start), end - start);
++	}
++#endif
+ }
+ 
+ /*
+@@ -696,3 +702,101 @@
+ 		tty->driver.write(tty, 0, msg, strlen(msg));
+ 	return;
+ }
++
++#ifdef CONFIG_IA64_EARLY_PRINTK
++
++#include <asm/io.h>
++
++#ifdef CONFIG_IA64_EARLY_PRINTK_UART
++
++#include <linux/serial_reg.h>
++#include <asm/system.h>
++
++static void early_printk_uart(const char *str, size_t len)
++{
++	static char *uart = 0;
++	unsigned long uart_base;
++	char c;
++
++	if (!uart) {
++#ifdef CONFIG_SERIAL_HCDP
++		extern unsigned long hcdp_early_uart(void);
++		uart_base = hcdp_early_uart();
++#endif
++#if CONFIG_IA64_EARLY_PRINTK_UART_BASE
++		uart_base = CONFIG_IA64_EARLY_PRINTK_UART_BASE;
++#endif
++		if (uart_base)
++			uart = ioremap(uart_base, 64);
++	}
++
++	if (!uart)
++		return;
++
++	while (len-- > 0) {
++		c = *str++;
++		while (!(UART_LSR_TEMT & readb(uart + UART_LSR)))
++			; /* spin */
++
++		writeb(c, uart + UART_TX);
++
++		if (c == '\n')
++			writeb('\r', uart + UART_TX);
++	}
++}
++#endif /* CONFIG_IA64_EARLY_PRINTK_UART */
++
++#ifdef CONFIG_IA64_EARLY_PRINTK_VGA
++
++#define VGABASE		((char *)0xc0000000000b8000)
++#define VGALINES	24
++#define VGACOLS		80
++
++static int current_ypos = VGALINES, current_xpos = 0;
++
++static void early_printk_vga(const char *str, size_t len)
++{
++	char c;
++	int  i, k, j;
++
++	while (len-- > 0) {
++		c = *str++;
++		if (current_ypos >= VGALINES) {
++			/* scroll 1 line up */
++			for (k = 1, j = 0; k < VGALINES; k++, j++) {
++				for (i = 0; i < VGACOLS; i++) {
++					writew(readw(VGABASE + 2*(VGACOLS*k + i)),
++					       VGABASE + 2*(VGACOLS*j + i));
++				}
++			}
++			for (i = 0; i < VGACOLS; i++) {
++				writew(0x720, VGABASE + 2*(VGACOLS*j + i));
++			}
++			current_ypos = VGALINES-1;
++		}
++		if (c == '\n') {
++			current_xpos = 0;
++			current_ypos++;
++		} else if (c != '\r')  {
++			writew(((0x7 << 8) | (unsigned short) c),
++			       VGABASE + 2*(VGACOLS*current_ypos + current_xpos++));
++			if (current_xpos >= VGACOLS) {
++				current_xpos = 0;
++				current_ypos++;
++			}
++		}
++	}
++}
++#endif /* CONFIG_IA64_EARLY_PRINTK_VGA */
++
++void early_printk(const char *str, size_t len)
++{
++#ifdef CONFIG_IA64_EARLY_PRINTK_UART
++	early_printk_uart(str, len);
++#endif
++#ifdef CONFIG_IA64_EARLY_PRINTK_VGA
++	early_printk_vga(str, len);
++#endif
++}
++
++#endif /* CONFIG_IA64_EARLY_PRINTK */
+diff -urN kernel-source-2.4.27.orig/kernel/signal.c kernel-source-2.4.27.bjorn/kernel/signal.c
+--- kernel-source-2.4.27.orig/kernel/signal.c	2004-02-18 06:36:32.000000000 -0700
++++ kernel-source-2.4.27.bjorn/kernel/signal.c	2005-03-14 10:36:16.699157888 -0700
+@@ -1171,8 +1171,19 @@
+ 			ss_sp = NULL;
+ 		} else {
+ 			error = -ENOMEM;
++#ifdef __ia64__
++			/*
++			 * XXX fix me: due to an oversight, MINSIGSTKSZ used to be defined
++			 * as 2KB, which is far too small.  This was after Linux kernel
++			 * 2.4.9 but since there are a fair number of ia64 apps out there,
++			 * we continue to allow "too" small sigaltstacks for a while.
++			 */
++			if (ss_size < 2048)
++				goto out;
++#else
+ 			if (ss_size < MINSIGSTKSZ)
+ 				goto out;
++#endif
+ 		}
+ 
+ 		current->sas_ss_sp = (unsigned long) ss_sp;
+diff -urN kernel-source-2.4.27.orig/kernel/softirq.c kernel-source-2.4.27.bjorn/kernel/softirq.c
+--- kernel-source-2.4.27.orig/kernel/softirq.c	2002-11-28 16:53:15.000000000 -0700
++++ kernel-source-2.4.27.bjorn/kernel/softirq.c	2005-03-14 10:36:16.700134450 -0700
+@@ -40,7 +40,10 @@
+    - Bottom halves: globally serialized, grr...
+  */
+ 
++/* No separate irq_stat for ia64, it is part of PSA */
++#if !defined(CONFIG_IA64)
+ irq_cpustat_t irq_stat[NR_CPUS] ____cacheline_aligned;
++#endif
+ 
+ static struct softirq_action softirq_vec[32] __cacheline_aligned;
+ 
+@@ -60,7 +63,6 @@
+ 
+ asmlinkage void do_softirq()
+ {
+-	int cpu = smp_processor_id();
+ 	__u32 pending;
+ 	unsigned long flags;
+ 	__u32 mask;
+@@ -70,7 +72,7 @@
+ 
+ 	local_irq_save(flags);
+ 
+-	pending = softirq_pending(cpu);
++	pending = local_softirq_pending();
+ 
+ 	if (pending) {
+ 		struct softirq_action *h;
+@@ -79,7 +81,7 @@
+ 		local_bh_disable();
+ restart:
+ 		/* Reset the pending bitmask before enabling irqs */
+-		softirq_pending(cpu) = 0;
++		local_softirq_pending() = 0;
+ 
+ 		local_irq_enable();
+ 
+@@ -94,7 +96,7 @@
+ 
+ 		local_irq_disable();
+ 
+-		pending = softirq_pending(cpu);
++		pending = local_softirq_pending();
+ 		if (pending & mask) {
+ 			mask &= ~pending;
+ 			goto restart;
+@@ -102,7 +104,7 @@
+ 		__local_bh_enable();
+ 
+ 		if (pending)
+-			wakeup_softirqd(cpu);
++			wakeup_softirqd(smp_processor_id());
+ 	}
+ 
+ 	local_irq_restore(flags);
+@@ -124,7 +126,7 @@
+ 	 * Otherwise we wake up ksoftirqd to make sure we
+ 	 * schedule the softirq soon.
+ 	 */
+-	if (!(local_irq_count(cpu) | local_bh_count(cpu)))
++	if (!(irq_count(cpu) | bh_count(cpu)))
+ 		wakeup_softirqd(cpu);
+ }
+ 
+@@ -287,18 +289,16 @@
+ 
+ static void bh_action(unsigned long nr)
+ {
+-	int cpu = smp_processor_id();
+-
+ 	if (!spin_trylock(&global_bh_lock))
+ 		goto resched;
+ 
+-	if (!hardirq_trylock(cpu))
++	if (!local_hardirq_trylock())
+ 		goto resched_unlock;
+ 
+ 	if (bh_base[nr])
+ 		bh_base[nr]();
+ 
+-	hardirq_endlock(cpu);
++	local_hardirq_endlock();
+ 	spin_unlock(&global_bh_lock);
+ 	return;
+ 
+@@ -377,15 +377,15 @@
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	mb();
+ 
+-	ksoftirqd_task(cpu) = current;
++	local_ksoftirqd_task() = current;
+ 
+ 	for (;;) {
+-		if (!softirq_pending(cpu))
++		if (!local_softirq_pending())
+ 			schedule();
+ 
+ 		__set_current_state(TASK_RUNNING);
+ 
+-		while (softirq_pending(cpu)) {
++		while (local_softirq_pending()) {
+ 			do_softirq();
+ 			if (current->need_resched)
+ 				schedule();
+diff -urN kernel-source-2.4.27.orig/kernel/sysctl.c kernel-source-2.4.27.bjorn/kernel/sysctl.c
+--- kernel-source-2.4.27.orig/kernel/sysctl.c	2004-08-07 17:26:06.000000000 -0600
++++ kernel-source-2.4.27.bjorn/kernel/sysctl.c	2005-03-14 10:36:16.701111013 -0700
+@@ -31,6 +31,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/highuid.h>
+ #include <linux/swap.h>
++#include <linux/hugetlb.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -315,6 +316,10 @@
+ 	 &laptop_mode, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_BLOCK_DUMP, "block_dump",
+ 	 &block_dump, sizeof(int), 0644, NULL, &proc_dointvec},
++#ifdef CONFIG_HUGETLB_PAGE
++	{VM_HUGETLB_PAGES, "nr_hugepages", &htlbpage_max, sizeof(int), 0644, NULL,
++	&hugetlb_sysctl_handler},
++#endif
+ 	{0}
+ };
+ 
+diff -urN kernel-source-2.4.27.orig/kernel/time.c kernel-source-2.4.27.bjorn/kernel/time.c
+--- kernel-source-2.4.27.orig/kernel/time.c	2002-11-28 16:53:15.000000000 -0700
++++ kernel-source-2.4.27.bjorn/kernel/time.c	2005-03-14 10:36:16.701111013 -0700
+@@ -39,6 +39,7 @@
+ /* The xtime_lock is not only serializing the xtime read/writes but it's also
+    serializing all accesses to the global NTP variables now. */
+ extern rwlock_t xtime_lock;
++extern unsigned long last_time_offset;
+ 
+ #if !defined(__alpha__) && !defined(__ia64__)
+ 
+@@ -84,6 +85,7 @@
+ 	xtime.tv_sec = value;
+ 	xtime.tv_usec = 0;
+ 	vxtime_unlock();
++	last_time_offset = 0;
+ 	time_adjust = 0;	/* stop active adjtime() */
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+@@ -131,6 +133,7 @@
+ 	vxtime_lock();
+ 	xtime.tv_sec += sys_tz.tz_minuteswest * 60;
+ 	vxtime_unlock();
++	last_time_offset = 0;
+ 	write_unlock_irq(&xtime_lock);
+ }
+ 
+@@ -217,7 +220,7 @@
+ 	/* In order to modify anything, you gotta be super-user! */
+ 	if (txc->modes && !capable(CAP_SYS_TIME))
+ 		return -EPERM;
+-		
++
+ 	/* Now we validate the data before disabling interrupts */
+ 
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+@@ -228,7 +231,7 @@
+ 	if (txc->modes != ADJ_OFFSET_SINGLESHOT && (txc->modes & ADJ_OFFSET))
+ 	  /* adjustment Offset limited to +- .512 seconds */
+ 		if (txc->offset <= - MAXPHASE || txc->offset >= MAXPHASE )
+-			return -EINVAL;	
++			return -EINVAL;
+ 
+ 	/* if the quartz is off by more than 10% something is VERY wrong ! */
+ 	if (txc->modes & ADJ_TICK)
+@@ -365,7 +368,7 @@
+ 		&& (time_status & (STA_PPSWANDER|STA_PPSERROR)) != 0))
+ 	    /* p. 24, (d) */
+ 		result = TIME_ERROR;
+-	
++
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+ 	    txc->offset	   = save_adjust;
+ 	else {
+@@ -390,6 +393,7 @@
+ 	txc->calcnt	   = pps_calcnt;
+ 	txc->errcnt	   = pps_errcnt;
+ 	txc->stbcnt	   = pps_stbcnt;
++	last_time_offset = 0;
+ 	write_unlock_irq(&xtime_lock);
+ 	do_gettimeofday(&txc->time);
+ 	return(result);
+diff -urN kernel-source-2.4.27.orig/kernel/timer.c kernel-source-2.4.27.bjorn/kernel/timer.c
+--- kernel-source-2.4.27.orig/kernel/timer.c	2002-11-28 16:53:15.000000000 -0700
++++ kernel-source-2.4.27.bjorn/kernel/timer.c	2005-03-14 10:36:16.702087575 -0700
+@@ -615,7 +615,7 @@
+ 		else
+ 			kstat.per_cpu_user[cpu] += user_tick;
+ 		kstat.per_cpu_system[cpu] += system;
+-	} else if (local_bh_count(cpu) || local_irq_count(cpu) > 1)
++	} else if (really_local_bh_count() || really_local_irq_count() > 1)
+ 		kstat.per_cpu_system[cpu] += system;
+ }
+ 
+@@ -667,6 +667,7 @@
+  * This spinlock protect us from races in SMP while playing with xtime. -arca
+  */
+ rwlock_t xtime_lock = RW_LOCK_UNLOCKED;
++unsigned long last_time_offset;
+ 
+ static inline void update_times(void)
+ {
+@@ -686,6 +687,7 @@
+ 		update_wall_time(ticks);
+ 	}
+ 	vxtime_unlock();
++	last_time_offset = 0;
+ 	write_unlock_irq(&xtime_lock);
+ 	calc_load(ticks);
+ }
+@@ -698,7 +700,7 @@
+ 
+ void do_timer(struct pt_regs *regs)
+ {
+-	(*(unsigned long *)&jiffies)++;
++	(*(volatile unsigned long *)&jiffies)++;
+ #ifndef CONFIG_SMP
+ 	/* SMP process accounting uses the local APIC timer */
+ 
+@@ -844,7 +846,7 @@
+ 	if (t.tv_nsec >= 1000000000L || t.tv_nsec < 0 || t.tv_sec < 0)
+ 		return -EINVAL;
+ 
+-
++#if !defined(__ia64__)
+ 	if (t.tv_sec == 0 && t.tv_nsec <= 2000000L &&
+ 	    current->policy != SCHED_OTHER)
+ 	{
+@@ -857,6 +859,7 @@
+ 		udelay((t.tv_nsec + 999) / 1000);
+ 		return 0;
+ 	}
++#endif
+ 
+ 	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+ 
+diff -urN kernel-source-2.4.27.orig/mm/bootmem.c kernel-source-2.4.27.bjorn/mm/bootmem.c
+--- kernel-source-2.4.27.orig/mm/bootmem.c	2002-11-28 16:53:15.000000000 -0700
++++ kernel-source-2.4.27.bjorn/mm/bootmem.c	2005-03-14 10:36:16.702087575 -0700
+@@ -49,8 +49,24 @@
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long mapsize = ((end - start)+7)/8;
+ 
+-	pgdat->node_next = pgdat_list;
+-	pgdat_list = pgdat;
++
++	/*
++	 * sort pgdat_list so that the lowest one comes first,
++	 * which makes alloc_bootmem_low_pages work as desired.
++	 */
++	if (!pgdat_list || pgdat_list->node_start_paddr > pgdat->node_start_paddr) {
++		pgdat->node_next = pgdat_list;
++		pgdat_list = pgdat;
++	} else {
++		pg_data_t *tmp = pgdat_list;
++		while (tmp->node_next) {
++			if (tmp->node_next->node_start_paddr > pgdat->node_start_paddr)
++				break;
++			tmp = tmp->node_next;
++		}
++		pgdat->node_next = tmp->node_next;
++		tmp->node_next = pgdat;
++	}
+ 
+ 	mapsize = (mapsize + (sizeof(long) - 1UL)) & ~(sizeof(long) - 1UL);
+ 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
+@@ -144,6 +160,7 @@
+ static void * __init __alloc_bootmem_core (bootmem_data_t *bdata, 
+ 	unsigned long size, unsigned long align, unsigned long goal)
+ {
++	static unsigned long last_success;
+ 	unsigned long i, start = 0;
+ 	void *ret;
+ 	unsigned long offset, remaining_size;
+@@ -169,6 +186,9 @@
+ 	if (goal && (goal >= bdata->node_boot_start) && 
+ 			((goal >> PAGE_SHIFT) < bdata->node_low_pfn)) {
+ 		preferred = goal - bdata->node_boot_start;
++
++		if (last_success >= preferred)
++			preferred = last_success;
+ 	} else
+ 		preferred = 0;
+ 
+@@ -180,6 +200,8 @@
+ restart_scan:
+ 	for (i = preferred; i < eidx; i += incr) {
+ 		unsigned long j;
++		i = find_next_zero_bit((char *)bdata->node_bootmem_map, eidx, i);
++		i = (i + incr - 1) & -incr;
+ 		if (test_bit(i, bdata->node_bootmem_map))
+ 			continue;
+ 		for (j = i + 1; j < i + areasize; ++j) {
+@@ -198,6 +220,7 @@
+ 	}
+ 	return NULL;
+ found:
++	last_success = start << PAGE_SHIFT;
+ 	if (start >= eidx)
+ 		BUG();
+ 
+@@ -244,22 +267,24 @@
+ 
+ static unsigned long __init free_all_bootmem_core(pg_data_t *pgdat)
+ {
+-	struct page *page = pgdat->node_mem_map;
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long i, count, total = 0;
++	struct page *page;
+ 	unsigned long idx;
+ 
+ 	if (!bdata->node_bootmem_map) BUG();
+ 
+ 	count = 0;
++	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+ 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+-	for (i = 0; i < idx; i++, page++) {
+-		if (!test_bit(i, bdata->node_bootmem_map)) {
+-			count++;
+-			ClearPageReserved(page);
+-			set_page_count(page, 1);
+-			__free_page(page);
+-		}
++	for (i = find_first_zero_bit(bdata->node_bootmem_map, idx);
++	     i < idx;
++	     i = find_next_zero_bit(bdata->node_bootmem_map, idx, i + 1))
++	{
++		count++;
++		ClearPageReserved(page+i);
++		set_page_count(page+i, 1);
++		__free_page(page+i);
+ 	}
+ 	total += count;
+ 
+diff -urN kernel-source-2.4.27.orig/mm/memory.c kernel-source-2.4.27.bjorn/mm/memory.c
+--- kernel-source-2.4.27.orig/mm/memory.c	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/mm/memory.c	2005-03-14 10:36:16.703064138 -0700
+@@ -37,6 +37,7 @@
+  */
+ 
+ #include <linux/mm.h>
++#include <linux/hugetlb.h>
+ #include <linux/mman.h>
+ #include <linux/swap.h>
+ #include <linux/smp_lock.h>
+@@ -121,7 +122,7 @@
+ 	pmd = pmd_offset(dir, 0);
+ 	pgd_clear(dir);
+ 	for (j = 0; j < PTRS_PER_PMD ; j++) {
+-		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
++		prefetchw(pmd + j + PREFETCH_STRIDE/sizeof(*pmd));
+ 		free_one_pmd(pmd+j);
+ 	}
+ 	pmd_free(pmd);
+@@ -181,6 +182,9 @@
+ 	unsigned long end = vma->vm_end;
+ 	unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
+ 
++	if (is_vm_hugetlb_page(vma))
++		return copy_hugetlb_page_range(dst, src, vma);
++
+ 	src_pgd = pgd_offset(src, address)-1;
+ 	dst_pgd = pgd_offset(dst, address)-1;
+ 
+@@ -473,6 +477,10 @@
+ 		if ( !vma || (pages && vma->vm_flags & VM_IO) || !(flags & vma->vm_flags) )
+ 			return i ? : -EFAULT;
+ 
++		if (is_vm_hugetlb_page(vma)) {
++			i = follow_hugetlb_page(mm, vma, pages, vmas, &start, &len, i);
++			continue;
++		}
+ 		spin_lock(&mm->page_table_lock);
+ 		do {
+ 			struct page *map;
+@@ -1371,6 +1379,9 @@
+ 	current->state = TASK_RUNNING;
+ 	pgd = pgd_offset(mm, address);
+ 
++	if (is_vm_hugetlb_page(vma))
++		return 0;	/* mapping truncation does this. */
++
+ 	/*
+ 	 * We need the page table lock to synchronize with kswapd
+ 	 * and the SMP-safe atomic PTE updates.
+diff -urN kernel-source-2.4.27.orig/mm/mmap.c kernel-source-2.4.27.bjorn/mm/mmap.c
+--- kernel-source-2.4.27.orig/mm/mmap.c	2005-01-19 02:57:58.000000000 -0700
++++ kernel-source-2.4.27.bjorn/mm/mmap.c	2005-03-14 10:37:22.068297712 -0700
+@@ -15,6 +15,7 @@
+ #include <linux/fs.h>
+ #include <linux/personality.h>
+ #include <linux/mount.h>
++#include <linux/hugetlb.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -600,7 +601,10 @@
+ 	fput(file);
+ 
+ 	/* Undo any partial mapping done by a device driver. */
+-	zap_page_range(mm, vma->vm_start, vma->vm_end - vma->vm_start);
++	if (is_vm_hugetlb_page(vma))
++		zap_hugepage_range(vma, vma->vm_start, vma->vm_end-vma->vm_start);
++	else
++		zap_page_range(mm, vma->vm_start, vma->vm_end - vma->vm_start);
+ free_vma:
+ 	kmem_cache_free(vm_area_cachep, vma);
+ 	return error;
+@@ -650,10 +654,26 @@
+ unsigned long get_unmapped_area(struct file *file, unsigned long addr, unsigned long len, unsigned long pgoff, unsigned long flags)
+ {
+ 	if (flags & MAP_FIXED) {
++		unsigned long ret;
++
+ 		if (addr > TASK_SIZE - len)
+ 			return -ENOMEM;
+ 		if (addr & ~PAGE_MASK)
+ 			return -EINVAL;
++		if (file && is_file_hugepages(file)) 
++			/* If the request is for hugepages, then make sure
++			 * that addr and length is properly aligned.
++			 */
++			ret = is_aligned_hugepage_range(addr, len);
++		else 
++			/* 
++			 * Make sure that a normal request is not falling
++			 * in reserved hugepage range.  For some archs like
++			 * IA-64, there is a separate region for hugepages.
++			 */
++			ret = is_invalid_hugepage_range(addr, len);
++		if (ret)
++		        return ret;
+ 		return addr;
+ 	}
+ 
+@@ -947,6 +967,12 @@
+ 		return 0;
+ 	/* we have  addr < mpnt->vm_end  */
+ 
++	if (is_vm_hugetlb_page(mpnt)) {
++		int ret = is_aligned_hugepage_range(addr, len);
++		if (ret)
++			return ret;
++	}
++
+ 	if (mpnt->vm_start >= addr+len)
+ 		return 0;
+ 
+@@ -1000,7 +1026,10 @@
+ 		remove_shared_vm_struct(mpnt);
+ 		mm->map_count--;
+ 
+-		zap_page_range(mm, st, size);
++		if (is_vm_hugetlb_page(mpnt)) 
++			zap_hugepage_range(mpnt, st, size);
++		else
++			zap_page_range(mm, st, size);
+ 
+ 		/*
+ 		 * Fix the mapping, and free the old area if it wasn't reused.
+@@ -1015,7 +1044,10 @@
+ 	if (extra)
+ 		kmem_cache_free(vm_area_cachep, extra);
+ 
+-	free_pgtables(mm, prev, addr, addr+len);
++	if (is_hugepage_addr(addr))
++		hugetlb_free_pgtables(mm, prev, addr, addr+len);
++	else
++		free_pgtables(mm, prev, addr, addr+len);
+ 
+ 	return 0;
+ }
+@@ -1175,7 +1207,10 @@
+ 		}
+ 		mm->map_count--;
+ 		remove_shared_vm_struct(mpnt);
+-		zap_page_range(mm, start, size);
++		if (is_vm_hugetlb_page(mpnt)) 
++			zap_hugepage_range(mpnt, start, size);
++		else
++			zap_page_range(mm, start, size);
+ 		if (mpnt->vm_file)
+ 			fput(mpnt->vm_file);
+ 		kmem_cache_free(vm_area_cachep, mpnt);
+diff -urN kernel-source-2.4.27.orig/mm/mprotect.c kernel-source-2.4.27.bjorn/mm/mprotect.c
+--- kernel-source-2.4.27.orig/mm/mprotect.c	2003-11-28 11:26:21.000000000 -0700
++++ kernel-source-2.4.27.bjorn/mm/mprotect.c	2005-03-14 10:36:16.704040700 -0700
+@@ -7,6 +7,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/shm.h>
+ #include <linux/mman.h>
++#include <linux/hugetlb.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -294,6 +295,10 @@
+ 
+ 		/* Here we know that  vma->vm_start <= nstart < vma->vm_end. */
+ 
++		if (is_vm_hugetlb_page(vma)) {
++			error =  -EACCES;
++			goto out;
++		}
+ 		newflags = prot | (vma->vm_flags & ~(PROT_READ | PROT_WRITE | PROT_EXEC));
+ 		if ((newflags & ~(newflags >> 4)) & 0xf) {
+ 			error = -EACCES;
+diff -urN kernel-source-2.4.27.orig/mm/mremap.c kernel-source-2.4.27.bjorn/mm/mremap.c
+--- kernel-source-2.4.27.orig/mm/mremap.c	2004-04-14 07:05:41.000000000 -0600
++++ kernel-source-2.4.27.bjorn/mm/mremap.c	2005-03-14 10:36:16.705017263 -0700
+@@ -9,6 +9,7 @@
+ #include <linux/shm.h>
+ #include <linux/mman.h>
+ #include <linux/swap.h>
++#include <linux/hugetlb.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -287,6 +288,10 @@
+ 	vma = find_vma(current->mm, addr);
+ 	if (!vma || vma->vm_start > addr)
+ 		goto out;
++	if (is_vm_hugetlb_page(vma)) {
++		ret =  -EINVAL;
++		goto out;
++	}
+ 	/* We can't remap across vm area boundaries */
+ 	if (old_len > vma->vm_end - addr)
+ 		goto out;
+diff -urN kernel-source-2.4.27.orig/mm/page_alloc.c kernel-source-2.4.27.bjorn/mm/page_alloc.c
+--- kernel-source-2.4.27.orig/mm/page_alloc.c	2004-08-07 17:26:06.000000000 -0600
++++ kernel-source-2.4.27.bjorn/mm/page_alloc.c	2005-03-14 10:36:16.705993825 -0700
+@@ -77,11 +77,11 @@
+ /*
+  * Temporary debugging check.
+  */
+-#define BAD_RANGE(zone, page)						\
+-(									\
+-	(((page) - mem_map) >= ((zone)->zone_start_mapnr+(zone)->size))	\
+-	|| (((page) - mem_map) < (zone)->zone_start_mapnr)		\
+-	|| ((zone) != page_zone(page))					\
++#define BAD_RANGE(zone, page)						     \
++(									     \
++	(((page) - mem_map) >= ((zone)->zone_start_mapnr+(zone)->size)) \
++	|| (((page) - mem_map) < (zone)->zone_start_mapnr)		     \
++	|| ((zone) != page_zone(page))					     \
+ )
+ 
+ /*
+@@ -631,7 +631,7 @@
+  		unsigned long nr, total, flags;
+ 
+ 		total = 0;
+-		if (zone->size) {
++		if (zone->realsize) {
+ 			spin_lock_irqsave(&zone->lock, flags);
+ 		 	for (order = 0; order < MAX_ORDER; order++) {
+ 				head = &(zone->free_area + order)->free_list;
+@@ -663,13 +663,44 @@
+ /*
+  * Builds allocation fallback zone lists.
+  */
+-static inline void build_zonelists(pg_data_t *pgdat)
++static int __init build_zonelists_node(pg_data_t *pgdat, zonelist_t *zonelist, int j, int k)
+ {
+-	int i, j, k;
++	zone_t *zone;
++	switch (k) {
++	default:
++		BUG();
++		/*
++		 * fallthrough:
++		 */
++	case ZONE_HIGHMEM:
++		zone = pgdat->node_zones + ZONE_HIGHMEM;
++		if (zone->realsize) {
++#ifndef CONFIG_HIGHMEM
++			BUG();
++#endif
++			zonelist->zones[j++] = zone;
++		}
++	case ZONE_NORMAL:
++		zone = pgdat->node_zones + ZONE_NORMAL;
++		if (zone->realsize)
++			zonelist->zones[j++] = zone;
++	case ZONE_DMA:
++		zone = pgdat->node_zones + ZONE_DMA;
++		if (zone->realsize)
++			zonelist->zones[j++] = zone;
++	}
++
++	return j;
++}
++
++static void __init build_zonelists(pg_data_t *pgdat)
++{
++	int i, j, k, node, local_node;
+ 
++	local_node = pgdat->node_id;
++	printk("Building zonelist for node : %d\n", local_node);
+ 	for (i = 0; i <= GFP_ZONEMASK; i++) {
+ 		zonelist_t *zonelist;
+-		zone_t *zone;
+ 
+ 		zonelist = pgdat->node_zonelists + i;
+ 		memset(zonelist, 0, sizeof(*zonelist));
+@@ -681,33 +712,32 @@
+ 		if (i & __GFP_DMA)
+ 			k = ZONE_DMA;
+ 
+-		switch (k) {
+-			default:
+-				BUG();
+-			/*
+-			 * fallthrough:
+-			 */
+-			case ZONE_HIGHMEM:
+-				zone = pgdat->node_zones + ZONE_HIGHMEM;
+-				if (zone->size) {
+-#ifndef CONFIG_HIGHMEM
+-					BUG();
+-#endif
+-					zonelist->zones[j++] = zone;
+-				}
+-			case ZONE_NORMAL:
+-				zone = pgdat->node_zones + ZONE_NORMAL;
+-				if (zone->size)
+-					zonelist->zones[j++] = zone;
+-			case ZONE_DMA:
+-				zone = pgdat->node_zones + ZONE_DMA;
+-				if (zone->size)
+-					zonelist->zones[j++] = zone;
+-		}
++ 		j = build_zonelists_node(pgdat, zonelist, j, k);
++ 		/*
++ 		 * Now we build the zonelist so that it contains the zones
++ 		 * of all the other nodes.
++ 		 * We don't want to pressure a particular node, so when
++ 		 * building the zones for node N, we make sure that the
++ 		 * zones coming right after the local ones are those from
++ 		 * node N+1 (modulo N)
++ 		 */
++ 		for (node = local_node + 1; node < numnodes; node++)
++ 			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
++ 		for (node = 0; node < local_node; node++)
++ 			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
++ 
+ 		zonelist->zones[j++] = NULL;
+ 	} 
+ }
+ 
++void __init build_all_zonelists(void)
++{
++	int i;
++
++	for(i = 0 ; i < numnodes ; i++)
++		build_zonelists(NODE_DATA(i));
++}
++
+ /*
+  * Helper functions to size the waitqueue hash table.
+  * Essentially these want to choose hash table sizes sufficiently
+@@ -750,6 +780,31 @@
+ 	return ffz(~size);
+ }
+ 
++static unsigned long memmap_init(struct page *start, struct page *end,
++	int zone, unsigned long start_paddr, int highmem) 
++{
++	struct page *page;
++
++	for (page = start; page < end; page++) {
++		set_page_zone(page, zone);
++		set_page_count(page, 0);
++		SetPageReserved(page);
++		INIT_LIST_HEAD(&page->list);
++		if (!highmem)
++			set_page_address(page, __va(start_paddr));
++		start_paddr += PAGE_SIZE;
++	}
++	return start_paddr;
++}
++
++#ifdef HAVE_ARCH_MEMMAP_INIT
++#define MEMMAP_INIT(start, end, zone, paddr, highmem) \
++	arch_memmap_init(memmap_init, start, end, zone, paddr, highmem)
++#else
++#define MEMMAP_INIT(start, end, zone, paddr, highmem) \
++	memmap_init(start, end, zone, paddr, highmem)
++#endif
++
+ #define LONG_ALIGN(x) (((x)+(sizeof(long))-1)&~((sizeof(long))-1))
+ 
+ /*
+@@ -771,10 +826,8 @@
+ 		BUG();
+ 
+ 	totalpages = 0;
+-	for (i = 0; i < MAX_NR_ZONES; i++) {
+-		unsigned long size = zones_size[i];
+-		totalpages += size;
+-	}
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		totalpages += zones_size[i];
+ 	realtotalpages = totalpages;
+ 	if (zholes_size)
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+@@ -783,7 +836,7 @@
+ 	printk("On node %d totalpages: %lu\n", nid, realtotalpages);
+ 
+ 	/*
+-	 * Some architectures (with lots of mem and discontinous memory
++	 * Some architectures (with lots of mem and discontigous memory
+ 	 * maps) have to search for a good mem_map area:
+ 	 * For discontigmem, the conceptual mem map array starts from 
+ 	 * PAGE_OFFSET, we need to align the actual array onto a mem map 
+@@ -796,7 +849,7 @@
+ 			MAP_ALIGN((unsigned long)lmem_map - PAGE_OFFSET));
+ 	}
+ 	*gmap = pgdat->node_mem_map = lmem_map;
+-	pgdat->node_size = totalpages;
++	pgdat->node_size = 0;
+ 	pgdat->node_start_paddr = zone_start_paddr;
+ 	pgdat->node_start_mapnr = (lmem_map - mem_map);
+ 	pgdat->nr_zones = 0;
+@@ -813,7 +866,7 @@
+ 		if (zholes_size)
+ 			realsize -= zholes_size[j];
+ 
+-		printk("zone(%lu): %lu pages.\n", j, size);
++		printk("zone(%lu): %lu pages.\n", j, realsize);
+ 		zone->size = size;
+ 		zone->realsize = realsize;
+ 		zone->name = zone_names[j];
+@@ -824,6 +877,7 @@
+ 		 zone->nr_active_pages = zone->nr_inactive_pages = 0;
+ 
+ 
++		pgdat->node_size += realsize;
+ 		if (!size)
+ 			continue;
+ 
+@@ -884,16 +938,10 @@
+ 		 * up by free_all_bootmem() once the early boot process is
+ 		 * done. Non-atomic initialization, single-pass.
+ 		 */
+-		for (i = 0; i < size; i++) {
+-			struct page *page = mem_map + offset + i;
+-			set_page_zone(page, nid * MAX_NR_ZONES + j);
+-			set_page_count(page, 0);
+-			SetPageReserved(page);
+-			INIT_LIST_HEAD(&page->list);
+-			if (j != ZONE_HIGHMEM)
+-				set_page_address(page, __va(zone_start_paddr));
+-			zone_start_paddr += PAGE_SIZE;
+-		}
++		zone_start_paddr = MEMMAP_INIT(mem_map + offset,
++				mem_map + offset + size,
++				nid * MAX_NR_ZONES + j, zone_start_paddr,
++				(j == ZONE_HIGHMEM ? 1 : 0));
+ 
+ 		offset += size;
+ 		for (i = 0; ; i++) {
+@@ -934,7 +982,6 @@
+ 			  (unsigned long *) alloc_bootmem_node(pgdat, bitmap_size);
+ 		}
+ 	}
+-	build_zonelists(pgdat);
+ }
+ 
+ void __init free_area_init(unsigned long *zones_size)

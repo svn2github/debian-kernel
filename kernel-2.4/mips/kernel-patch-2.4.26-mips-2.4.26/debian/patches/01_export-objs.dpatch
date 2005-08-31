@@ -1,0 +1,57 @@
+#! /bin/sh -e
+## 01_export-objs.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Export missing module symbols
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p0 ${patch_opts} < $0;;
+    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- ./arch/mips/mm/Makefile.old	2004-05-15 18:22:32.000000000 +0200
++++ ./arch/mips/mm/Makefile	2004-05-15 18:23:00.000000000 +0200
+@@ -10,7 +10,7 @@ USE_STANDARD_AS_RULE := true
+ 
+ O_TARGET := mm.o
+ 
+-export-objs			+= cache.o ioremap.o loadmmu.o remap.o
++export-objs			:= cache.o ioremap.o loadmmu.o remap.o tlb-sb1.o
+ obj-y				+= cache.o extable.o init.o ioremap.o fault.o \
+ 				   loadmmu.o
+ 
+--- ./arch/mips/pci/Makefile.old	2004-05-15 18:17:47.000000000 +0200
++++ ./arch/mips/pci/Makefile	2004-05-15 18:17:59.000000000 +0200
+@@ -8,8 +8,6 @@
+ 
+ O_TARGET 			:= pci-core.o
+ 
+-export-objs			= pci.o
+-
+ obj-$(CONFIG_MIPS_BONITO64)	+= ops-bonito64.o
+ obj-$(CONFIG_MIPS_GT64120)	+= ops-gt64120.o
+ obj-$(CONFIG_MIPS_MSC)		+= ops-msc.o
+--- ./drivers/usb/Makefile.old	2004-05-15 18:09:16.000000000 +0200
++++ ./drivers/usb/Makefile	2004-05-15 18:09:30.000000000 +0200
+@@ -10,7 +10,7 @@ O_TARGET	:= usbdrv.o
+ 
+ # Objects that export symbols.
+ 
+-export-objs		:= hcd.o usb.o ov511.o pwc-uncompress.o
++export-objs		:= hcd.o usb.o usb-midi.o ov511.o pwc-uncompress.o
+ 
+ # Multipart objects.
+ 

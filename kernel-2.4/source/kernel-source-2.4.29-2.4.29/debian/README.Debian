@@ -1,0 +1,224 @@
+kernel-source for Debian
+------------------------
+
+IPsec and FreeSWAN
+------------------
+The Linux 2.5 IPsec stack has been included in this package.  This means
+that KLIPS (the kernel half of FreeSWAN) will need to be patched in order
+to work with it.  You can find patches for the freeswan package in
+Debian stable/unstable at:
+
+http://gondor.apana.org.au/~herbert/debian/freeswan/
+
+Alternatively, you can modify FreeSWAN to work with the native Linux
+IPsec stack.  The patch can be found at
+
+http://gondor.apana.org.au/~herbert/freeswan/
+
+I'm currently working towards the merging of these patches into FreeSWAN
+itself.
+
+AMD 768 erratum 10
+------------------
+If you have a motherboard with the AMD 768 chipset, and you are experiencing
+IDE errors or lock ups, then you should either connect a PS/2 mouse to the
+system or disable APIC.  Refer to the following link for details:
+
+http://lists.insecure.org/lists/linux-kernel/2002/Sep/5966.html
+
+IDE bswap option
+----------------
+The bswap option is obsolete and may disappear in future.  For the moment
+it does work provided that you disable dma with the nodma option.
+
+
+These patches were applied:
+
+* NFS client seekdir patch
+  http://www.fys.uio.no/~trondmy/src/
+* SCSI Media Changer
+  http://bytesex.org/patches/
+* Big Physical Area Reservation
+  http://www.polyware.nl/~middelin/hob-v4l.html#bigphysarea
+* Linux 2.5 IPsec stack
+  http://gondor.apana.org.au/~herbert/debian/kernel/ipsec/
+  . This is essentially David Miller's 2.4 backport with a number of small
+  . modifications added.  You can find David Miller's backport at
+  . bk://kernel.bkbits.net/davem/ipsec-2.4
+* Device Mapper
+  http://gondor.apana.org.au/~herbert/debian/kernel/dm/
+  . This is based on the device-mapper patch from
+  . http://www.sistina.com/products_lvm.htm
+  . I've removed everything that is not in 2.5.
+* Extended Attributes + ACL
+  http://acl.bestbits.at/
+
+These modifications were also made:
+
+* Fixed a couple of argument processing bugs in main.c (Eric Delaunay).
+* Added initrd support for cramfs in init/do_mounts.c.
+* Exported proc_get_inode.
+* Fixed pegasus_set_multicast lockup.
+* Fixed dead lock on shutdown in 8139too.
+* Don't kill page cache entries in set_blocksize.
+* Added support for nm256xl+ (Mattia Monga).
+* Fixed handling of HIDs with product strings bug no manufacturer.
+* Fixed the use of return values from mem*_io in drivers/isdn/sc.
+* Added missing headers in drivers/pcmcia/i82092.c.
+* Added missing headers in drivers/isdn/hisax/avma1_cs.c.
+* Fixed compile error in drivers/scsi/dpt_i2o.c on alpha.
+* Extern inline -> static inline in drivers/net/hamradio/soundmodem.
+* Added asm/io.h for in*/out* to drivers/net/wan/farsync.c.
+* Corrected AdvWriteDWordLramNoSwap in drivers/scsi/advansys.c.
+* Fix slashes in broken Acorn ISO9660 images in fs/isofs/dir.c (Darren Salt).
+* Always call complete after unlinking an urb in drivers/usb/host/usb-ohci.c.
+* Set time fields to zero in fs/cramfs/inode.c.
+* Fixed umsdos_solve_hlink oops in fs/umsdos/dir.c.
+* Removed period check for executables in fs/isofs/inode.c.
+* Modularised VESA FB.
+* Replaced BUG() with printk() in fs/fat/file.c.
+* Do not get seqno if we will not use it in fs/isofs/inode.c.
+* Made CONFIG_PARIDE_EPATC8 into a runtime option.
+* Removed CONFIG_INET_ECN check in net/ipv4/tcp_diag.c.
+* Added dependency on MTD_CONCAT for sc520cdp in drivers/mtd/maps/Config.in.
+* Fixed printk warnings in init/do_mounts.c.
+* Fixed dupliate detection problem in drivers/net/tokenring/ibmtr.c.
+* Changed all occurances of infobox+sleep to msgbox in scripts/Menuconfig.
+* Fixed initialisation error handling in drivers/block/cpqarray.c.
+* Fixed size of default_port in drivers/net/via-rhine.c.
+* Paper over X server bug in drivers/char/drm/i810_dma.c.
+* Made binfmt_misc unloadable again in fs/binfmt_misc.c.
+* Use seq interface for /proc/modules:
+  . fs/proc/proc_misc.c
+  . kernel/module.c
+* Setup two 1G mappings if cia_rev == 1 in arch/alpha/kernel/core_cia.c.
+* Fixed IDE modularisation:
+  . include/linux/ide.h
+  . drivers/ide/Config.in
+  . drivers/ide/ide.c
+  . drivers/ide/ide-probe.c
+  . drivers/ide/ide-proc.c
+  . drivers/ide/setup-pci.c
+  . drivers/ide/pci/atiixp.c
+* Include linux/socket.h in include/linux/netlink.h (2.5).
+* Include linux/skbuff.h for skb_put in include/linux/netlink.h.
+* Include linux/spinlock.h for spinlock_t in include/linux/interrupt.h.
+* Include linux/netdevice.h for MAX_ADDR_LEN in include/net/neighbour.h.
+* Include linux/interrupt.h for tasklet_struct in include/net/neighbour.h.
+* Added forward declaration for struct neighbour in include/net/neighbour.h.
+* Include linux/spinlock.h for rwlock_t in include/net/ip6_fib.h.
+* Include net/sock.h for struct sock in include/net/ip6_route.h.
+* Include linux/types.h for __u32 in include/linux/watchdog.h.
+* Added forward declaration for struct net_device in include/linux/skbuff.h.
+* Applied 486 emulation patch (Willy Tarreau):
+  . Documentation/Configure.help
+  . arch/i386/config.in
+  . arch/i386/kernel/Makefile
+  . arch/i386/kernel/emu.c
+  . arch/i386/kernel/entry.S
+* Use spinlock_t filler even with gcc 2.96 in include/linux/spinlock.h.
+* Made CONFIG_IDEDISK_STROKE a runtime option (Joerg Platte):
+  . include/linux/ide.h
+  . drivers/ide/ide.c
+  . drivers/ide/ide-disk.c
+* Cope with exit status 2 from md5sum in drivers/isdn/hisax/cert.c.
+* Fixed printk format in fs/fat/file.c.
+* Fixed macro redefinition warning in fs/nfs/nfs3proc.c.
+* Fixed binutils test in scripts/ver_linux.
+* Made /proc/tty/driver root-only (CAN-2003-0461):
+  . include/linux/proc_fs.h
+  . fs/proc/generic.c
+  . fs/proc/proc_tty.c
+* Fixed CONFIG_IDEDISK_STROKE in drivers/ide/ide-disk.c (2.6).
+* Removed -Werror in drivers/scsi/aic7xxx/Makefile.
+* Handle j_commit_interval == 0:
+  . fs/jbd/journal.c
+  . fs/jbd/transaction.c
+* Do not unshare files for pid == 1 in kernel/fork.c.
+* Added CONFIG_ACPI_OFF option:
+  . Documentation/Configure.help
+  . arch/i386/kernel/setup.c
+  . drivers/acpi/Config.in
+* Added optimise by size option:
+  . Documentation/Configure.help
+  . Makefile
+  . arch/i386/config.in
+* Fixed wrong address in ICMP log entry in net/ipv4/icmp.c (2.5).
+* Fixed double request_region:
+  . drivers/net/arcnet/com20020.c
+  . drivers/net/arcnet/com20020-isa.c
+  . drivers/net/arcnet/com20020-pci.c
+* Made AMD_PM768 conditional on X86/X86_64 in drivers/char/Config.in.
+* Removed floating operations in drivers/net/amd8111e.* (2.5).
+* Removed bogus panic calls in arch/i386/kernel/mpparse.c (Jochen Voss).
+* Fixed red/blue typo in drivers/video/radeonfb.c.
+* Set fb owner in drivers/video/radeonfb.c.
+* Fixed DMA overruns/bugs in drivers/sound/i810_audio.c.
+* Fixed dev timer SMP deadlock in drivers/scsi/aic7xxx/aic7xxx_osm.c
+  (Andrew Morton).
+* Black listed "TOSHIBA CD-ROM XM-1702BC" in drivers/ide/ide-dma.c
+  (Moritz Lennert).
+* Tighten sanity in time_init to 250 PPM in arch/alpha/kernel/time.c
+  (Scott Bailey).
+* Call mkdep on headers with xargs in Makefile.
+* Fixed tuner support on WinTV-D boards in drivers/media/video/bttv-cards.c
+  (2.6).
+* Fixed boundary checks for GUSAGE/SUSAGE in drivers/usb/hiddev.c.
+* Fixed copy_to_user usage in drivers/usb/hiddev.c.
+* Fixed build without procfs in drivers in drivers/hotplug/Makefile.
+* Removed cmpxchg definition:
+  . drivers/char/drm/drmP.h
+  . drivers/char/drm-4.0/drmP.h
+* Require firmware 2.70 on alpha in drivers/block/DAC960.c (2.6).
+* Added regs.len check in drivers/net/e1000/e1000_ethtool.c (bk).
+* Added SATA support (bk):
+  . Documentation/Configure.help
+  . Documentation/DocBook/Makefile
+  . Documentation/DocBook/libata.tmpl
+  . drivers/block/Config.in
+  . drivers/block/Makefile
+  . drivers/block/carmel.c
+  . drivers/scsi/Config.in
+  . drivers/scsi/Makefile
+  . drivers/scsi/libata-core.c
+  . drivers/scsi/libata-scsi.c
+  . drivers/scsi/libata.h
+  . drivers/scsi/sata_promise.c
+  . drivers/scsi/sata_sil.c
+  . drivers/scsi/sata_sis.c
+  . drivers/scsi/sata_svw.c
+  . drivers/scsi/sata_via.c
+  . drivers/scsi/sata_vsc.c
+  . include/linux/ata.h
+  . include/linux/libata.h
+
+Changes to comments and documentation:
+
+* Fixed typos (Carlos Valdivia Yagüe):
+  . Documentation/sound/VIBRA16
+  . Documentation/sound/OPL3-SA
+* Fixed a typo in Documentation/sound/Introduction (Daniel van Eeden).
+* Fixed comment about epochs in arch/alpha/kernel/time.c.
+* Commented out non-TeX heading in Documentation/smp.tex (Daniel van Eeden).
+* Removed bogus devfs references in Documentation/initrd.txt (Nikolaus Rath).
+* Fixed typos (Jochen Voss):
+  . drivers/s390/block/xpram.c
+  . Documentation/usb/sl811hc.txt
+
+Non-free bits removed:
+
+* Keyspan firmware in drivers/usb/serial/ksyspan_{mpr,usa*}_fw.h
+* SMC Token Ring firmware, driver disabled:
+  . drivers/net/tokenring/smctr_firmware.h
+* ACENIC firwmare, driver disabled:
+  . drivers/net/acenic_firmware.h
+* DGRS firmware, driver disabled:
+  . drivers/net/dgrs_firmware.c
+* DAB firmware, driver disabled:
+  . drivers/usb/media/dabfirmware.h
+* Unused firmware:
+  . drivers/sound/724hwmcode.h
+  . drivers/sound/Hwmcode.h
+
+Herbert Xu <herbert@debian.org>
+$Id: README.Debian,v 1.102 2004/05/01 02:16:51 herbert Exp $

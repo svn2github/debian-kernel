@@ -1,0 +1,61 @@
+#! /bin/sh -e
+## 02_addinitrd-cleanup.dpatch by Guido Guenther <agx@sigxcpu.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Minor fixes for addinitrd.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p0 ${patch_opts} < $0;;
+    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Index: arch/mips/boot/addinitrd.c
+===================================================================
+RCS file: /home/cvs/linux/arch/mips/boot/addinitrd.c,v
+retrieving revision 1.1.6.2
+diff -u -p -u -r1.1.6.2 addinitrd.c
+--- arch/mips/boot/addinitrd.c	5 Aug 2002 23:53:31 -0000	1.1.6.2
++++ arch/mips/boot/addinitrd.c	21 Sep 2003 00:14:13 -0000
+@@ -2,6 +2,8 @@
+  * addinitrd - program to add a initrd image to an ecoff kernel
+  *
+  * (C) 1999 Thomas Bogendoerfer
++ * minor modifications, cleanup: Guido Guenther <agx@sigxcpu.org>
++ *
+  */
+ 
+ #include <sys/types.h>
+@@ -54,7 +56,7 @@ int main (int argc, char *argv[])
+ 		exit (1);
+ 	}
+ 
+-	if ((fd_vmlinux = open (argv[1],O_RDWR)) < 0)
++	if ((fd_vmlinux = open (argv[1],O_RDONLY)) < 0)
+ 		 die ("open vmlinux");
+ 	if (read (fd_vmlinux, &efile, sizeof efile) != sizeof efile)
+ 		die ("read file header");
+@@ -78,6 +80,11 @@ int main (int argc, char *argv[])
+ 			swab = 1;
+ 	}
+ 
++	/* make sure we have an empty data segment for the initrd */
++	if( eaout.dsize || esecs[1].s_size ) {
++		fprintf(2,"Data segment not empty. Giving up!");
++		exit(1);
++	}
+ 	if ((fd_initrd = open (argv[2], O_RDONLY)) < 0)
+ 		die ("open initrd");
+ 	if (fstat (fd_initrd, &st) < 0)

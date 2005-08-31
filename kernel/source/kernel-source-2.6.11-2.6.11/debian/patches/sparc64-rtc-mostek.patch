@@ -1,0 +1,321 @@
+--- a/arch/sparc64/kernel/time.c	2005-05-13 02:13:42.000000000 -0400
++++ b/arch/sparc64/kernel/time.c	2005-05-12 22:34:33.000000000 -0400
+@@ -48,7 +48,7 @@
+ 
+ DEFINE_SPINLOCK(mostek_lock);
+ DEFINE_SPINLOCK(rtc_lock);
+-unsigned long mstk48t02_regs = 0UL;
++void __iomem *mstk48t02_regs = NULL;
+ #ifdef CONFIG_PCI
+ unsigned long ds1287_regs = 0UL;
+ #endif
+@@ -59,8 +59,8 @@
+ 
+ EXPORT_SYMBOL(jiffies_64);
+ 
+-static unsigned long mstk48t08_regs = 0UL;
+-static unsigned long mstk48t59_regs = 0UL;
++static void __iomem *mstk48t08_regs;
++static void __iomem *mstk48t59_regs;
+ 
+ static int set_rtc_mmss(unsigned long);
+ 
+@@ -520,7 +520,7 @@
+ /* Kick start a stopped clock (procedure from the Sun NVRAM/hostid FAQ). */
+ static void __init kick_start_clock(void)
+ {
+-	unsigned long regs = mstk48t02_regs;
++	void __iomem *regs = mstk48t02_regs;
+ 	u8 sec, tmp;
+ 	int i, count;
+ 
+@@ -604,7 +604,7 @@
+ /* Return nonzero if the clock chip battery is low. */
+ static int __init has_low_battery(void)
+ {
+-	unsigned long regs = mstk48t02_regs;
++	void __iomem *regs = mstk48t02_regs;
+ 	u8 data1, data2;
+ 
+ 	spin_lock_irq(&mostek_lock);
+@@ -623,7 +623,7 @@
+ static void __init set_system_time(void)
+ {
+ 	unsigned int year, mon, day, hour, min, sec;
+-	unsigned long mregs = mstk48t02_regs;
++	void __iomem *mregs = mstk48t02_regs;
+ #ifdef CONFIG_PCI
+ 	unsigned long dregs = ds1287_regs;
+ #else
+@@ -843,7 +843,8 @@
+ 			    !strcmp(model, "m5823")) {
+ 				ds1287_regs = edev->resource[0].start;
+ 			} else {
+-				mstk48t59_regs = edev->resource[0].start;
++				mstk48t59_regs = (void __iomem *)
++					edev->resource[0].start;
+ 				mstk48t02_regs = mstk48t59_regs + MOSTEK_48T59_48T02;
+ 			}
+ 			break;
+@@ -865,7 +866,8 @@
+ 			    !strcmp(model, "m5823")) {
+ 				ds1287_regs = isadev->resource.start;
+ 			} else {
+-				mstk48t59_regs = isadev->resource.start;
++				mstk48t59_regs = (void __iomem *)
++					isadev->resource.start;
+ 				mstk48t02_regs = mstk48t59_regs + MOSTEK_48T59_48T02;
+ 			}
+ 			break;
+@@ -893,21 +895,24 @@
+ 		}
+ 
+ 		if(model[5] == '0' && model[6] == '2') {
+-			mstk48t02_regs = (((u64)clk_reg[0].phys_addr) |
+-					  (((u64)clk_reg[0].which_io)<<32UL));
++			mstk48t02_regs = (void __iomem *)
++				(((u64)clk_reg[0].phys_addr) |
++				 (((u64)clk_reg[0].which_io)<<32UL));
+ 		} else if(model[5] == '0' && model[6] == '8') {
+-			mstk48t08_regs = (((u64)clk_reg[0].phys_addr) |
+-					  (((u64)clk_reg[0].which_io)<<32UL));
++			mstk48t08_regs = (void __iomem *)
++				(((u64)clk_reg[0].phys_addr) |
++				 (((u64)clk_reg[0].which_io)<<32UL));
+ 			mstk48t02_regs = mstk48t08_regs + MOSTEK_48T08_48T02;
+ 		} else {
+-			mstk48t59_regs = (((u64)clk_reg[0].phys_addr) |
+-					  (((u64)clk_reg[0].which_io)<<32UL));
++			mstk48t59_regs = (void __iomem *)
++				(((u64)clk_reg[0].phys_addr) |
++				 (((u64)clk_reg[0].which_io)<<32UL));
+ 			mstk48t02_regs = mstk48t59_regs + MOSTEK_48T59_48T02;
+ 		}
+ 		break;
+ 	}
+ 
+-	if (mstk48t02_regs != 0UL) {
++	if (mstk48t02_regs != NULL) {
+ 		/* Report a low battery voltage condition. */
+ 		if (has_low_battery())
+ 			prom_printf("NVRAM: Low battery voltage!\n");
+@@ -1087,7 +1092,7 @@
+ static int set_rtc_mmss(unsigned long nowtime)
+ {
+ 	int real_seconds, real_minutes, chip_minutes;
+-	unsigned long mregs = mstk48t02_regs;
++	void __iomem *mregs = mstk48t02_regs;
+ #ifdef CONFIG_PCI
+ 	unsigned long dregs = ds1287_regs;
+ #else
+--- a/drivers/sbus/char/rtc.c	2005-03-02 02:37:52.000000000 -0500
++++ b/drivers/sbus/char/rtc.c	2005-05-12 22:34:33.000000000 -0400
+@@ -28,10 +28,46 @@
+ 
+ static int rtc_busy = 0;
+ 
++/* This is the structure layout used by drivers/char/rtc.c, we
++ * support that driver's ioctls so that things are less messy in
++ * userspace.
++ */
++struct rtc_time_generic {
++	int tm_sec;
++	int tm_min;
++	int tm_hour;
++	int tm_mday;
++	int tm_mon;
++	int tm_year;
++	int tm_wday;
++	int tm_yday;
++	int tm_isdst;
++};
++#define RTC_AIE_ON	_IO('p', 0x01)	/* Alarm int. enable on		*/
++#define RTC_AIE_OFF	_IO('p', 0x02)	/* ... off			*/
++#define RTC_UIE_ON	_IO('p', 0x03)	/* Update int. enable on	*/
++#define RTC_UIE_OFF	_IO('p', 0x04)	/* ... off			*/
++#define RTC_PIE_ON	_IO('p', 0x05)	/* Periodic int. enable on	*/
++#define RTC_PIE_OFF	_IO('p', 0x06)	/* ... off			*/
++#define RTC_WIE_ON	_IO('p', 0x0f)  /* Watchdog int. enable on	*/
++#define RTC_WIE_OFF	_IO('p', 0x10)  /* ... off			*/
++#define RTC_RD_TIME	_IOR('p', 0x09, struct rtc_time_generic) /* Read RTC time   */
++#define RTC_SET_TIME	_IOW('p', 0x0a, struct rtc_time_generic) /* Set RTC time    */
++#define RTC_ALM_SET	_IOW('p', 0x07, struct rtc_time) /* Set alarm time  */
++#define RTC_ALM_READ	_IOR('p', 0x08, struct rtc_time) /* Read alarm time */
++#define RTC_IRQP_READ	_IOR('p', 0x0b, unsigned long)	 /* Read IRQ rate   */
++#define RTC_IRQP_SET	_IOW('p', 0x0c, unsigned long)	 /* Set IRQ rate    */
++#define RTC_EPOCH_READ	_IOR('p', 0x0d, unsigned long)	 /* Read epoch      */
++#define RTC_EPOCH_SET	_IOW('p', 0x0e, unsigned long)	 /* Set epoch       */
++#define RTC_WKALM_SET	_IOW('p', 0x0f, struct rtc_wkalrm)/* Set wakeup alarm*/
++#define RTC_WKALM_RD	_IOR('p', 0x10, struct rtc_wkalrm)/* Get wakeup alarm*/
++#define RTC_PLL_GET	_IOR('p', 0x11, struct rtc_pll_info)  /* Get PLL correction */
++#define RTC_PLL_SET	_IOW('p', 0x12, struct rtc_pll_info)  /* Set PLL correction */
++
+ /* Retrieve the current date and time from the real time clock. */
+ static void get_rtc_time(struct rtc_time *t)
+ {
+-	void * __iomem regs = mstk48t02_regs;
++	void __iomem *regs = mstk48t02_regs;
+ 	u8 tmp;
+ 
+ 	spin_lock_irq(&mostek_lock);
+@@ -58,7 +94,7 @@
+ /* Set the current date and time inthe real time clock. */
+ void set_rtc_time(struct rtc_time *t)
+ {
+-	void * __iomem regs = mstk48t02_regs;
++	void __iomem *regs = mstk48t02_regs;
+ 	u8 tmp;
+ 
+ 	spin_lock_irq(&mostek_lock);
+@@ -82,29 +118,87 @@
+ 	spin_unlock_irq(&mostek_lock);
+ }
+ 
++static int put_rtc_time_generic(void __user *argp, struct rtc_time *tm)
++{
++	struct rtc_time_generic __user *utm = argp;
++
++	if (__put_user(tm->sec, &utm->tm_sec) ||
++	    __put_user(tm->min, &utm->tm_min) ||
++	    __put_user(tm->hour, &utm->tm_hour) ||
++	    __put_user(tm->dom, &utm->tm_mday) ||
++	    __put_user(tm->month, &utm->tm_mon) ||
++	    __put_user(tm->year, &utm->tm_year) ||
++	    __put_user(tm->dow, &utm->tm_wday) ||
++	    __put_user(0, &utm->tm_yday) ||
++	    __put_user(0, &utm->tm_isdst))
++		return -EFAULT;
++
++	return 0;
++}
++
++static int get_rtc_time_generic(struct rtc_time *tm, void __user *argp)
++{
++	struct rtc_time_generic __user *utm = argp;
++
++	if (__get_user(tm->sec, &utm->tm_sec) ||
++	    __get_user(tm->min, &utm->tm_min) ||
++	    __get_user(tm->hour, &utm->tm_hour) ||
++	    __get_user(tm->dom, &utm->tm_mday) ||
++	    __get_user(tm->month, &utm->tm_mon) ||
++	    __get_user(tm->year, &utm->tm_year) ||
++	    __get_user(tm->dow, &utm->tm_wday))
++		return -EFAULT;
++
++	return 0;
++}
++
+ static int rtc_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
+ 	unsigned long arg)
+ {
+ 	struct rtc_time rtc_tm;
+ 	void __user *argp = (void __user *)arg;
+ 
+-	switch (cmd)
+-	{
++	switch (cmd) {
++	/* No interrupt support, return an error
++	 * compatible with drivers/char/rtc.c
++	 */
++	case RTC_AIE_OFF:
++	case RTC_AIE_ON:
++	case RTC_PIE_OFF:
++	case RTC_PIE_ON:
++	case RTC_UIE_OFF:
++	case RTC_UIE_ON:
++	case RTC_IRQP_READ:
++	case RTC_IRQP_SET:
++	case RTC_EPOCH_SET:
++	case RTC_EPOCH_READ:
++		return -EINVAL;
++
+ 	case RTCGET:
++	case RTC_RD_TIME:
+ 		memset(&rtc_tm, 0, sizeof(struct rtc_time));
+ 		get_rtc_time(&rtc_tm);
+ 
+-		if (copy_to_user(argp, &rtc_tm, sizeof(struct rtc_time)))
++		if (cmd == RTCGET) {
++			if (copy_to_user(argp, &rtc_tm,
++					 sizeof(struct rtc_time)))
++				return -EFAULT;
++		} else if (put_rtc_time_generic(argp, &rtc_tm))
+ 			return -EFAULT;
+ 
+ 		return 0;
+ 
+ 
+ 	case RTCSET:
++	case RTC_SET_TIME:
+ 		if (!capable(CAP_SYS_TIME))
+ 			return -EPERM;
+ 
+-		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
++		if (cmd == RTCSET) {
++			if (copy_from_user(&rtc_tm, argp,
++					   sizeof(struct rtc_time)))
++				return -EFAULT;
++		} else if (get_rtc_time_generic(&rtc_tm, argp))
+ 			return -EFAULT;
+ 
+ 		set_rtc_time(&rtc_tm);
+@@ -156,7 +250,7 @@
+ 	/* It is possible we are being driven by some other RTC chip
+ 	 * and thus another RTC driver is handling things.
+ 	 */
+-	if (mstk48t02_regs == 0)
++	if (!mstk48t02_regs)
+ 		return -ENODEV;
+ 
+ 	error = misc_register(&rtc_dev);
+@@ -164,6 +258,7 @@
+ 		printk(KERN_ERR "rtc: unable to get misc minor for Mostek\n");
+ 		return error;
+ 	}
++	printk("rtc_sun_init: Registered Mostek RTC driver.\n");
+ 
+ 	return 0;
+ }
+--- a/include/asm-sparc64/mostek.h	2005-03-02 02:38:10.000000000 -0500
++++ b/include/asm-sparc64/mostek.h	2005-05-14 09:26:51.000000000 -0400
+@@ -38,7 +38,7 @@
+  *
+  * We now deal with physical addresses for I/O to the chip. -DaveM
+  */
+-static __inline__ u8 mostek_read(unsigned long addr)
++static __inline__ u8 mostek_read(void __iomem *addr)
+ {
+ 	u8 ret;
+ 
+@@ -48,7 +48,7 @@
+ 	return ret;
+ }
+ 
+-static __inline__ void mostek_write(unsigned long addr, u8 val)
++static __inline__ void mostek_write(void __iomem *addr, u8 val)
+ {
+ 	__asm__ __volatile__("stba	%0, [%1] %2"
+ 			     : /* no outputs */
+@@ -67,7 +67,7 @@
+ #define MOSTEK_YEAR		0x07ffUL
+ 
+ extern spinlock_t mostek_lock;
+-extern unsigned long mstk48t02_regs;
++extern void __iomem *mstk48t02_regs;
+ 
+ /* Control register values. */
+ #define	MSTK_CREG_WRITE	0x80	/* Must set this before placing values. */
+@@ -134,13 +134,11 @@
+  */
+ #define MOSTEK_48T08_OFFSET	0x0000UL	/* Lower NVRAM portions */
+ #define MOSTEK_48T08_48T02	0x1800UL	/* Offset to 48T02 chip */
+-extern unsigned long mstk48t08_regs;
+ 
+ /* SUN5 systems usually have 48t59 model clock chipsets.  But we keep the older
+  * clock chip definitions around just in case.
+  */
+ #define MOSTEK_48T59_OFFSET	0x0000UL	/* Lower NVRAM portions */
+ #define MOSTEK_48T59_48T02	0x1800UL	/* Offset to 48T02 chip */
+-extern unsigned long mstk48t59_regs;
+ 
+ #endif /* !(_SPARC64_MOSTEK_H) */

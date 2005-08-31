@@ -1,0 +1,38 @@
+commit 2e7fe37125e00cf9090416345e36af80d7761e9a
+tree 59db26d5f182bd694a3a0b038507509ef3e5e8f2
+parent 1e483bdd0ac8852a53e32e09059df9788619b3e8
+author Andi Kleen <ak@suse.de> 1119964649 +0200
+committer Marcelo Tosatti <marcelo.tosatti@cyclades.com> 1120052993 -0300
+
+[PATCH] Check for canonical addresses in ptrace
+
+Check for canonical addresses in ptrace
+
+This works around a AMD bug that allows to hang the CPU by passing
+illegal addresses.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+I:100644 100644 c799252bfa15c376b2a894a81009bec6bbfc1f87 812961f0f1b71ae796a00bbed676330d3cea851e M	arch/x86_64/kernel/ptrace.c
+
+Key:
+S: Skipped
+I: Included Included verbatim
+D: Deleted  Manually deleted by subsequent user edit
+R: Revised  Manually revised by subsequent user edit
+
+diff --git a/arch/x86_64/kernel/ptrace.c b/arch/x86_64/kernel/ptrace.c
+--- a/arch/x86_64/kernel/ptrace.c
++++ b/arch/x86_64/kernel/ptrace.c
+@@ -139,6 +139,11 @@ static int putreg(struct task_struct *ch
+ 				return -EIO;
+ 			value &= 0xffff;
+             break;
++		case offsetof(struct user_regs_struct, rip):
++			/* Check if the new RIP address is canonical */
++			if (value >= TASK_SIZE)
++				return -EIO;
++			break;
+ 	}      
+ 	put_stack_long(child, regno - sizeof(struct pt_regs), value);
+ 	return 0;

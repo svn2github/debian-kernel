@@ -1,0 +1,20 @@
+# origin: Debian, #141660
+# cset: n/a
+# inclusion: not submitted
+# description: translate slashes to dots for broken Acorn images
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/fs/isofs/dir.c kernel-source-2.4.26-1/fs/isofs/dir.c
+--- kernel-source-2.4.26/fs/isofs/dir.c	2002-02-26 06:38:08.000000000 +1100
++++ kernel-source-2.4.26-1/fs/isofs/dir.c	2002-04-13 21:45:40.000000000 +1000
+@@ -63,7 +63,8 @@
+ 			break;
+ 
+ 		/* Convert remaining ';' to '.' */
+-		if (c == ';')
++		/* Also '/' to '.' (broken Acorn-generated ISO9660 images) */
++		if (c == ';' || c == '/')
+ 			c = '.';
+ 
+ 		new[i] = c;
+

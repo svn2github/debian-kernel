@@ -1,0 +1,90 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/09 12:33:55-02:00 chrisw@osdl.org 
+#   [PATCH] Fix potential leak of kernel data to user space in wireless private handler helper.
+#   
+#   Jean Tourrilhes wrote:
+#   
+#   > There is a potential leak of kernel data to user space in
+#   > private handler handling. Few drivers use that feature, there is no
+#   > risk of crash or direct attack, so I would not worry about it.
+#   > Its not like you can read any arbitrary address, exploiting
+#   > such a flaw is in my mind theoritical. Let's not overblow things,
+#   > there are some real bugs to take care of.
+#   
+#   If the fix is simple (as it appears to be), there's no good reason to
+#   leave the risk there.
+#   
+#   prism54 uses this, and is a reasonably popular card.
+#   
+#   thanks,
+#   -chris
+#   
+#   ===== net/core/wireless.c 1.4 vs edited =====
+# 
+# net/core/wireless.c
+#   2005/02/08 23:45:15-02:00 chrisw@osdl.org +28 -2
+#   Fix potential leak of kernel data to user space in wireless private handler helper.
+# 
+diff -Nru a/net/core/wireless.c b/net/core/wireless.c
+--- a/net/core/wireless.c	2005-02-09 11:03:56 -08:00
++++ b/net/core/wireless.c	2005-02-09 11:03:56 -08:00
+@@ -310,7 +310,7 @@
+ 
+ /* ---------------------------------------------------------------- */
+ /*
+- * Number of private arguments
++ * Calculate size of private arguments
+  */
+ static inline int get_priv_size(__u16	args)
+ {
+@@ -320,6 +320,24 @@
+ 	return num * priv_type_size[type];
+ }
+ 
++/* ---------------------------------------------------------------- */
++/*
++ * Re-calculate the size of private arguments
++ */
++static inline int adjust_priv_size(__u16		args,
++				   union iwreq_data *	wrqu)
++{
++	int	num = wrqu->data.length;
++	int	max = args & IW_PRIV_SIZE_MASK;
++	int	type = (args & IW_PRIV_TYPE_MASK) >> 12;
++
++	/* Make sure the driver doesn't goof up */
++	if (max < num)
++		num = max;
++
++	return num * priv_type_size[type];
++}
++
+ 
+ /******************** /proc/net/wireless SUPPORT ********************/
+ /*
+@@ -701,7 +719,7 @@
+ 			   ((extra_size + offset) <= IFNAMSIZ))
+ 				extra_size = 0;
+ 		} else {
+-			/* Size of set arguments */
++			/* Size of get arguments */
+ 			extra_size = get_priv_size(descr->get_args);
+ 
+ 			/* Does it fits in iwr ? */
+@@ -771,6 +789,14 @@
+ 
+ 		/* If we have something to return to the user */
+ 		if (!ret && IW_IS_GET(cmd)) {
++
++			/* Adjust for the actual length if it's variable,
++			 * avoid leaking kernel bits outside. */
++			if (!(descr->get_args & IW_PRIV_SIZE_FIXED)) {
++				extra_size = adjust_priv_size(descr->get_args,
++							      &(iwr->u));
++			}
++
+ 			err = copy_to_user(iwr->u.data.pointer, extra,
+ 					   extra_size);
+ 			if (err)

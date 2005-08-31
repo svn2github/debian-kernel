@@ -1,0 +1,152 @@
+Source: kernel-image-2.6.9-ia64
+Section: devel
+Priority: optional
+Maintainer: dann frazier <dannf@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 2), kernel-package (>= 8.054), kernel-tree-2.6.9-5, module-init-tools
+
+Package: kernel-headers-2.6.9-2
+Architecture: ia64
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-kbuild-2.6-3
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files related to Linux kernel version 2.6.9
+ This package provides kernel header files for version 2.6.9, for sites 
+ that want the latest kernel headers. Please read
+ /usr/share/doc/kernel-headers-2.6.9-2/debian.README.gz for details.
+
+Package: kernel-headers-2.6.9-2-itanium
+Architecture: ia64
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.9-2
+Provides: kernel-headers, kernel-headers-2.6
+Description: Linux kernel headers 2.6.9 on Itanium
+ This package provides kernel header files for version 2.6.9 on
+ Itanium,
+ for sites that want the latest kernel headers.
+ Please read /usr/share/doc/kernel-headers-2.6.9-2-itanium/debian.README.gz for
+ details.
+
+Package: kernel-image-2.6.9-2-itanium
+Architecture: ia64
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.63), coreutils | fileutils (>= 4.0), module-init-tools (>= 0.9.13)
+Conflicts: hotplug (<< 0.0.20040105-1)
+Suggests: elilo, kernel-doc-2.6.9 | kernel-source-2.6.9
+Description: Linux kernel image for version 2.6.9 on Itanium
+ This package contains the Linux kernel image for version 2.6.9 on
+ Itanium,
+ the corresponding System.map file, and the modules built by the packager.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+
+Package: kernel-headers-2.6.9-2-itanium-smp
+Architecture: ia64
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.9-2
+Provides: kernel-headers, kernel-headers-2.6
+Description: Linux kernel headers 2.6.9 on Itanium SMP
+ This package provides kernel header files for version 2.6.9 on
+ Itanium with SMP support,
+ for sites that want the latest kernel headers.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ Please read
+ /usr/share/doc/kernel-headers-2.6.9-2-itanium-smp/debian.README.gz for
+ details.
+
+Package: kernel-image-2.6.9-2-itanium-smp
+Architecture: ia64
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.63), coreutils | fileutils (>= 4.0), module-init-tools (>= 0.9.13)
+Conflicts: hotplug (<< 0.0.20040105-1)
+Suggests: elilo, kernel-doc-2.6.9 | kernel-source-2.6.9
+Description: Linux kernel image for version 2.6.9 on Itanium SMP
+ This package contains the Linux kernel image for version 2.6.9 on
+ Itanium with SMP support,
+ the corresponding System.map file, and the modules built by the packager.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+
+Package: kernel-headers-2.6.9-2-mckinley
+Architecture: ia64
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.9-2
+Provides: kernel-headers, kernel-headers-2.6
+Description: Linux kernel headers 2.6.9 on Itanium II
+ This package provides kernel header files for version 2.6.9 on
+ Itanium II (also known as McKinley),
+ for sites that want the latest kernel headers.
+ Please read
+ /usr/share/doc/kernel-headers-2.6.9-2-mckinley/debian.README.gz for
+ details.
+
+Package: kernel-image-2.6.9-2-mckinley
+Architecture: ia64
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.63), coreutils | fileutils (>= 4.0), module-init-tools (>= 0.9.13)
+Conflicts: hotplug (<< 0.0.20040105-1)
+Suggests: elilo, kernel-doc-2.6.9 | kernel-source-2.6.9
+Description: Linux kernel image for version 2.6.9 on Itanium II
+ This package contains the Linux kernel image for version 2.6.9 on
+ Itanium II (also known as McKinley),
+ the corresponding System.map file, and the modules built by the packager.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+
+Package: kernel-headers-2.6.9-2-mckinley-smp
+Architecture: ia64
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.9-2
+Provides: kernel-headers, kernel-headers-2.6
+Description: Linux kernel headers 2.6.9 on Itanium II SMP
+ This package provides kernel header files for version 2.6.9 on
+ Itanium II (also known as McKinleywith SMP support,
+ for sites that want the latest kernel headers.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ Please read
+ /usr/share/doc/kernel-headers-2.6.9-2-mckinley-smp/debian.README.gz for
+ details.
+
+Package: kernel-image-2.6.9-2-mckinley-smp
+Architecture: ia64
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.63), coreutils | fileutils (>= 4.0), module-init-tools (>= 0.9.13)
+Conflicts: hotplug (<< 0.0.20040105-1)
+Suggests: elilo, kernel-doc-2.6.9 | kernel-source-2.6.9
+Description: Linux kernel image for version 2.6.9 on Itanium II SMP
+ This package contains the Linux kernel image for version 2.6.9 on
+ Itanium II (also known as McKinley) with SMP support,
+ the corresponding System.map file, and the modules built by the packager.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.

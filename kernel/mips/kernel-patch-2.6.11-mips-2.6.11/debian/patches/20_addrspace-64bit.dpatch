@@ -1,0 +1,139 @@
+#! /bin/sh -e
+## 20_addrspace-64bit.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: 64bit address space fixes
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p0 ${patch_opts} < $0;;
+    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Index: arch/mips/mm/sc-rm7k.c
+===================================================================
+RCS file: /home/cvs/linux/arch/mips/mm/sc-rm7k.c,v
+retrieving revision 1.7
+diff -u -p -r1.7 sc-rm7k.c
+--- arch/mips/mm/sc-rm7k.c	15 Dec 2004 20:39:23 -0000	1.7
++++ arch/mips/mm/sc-rm7k.c	10 Jan 2005 22:10:33 -0000
+@@ -127,13 +127,13 @@ static __init void __rm7k_sc_enable(void
+ 		      ".set mips0\n\t"
+ 		      ".set reorder"
+ 		      :
+-		      : "r" (KSEG0ADDR(i)), "i" (Index_Store_Tag_SD));
++		      : "r" (CKSEG0ADDR(i)), "i" (Index_Store_Tag_SD));
+ 	}
+ }
+ 
+ static __init void rm7k_sc_enable(void)
+ {
+-	void (*func)(void) = (void *) KSEG1ADDR(&__rm7k_sc_enable);
++	void (*func)(void) = (void *) CKSEG1ADDR(&__rm7k_sc_enable);
+ 
+ 	if (read_c0_config() & 0x08)			/* CONF_SE */
+ 		return;
+Index: drivers/media/video/swarm_saa7114h.c
+===================================================================
+RCS file: /home/cvs/linux/drivers/media/video/swarm_saa7114h.c,v
+retrieving revision 1.4
+diff -u -p -r1.4 swarm_saa7114h.c
+--- drivers/media/video/swarm_saa7114h.c	26 Oct 2004 02:20:47 -0000	1.4
++++ drivers/media/video/swarm_saa7114h.c	10 Jan 2005 22:10:34 -0000
+@@ -51,7 +51,6 @@
+ #include <linux/sched.h>
+ #include <asm/segment.h>
+ #include <linux/types.h>
+-#include <linux/wrapper.h>
+ #include <linux/smp_lock.h>
+ #include <asm/hardirq.h>
+ 
+@@ -102,8 +101,8 @@
+ 
+ #define IF_NAME "saa7114h"
+ 
+-#define MAC2_CSR(r)	   (KSEG1 + A_MAC_REGISTER(2, r))
+-#define MAC2_DMARX0_CSR(r) (KSEG1 + A_MAC_DMA_REGISTER(2, DMA_RX, 0, r))
++#define MAC2_CSR(r)	   (CKSEG1 + A_MAC_REGISTER(2, r))
++#define MAC2_DMARX0_CSR(r) (CKSEG1 + A_MAC_DMA_REGISTER(2, DMA_RX, 0, r))
+ 
+ /* Options */
+ #define DMA_DEINTERLACE	 1
+@@ -1614,9 +1613,9 @@ static int saa7114h_attach(struct i2c_ad
+ 	decoder->vd = vd;
+ 
+ 	/* Turn on the ITRDY - preserve the GENO pin for syncser */
+-	val = __raw_readq(KSEG1 + A_MAC_REGISTER(2, R_MAC_MDIO));
++	val = __raw_readq(CKSEG1 + A_MAC_REGISTER(2, R_MAC_MDIO));
+ 	__raw_writeq(M_MAC_MDIO_OUT | (val & M_MAC_GENC),
+-	      KSEG1 + A_MAC_REGISTER(2, R_MAC_MDIO));
++	      CKSEG1 + A_MAC_REGISTER(2, R_MAC_MDIO));
+ 
+ 	if ((err = dma_setup(decoder))) {
+ 		i2c_detach_client(client);
+--- drivers/net/sgiseeq.c.orig	2005-04-05 08:09:21.000000000 +0200
++++ drivers/net/sgiseeq.c	2005-04-05 08:10:28.000000000 +0200
+@@ -175,7 +175,7 @@ static int seeq_init_ring(struct net_dev
+ 			buffer = (unsigned long) kmalloc(PKT_BUF_SZ, GFP_KERNEL);
+ 			if (!buffer)
+ 				return -ENOMEM;
+-			sp->tx_desc[i].buf_vaddr = KSEG1ADDR(buffer);
++			sp->tx_desc[i].buf_vaddr = CKSEG1ADDR(buffer);
+ 			sp->tx_desc[i].tdma.pbuf = CPHYSADDR(buffer);
+ 		}
+ 		sp->tx_desc[i].tdma.cntinfo = TCNTINFO_INIT;
+@@ -189,7 +189,7 @@ static int seeq_init_ring(struct net_dev
+ 			buffer = (unsigned long) kmalloc(PKT_BUF_SZ, GFP_KERNEL);
+ 			if (!buffer)
+ 				return -ENOMEM;
+-			sp->rx_desc[i].buf_vaddr = KSEG1ADDR(buffer);
++			sp->rx_desc[i].buf_vaddr = CKSEG1ADDR(buffer);
+ 			sp->rx_desc[i].rdma.pbuf = CPHYSADDR(buffer);
+ 		}
+ 		sp->rx_desc[i].rdma.cntinfo = RCNTINFO_INIT;
+@@ -373,7 +373,7 @@ static inline void kick_tx(struct sgisee
+ 	 */
+ 	while ((td->tdma.cntinfo & (HPCDMA_XIU | HPCDMA_ETXD)) ==
+ 	      (HPCDMA_XIU | HPCDMA_ETXD))
+-		td = (struct sgiseeq_tx_desc *)(long) KSEG1ADDR(td->tdma.pnext);
++		td = (struct sgiseeq_tx_desc *)(long) CKSEG1ADDR(td->tdma.pnext);
+ 	if (td->tdma.cntinfo & HPCDMA_XIU) {
+ 		hregs->tx_ndptr = CPHYSADDR(td);
+ 		hregs->tx_ctrl = HPC3_ETXCTRL_ACTIVE;
+@@ -653,11 +653,11 @@ static int sgiseeq_init(struct hpc3_regs
+ 	sp->name = sgiseeqstr;
+ 
+ 	sp->rx_desc = (struct sgiseeq_rx_desc *)
+-	              KSEG1ADDR(ALIGNED(&sp->srings->rxvector[0]));
++	              CKSEG1ADDR(ALIGNED(&sp->srings->rxvector[0]));
+ 	dma_cache_wback_inv((unsigned long)&sp->srings->rxvector,
+ 	                    sizeof(sp->srings->rxvector));
+ 	sp->tx_desc = (struct sgiseeq_tx_desc *)
+-	              KSEG1ADDR(ALIGNED(&sp->srings->txvector[0]));
++	              CKSEG1ADDR(ALIGNED(&sp->srings->txvector[0]));
+ 	dma_cache_wback_inv((unsigned long)&sp->srings->txvector,
+ 	                    sizeof(sp->srings->txvector));
+ 
+--- drivers/net/sb1250-mac.c.orig	2005-04-05 08:09:31.000000000 +0200
++++ drivers/net/sb1250-mac.c	2005-04-05 08:10:13.000000000 +0200
+@@ -2879,7 +2879,7 @@ sbmac_init_module(void)
+ 		dev->mem_end = 0;
+ 		if (sbmac_init(dev, idx)) {
+ 			port = A_MAC_CHANNEL_BASE(idx);
+-			SBMAC_WRITECSR(KSEG1ADDR(port+R_MAC_ETHERNET_ADDR),
++			SBMAC_WRITECSR(IOADDR(port+R_MAC_ETHERNET_ADDR),
+ 					sbmac_orig_hwaddr[idx] );
+ 			free_netdev(dev);
+ 			continue;

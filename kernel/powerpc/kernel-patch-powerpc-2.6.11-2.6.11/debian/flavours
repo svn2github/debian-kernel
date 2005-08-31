@@ -1,0 +1,3 @@
+# This file contains the flavours we're building for.
+power3 power3-smp power4 power4-smp powerpc powerpc-smp
+

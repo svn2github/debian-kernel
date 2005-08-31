@@ -1,0 +1,128 @@
+#! /bin/sh -e 
+## <PATCHNAME>.dpatch by <PATCH_AUTHOR@EMAI>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: fix IDE modularisation
+## DP: Patch author: Herbert Xu
+## DP: Upstream status: rejected
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+--- 1.3/drivers/ide/ide-generic.c	2004-02-22 18:36:17 +01:00
++++ edited/drivers/ide/ide-generic.c	2004-06-16 15:44:16 +02:00
+@@ -11,9 +11,14 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/ide.h>
++#include <linux/config.h>
+ 
+ static int __init ide_generic_init(void)
+ {
++#ifdef CONFIG_BLK_DEV_IDEPCI
++	ide_scan_pcibus();
++#endif
++
+ 	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET])
+ 		ide_get_lock(NULL, NULL); /* for atari only */
+ 
+--- 1.150/drivers/ide/ide.c	2004-06-15 18:31:12 +02:00
++++ edited/drivers/ide/ide.c	2004-06-16 15:44:16 +02:00
+@@ -175,10 +175,11 @@
+ static int initializing;	/* set while initializing built-in drivers */
+ 
+ DECLARE_MUTEX(ide_cfg_sem);
++EXPORT_SYMBOL(ide_cfg_sem);
+  __cacheline_aligned_in_smp DEFINE_SPINLOCK(ide_lock);
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+-static int ide_scan_direction; /* THIS was formerly 2.2.x pci=reverse */
++int ide_scan_direction;		/* THIS was formerly 2.2.x pci=reverse */
+ #endif
+ 
+ #ifdef CONFIG_IDEDMA_AUTO
+@@ -1317,6 +1318,8 @@
+ 
+ EXPORT_SYMBOL(system_bus_clock);
+ 
++EXPORT_SYMBOL(ide_add_generic_settings);
++
+ /*
+  *	Locking is badly broken here - since way back.  That sucker is
+  * root-only, but that's not an excuse...  The real question is what
+@@ -1962,9 +1965,9 @@
+  */
+ static void __init probe_for_hwifs (void)
+ {
+-#ifdef CONFIG_BLK_DEV_IDEPCI
+-	ide_scan_pcibus(ide_scan_direction);
+-#endif /* CONFIG_BLK_DEV_IDEPCI */
++#if defined(CONFIG_BLK_DEV_IDEPCI) && !defined(MODULE)
++	ide_scan_pcibus();
++#endif /* CONFIG_BLK_DEV_IDEPCI && !MODULE */
+ 
+ #ifdef CONFIG_ETRAX_IDE
+ 	{
+--- 1.25/drivers/ide/setup-pci.c	2004-06-01 21:04:38 +02:00
++++ edited/drivers/ide/setup-pci.c	2004-06-16 15:44:18 +02:00
+@@ -837,7 +837,7 @@
+  *	boot up the pci layer takes over the job.
+  */
+  
+-static int __init ide_scan_pcidev(struct pci_dev *dev)
++static int ide_scan_pcidev(struct pci_dev *dev)
+ {
+ 	struct list_head *l;
+ 	struct pci_driver *d;
+@@ -863,21 +863,23 @@
+ 
+ /**
+  *	ide_scan_pcibus		-	perform the initial IDE driver scan
+- *	@scan_direction: set for reverse order scanning
+  *
+  *	Perform the initial bus rather than driver ordered scan of the
+  *	PCI drivers. After this all IDE pci handling becomes standard
+  *	module ordering not traditionally ordered.
+  */
+  	
+-void __init ide_scan_pcibus (int scan_direction)
++void ide_scan_pcibus(void)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	struct pci_driver *d;
+ 	struct list_head *l, *n;
+ 
++	if (!pre_init)
++		return;
++
+ 	pre_init = 0;
+-	if (!scan_direction) {
++	if (!ide_scan_direction) {
+ 		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+ 			ide_scan_pcidev(dev);
+ 		}
+@@ -899,3 +901,5 @@
+ 		pci_register_driver(d);
+ 	}
+ }
++
++EXPORT_SYMBOL_GPL(ide_scan_pcibus);
+--- 1.124/include/linux/ide.h	2004-06-05 21:58:33 +02:00
++++ edited/include/linux/ide.h	2004-06-16 15:44:18 +02:00
+@@ -1128,6 +1128,7 @@
+ extern	ide_hwif_t	ide_hwifs[];		/* master data repository */
+ #endif
+ extern int noautodma;
++extern int ide_scan_direction;
+ 
+ extern int ide_end_request (ide_drive_t *drive, int uptodate, int nrsecs);
+ 
+@@ -1337,7 +1338,7 @@
+ 
+ extern int ideprobe_init(void);
+ 
+-extern void ide_scan_pcibus(int scan_direction) __init;
++extern void ide_scan_pcibus(void);
+ extern int ide_pci_register_driver(struct pci_driver *driver);
+ extern void ide_pci_unregister_driver(struct pci_driver *driver);
+ void ide_pci_setup_ports(struct pci_dev *, struct ide_pci_device_s *, int, ata_index_t *);

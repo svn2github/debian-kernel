@@ -1,0 +1,92 @@
+#!/usr/bin/make -f
+#
+# debian/rules for kernel-latest-*-mips
+#
+# GNU copyright 1997 to 1999 by Joey Hess.
+# Copyright (c) 1999-2002 Herbert Xu <herbert@debian.org>
+# Copyright (C) 2005 Thiemo Seufer
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+SHELL := sh -e
+
+ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+# we derive all kernel versions from the changelog, which has to follow
+# <kernel upstream>-<abi version>-<debian revision> convention
+# e.g. 2.6.10-1-1
+
+# upstream kernel version and module abi, e.g. 2.6.10-1
+VERSION := $(shell dpkg-parsechangelog |grep '^Version:' \
+	|sed -e 's/^Version: //' -e 's/-[^-]*$$//')
+
+# upstream kernel version, e.g. 2.6.10
+KERNVER := $(shell echo $(VERSION) |sed 's/-[^-]*$$//')
+
+# kernel "major" version, e.g. 2.6
+KERNMAJ := $(shell echo $(KERNVER) |sed 's/\.[0-9]*$$//')
+
+# the module abi version
+ABIVER := $(shell echo $(VERSION) |sed 's/^.*-//')
+
+# the flavours we're building for
+FLAVOURS := $(shell grep -v ^\# debian/flavours.$(ARCH))
+BINARY_ARCH := $(FLAVOURS:=.binary-arch)
+
+build: debian/control
+
+debian/control: debian/changelog \
+		debian/control.in/stub debian/control.in/headers \
+		$(foreach sub,$(FLAVOURS),debian/control.in/$(sub)) debian/flavours.$(ARCH)
+	cat debian/control.in/stub >$@ && echo '' >> $@
+	sed -e 's/@@KERNVER@@/$(KERNVER)/g' \
+		-e 's/@@ARCH@@/$(ARCH)/g' \
+		-e 's/@@KERNMAJ@@/$(KERNMAJ)/g' \
+		-e 's/@@ABIVER@@/$(ABIVER)/g' \
+		debian/control.in/headers >>$@ \
+		&& echo '' >> $@
+	$(foreach sub,$(FLAVOURS), \
+		sed -e 's/@@KERNVER@@/$(KERNVER)/g' \
+			-e 's/@@ARCH@@/$(ARCH)/g' \
+			-e 's/@@KERNMAJ@@/$(KERNMAJ)/g' \
+			-e 's/@@ABIVER@@/$(ABIVER)/g' \
+			-e 's/@@SUBARCH@@/$(sub)/g' \
+			debian/control.in/$(sub) >>$@ \
+			&& echo '' >> $@ &&) :
+
+clean:
+	dh_testdir
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_clean -k
+	dh_installdirs
+
+# Build architecture-independent files here.
+binary-indep:
+
+%.binary-arch-pkg:
+	dh_testroot
+	dh_testdir
+	dh_clean -k --package=$*
+	dh_installdirs --package=$*
+	dh_installdocs --package=$*
+	dh_installchangelogs --package=$*
+	dh_compress --package=$*
+	dh_fixperms --package=$*
+	dh_installdeb --package=$*
+	dh_gencontrol --package=$*
+	dh_md5sums --package=$*
+	dh_builddeb --package=$*
+
+%.binary-arch: kernel-headers-$(KERNMAJ).binary-arch-pkg kernel-headers.binary-arch-pkg \
+		kernel-image-$(KERNMAJ)-%.binary-arch-pkg kernel-image-%.binary-arch-pkg
+	@:
+
+# Build architecture-dependent files here.
+binary-arch: install $(BINARY_ARCH)
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install unpack

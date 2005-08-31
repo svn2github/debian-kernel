@@ -1,0 +1,110 @@
+#!/usr/bin/make -f
+#
+# debian/rules for m68k kernel packages
+#
+
+#ktver := $(shell \
+#	sed -n 's/.*kernel-tree-\([^,]*\).*/\1/p; t e; b; :e q' \
+#		debian/control \
+#)
+
+khsed := s/^Package: kernel-headers-\(.*\)\(-[[:digit:]]*\)$$/\1 \2/
+debver := $(shell sed -n '$(khsed); t e; b; :e; p; q' debian/control)
+export version := $(firstword $(debver))
+export debnum := $(word 2,$(debver))
+debver := $(version)$(debnum)
+appvan :=
+
+ifneq ($(debnum),)
+appvan := --append_to_version $(debnum)
+endif
+
+SHELL          := /bin/bash -e
+PATCHES        := /usr/src/kernel-patches/m68k/$(version)
+
+DEB_BUILD_ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+DEB_HOST_ARCH := m68k
+
+MAKEKPKG       := make-kpkg
+ifneq ($(DEB_BUILD_ARCH),m68k)
+MAKEKPKG       += --arch m68k --cross_compile m68k-linux
+endif
+
+SUBARCHES := $(shell \
+        find config -maxdepth 1 -type f ! -name default -printf '%f\n' \
+)
+
+version:
+	echo $(version)
+	echo $(debnum)
+	echo $(debver)
+
+build: build-stamp
+build-stamp: unpack-stamp patch-stamp
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -rf kernel-source-$(version)
+	rm -f *.deb *-stamp debian/files
+	dh_clean
+
+unpack: unpack-stamp
+unpack-stamp:
+	if   [ -f   /usr/src/kernel-source-$(version).tar ]; then \
+		 tar xf /usr/src/kernel-source-$(version).tar;        \
+	else bzcat  /usr/src/kernel-source-$(version).tar.bz2 | tar xf -; fi
+	touch unpack-stamp
+
+patch: patch-stamp
+patch-stamp: unpack-stamp
+	dh_testdir
+	cd kernel-source-$(version); \
+		/usr/src/kernel-patches/all/$(version)/apply/debian $(debver)
+	cd kernel-source-$(version); $(PATCHES)/apply/apply
+	touch patch-stamp
+
+unpatch: patch-stamp
+	dh_testdir
+	cd kernel-source-$(version); $(PATCHES)/unpatch/unpatch
+	rm -f patch-stamp
+
+image: image-stamp
+image-stamp: build-stamp
+	dh_testdir
+	dh_testroot
+	for SUBARCH in $(SUBARCHES); do \
+	  cd kernel-source-$(version); \
+	  make-kpkg clean ; \
+	  mkdir -p debian ; \
+	  touch debian/official ; \
+	  cp ../debian/control debian/ ; \
+	  cp ../debian/changelog debian/ ; \
+	  cp ../config/$$SUBARCH .config ; \
+	  $(MAKEKPKG) --append-to-version=$(debnum)-$$SUBARCH kernel_image ; \
+	  cd .. ; \
+	  sed -e s/_$(DEB_BUILD_ARCH).deb/_m68k.deb/ \
+	      < kernel-source-$(version)/debian/files >>debian/files ; \
+	done
+
+	cd kernel-source-$(version); \
+	$(MAKEKPKG) --append-to-version=$(debnum) kernel-headers; \
+	cd ..
+	sed -e s/_$(DEB_BUILD_ARCH).deb/_m68k.deb/ \
+	    < kernel-source-$(version)/debian/files >>debian/files
+
+	mv *.deb ..
+	touch image-stamp
+
+# Build architecture-independent files here.
+binary-indep:
+
+# Build architecture-dependent files here.
+binary-arch: image-stamp
+
+binary: binary-indep binary-arch
+
+.PHONY: build clean binary-indep binary-arch binary
+.PHONY: unpack patch unpatch image

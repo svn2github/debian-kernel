@@ -1,0 +1,185 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted (first hunk is unsuitable hack)
+# description: Fixed the use of return values from mem*_io
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/isdn/hisax/cert.c kernel-source-2.4.26-1/drivers/isdn/hisax/cert.c
+--- kernel-source-2.4.26/drivers/isdn/hisax/cert.c	2001-12-22 04:41:54.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/isdn/hisax/cert.c	2003-07-18 21:22:56.000000000 +1000
+@@ -17,34 +17,30 @@
+ certification_check(int output) {
+ 
+ #ifdef CERTIFICATION
+-#if CERTIFICATION == 0
+-	if (output) {
++	if (CERTIFICATION == 0 && output) {
+ 		printk(KERN_INFO "HiSax: Approval certification valid\n");
+ 		printk(KERN_INFO "HiSax: Approved with ELSA Microlink PCI cards\n");
+ 		printk(KERN_INFO "HiSax: Approved with Eicon Technology Diva 2.01 PCI cards\n");
+ 		printk(KERN_INFO "HiSax: Approved with Sedlbauer Speedfax + cards\n");
+ 		printk(KERN_INFO "HiSax: Approved with HFC-S PCI A based cards\n");
+ 	}
+-	return(0);
+-#endif
+-#if CERTIFICATION == 1
+-	if (output) {
++	if (CERTIFICATION == 0)
++		return(0);
++	if (CERTIFICATION == 1 && output) {
+ 		printk(KERN_INFO "HiSax: Approval certification failed because of\n");
+ 		printk(KERN_INFO "HiSax: unauthorized source code changes\n");
+ 	}
+-	return(1);
+-#endif
+-#if CERTIFICATION == 127
+-	if (output) {
++	if (CERTIFICATION == 1)
++		return(1);
++	if (CERTIFICATION == 127 && output) {
+ 		printk(KERN_INFO "HiSax: Approval certification not possible\n");
+ 		printk(KERN_INFO "HiSax: because \"md5sum\" is not available\n");
+ 	}
+-	return(2);
++	if (CERTIFICATION == 127)
++		return(2);
+ #endif
+-#else
+ 	if (output) {
+ 		printk(KERN_INFO "HiSax: Certification not verified\n");
+ 	}
+ 	return(3);
+-#endif
+ }
+diff -urN kernel-source-2.4.26/drivers/isdn/sc/message.c kernel-source-2.4.26-1/drivers/isdn/sc/message.c
+--- kernel-source-2.4.26/drivers/isdn/sc/message.c	2001-12-22 04:41:54.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/isdn/sc/message.c	2002-02-27 22:19:38.000000000 +1100
+@@ -31,7 +31,6 @@
+  */
+ extern int indicate_status(int,ulong,char*);
+ extern int scm_command(isdn_ctrl *);
+-extern void *memcpy_fromshmem(int, void *, const void *, size_t);
+ 
+ 
+ /*
+diff -urN kernel-source-2.4.26/drivers/isdn/sc/packet.c kernel-source-2.4.26-1/drivers/isdn/sc/packet.c
+--- kernel-source-2.4.26/drivers/isdn/sc/packet.c	2001-12-22 04:41:54.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/isdn/sc/packet.c	2002-02-27 22:19:38.000000000 +1100
+@@ -26,8 +26,8 @@
+ 
+ extern int get_card_from_id(int);
+ extern int indicate_status(int, int,ulong, char*);
+-extern void *memcpy_toshmem(int, void *, const void *, size_t);
+-extern void *memcpy_fromshmem(int, void *, const void *, size_t);
++extern void memcpy_toshmem(int, void *, const void *, size_t);
++extern void memcpy_fromshmem(int, void *, const void *, size_t);
+ extern int sendmessage(int, unsigned int, unsigned int, unsigned int,
+                 unsigned int, unsigned int, unsigned int, unsigned int *);
+ 
+diff -urN kernel-source-2.4.26/drivers/isdn/sc/shmem.c kernel-source-2.4.26-1/drivers/isdn/sc/shmem.c
+--- kernel-source-2.4.26/drivers/isdn/sc/shmem.c	2001-12-22 04:41:54.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/isdn/sc/shmem.c	2002-02-27 22:19:38.000000000 +1100
+@@ -31,19 +31,18 @@
+ /*
+  *
+  */
+-void *memcpy_toshmem(int card, void *dest, const void *src, size_t n)
++void memcpy_toshmem(int card, void *dest, const void *src, size_t n)
+ {
+ 	unsigned long flags;
+-	void *ret;
+ 	unsigned char ch;
+ 
+ 	if(!IS_VALID_CARD(card)) {
+ 		pr_debug("Invalid param: %d is not a valid card id\n", card);
+-		return NULL;
++		return;
+ 	}
+ 
+ 	if(n > SRAM_PAGESIZE) {
+-		return NULL;
++		return;
+ 	}
+ 
+ 	/*
+@@ -61,31 +60,28 @@
+ 		adapter[card]->ioport[adapter[card]->shmem_pgport]);
+ 	pr_debug("%s: set page to %#x\n",adapter[card]->devicename,
+ 		((adapter[card]->shmem_magic + ch * SRAM_PAGESIZE)>>14)|0x80);
+-	ret = memcpy_toio(adapter[card]->rambase + 
++	memcpy_toio(adapter[card]->rambase + 
+ 		((unsigned long) dest % 0x4000), src, n);
+ 	pr_debug("%s: copying %d bytes from %#x to %#x\n",adapter[card]->devicename, n,
+ 		 (unsigned long) src, adapter[card]->rambase + ((unsigned long) dest %0x4000));
+ 	restore_flags(flags);
+-
+-	return ret;
+ }
+ 
+ /*
+  * Reverse of above
+  */
+-void *memcpy_fromshmem(int card, void *dest, const void *src, size_t n)
++void memcpy_fromshmem(int card, void *dest, const void *src, size_t n)
+ {
+ 	unsigned long flags;
+-	void *ret;
+ 	unsigned char ch;
+ 
+ 	if(!IS_VALID_CARD(card)) {
+ 		pr_debug("Invalid param: %d is not a valid card id\n", card);
+-		return NULL;
++		return;
+ 	}
+ 
+ 	if(n > SRAM_PAGESIZE) {
+-		return NULL;
++		return;
+ 	}
+ 
+ 	/*
+@@ -105,29 +101,26 @@
+ 		adapter[card]->ioport[adapter[card]->shmem_pgport]);
+ 	pr_debug("%s: set page to %#x\n",adapter[card]->devicename,
+ 		((adapter[card]->shmem_magic + ch * SRAM_PAGESIZE)>>14)|0x80);
+-	ret = memcpy_fromio(dest,(void *)(adapter[card]->rambase + 
++	memcpy_fromio(dest,(void *)(adapter[card]->rambase + 
+ 		((unsigned long) src % 0x4000)), n);
+ /*	pr_debug("%s: copying %d bytes from %#x to %#x\n",
+ 		adapter[card]->devicename, n,
+ 		adapter[card]->rambase + ((unsigned long) src %0x4000), (unsigned long) dest); */
+ 	restore_flags(flags);
+-
+-	return ret;
+ }
+ 
+-void *memset_shmem(int card, void *dest, int c, size_t n)
++void memset_shmem(int card, void *dest, int c, size_t n)
+ {
+ 	unsigned long flags;
+ 	unsigned char ch;
+-	void *ret;
+ 
+ 	if(!IS_VALID_CARD(card)) {
+ 		pr_debug("Invalid param: %d is not a valid card id\n", card);
+-		return NULL;
++		return;
+ 	}
+ 
+ 	if(n > SRAM_PAGESIZE) {
+-		return NULL;
++		return;
+ 	}
+ 
+ 	/*
+@@ -146,9 +139,7 @@
+ 		adapter[card]->ioport[adapter[card]->shmem_pgport]);
+ 	pr_debug("%s: set page to %#x\n",adapter[card]->devicename,
+ 		((adapter[card]->shmem_magic + ch * SRAM_PAGESIZE)>>14)|0x80);
+-	ret = memset_io(adapter[card]->rambase + 
++	memset_io(adapter[card]->rambase + 
+ 		((unsigned long) dest % 0x4000), c, n);
+ 	restore_flags(flags);
+-
+-	return ret;
+ }

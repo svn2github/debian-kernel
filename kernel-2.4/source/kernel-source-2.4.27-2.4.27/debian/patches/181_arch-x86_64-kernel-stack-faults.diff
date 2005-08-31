@@ -1,0 +1,65 @@
+commit 51e31546a2fc46cb978da2ee0330a6a68f07541e
+tree d0ce9dbf6615dc17e2423d5967a940a2f667abb6
+parent 3a36ef7ace64c507f6b087071429dbfed7d2a96d
+author Andi Kleen <ak@suse.de> 1120139192 +0200
+committer Marcelo Tosatti <marcelo.tosatti@cyclades.com> 1120172534 -0300
+
+[PATCH] x86_64: Disable exception stack for stack faults
+
+Stack segment faults were executed on a exception stack. But they
+use the normal return path and can schedule there, but scheduling
+is not allowed on a exception stack.
+
+Just drop the exception stack for stack segment faults. This
+will make some oops triple fault now, but that's better than
+allowing user triggerable oops.
+
+Double faults still have this problem,  but if they happen you
+have enough other problems already that this one doesn't matter
+anymore.
+
+2.6 has a more complicated fix here that actually handles
+this properly, but for 2.4 the simple version is better.
+
+Found from RedHat QA using crashme
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+I:100644 100644 e3fdfe1d4efc3a5dfa69d6a8ff37f65982a11955 16c04186194011a0806251d6c8b1ff2227411a8c M	arch/x86_64/kernel/traps.c
+I:100644 100644 3e7cac6e1b5f79c4e5a555d7b5525a9090e86b9a 45342a926f6f88b8bd273b634a269c684ceac873 M	include/asm-x86_64/processor.h
+
+Key:
+S: Skipped
+I: Included Included verbatim
+D: Deleted  Manually deleted by subsequent user edit
+R: Revised  Manually revised by subsequent user edit
+
+diff --git a/arch/x86_64/kernel/traps.c b/arch/x86_64/kernel/traps.c
+--- a/arch/x86_64/kernel/traps.c
++++ b/arch/x86_64/kernel/traps.c
+@@ -857,7 +857,7 @@ void __init trap_init(void)
+ 	set_intr_gate(9,&coprocessor_segment_overrun);
+ 	set_intr_gate(10,&invalid_TSS);
+ 	set_intr_gate(11,&segment_not_present);
+-	set_intr_gate_ist(12,&stack_segment,STACKFAULT_STACK);
++	set_intr_gate(12,&stack_segment);
+ 	set_intr_gate(13,&general_protection);
+ 	set_intr_gate(14,&page_fault);
+ 	set_intr_gate(15,&spurious_interrupt_bug);
+diff --git a/include/asm-x86_64/processor.h b/include/asm-x86_64/processor.h
+--- a/include/asm-x86_64/processor.h
++++ b/include/asm-x86_64/processor.h
+@@ -325,10 +325,9 @@ struct thread_struct {
+ #define INIT_MMAP \
+ { &init_mm, 0, 0, NULL, PAGE_SHARED, VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
+ 
+-#define STACKFAULT_STACK 1
+-#define DOUBLEFAULT_STACK 2 
+-#define NMI_STACK 3 
+-#define N_EXCEPTION_STACKS 3  /* hw limit: 7 */
++#define DOUBLEFAULT_STACK 1
++#define NMI_STACK 2
++#define N_EXCEPTION_STACKS 2  /* hw limit: 7 */
+ #define EXCEPTION_STKSZ PAGE_SIZE
+ #define EXCEPTION_STK_ORDER 0
+ 

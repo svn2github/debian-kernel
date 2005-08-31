@@ -1,0 +1,18 @@
+kernel-latest-2.6-sparc (101) unstable; urgency=low
+
+  * Update to use the -2 images, prompted by security fixes.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Tue, 11 Jan 2005 17:26:16 -0800
+
+kernel-latest-2.6-sparc (100) unstable; urgency=low
+
+  * This is a new package containing only these metapackages:
+    - kernel-image-2.6-sparc32
+    - kernel-image-2.6-sparc64
+    - kernel-image-2.6-sparc64-smp
+    - kernel-headers-2.6-sparc32
+    - kernel-headers-2.6-sparc64
+    - kernel-headers-2.6-sparc64-smp
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Sat, 28 Aug 2004 13:35:41 -0700
+

@@ -1,0 +1,172 @@
+#! /usr/bin/perl -w
+#
+# Kernel patch remover
+#
+# (C) 2001 Nick Holgate <holgate@debian.org>
+#
+
+$patchver    = "2.6.11";
+$arch        = "m68k";
+
+$defpatchdir = "/usr/src/kernel-patches/$arch/$patchver/patches";
+$patch_opts  = "-l -s -p1";
+
+$patchset    = "";
+$patchdir    = "";
+$maxnamelen  = 0;
+
+##--------------------------------------------------------------------------##
+
+# parse the command line for options
+parse_args(@ARGV);
+
+# use default patch directory if not specified
+$patchdir = $defpatchdir if ($patchdir eq "");
+
+# extract the kernel version from the kernel makefile
+$kernelver = get_kernel_version();
+
+if ( $kernelver ne $patchver ) {
+	print STDERR "Wrong kernel source version for this patch set.\n";
+	exit 1;
+}
+
+# Check if patched and with which patch set
+$fn = "debian-patches/APPLIED_$arch";
+if ( ! -f $fn ) {
+	print STDERR "Patches do not appear to be applied.\n\n";
+	exit 1;
+}
+open(IN, $fn) || die "Can't open $fn: $!";
+$patchset = <IN>;
+close IN;
+chomp $patchset;
+
+# read patchlists
+read_patchlist("$patchdir/patch-list.$patchset");
+
+# unbuffered output
+$| = 1;
+
+# remove patches in reverse order
+foreach (reverse @patchlist) {
+	($patchname) = split;
+
+	print "Removing patch $patchname ..." . "." x ($maxnamelen - length $patchname) . " ";
+
+	$sentinal = "debian-patches/APPLIED_${arch}_$patchname";
+	if ( ! -f $sentinal ) {
+		print "not applied.\n";
+		next;
+	}
+
+	$patchpath = "$patchdir/$patchname.diff.gz";
+	if ( ! -f $patchpath ) {
+		print "MISSING.\n";
+		next;
+	}
+
+	if (system("zcat $patchpath | patch -R $patch_opts 2>&1 >/dev/null")) {
+		print "FAILED.\n";
+	}
+	else {
+		print "removed.\n";
+		unlink $sentinal;
+	}
+}
+
+unlink $fn;
+
+# remove debian-patches directory if empty
+rmdir "debian-patches";
+
+print "\n";
+exit 0;
+
+##--------------------------------------------------------------------------##
+
+sub read_patchlist {
+	my ($filename) = shift;
+	my ($namelen, $patchname);
+
+	open (PL, $filename) || die "Can't open $filename: $!";
+	while (<PL>) {
+		chomp;
+		s/\#.*//g; 			# strip comments
+		next if /^\s*$/;	# skip blank lines
+		push @patchlist, $_;
+	
+		($patchname) = split;
+		$namelen     = length $patchname;
+		$maxnamelen  = $namelen if ($namelen > $maxnamelen);
+	}
+	close PL;
+}
+
+##--------------------------------------------------------------------------##
+
+sub parse_args {
+	local(@args) = @_;
+	local($i, $option);
+
+	$i = 0;
+	while ($i <= $#args) {
+		$option = $args[$i];
+		if ($option eq "-d" || $option eq "--directory") {
+			if ($patchdir ne "") {
+				print STDERR "Only one $option option allowed.\n";
+				exit 1;
+			}
+			if (++$i > $#args) {
+				print STDERR "Missing directory name for $option option.\n";
+				exit 1;
+			}
+			$patchdir = $args[$i];
+		}
+		elsif ($option eq "-?" || $option eq "-h" || $option eq "--help") {
+			print STDERR "Syntax: unpatch [options]\n";
+			print STDERR "Function: remove $arch kernel patches from kernel sources in current directory\n";
+			print STDERR "Options:\n";
+			print STDERR " -d or --directory <dir>  Specifies the directory containing the\n";
+			print STDERR "                          kernel patches and patch-list files.\n";
+			print STDERR "                          default = $defpatchdir\n";
+			print STDERR "\n";
+			exit 1;			
+		}
+		elsif ($option =~ /^-/) {
+			print STDERR "Unrecognised option $option\n";
+			exit 1;
+		}
+		else {
+			print STDERR "Unexpected argument \"$option\"\n";
+			exit 1;
+		}
+
+		$i++;
+	}
+}
+
+##--------------------------------------------------------------------------##
+
+sub get_kernel_version {
+	my ($ver, $pat, $sub, $ext) = ("", "", "", "");
+
+	if ( ! -d "kernel" || ! -d "Documentation" ) {
+		print STDERR "Not in kernel top level directory. Exiting\n";
+		exit 1;
+	}
+
+	# Get kernel version from Makefile
+	open (MF, "Makefile") || die "Kernel Makefile missing: $!";
+	while (<MF>) {
+		if    ( /^VERSION\W+(\w+)/      ) { $ver = $1; }
+		elsif ( /^PATCHLEVEL\W+(\w+)/   ) { $pat = $1; }
+		elsif ( /^SUBLEVEL\W+(\w+)/     ) { $sub = $1; }
+		elsif ( /^EXTRAVERSION\W+(\w+)/ ) { $ext = $1; }
+	}
+	close MF;
+
+	return "$ver.$pat.$sub$ext";
+}
+
+##-----------------------------< end of file >------------------------------##

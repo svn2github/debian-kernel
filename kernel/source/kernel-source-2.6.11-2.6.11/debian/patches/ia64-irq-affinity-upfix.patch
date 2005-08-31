@@ -1,0 +1,27 @@
+#! /bin/sh -e
+## DP: Description: Add a no-op set_irq_affinity_info() for non-SMP
+## DP: Patch author: dann frazier <dannf@hp.com>
+## DP: Upstream status: Submitted
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+This patch defines a no-op set_irq_affinity_info() when CONFIG_SMP is not set,
+fixing a linking error in sn_set_affinity_irq().
+
+Signed-off-by: dann frazier <dannf@hp.com>
+
+--- kernel-source-2.6.11-2.6.11-orig/arch/ia64/kernel/irq.c	2005-03-02 08:38:25.000000000 +0100
++++ kernel-source-2.6.11-2.6.11/arch/ia64/kernel/irq.c	2005-03-05 10:45:07.250728752 +0100
+@@ -133,7 +133,10 @@
+ 	}
+ }
+ 
+-
++#else /* !CONFIG_SMP */
++void set_irq_affinity_info (unsigned int irq, int hwid, int redir)
++{
++}
+ #endif /* CONFIG_SMP */
+ 
+ #ifdef CONFIG_HOTPLUG_CPU

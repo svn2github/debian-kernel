@@ -1,0 +1,58 @@
+# origin: kaber (BitKeeper)
+# cset: 1.1982.1.4 (2.6) key=41fd96c39V0t4MxKFxE1aZn2f4b5UA
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@41fd96c39V0t4MxKFxE1aZn2f4b5UA
+# inclusion: upstream
+# descrition: [IPV4]: Do not leak dst entries in ip_copy_metadata().
+# revision date: Tue, 22 Mar 2005 16:43:57 +0900
+#
+# S rset: ChangeSet|1.1982.1.3..1.1982.1.4
+# I rset: net/ipv4/ip_output.c|1.74..1.74.1.1
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/30 18:24:03-08:00 kaber@trash.net 
+#   [IPV4]: Do not leak dst entries in ip_copy_metadata().
+#   
+#   Netfilter conntrack can defragment locally generated
+#   packets before they hit ip_fragment().  In this case
+#   the fragments have skb->dst set already, so we have to
+#   release that existing reference before overwriting
+#   skb->dst.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/ipv4/ip_output.c
+#   2005/01/30 18:23:28-08:00 kaber@trash.net +1 -0
+#   [IPV4]: Do not leak dst entries in ip_copy_metadata().
+#   
+#   Netfilter conntrack can defragment locally generated
+#   packets before they hit ip_fragment().  In this case
+#   the fragments have skb->dst set already, so we have to
+#   release that existing reference before overwriting
+#   skb->dst.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+#
+===== net/ipv4/ip_output.c 1.74 vs 1.74.1.1 =====
+--- 1.74/net/ipv4/ip_output.c	2005-01-25 09:40:10 +09:00
++++ 1.74.1.1/net/ipv4/ip_output.c	2005-01-31 11:23:28 +09:00
+@@ -389,6 +389,7 @@ static void ip_copy_metadata(struct sk_b
+ 	to->priority = from->priority;
+ 	to->protocol = from->protocol;
+ 	to->security = from->security;
++	dst_release(to->dst);
+ 	to->dst = dst_clone(from->dst);
+ 	to->dev = from->dev;
+ 

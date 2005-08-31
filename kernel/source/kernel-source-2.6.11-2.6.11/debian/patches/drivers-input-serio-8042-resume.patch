@@ -1,0 +1,101 @@
+#! /bin/sh -e 
+## <PATCHNAME>.dpatch by <PATCH_AUTHOR@EMAI>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: Fix suspend problem with i8042
+## DP: Patch author: Vojtech Pavlik <vojtech@suse.cz>
+## DP: Upstream status: Pending inclusion
+## DP: Patch source: Vojtech Pavlik <vojtech@suse.cz> via Debian Bug #280075
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+#ChangeSet@1.2016, 2005-03-10 20:36:51+01:00, vojtech@suse.cz
+#  input: Only write the CTR in i8042 resume function. Reading it is
+#         wrong, since it may (will) contain nonsensical data.
+#  
+#  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+#
+#
+# i8042.c |   48 ++++++++++++++++++++++++++++--------------------
+# 1 files changed, 28 insertions(+), 20 deletions(-)
+#
+#
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2005-03-10 20:37:22 +01:00
++++ b/drivers/input/serio/i8042.c	2005-03-10 20:37:22 +01:00
+@@ -698,6 +698,26 @@
+ 	i8042_interrupt(0, NULL, NULL);
+ }
+ 
++static int i8042_ctl_test(void)
++{
++	unsigned char param;
++
++	if (!i8042_reset)
++		return 0;
++
++	if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
++		printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++		return -1;
++	}
++
++	if (param != I8042_RET_CTL_TEST) {
++		printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
++			 param, I8042_RET_CTL_TEST);
++		return -1;
++	}
++
++	return 0;
++}
+ 
+ /*
+  * i8042_controller init initializes the i8042 controller, and,
+@@ -719,21 +739,8 @@
+ 		return -1;
+ 	}
+ 
+-	if (i8042_reset) {
+-
+-		unsigned char param;
+-
+-		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+-			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
+-			return -1;
+-		}
+-
+-		if (param != I8042_RET_CTL_TEST) {
+-			printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
+-				 param, I8042_RET_CTL_TEST);
+-			return -1;
+-		}
+-	}
++	if (i8042_ctl_test())
++		return -1;
+ 
+ /*
+  * Save the CTR for restoral on unload / reboot.
+@@ -808,9 +815,7 @@
+  * Reset the controller if requested.
+  */
+ 
+-	if (i8042_reset)
+-		if (i8042_command(&param, I8042_CMD_CTL_TEST))
+-			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
++	i8042_ctl_test();
+ 
+ /*
+  * Disable MUX mode if present.
+@@ -922,8 +927,11 @@
+ 	if (level != RESUME_ENABLE)
+ 		return 0;
+ 
+-	if (i8042_controller_init()) {
+-		printk(KERN_ERR "i8042: resume failed\n");
++	if (i8042_ctl_test())
++		return -1;
++
++	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
++		printk(KERN_ERR "i8042: Can't write CTR\n");
+ 		return -1;
+ 	}

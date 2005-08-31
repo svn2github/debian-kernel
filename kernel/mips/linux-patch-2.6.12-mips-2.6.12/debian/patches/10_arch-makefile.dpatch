@@ -1,0 +1,58 @@
+#! /bin/sh -e
+## 10_arch-makefile.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix Makefile for compiles with modern toolchains.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p0 ${patch_opts} < $0;;
+    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Index: arch/mips/Makefile
+===================================================================
+RCS file: /home/cvs/linux/arch/mips/Makefile,v
+retrieving revision 1.186
+diff -u -p -r1.186 Makefile
+--- arch/mips/Makefile	18 Dec 2004 01:15:52 -0000	1.186
++++ arch/mips/Makefile	10 Jan 2005 22:10:32 -0000
+@@ -118,7 +118,7 @@ if $(CC) $$gcc_abi -S -o /dev/null -xc /
+ else \
+ 	gcc_abi=; gcc_isa=-$(5); \
+ fi; \
+-gas_abi=-Wa,-$(gcc-abi); gas_cpu=$$cpu; gas_isa=-Wa,$$isa; \
++gas_abi=-Wa,-mabi=$(gcc-abi); gas_cpu=$$cpu; gas_isa=-Wa,$$isa; \
+ while :; do \
+ 	for gas_opt in -Wa,-march= -Wa,-mcpu=; do \
+ 		$(CC) $$gas_abi $$gas_opt$$cpu $$gas_isa -Wa,-Z -c \
+@@ -129,7 +129,7 @@ while :; do \
+ 	break; \
+ done; \
+ if test "$(gcc-abi)" != "$(gas-abi)"; then \
+-	gas_abi="-Wa,-$(gas-abi) -Wa,-mgp$(gcc-abi)"; \
++	gas_abi="-Wa,-mabi=$(gas-abi) -Wa,-mgp$(gcc-abi)"; \
+ fi; \
+ if test "$$gcc_opt" = -march= && test -n "$$gcc_abi"; then \
+ 	$(CC) $$gcc_abi $$gcc_opt$$gcc_cpu -S -o /dev/null \
+@@ -581,7 +597,7 @@ endif
+ # will break.
+ #
+ core-$(CONFIG_SGI_IP32)		+= arch/mips/sgi-ip32/
+-cflags-$(CONFIG_SGI_IP32)	+= -Iinclude/asm-mips/mach-ip32
++cflags-$(CONFIG_SGI_IP32)	+= -Iinclude/asm-mips/mach-ip32 -Wa,-mfix7000
+ load-$(CONFIG_SGI_IP32)		+= 0xffffffff80004000
+ 
+ #

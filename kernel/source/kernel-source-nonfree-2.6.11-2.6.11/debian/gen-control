@@ -1,0 +1,43 @@
+#!/bin/sh
+
+cp debian/control-common.m4 debian/control.m4
+upstream=`dpkg-parsechangelog | grep ^Version: | sed -e 's/Version: //' -e 's/-.*$//'`
+builddepend=""
+archs_tmp=`grep "^archs:" debian/flavours`
+archs=${archs_tmp#archs: *}
+for arch in $archs; do
+	subarchs_tmp=`grep "^subarchs $arch:" debian/flavours`
+	subarchs=${subarchs_tmp#subarchs $arch: *}
+	abi_tmp=`grep "^abi $arch:" debian/flavours`
+	abi=${abi_tmp#abi $arch: *}
+	builddep_tmp=`grep "^build-dep $arch:" debian/flavours`
+	builddep=${builddep_tmp#build-dep $arch: *}
+	builddepname_tmp=`grep "^build-dep-name $arch:" debian/flavours`
+	builddepname=${builddepname_tmp#build-dep-name $arch: *}
+	if [ "$abi" ]; then
+		version=$upstream-$abi
+	else
+		version=$upstream
+	fi
+	if [ "$builddep" = "arch" ]; then
+		builddepend="$builddepend,  kernel-$builddepname-$version-$arch [$arch]"
+	fi
+	for subarch in $subarchs; do
+		flavours_tmp=`grep "^flavours $subarch:" debian/flavours`
+		flavours=${flavours_tmp#flavours $subarch: *}
+		if [ "$builddep" = "subarch" ]; then
+			builddepend="$builddepend, kernel-$builddepname-$version-$subarch [$arch]"
+		fi
+		for flavour in $flavours; do \
+			if [ "$builddep" = "flavour" ]; then
+				builddepend="$builddepend, kernel-$builddepname-$version-$flavour [$arch]"
+			fi
+			m4 -DM4UPSTREAM="$upstream" -DM4ABI="$abi" -DM4VERSION="$version" \
+				-DM4ARCH="$arch" -DM4SUBARCH="$subarch" -DM4FLAVOUR="$flavour" \
+				debian/control-flavour.m4 >>debian/control.m4
+		done
+	done
+done
+m4 -DM4UPSTREAM="$upstream" -DM4BUILDDEP="$builddepend" debian/control.m4 >debian/control
+	
+

@@ -1,0 +1,21 @@
+Package: kernel-image-@@KERNMAJ@@-r5k-cobalt
+Architecture: mipsel
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNVER@@-@@ABIVER@@-r5k-cobalt
+Description: Linux kernel image for version @@KERNMAJ@@ on mipsel r5k-cobalt
+ This package will always depend on the latest @@KERNMAJ@@ kernel image
+ available for the mipsel r5k-cobalt subarchitecture.
+ .
+ This covers the Qube, RaQ, Qube2 and RaQ2.
+
+Package: kernel-image-r5k-cobalt
+Architecture: mipsel
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNMAJ@@-r5k-cobalt
+Description: Linux kernel image for mipsel r5k-cobalt
+ This package will always depend on the latest kernel image
+ available for the mipsel r5k-cobalt subarchitecture.
+ .
+ This covers the Qube, RaQ, Qube2 and RaQ2.

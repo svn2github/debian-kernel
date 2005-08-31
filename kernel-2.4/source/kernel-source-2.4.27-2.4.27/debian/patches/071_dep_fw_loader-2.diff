@@ -1,0 +1,39 @@
+# origin: Debian (joshk)
+# cset: n/a
+# inclusion: Second hunk not suitable for mainline, first hunk unsent
+# description: correct config dependencies for things requiring FW_LOADER
+# revision date: 2004-09-03
+
+--- kernel-source-2.4.27-2.4.27/drivers/net/wireless/Config.in~	2004-08-23 22:24:53.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/drivers/net/wireless/Config.in	2004-08-23 22:29:52.000000000 -0700
+@@ -24,7 +24,12 @@
+ 
+    dep_tristate '  Hermes PCMCIA card support' CONFIG_PCMCIA_HERMES $CONFIG_HERMES
+    tristate '  Cisco/Aironet 34X/35X/4500/4800 PCMCIA cards' CONFIG_AIRO_CS
+-   dep_tristate '  Atmel at76c502/at76c504 PCMCIA cards' CONFIG_PCMCIA_ATMEL $CONFIG_FW_LOADER
++   # Check for some instance of FW_LOADER
++   if [ "$CONFIG_FW_LOADER" = "y" -o "$CONFIG_FW_LOADER" = "m" ]; then
++     dep_tristate '  Atmel at76c502/at76c504 PCMCIA cards' CONFIG_PCMCIA_ATMEL $CONFIG_FW_LOADER
++   else
++     comment 'Need firmware loading support for Atmel cards'
++   fi
+ fi
+ 
+ # yes, this works even when no drivers are selected
+--- kernel-source-2.4.27-2.4.27/drivers/net/Config.in~	2004-08-23 22:24:46.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/drivers/net/Config.in	2004-08-23 22:29:25.000000000 -0700
+@@ -273,7 +273,13 @@
+ dep_tristate 'Packet Engines Yellowfin Gigabit-NIC support (EXPERIMENTAL)' CONFIG_YELLOWFIN $CONFIG_PCI $CONFIG_EXPERIMENTAL
+ dep_tristate 'Realtek 8169 Gigabit Ethernet support' CONFIG_R8169 $CONFIG_PCI
+ dep_tristate 'Marvell Yukon Chipset / SysKonnect SK-98xx Support' CONFIG_SK98LIN $CONFIG_PCI
+-dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI
++
++# Check for some instance of FW_LOADER
++if [ "$CONFIG_FW_LOADER" = "y" -o "$CONFIG_FW_LOADER" = "m" ]; then
++   dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI $CONFIG_FW_LOADER
++else
++   comment 'Need firmware loading support for Broadcom Tigon3'
++fi
+ 
+ if [ "$CONFIG_MOMENCO_OCELOT_C" = "y" -o "$CONFIG_MOMENCO_JAGUAR_ATX" = "y" ]; then
+    bool '  MV-64340 Ethernet support' CONFIG_MV64340_ETH

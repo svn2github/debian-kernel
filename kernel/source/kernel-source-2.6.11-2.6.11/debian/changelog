@@ -1,0 +1,3239 @@
+kernel-source-2.6.11 (2.6.11-7) unstable; urgency=low
+
+  * Merged 2.6.11.12:
+    o x86_64: Fix ptrace boundary check
+    o x86_64: avoid SMP boot up race
+    o fix hfsplus oops, hfs and hfsplus leak
+    o Fix deadlock with ip_queue and tcp local input path.
+    o ext3: fix log_do_checkpoint() assertion failure
+    o Fix for bttv driver (v0.9.15) for Leadtek WinFast VC100 XP capture cards
+    o netem: duplication fix
+    o prevent bad forwarding table updates
+    o try_to_unmap_cluster() passes out-of-bounds pte to pte_unmap()
+    (Frederik Schüler)
+
+ -- dann frazier <dannf@debian.org>  Thu, 16 Jun 2005 09:00:46 -0600
+
+kernel-source-2.6.11 (2.6.11-6) unstable; urgency=low
+
+  * The megaraid legacy driver is around only to support AMI megaraid 1 and 2.
+    All the other controllers are supported (according to the code) by the
+    new megaraid driver:
+    - Add patch drivers-scsi-megaraid_spiltup.dpatch:
+      . Split PCI ID's properly between the 2 drivers.
+      . Allow compilation of both drivers at the same time.
+      . Update Kconfig.megaraid to reflect the new changes in the help.
+      . Rename a few things in the old megaraid driver to avoid possible
+        conflicts with the new drivers (NOTE: there might be more that needs
+        to be changed given that now the 2 modules can be loaded at the same
+        time).
+    Patch and changelog by Changes by Fabio M. Di Nitto and Chuck Short.
+    Taken from Ubuntu's kernel
+    Allows the new megaraid driver to be enabled without
+    disabling the old megaraid driver.
+    (closes: #303547) (Simon Horman)
+  * Fixed FTBFS when using a powerpc biarch compiler, and specifying a command
+    line CC override, which killed the -m64 arcgument needed for ppc64.
+    (Sven Luther)
+  * Added patch for IBM eServer i/pSeries Virtual SCSI Target Driver from
+    Dave Boutcher <boutcher@us.ibm.com>, needed for ppc64 boxes with virtual
+    partitions, Thanks to Cajus Pollmeier for providing it.
+    (Sven Luther)
+  * Clarify the description of the kernel-patch-debian package by saying its
+    intent is to apply to Debian's kernel-source orig.tar.gz, instead of saying
+    it won't apply to a pristine Linux tree.  (closes: #311941)
+  * Merged in 2.6.11.11:
+    o x86_64: Don't look up struct page pointer of physical address in iounmap
+    o x86_64: When checking vmalloc mappings don't use pte_page
+    o x86_64: Add a guard page at the end of the 47bit address space
+    o x86_64: Fix canonical checking for segment registers in ptrace
+    o x86_64: check if ptrace RIP is canonical
+    o USB: fix bug in visor driver with throttle/unthrottle causing oopses.
+    o usbusx2y: prevent oops & dead keyboard on usb unplugging while the
+      device is being used
+    o usbaudio: prevent oops & dead keyboard on usb unplugging while the
+      device is being used
+    o Fix minor security hole in net/rose/rose_route.c
+    o ide-disk: Fix LBA8 DMA
+    o Fix matroxfb on big-endian hardware
+    o ext3: fix race between ext3 make block reservation and reservation
+      window discard
+    o Fix smp race in ebtables
+    o 3c59x: only put the device into D3 when we're actually using WOL
+    o Fix get_unmapped_area sanity tests in mm/mmap.c
+    (Frederik Schueler)
+
+ -- dann frazier <dannf@debian.org>  Sat, 11 Jun 2005 13:28:45 -0600
+
+kernel-source-2.6.11 (2.6.11-5) unstable; urgency=low
+
+  * The "What the *hell* is mako listening to?!" release.
+
+  * Merge in 2.6.11.10; this includes:
+    o Fix root hole in raw device [CAN-2005-1264]
+    o Fix root hole in pktcdvd [CAN-2005-????]
+    (Andres Salomon)
+
+  * [sparc64] spacr64-rtc-mostek.patch: backport
+    of the Mostek RTC chip fixes, providing the proper
+    ioctls for the userspace programs to use.
+    (Jurij Smakov).
+
+ -- Andres Salomon <dilinger@debian.org>  Tue, 17 May 2005 00:27:01 -0400
+
+kernel-source-2.6.11 (2.6.11-4) unstable; urgency=low
+
+  * [sparc64] Replaced sparc-sunsab-serial-lockup.patch by a more
+    official version approved by upstream (sunsab-uart-update-timeout.patch)
+    which appears to perform marginally better (Jurij Smakov).
+    Ref: http://lists.debian.org/debian-sparc/2005/04/msg00025.html
+
+  * [sparc64] Added sparc64-compat-nanoseconds.patch which takes care
+    of correctly filling out nanoseconds fields for 32-bit compat tasks
+    in the sparc64 compat layer (Jurij Smakov).
+    Ref: http://marc.theaimsgroup.com/?l=linux-sparc&m=111273516700128&w=2
+
+  * sparc64-sigpoll-2.6.11.patch:
+    [sparc64] Correctly fill out the siginfo_t fields upon delivery
+    of SIGPOLL and friends (Jurij Smakov)
+
+  * sparc64-sunsu-init-2.6.11.patch:
+    [sparc64] Patch by David Miller to fix the initialization of the
+    sunsu serial driver. Mouse connected to the serial port is now
+    detected properly. (Jurij Smakov)
+    Ref: http://lists.debian.org/debian-sparc/2005/04/msg00203.html
+
+  * Merge in 2.6.11.8; this includes:
+    o uml: quick fix syscall table
+    o modprobe bttv freezes the computer
+    o I2C: Fix incorrect sysfs file permissions in it87 and via686a drivers
+      See CAN-2005-1369
+    o Fix reproducible SMP crash in security/keys/key.c
+      See CAN-2005-1368. (closes: #307553)
+    o sparc: Fix PTRACE_CONT bogosity
+    o sparc64: use message queue compat syscalls
+   (Maximilian Attems)
+
+  * [alpha] Fixed compile problem in include/asm-alpha/spinlock.h
+    (Norbert Tretkowski)
+
+  * Merge in 2.6.11.9; this includes:
+  o Remove bogus BUG() in kernel/exit.c
+  o Security contact info
+  o Cset exclude:
+    khali <at> linux-fr.org[gregkh]|ChangeSet|20050430010004|65088
+  o fix Linux kernel ELF core dump privilege elevation
+  o I2C: Fix incorrect sysfs file permissions in it87 and
+    via686a drivers
+  (Andres Salomon)
+
+ -- Andres Salomon <dilinger@debian.org>  Thu, 12 May 2005 00:02:21 -0400
+
+kernel-source-2.6.11 (2.6.11-3) unstable; urgency=low
+
+  * Merge in 2.6.11.7; this includes:
+    o UML: Use __va_copy instead of va_copy since
+           some old versions of gcc (2.95.4
+           for instance) don't accept va_copy.
+    o TCP: Fix BIC congestion avoidance algorithm error
+    o Make rwsems use interrupt disabling spinlocks
+    o IPSEC: Do not hold state lock while checking size,
+             this can cause a deadlock because an ICMP
+             message may be output.
+    o I2C:  Fix oops in eeprom driver
+    o IA64: Fix syscall auditing
+    o JBD:  Prevent race condition
+    o ALSA: Fix oops in timer event notification
+    (Simon Horman)
+
+  * Disabled prep_pib_init, since it broke Motorola Powerstack II Utah boxes,
+    other Motorola PReP boxes situation is unclear, either with or without the
+    patch in question (Sven Luther)
+
+ -- Sven Luther <luther@debian.org>  Sat,  9 Apr 2005 09:34:08 +0200
+
+kernel-source-2.6.11 (2.6.11-2) unstable; urgency=low
+
+  * Fix naming of NEWS.Debian (Andres Salomon) (closes: #301613).
+
+  * fs-asfs-2.patch (fs-asfs.patch removed):
+    Updated asfs patch (Sven Luther)
+
+  * powerpc-pmac-cache-power34-fix.patch:
+    [powerpc] do not build pmac_cache.S on power3/4, since it is not needed
+    and fails to build there (Sven Luther)
+
+  * drivers-input-serio-nmouse.patch:
+    [Security] fix N_MOUSE TTY privelage problem. See CAN-2005-0839
+    (Simon Horman) (closes: #301372)
+
+  * net-bluetooth-signdness-fix.patch:
+    [Security] Fix signedness problem at socket creation in bluetooth
+    which can lead to local root exploit. See CAN-2005-0750
+    (Simon Horman)
+
+  * fs-ext2-info-leak.patch:
+    [Security] Fix information leak in ext2 which leads to
+    a local information leak. See CAN-2005-0400
+    (Simon Horman)
+
+  * fs-isofs-range-check-1.patch, fs-isofs-range-check-2.patch,
+    fs-isofs-range-check-3.patch:
+    [Security] Fix range checking in isofs which leads to a local crash
+    and arbitary code execution.  See CAN-2005-0815
+    (Simon Horman)
+
+  * fs-binfmt_elf-dos.patch:
+    Potential DOS in load_elf_library.  See CAN-2005-0749
+    (Simon Horman)
+
+  * qla2xxx-removed.patch:
+    The qla2xxx was pruned from the source, however some stray Kconfig
+    and Makefile entries were left which caused build problems.
+    (closes: #301936, #301603) (Simon Horman)
+
+  * drivers-media-video-saa7134-update.patch
+    drivers-media-video-tuner-update-1.patch
+    drivers-media-video-tuner-update-2.patch
+    drivers-media-video-v4l-mpeg-support.patch
+    saa7134 update (closes: #302252) Simon Horman
+    N.B: This is a lot more extensive and not as self contained as
+         I had hoped. Might be better to back it out. But I will
+         leave it here for now.
+   * arch-ppc64-hugepage-aio-panic.patch:
+     fix AIO panic on PPC64 caused by is_hugepage_only_range(). 
+     See CAN-2005-0916. (Simon Horman) (closes: #302352)
+
+   * net-bluetooth-signdness-fix.patch, fs-ext2-info-leak.patch,
+     fs-isofs-range-check-1.patch, fs-isofs-range-check-2.patch,
+     fs-isofs-range-check-3.patch, fs-binfmt_elf-dos.patch:
+     Drop broken out 2.6.11.6 patches (Andres Salomon).
+
+   * Merge in 2.6.11.6; this includes:
+     o isofs: more defensive checks against corrupt isofs images
+     o Potential DOS in load_elf_library [CAN-2005-0749]
+     o isofs: Handle corupted rock-ridge info slightly better [CAN-2005-0815]
+     o isofs: more "corrupted iso image" error cases
+     o Fix signedness problem at socket creation [CAN-2005-0750]
+     o Suspected information leak (mem pages) in ext2 [CAN-2005-0400]
+   (Andres Salomon).
+
+  * drivers-media-video-saa7134-update-2.patch,
+    drivers-media-video-pll-lib.patch, drivers-media-video-mt352-update.patch,
+    drivers-media-video-pll-lib-2.patch:
+    Additional saa7134 fixes; allow building as a non-module, add pll
+    lib, etc (Andres Salomon).
+
+ -- Andres Salomon <dilinger@debian.org>  Sat, 02 Apr 2005 20:32:53 -0500
+
+kernel-source-2.6.11 (2.6.11-1) unstable; urgency=low
+
+  * Initial 2.6.11 kernel-source creation (Sven Luther)
+
+  * [powerpc] New pegasos/marvell gigabit ethernet patchs (Sven Luther)
+
+  * [powerpc] 750Cxe and tau calibration patch from Nicolas Det (Sven Luther)
+
+  * Fix Docbook to allow kernel-doc to build (Maximilian Attems)
+
+  * Add newer scsi-changer patch (Maximilian Attems)
+
+  * reworked modular-ide-pnp.dpatch, x86-i486_emu.dpatch,
+    modular-ide.dpatch, drivers-ide-__devinit.dpatch(Maximilian Attems)
+
+  * [powerpc] Added new powerbook thermal sensor i2c detection patch
+    (Sven Luther)
+
+  * 2.6.11.1 Fix keyboards for Dell machines patch (Maximilian Attems)
+
+  * 2.6.11.2 [SECURITY] epoll: return proper error on overflow condition
+    (Maximilian Attems)
+
+  * [sparc] Added sparc-sunsab-serial-lockup.patch to eliminate the serial
+    console lockup on machines with sunsab serial controller (Jurij Smakov).
+
+  * 2.6.11.3 Fix oops on shutdown for older via-rhine. (Maximilian Attems)
+
+  * 2.6.11.3 Fix sis900 smp/preemption oops. (Maximilian Attems)
+
+  * 2.6.11.3 r8169: receive descriptor length fix. (Maximilian Attems)
+
+  * 2.6.11.3 PCI: fix hotplug double free. (Maximilian Attems)
+
+  * 2.6.11.3 ppc32: trivial fix for e500 oprofile build. (Maximilian Attems)
+
+  * 2.6.11.3 Fix ipv6 modular build. (Maximilian Attems)
+
+  * 2.6.11.3 Fix i2c messsage flags in video drivers. (Maximilian Attems)
+
+  * 2.6.11.3 ppc32: Compilation fixes Ebony, Luan and Ocotea.
+    CONFIG_SERIAL_TEXT_DEBUG=y (Maximilian Attems)
+
+  * 2.6.11.3 drm missing memset can crash X server. (Maximilian Attems)
+
+  * 2.6.11.3 cramfs: small stat(2) fix. (Maximilian Attems)
+
+  * 2.6.11.3 saa7110 fix amd64 2.6.11 oops on modprobe. (Maximilian Attems)
+
+  * [powerpc] Added uninorth-agp suspend support, should help with power/ibook
+    sleep support (Sven Luther)
+
+  * [ia64] Forward port generic/non-SMP fix patch. (dann frazier)
+
+  * 2.6.11.4 [SECURITY] Use strncpy in get_task_comm. (Maximilian Attems)
+
+  * 2.6.11.4 [SECURITY] Fix remote Dos on ppp servers. CAN-2005-0384
+    (Maximilian Attems)
+
+  * amd64-outs.dpatch: [CAN-2005-0204]: AMD64, allows local users to write to
+    privileged IO ports via OUTS instruction. (Simon Horman)
+
+  * drivers-input-serio-8042-resume.dpatch:
+    Fix suspend problem with i8042. (closes: #280075) (Simon Horman)
+
+  * Fetch upstream tarball for prune target if not already available.
+
+  * Drop prune-non-free, add NEWS.Debian to document the dropping
+    of the tg3 driver, and the existence of kernel-nonfree-*
+    (Andres Salomon).
+
+  * Drop all the broken-out 2.6.11.* patches (Andres Salomon).
+  
+  * Merge in 2.6.11.5; this includes:
+    o Possible AMD8111e free irq issue
+    o Possible VIA-Rhine free irq issue
+    o Fix stereo mutes on Surround volume control
+    o [IPSEC]: Fix __xfrm_find_acq_byseq()
+    o tasklist left locked
+    o Fix kernel panic on receive with WAN Hitachi SCA HD6457x
+    o Fix crash while reading /proc/net/route
+    o NetROM locking
+    o Fix check for underflow
+  (Andres Salomon).
+
+  * Drop dpatch crap, we weren't really using dpatch anyways
+  (Andres Salomon).
+
+ -- Andres Salomon <dilinger@debian.org>  Mon, 21 Mar 2005 04:11:57 -0500
+
+kernel-source-2.6.10 (2.6.10-6) unstable; urgency=low
+
+  * Updated kernel-tree description from Martin F Krafft
+    (Simon Horman)
+
+  * Updated apply script so it can handle point versions
+    (Simon Horman)
+
+  * atyfb-sparc.dpatch: Fix post-2.6.10 atyfb breakage on SPARC32/64.
+    closes: #295488 (Joshua Kwan)
+
+  * skb-reset-ip_summed.dpatch: resolve checksumming exploit in
+    fragmented packet forwarding (Joshua Kwan)
+
+  * sparc64-nis-killer.dpatch: patch that fixes some compatibility functions
+    that (as a side effect) caused NIS to flatten a sparc64 machine.
+    closes: #295628 (Joshua Kwan)
+
+  * sparc32-hypersparc-srmmu.dpatch: unbreak hypersparc by reverting a
+    srmmu "fix", which should not have made it to 2.6.10 (Jurij Smakov)
+
+  * nls-table-overflow.dpatch: [CAN-2005-0177] NLS ASCII table should be 256
+    entries, not 128! (Joshua Kwan)
+
+  * setsid-race.dpatch, setsid-race-2.dpatch:
+    [CAN-2005-0178] fix setsid() race that could lead to a denial of service.
+    (Joshua Kwan, Simon Horman)
+
+  * ipv4-fragment-queues.dpatch, ipv4-fragment-queues-2.dpatch:
+    fix potential information leak by making fragment queues private.
+    (Joshua Kwan, Simon Horman)
+
+  * amd64-noexec32-backport.dpatch: enable executable stack and executable 
+    heap for all 32bit programs on amd64, except if noexec32=on is specified. 
+    (Frederik Schüler)
+
+  * outs.dpatch: [CAN-2005-0204]: AMD64, allows local users to write to
+    privileged IO ports via OUTS instruction. (Simon Horman)
+
+  * un-apply 083-x86_64_switch_mm_context_race.dpatch, it breaks amd64 SMP
+    systems. Thanks to Stephen Frost who helped fixing this.
+    (Frederik Schüler)
+
+  * sparc64-sb1500-clock-2.6.dpatch by David Miller: enable recognition 
+    of the clock chip on SunBlade 1500, it won't boot otherwise.
+    (Jurij Smakov).
+
+  * 088-ibmvscsi_event_struct_use_after_free.dpatch
+    The ibmvscsi driver has paths that free evt_struct, and then proceed to
+    use it.  That's clearly a no-no in SMP/threaded contexts; once an evt_struct
+    is free, something else may grab it.  So, this patch:
+    	- moves the free_event_struct() to after usage of the evt_struct
+    	- creates a single path for cleanup
+    	- calls evt_struct->done during cleanup, which is something that
+    	  should've been happening.
+    (Andres Salomon)
+
+  * 089-i386_acpi_backwards_ifdef.dpatch
+    [I386] An ACPI related printk is wrapped in an #ifdef that should be an
+    #ifndef.  Correct that (Andres Salomon). 
+    
+  * 090-alsa_midi_emulation_chorus_reverb_swap.dpatch
+    [ALSA] seq_midi_emul.c had CHORUS_MODE and REVERB_MODE swapped in sysex().
+    This patch fixes that (Andres Salomon).
+
+  * 091-alsa_emu8000_load_fx_skip_header.patch
+    [ALSA] emu8000's load_fx() loads a userspace blob, and should be skipping
+    over the header (Andres Salomon).
+
+  * 092-net_sched_police_locate_sanity_check_input.dpatch
+    [NET] Some sanity checks are needed to ensure payloads are the same size
+    as the structures they're being copied into.  AFAICT, there's no way for a
+    malicious user to inject a payload in here (it looks like police_locate
+    stuff is called during routing changes by root); however, I can't say that
+    I'm too familiar w/ tcf stuff (Andres Salomon).
+
+  * 093-e1000_eeprom_read_off_by_one.dpatch
+    The e1000 driver's read_eeprom and write_eeprom functions allowed a bit to
+    much data to be read/written; an extra word.  Fix that (Andres Salomon).
+
+  * 094-scsi_device_set_state_missing_oldstate.dpatch
+    [SCSI] scsi_device_set_state() might be setting a device offline, w/ an
+    oldstate of BLOCK; that shouldn't be considered an error.  Add the missing
+    state transition (Andres Salomon).
+
+  * 095-jffs2_build_filesystem_memory_leak.dpatch
+    [JFFS2] Fix memory leak in jffs2_build_filesystem(), if jffs2_scan_medium
+    fails (Andres Salomon).
+
+  * 096-mtd_formatblock_zero_before_assignment.dpatch
+    [MTD] Inside NFTL_formatblock and INFTL_formatblock, the code was previously
+    assigning values to instr, then zero'ing out the values.  Instead, move the
+    assignment to after the memset (Andres Salomon).
+
+  * 097-mtd_s3c2410_nand_inithw_calc_rate_fix.dpatch
+    [MTD] s3c2410_nand_inithw() was pulling timing information from the wrong
+    place, making the timing incorrect.  This patch makes it pull the info from
+    the right place (Andres Salomon).
+
+  * 098-jffs2_do_mount_fs_init_bad_count.dpatch
+    [JFFS2] Initialize each eraseblock's bad_count to 0 in jffs2_do_mount_fs().
+    Unitialized memory sure is fun, eh?  (Andres Salomon)
+
+  * 099-jfs_commit_inode_commit_race.dpatch
+    [JFS] Fix race in jfs_commit_inode(); before actually doing the commit,
+    retest to ensure that the inode is both dirty and linked (Andres Salomon).
+
+  * 101-ppc64_hugetlb_mm_free_pgd_unlock.dpatch
+    [PPC64] In hugetlb_mm_free_pgd(), mm->page_table_lock is locked, but never
+    unlocked in the event of an error.  This patch fixes that (Andres Salomon).
+
+  * 102-cosa_sppp_channel_init_delay_attach.dpatch
+    Fix buglet in cosa's sppp_channel_init(); do not call sppp_attach() until
+    the netdev contains info that sppp_attach needs (Andres Salomon).
+
+  * 104-wan_sdla_firmware_cap_sys_rawio_addition.dpatch
+    [SECURITY] The SDLA driver only checked CAP_NET_ADMIN when doing firmware
+    uploads.  This patch adds an additional check for CAP_SYS_RAWIO, as well
+    (Andres Salomon).
+
+  * 107-xfs_finish_reclaim_always_inode.dpatch
+    [XFS] In xfs_finish_reclaim(), xfs_ireclaim() should always be called
+    (unless there's some sort of locking problem) before returning
+    (Andres Salomon).
+
+  * 108-xfs_attrmulti_by_handle_limit_mem_alloc.dpatch
+    [SECURITY] xfs_ioctl(XFS_IOC_ATTRMULTI_BY_HANDLE) calls
+    xfs_attrmulti_by_handle, which allocates memory based on user input.  This
+    patch adds a check for a max size of memory to alloc; otherwise, a user
+    can potentially DoS the system by exhausting memory.  Not sure whether root
+    is required to open the vnode device, but to be on the safe side...
+    (Andres Salomon)
+
+  * 109-binfmt_elf_loader_solar_designer_fixes.dpatch
+    [SECURITY] Fix from Solar Designer; the binfmt_elf load routines are
+    returning incorrect values, and are not strict enough in checking the
+    number of program headers (Andres Salomon).
+
+  * 110-load_module_arg_checking.dpatch
+    If the parsing of module args failed, the module could still be loaded
+    successfully.  Fix that (Andres Salomon).
+
+  * 111-security_seclvl_kconfig_dep.dpatch
+    Add a Kconfig dependency on CRYPTO for SECURITY_SECLVL (Andres Salomon).
+
+  * 112-audit_receive_skb_double_negative_return_val.dpatch
+    audit_receive_skb negates the err it receives from audit_receive_msg.  It
+    shouldn't do that (Andres Salomon).
+
+  * 114-netfilter_private_queues.dpatch
+    [NETFILTER] Amongst netfilter users, skb frag queues were shared.  This
+    could cause problems.  See
+    http://oss.sgi.com/archives/netdev/2005-01/threads.html#01036 for more
+    details (Andres Salomon).
+
+  * 115-proc_file_read_nbytes_signedness_fix.dpatch
+    [SECURITY] Heap overflow fix in /proc; WDYBTGT3-1 on
+    http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
+    No CAN# assigned yet, afaik (Andres Salomon).
+
+  * 116-n_tty_copy_from_read_buf_signedness_fixes.dpatch
+    [SECURITY] copy_from_read_buf() fix; WDYBTGT3-2 on
+    http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
+    No CAN#, yet (Andres Salomon).
+
+  * 117-reiserfs_file_64bit_size_t_fixes.dpatch
+    [SECURITY] reiserfs integer fixes; WDYBTGT3-4 on
+    http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
+    (Andres Salomon).
+
+  * 118-i2c_sis5595_setup_pci_config_return_checks.dpatch
+    [I2C] The i2c-sis5595 was forward ported from 2.4, but the calls to
+    read the pci config registers were never updated for 2.6.  As such, they
+    are incorrectly handling the results of the function calls
+    (Andres Salomon).
+
+  * 119-i2c_viapro_i2cdump_overflow.dpatch
+    [SECURITY] Fix a very hard to exploit buffer overflow in the i2c-viapro
+    driver (Andres Salomon).
+
+  * 120-openpromfs_property_read_fix.dpatch
+    Fix an oopsable condition in Openpromfs's property_read() (Andres Salomon).
+
+  * 121-cpufreq_resume_readd.dpatch
+    [CPUFREQ] Somewhere around 2.6.6, a call to cpufreq_driver->resume() was
+    accidentally dropped.  Readd it (Andres Salomon).
+
+  * 122-cpufreq_resume_readd_2.dpatch
+    [CPUFREQ] Fix a problem w/ 121-cpufreq_resume_readd.patch, where a return
+    value was not being checked correctly (Andres Salomon).
+
+  * 123-atm_get_addr_signedness_fix.dpatch
+    [SECURITY] Fix atm_get_addr()'s usage of its size arg, by making it
+    unsigned.  WDYBTGT3-3 on
+    http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
+    (Andres Salomon).
+
+  * 125-netfilter_private_queues_2.dpatch
+    [SECURITY] Add missing bits needed to make 114-netfilter_private_queues.patch
+    compile.  Patch stolen from ubuntu (mainly to keep the same ABI)
+    (Andres Salomon).
+
+  * 126-ftdi_sio_set_serial_info_baud_base_check.dpatch
+    [USB] Change ftdi_sio's set_serial_info() to do a correct check for baud_base;
+    it should be checking if baud_base<9600 if the baud_base has changed
+    (Andres Salomon).
+
+  * 129-video_cg3_screen_blanking.dpatch
+    [SPARC] Fix cg3 blanking; the driver was setting _ENABLE_VIDEO on POWERDOWN,
+    instead of unsetting it (Andres Salomon).
+
+  * 130-sparc_prom_nodematch_check_getproperty.dpatch
+    [SPARC] In prom_nodematch, check whether prom_getproperty() actually
+    succeeds before using the string it sets (Andres Salomon).
+
+  * 131-sparc_check_prom_getproperty.dpatch
+    [SPARC] Check return value from prom_getproperty() in various places where
+    it wasn't being checked (Andres Salomon).
+
+  * 132-sparc32_get_tv32_use_correct_variable.dpatch
+    [SPARC] get_tv32() uses a non-existent variable 'tv32'.  Fix that
+    (Andres Salomon).
+
+  * 133-scsi_advansys_build_with_non_pci.dpatch
+    [SCSI] Allow advansys driver to compile if CONFIG_PCI isn't set
+    (Andres Salomon).
+
+  * 134-cciss_scsi_detect_put_host_on_error.dpatch
+    [SCSI] cciss_scsi_detect() calls scsi_add_host(), which bumps the refcount
+    (even in the event of an error).  Thus, if scsi_add_host fails, the
+    scsi host refcount needs to be decremented; so, call scsi_host_put upon
+    error (Andres Salomon).
+
+  * 135-64bit_sys_shmget_compat_size_t_overflow.dpatch
+    64bit archs that offer 32bit compat wrappers for sys_shmget were mostly
+    passing the second arg as a 32bit signed int; what would happen then is,
+    it would be casted to a size_t (64bit unsigned), and the sign would cause
+    it to overflow.  Instead, we need to cast to a 32bit unsigned value first,
+    and then cast to 64bit unsigned (Andres Salomon).
+
+  * 136-64bit_sys_compat_overflows.dpatch
+    More of the same as 135*.dpatch, except for stuff like sys_ipc, sys_semget,
+    sys_msgsnd, etc (Andres Salomon).
+
+  * 137-ppc64_prom_initialize_tce_table_typo.dpatch
+    [PPC64] prom_initialize_tce_table() refers to 'vbase', which doesn't
+    actually exist; instead, 'base' was what was meant (Andres Salomon).
+
+  * 138-tulip_de_init_one_irq_init.dpatch
+    The tulip driver's de_init_one() was using pdev->irq before it had been
+    initialized.  Move its usage until after it has been initted
+    (Andres Salomon).
+
+  * 139-pci_dma_free_coherent.dpatch
+    [I386] dma_free_coherent() was calling kmalloc with its args reversed;
+    clearly incorrect (Andres Salomon).
+
+  * 140-s390_memset_arg_order_fixes.dpatch
+    [S390] Fix various drivers that call memset() with args in the wrong order
+    (Andres Salomon).
+
+  * 141-pci_devices_dont_disable_dev_if_busy.dpatch
+    For various pci devices, if pci_request_regions fails (because resources
+    are already in use), don't disable the pci device (someone else is using it)
+    (Andres Salomon).
+
+  * 142-r8169_dev_alloc_skb_alignment_fix.dpatch
+    The r8169 driver wasn't alloc'ing enough memory for skbs; the size should
+    be padded by NET_IP_ALIGN (Andres Salomon).
+
+  * 143-sysfs_write_file_signedness_problem.dpatch
+    [SYSFS] sysfs_write_file assigns the result of fill_write_buffer (which is
+    signed and returns negative upon error) to an unsigned int.  Clearly, bad
+    and wrong.. (Andres Salomon)
+
+  * 144-sys_epoll_wait_int_overflow.dpatch
+    [SECURITY] sys_epoll_wait contains an integer overflow; see
+    http://seclists.org/lists/fulldisclosure/2005/Mar/0293.html for additional
+    details (Andres Salomon).
+
+  * ipv4-fragment-queues.dpatch, ipv4-fragment-queues-2.dpatch:
+    Drop netfilter frag queue stuff, as a) it's an ABI change,
+    b) it's fixed in 2.6.11, and c) it's not that critical.  It's more
+    important to get other 2.6.10 fixes out to people (Andres Salomon).
+ 
+ -- Andres Salomon <dilinger@voxel.net>  Thu, 10 Mar 2005 18:25:39 -0500
+
+kernel-source-2.6.10 (2.6.10-5) unstable; urgency=low
+
+  * Change $((exp) | exp) to $( (exp) | exp), so things work with dash
+    (Simon Horman) (closes: #291039)
+
+  * scsi_ioctl: only warn about really unknown opcodes. (Maximilian Attems)
+
+  * ia64-ptrace-fixes.dpatch
+    Fix some corner cases in ia64 ptrace code (dann frazier).
+
+  * ia64-unwind-fix.dpatch
+    unw_unwind_to_user sanity check
+
+  * amd64-ia32-vsyscall-fix.dpatch
+    fix crash in 32bit emulation. Backport from 2.6.11-rc2 (Frederik Schüler)
+
+  * [powerpc] - powerpc-fix-power3-ftbfs.dpatch
+    Fix a FTBFS with the simple bootloaders on power3/4. (Sven Luther)
+
+  * amd64-parse-noexec-fix.dpatch
+    Backport fix for noexec boot option parsing.
+    amd64-int3-fix.dpatch
+    Revert int3 handling. (Frederik Schüler)
+
+  * fbdev-radeon-noaccel.dpatch
+    Patch to enhance the FBIOGET_FSCREENINFO ioctl, used by lcd_hack tool by
+    BenH. (Sven Luther)
+
+  * 051-md_sync_page_io_max_vecs.dpatch
+    Fix oops in md driver; when calling sync_page_io, correctly initialize
+    a bio, ensuring bi_max_vecs is set. (Andres Salomon)
+
+  * 052-vfat_valid_longname_proper_return.dpatch
+    Return proper error values from vfat_valid_longname(), and pass them back
+    to calling functions (vfat_mkdir, vfat_create). (Andres Salomon)
+
+  * 053-ipmi_unhandled_message_counting.dpatch
+    This fixes some IPMI issues:
+      - fix counting of handled and unhandled messages
+      - decode_dmi should've been handling 16 byte boundaries instead of
+        16 bit boundaries (Andres Salomon)
+
+  * 054-ext3_journal_abort_before_panic.dpatch
+    When an error occurs in ext3, if we're going to panic, do it *after*
+    aborting the journal. (Andres Salomon)
+
+  * [UML] 055-uml_new_thread_race.dpatch
+    When creating a new thread, fix potential signal race that could
+    cause stack corruption. (Andres Salomon)
+
+  * [X86-64] 056-x86_64_acpi_do_suspend_lowlevel_arg.dpatch
+    ACPI's do_suspend_lowlevel for x86_64 was never updated to no
+    longer take an argument.  This patch removes the test checking the
+    (non-existent) arg. (Andres Salomon)
+
+  * [IA64] 058-ia64_binfmt_elf_bug_out.dpatch
+    Returning early from ia64_elf32_init in the case of failures
+    could be problematic.  Instead of doing that, call BUG(). (Andres Salomon)
+
+  * [ALSA] 060-alsa_cs4231_lib_ifdef_typo.dpatch
+    cs4231_lib.c has an #ifdef typo; s/SNDRV_DEBUGq_MCE/SNDRV_DEBUG_MCE/.
+    (Andres Salomon)
+  
+  * [ALSA] 061-alsa_es18xx_ifdef_typo.dpatch
+    es18xx.c also has an ifdef typo; s/CONFIG_PNP_/CONFIG_PNP/.
+    (Andres Salomon)
+
+  * [ALSA] 062-alsa_sscape_user_copy_check.dpatch
+    The sscape driver does a __copy_to_user without actually checking to
+    see whether it succeeds.  This patch makes it check the result.
+    (Andres Salomon)
+
+  * [ALSA] 063-alsa_opl4_build_fix.dpatch
+    Build snd-opl3-lib when SND_OPL4_LIB is enabled. (Andres Salomon)
+
+  * [ALSA] 064-alsa_usbaudio_disconnect.dpatch
+    Return -EBADFD when a usbaudio device is disconnected. (Andres Salomon)
+
+  * [ALSA] 065-alsa_vx_kcalloc.dpatch
+    The vx driver allocates enough size for a pointer, when it should
+    be allocating enough size for a struct vx_core_t. (Andres Salomon)
+
+  * 066-ibmvscsi_probe_delay_loop_fix.dpatch
+    The ibmvscsi driver's probe function could potentially exit the delay loop
+    before the adapter has finished initializing (hostdata->request_limit == 0),
+    and thus end up not scanning for drives. (Andres Salomon)
+
+  * 067-scsi_gdth_pci_map_sg.dpatch
+    In gdth driver, drop DMA/page mapping from gdth_copy_internal_data(); it's
+    unnecessary, and buggy. (Andres Salomon)
+
+  * 068-scsi_sd_read_capacity_LBD_bail.dpatch
+    For scsi disks, if the disk capacity is too large for what's configured
+    in the kernel, don't even attempt to use the disk. (Andres Salomon)
+
+  * [ALSA] 069-alsa_sscape_upload_firmware_len.dpatch
+    This patch does two things; the first is a cleanup of calls to
+    verify_area (replaced w/ access_oks) in the sscape driver that I was
+    too lazy to strip out; the second is a fixup of the length handling
+    of firmware in upload_dma_data.  If __copy_from_user fails to copy data,
+    the number of failed bytes wasn't kept track of. (Andres Salomon)
+
+  * [ALSA] 070-alsa_rme9652_hdsp_get_autosync.dpatch
+    rme9652's snd_hdsp_get_autosync_ref() should be getting the value
+    of hdsp_autosync_ref, not hdsp_pref_sync_ref. (Andres Salomon)
+
+  * [ALSA] 071-alsa_creation_order_fixes.dpatch
+    This fixes the creation order for a bunch of sound drivers.  Some
+    drivers were creating /proc entries and registering callback functions that
+    required driver structs that had not yet been initialized.
+    (Andres Salomon)
+
+  * 072-sctp_do_bind_random_port.dpatch
+    Fix bug within sctp_do_bind(); for ephemeral ports, set bp->port earlier,       so that addr actually gets the correct port (inside sctp_add_bind_addr).
+    (Andres Salomon)
+
+  * [USB] 073-usb_gadget_serial_free_ports.dpatch
+    Inside gs_free_ports: don't deref memory that's already been freed.
+    (Andres Salomon)
+
+  * [USB] 074-usb_makefile_fixes.dpatch
+    Update makefile for sl811(-hcd) and dc2xx drivers. (Andres Salomon)
+  
+  * 075-acpiphp_ibm_module_parm_perm.dpatch
+    Fix permissions passed to module_param() in IBM pci hotplug driver.
+    (Andres Salomon)
+
+  * 076-i2c_ali1563_devinit_fixes.dpatch
+    Fix up probe and exit functions in i2c-ali1563 driver to use proper
+    __devinit and __devexit attribs. (Andres Salomon)
+
+  * [EXT3] 077-ext3_journal_abort_handle_silence.dpatch
+    For aborted transaction, only spew errors the first time to avoid
+    a flood of errors. (Andres Salomon)
+
+  * [JBD] 078-jbd_journal_revoke_graceful_double_delete.dpatch
+    journal_revoke may try to delete a metadata block twice; this patch
+    allows a graceful recovery, instead of a BUG(). (Andres Salomon)
+
+  * [I386] 079-i386_timer_resume_slowdown.dpatch
+    After resume, make time run at normal speed.  Thanks to
+    Daniel Drake <dsd@gentoo.org> for pointing this one out. (Andres Salomon)
+
+  * 080-kernel_sched_might_sleep_ignore_if_oopsed.dpatch
+    Make __might_sleep() a no-op if the kernel has oopsed. (Andres Salomon)
+ 
+  * [IA64] 081-ia64_early_sn_setup_nested_loop.dpatch
+    early_sn_setup has a nested loop that uses the same loop variable
+    as the outer loop.  This patch fixes that. (Andres Salomon)
+
+  * [IDE] 082-ide_it8172_init_return_failure.dpatch
+    it8172_init_one returns 1 instead of -ENODEV in probe function.  The
+    pci subsystem considers that to be a success, when it should be a failure.
+    (Andres Salomon)
+
+  * [X86-64] 083-x86_64_switch_mm_context_race.dpatch
+    Fix race in x86-64 SMP TLB handling, when context switching.
+    (Andres Salomon)
+
+  * [I386/X86-64] 084-smp_nmi_watchdog_race.dpatch
+    Ensure that if a cpu takes too long to come up, the NMI
+    watchdog check doesn't think it's having problems. (Andres Salomon)
+   
+  * [IA64] 085-ia64_irq_reg_typo.dpatch
+    Fix typo of register name; s/_IA64_REG_AR_SP/_IA64_REG_SP/.
+    (Andres Salomon)
+
+  * [I386] 086-i386_cpufreq_powernow_k8_acpi_error.dpatch
+    If powernowk8_cpu_init() has a problem after it has initted acpi
+    stuff, make sure to call the appropriate acpi exit routines before
+    returning. (Andres Salomon)
+
+  * [EXT3] 087-ext3_graceful_corruption_fixes.dpatch
+    This patch makes ext3 handle instances of corruption more gracefully.
+    It also changes __ext3_journal_forget (which 078-jbd_journal_revoke*.dpatch
+    needs). (Andres Salomon)
+
+ -- Andres Salomon <dilinger@voxel.net>  Mon, 07 Feb 2005 15:34:34 -0500
+
+kernel-source-2.6.10 (2.6.10-4) unstable; urgency=low
+
+  * Replace smbfs-overflow-fixes.patch with a newer version from 2.6.10-ac
+    that actually works.  Thanks to S?ren Hansen <sh@warma.dk> for finding
+    and submitting it. (Christoph Hellwig) (closes: #283241).
+
+  * Rework the modular ide patch:
+     - dropped support for unloading modules that didn't find devices
+     - splited the rest into two patches, one that fixes modular ide
+       support and one that fixes __init vs __devinit problems.
+    (Christoph Hellwig).
+
+  * Drop alsa-module-load-fix.dpatch, the issue has been fixed in a better
+    way upstream. (Christoph Hellwig).
+
+  * Drop drivers-input-psaux-hacks.dpatch, the patch has effictively disabled
+    by every architecture setting INPUT_MOUSEDEV_PSAUX_ENABLE to 'y' already.
+
+  * [alpha] Added a workaround for ext3 oops. (Norbert Tretkowski)
+
+  * Fixes emu10k1_fx8010_code_t structure using indirect pointers to be less
+    than 8192 bytes to follow the ioctl semantics and thus not break powerpc
+    builds. Userland ioctl value is still changed. (Sven Luther and Fabbione)
+
+  * Fix modular-vesafb.dpatch to not break the non-modular case
+    (Christoph Hellwig) (closes: #289610).
+
+  * Fix weird alpha IO failures due to typo. (Maximilian Attems)
+
+  * [SECURITY] 033-rlimit_memlock_check.dpatch
+    RLIMIT_MEMLOCK isn't checked properly, allowing for a DoS attack.
+    See http://seclists.org/lists/fulldisclosure/2005/Jan/0270.html for
+    more details.  This patch fixes it, and all reorganizes the stack resize
+    stuff a bit (*sigh*) (Andres Salomon).
+
+  * [SECURITY] 034-stack_resize_exploit.dpatch
+    Fix exploitable race condition on SMP and HT systems where two
+    threads attempt to expand the stack at the same time.  This is
+    CAN-2005-0001 (happy new year!) (Andres Salomon).
+
+  * [SECURITY] 035-do_brk_security_fixes-2.dpatch
+    Further do_brk fixes; just to be safe, lock everywhere do_brk
+    is used (Andres Salomon).
+
+  * Apply patch to fix compat cmsg_len checks (Christoph Hellwig).
+
+  * More modular-vesafb updates/cleanups (Andres Salomon).
+
+  * [SECURITY] 036-rlimit_memlock_check-2.dpatch
+    Add missing memory check; needed by 033-rlimit_memlock_check.patch
+    (Andres Salomon).
+
+  * 037-sctp_err_lookup_oops.dpatch
+    In case of an error, sk never gets set; thus, sock_put(sk) messes up
+    (Andres Salomon).
+
+  * 038-ftdi_sio_debug_output.dpatch
+    Make ftdi_sio driver output debug message instead of error if attempting
+    to write 0 bytes (Andres Salomon).
+  
+  * 039-serial_console_resume.dpatch
+    Don't assume a port has a tty associated w/ it when resuming
+    (Andres Salomon).
+
+  * 040-sk_forward_alloc_underflow.dpatch
+    Do not underflow sk_forward_alloc from tcp_sendpage (Andres Salomon).
+
+  * 041-ide_hwif_supress_busy.dpatch
+    While probing ide interfaces, supress error messages for non-existent
+    ones (Andres Salomon).
+ 
+  * 042-gx_get_cpuspeed_return_value.dpatch
+    gx_get_cpuspeed was returning the wrong value; this fixes it (Andres
+    Salomon).
+
+  * 043-dothan_p4_get_frequency.dpatch
+    Pentium M (Dothan) model is 0x0d, not 0x13 (Andres Salomon).
+
+  * 044-elevator_noop_add_request.dpatch
+    elevator_noop_add_request() ignored the 'where' arg, which specified
+    where the request should be added (front, back..) (Andres Salomon).
+
+  * [SPARC64] 045-pci_psycho_brainfart.dpatch
+    Incorrect register values are used inside __psycho_check_one_stc if
+    PBM type is B (Andres Salomon).
+
+  * 046-ipv6_sit_lock.dpatch
+    Fix locking issue inside ipip6_tunnel_link() (Andres Salomon).
+
+  * 047-do_tcp_sendpages_tso_assertion.dpatch
+    do_tcp_sendpages() didn't track skb->truesize correctly; this causes
+    partially ACK'd TSO frames to potentially corrupt stuff as
+    skb->truesize is too small (Andres Salomon).
+  
+  * 048-matroxfb_mtrr_ifdef.dpatch
+    The mtrr stuff in the matroxfb driver needs to be wrapped w/ CONFIG_MTRR
+    ifdefs (Andres Salomon).
+
+  * 050-cfq_requeue_request_accounting.dpatch
+    cfq_requeue_request can potentially decrement a counter past 0; we want
+    to only decrement it if it's > 0 (Andres Salomon).
+
+ -- Andres Salomon <dilinger@voxel.net>  Tue, 18 Jan 2005 02:40:12 -0500
+
+kernel-source-2.6.10 (2.6.10-3) unstable; urgency=low
+
+  * add dh_fixperms to the build targets to kernel-patch-debian-2.6.10
+    to ensure that the permissions of the files in this package are
+    sensible. (See: Bug#288279) (Simon Horman)
+
+  * Fix viewsvn url for patches in README.Debian as reported by
+    Alexander E. Patrakov. (Christoph Hellwig) (closes: #288062).
+
+  * Small README.Debian update.
+
+  * Drop 028-do_brk_security_fixes.dpatch (from the -ac tree), use
+    Linus' patch instead; 032-do_brk_security_fixes.dpatch
+    (Andres Salomon).
+
+  * Add a couple fixes for ia64 UP builds (dann frazier):
+      ia64-irq-affinity-upfix.dpatch
+      ia64-bte_error-missing-include.dpatch
+
+ -- Andres Salomon <dilinger@voxel.net>  Sat, 08 Jan 2005 23:33:11 -0500
+
+kernel-source-2.6.10 (2.6.10-2) unstable; urgency=low
+
+  * [SECURITY] 028-do_brk_security_fixes.dpatch
+    Fix local root vulnerability for various do_brk() calls;
+    ensure an exclusive lock on memory while modifying it; CAN-2004-1235
+    (Andres Salomon) (closes: #289155).
+
+  * [SECURITY] 029-random_poolsize_overflow.dpatch
+    drivers/char/random allows you to set the poolsize; its sanity checking
+    on that input isn's very good.  We fix that here.
+    See http://seclists.org/lists/fulldisclosure/2005/Jan/0270.html for
+    more details.  This fixes #3 on that list (Andres Salomon).
+
+  * [SECURITY] 030-moxa_user_copy_checking.dpatch
+    The moxa driver does some ugly things w/ signed integers.  This fixes
+    #4 on Brad Spengler's advisory (Andres Salomon).
+
+  * [SECURITY] 031-sg_scsi_ioctl_int_overflows.dpatch
+    SG ioctl stuff doesn't actually check whether the scsi command length
+    is positive.  #5 on the above advisory (Andres Salomon).
+
+ -- Andres Salomon <dilinger@voxel.net>  Fri, 07 Jan 2005 20:29:01 -0500
+
+kernel-source-2.6.10 (2.6.10-1) unstable; urgency=low
+
+  * New upstream release.
+
+  * Delete the following merged patches merged upstream (Christoph Hellwig):
+    . SG_IO-safe-commands-1.dpatch
+    . aic79xx-nohw.dpatch
+    . alpha-writeq-fix.dpatch
+    . aout-loader-fixes.dpatch
+    . arch-x86_64-signal-bug.dpatch
+    . arch-x86_64-sys32_ni-overflow.dpatch
+    . arch-x86_64-sys32_quotactl-overflow.dpatch
+    . ata_piix-combinde-mode-fix.dpatch
+    . ata_piix-combinde-mode-fix-2.dpatch
+    . binfmt-huge-vma-dos.dpatch
+    . binfmt-huge-vma-dos2.dpatch
+    . dm_io-ENOMEM-goof.dpatch
+    . drivers-firmware-pcdp-register.dpatch
+    . drivers-ide-dma-ricoh.dpatch
+    . drivers-pci-quirks-via8233a.dpatch
+    . drivers-serial-8250-ioremap-fix.dpatch
+    . drivers-serial-sn_console-up-buildfix.dpatch
+    . drivers-usb-storage-revoltec.dpatch
+    . drivers-usb-storage-transport-1.dpatch
+    . drivers-usb-storage-transport-2.dpatch
+    . drivers-video-fm2fb-build-fix.dpatch
+    . elf-loader-fixes-the-return.dpatch
+    . elf-loader-fixes.dpatch
+    . fb_get_option-fix.dpatch
+    . fix-ip-options-leak.dpatch
+    . fs-ext3-directio-leak-fix.dpatch
+    . fs-partitions-check.dpatch
+    . fs-tmpfs-free_inode-leak.dpatch
+    . ia64-hp-sba_iommu-fix.dpatch
+    . ia64-mem-max_addr-cmdline-fix.dpatch
+    . ia64-sn-move-irq-noop.dpatch
+    . ia64_cyclone_nosmp.dpatch
+    . igmp-src-list-fix.dpatch
+    . ip-conntrack-ftp-leak.dpatch
+    . mark-vmio.dpatch
+    . mm-shmem-nomount-fix.dpatch
+    . mm-vmscan.dpatch
+    . modular-xfrm_tunnel-export-symbol.dpatch
+    . parport_pc-via8231.dpatch
+    . powerpc-970fx-support.dpatch
+    . powerpc-g5-thermal-management-update.dpatch
+    . powerpc-misc-powermac-fixes.dpatch
+    . reiserfs-sucks-0.dpatch
+    . reiserfs-sucks-1.dpatch
+    . reiserfs-sucks-2.dpatch
+    . reiserfs-sucks-3.dpatch
+    . ppc64-iSeries-build-fix.dpatch
+    . s390-sacf-fix.dpatch
+    . scm_send-dos-fix.dpatch
+    . scm_send-dos-fix2.dpatch
+    . selinux-seqpacket-fix.dpatch
+    . smbfs-overflow-fixes.dpatch (partially)
+    . smbfs-overrun.dpatch
+    . sparc-cg14-init.dpatch
+    . sparc-sunzilog-timeout.dpatch
+    . sparc32-initrd-memcpy.dpatch (partially)
+    . sparc64-sunsab-break-fix.dpatch
+    . unix-serialize-dgram.dpatch
+    . vlan-update-1.dpatch
+    . vt-of-death.dpatch
+
+  * Temporarily drop patches that need to be reworked for 2.6.10 and upstream
+    inclusion (Christoph Hellwig):
+    . ia64-generic-no-smp-1-to-2.dpatch
+    . ia64-generic-no-smp.dpatch
+
+  * Imported forward ported versions of patches from Ubuntu's
+    linux-source-2.6.10 (2.6.10-3) (dann frazier)
+    . ia64-generic-no-smp-1-to-2.dpatch
+    . ia64-generic-no-smp.dpatch
+
+  * Updated patches to apply against 2.6.10 (Christoph Hellwig):
+    . powerpc-g4-l2-flush-errata.dpatch
+
+  * Dropped scsi-blacklist.dpatch, usb-storage updates make it unnessecarry
+    (Christoph Hellwig).
+
+  * Dropped ipsec-missing_wakeup.dpatch, crude hack that doesn't help a lot.
+
+  * Added Al Viro's patch which fixes mxser.c compile on alpha and powerpc
+    (Norbert Tretkowski).
+
+  * 001-acpi_ibm_exit.dpatch
+    Make acpi_ibm_exit() not marked as __exit; it is called by __init
+    functions (Andres Salomon).
+
+  * 002-pio_err_handling.dpatch
+    Properly handle PIO errors (Andres Salomon).
+
+  * 003-libata_alpha_build_fix.dpatch
+    [ALPHA] Rumor has it, linux/mm.h should be included.  It certainly
+    can't hurt (Andres Salomon).
+
+  * 004-sparc64_no_i_sock.dpatch
+    [SPARC64] Don't reference ino->i_sock directly; instead, use the
+    S_ISSOCK() macro (Andres Salomon).
+
+  * 005-sparc64_no_i_sock-2.dpatch
+    [SPARC64] s/IS_SOCK/S_ISSOCK/, from 004-sparc64_no_i_sock.dpatch
+    (Andres Salomon).
+
+  * 006-zatm_cast_fix_fix.dpatch
+    Fix a silly gcc4 "fix"; in an attempt to drop an lvalue cast,
+    the wrong variable was assigned to (leaking memory, clobbering
+    the variable, etc) (Andres Salomon).
+
+  * 007-pci_ide_no_reserve.dpatch
+    Make generic_init_one return proper error values, instead of
+    true/false.  This was causing pci devices to be reserved when
+    they shouldn't have been (Andres Salomon).
+
+  * 008-sock_without_ipv6.dpatch
+    Fix net/core/sock.o build failure (Andres Salomon).
+
+  * 009-ipt_ecn_corrupt_chksum.dpatch
+    ipt_ECN checksum corruption (potentially) happens without this
+    patch (Andres Salomon).
+
+  * 010-sparc64_macro_pmd_offset.dpatch
+    [SPARC64] Safely use parens in a macro arg; this caused a warning
+    (Andres Salomon).
+
+  * 011-parport_pc_module_parm_mixing.dpatch
+    Don't mix module_param() and MODULE_PARM(), or you'll go blind
+    (Andres Salomon).
+
+  * 012-conntrack_standalone_proc_removal.dpatch
+    Properly remove /proc entry in ip_conntrack_standalone (Andres Salomon).
+
+  * 013-conntrack_standalone_sysctl.dpatch
+    Properly clean up if sysctl registration fails in
+    ip_conntrack_standalone (Andres Salomon).
+
+  * 014-acpi_video_dev_slab_corruption.dpatch
+    Fix slab cache corruption caused by acpi video stuff.  Fun, fun!
+    (Andres Salomon)
+
+  * 015-vmscan_total_scanned.dpatch
+    Keep total_scanned up to date in try_to_free_pages; not doing so
+    was breaking some kswapd stuff (Andres Salomon).
+
+  * 016-cs461x_gameport.dpatch
+    Fix Makefile to actually build cs461x.o (Andres Salomon).
+
+  * 017-conntrack_sctp_sysctl.dpatch
+    Make sure we don't return 0 (ie, "everything's ok") if sysctl
+    registration fails in ip_conntrack_proto_sctp (Andres Salomon).
+
+  * 018-ipt_recent_proc_remove.dpatch
+    ipt_recent's init stuff wasn't properly cleaning up /proc entries
+    upon failure (Andres Salomon).
+
+  * 019-conntrack_tcp_RST_handling.dpatch
+    ip_conntrack doesn't handle RST packets correctly (Andres Salomon).
+
+  * 020-clear_cyrix_mii_ecx_reg.dpatch
+    Cyrix MIIs don't clear %ecx when calling cpuid(); so we had stale
+    data in there (Andres Salomon).
+
+  * 021-sunrpc_check_before_kill.dpatch
+    Let's not add uninitialized tasks to the rpc task list, as that's
+    just asking for trouble (Andres Salomon).
+
+  * 022-sunrpc_xdr_flush_pages.dpatch
+    Flush pages when shifting them (Andres Salomon).
+
+  * 023-nfs_dentry_refcount.dpatch
+    Fix dentry refcount accounting error (Andres Salomon).
+
+  * 024-nfs_incorrect_df_output.dpatch
+    NFS mounts were apparently causing 'df' to display incorrect
+    information (Andres Salomon).
+
+  * 025-track_dummy_capability.dpatch
+    [SECURITY] The dummy capabilities module wasn't keeping track of
+    processes capabilities; so, when a capabilities module was loaded,
+    all untracked processes would magically be given full capabilities.
+    Here's the skinny:
+    http://www.derkeiler.com/Mailing-Lists/securityfocus/bugtraq/2004-12/0390.html
+    (Andres Salomon).
+
+  * 026-nfs_o_direct_error.dpatch
+    In case of failure, nfs_get_user_pages should set pages to NULL
+    (Andres Salomon).
+
+  * 027-track_dummy_capability-2.dpatch
+    Fix patch 025-track_dummy_capability.dpatch (Andres Salomon).
+
+  * Dropped drivers-scsi-generic_proc_info.dpatch, kernel-image packages based
+    on this release need to depend on initrd-tools >= 0.1.76 (Christoph Hellwig)
+
+ -- Andres Salomon <dilinger@voxel.net>  Fri, 07 Jan 2005 04:38:03 -0500
+
+kernel-source-2.6.9 (2.6.9-4) unstable; urgency=low
+
+  * Add bw2/cyber2000fb fixes from BK to fix compilation problems.
+    (Joshua Kwan)
+  
+  * Yank fixed debian/apply from kernel-source-2.6.8. (Joshua Kwan)
+
+  * [SECURITY] serialize dgram read using semaphore just like stream;
+    CAN-2004-1068.  Thanks to Fabio M. Di Nitto (Andres Salomon).
+
+  * [SECURITY] Fix insufficient locking checks in DRM code;
+    CAN-2004-1056.  Thanks to Fabio M. Di Nitto (Andres Salomon).
+
+  * [SECURITY] Fix SELinux crashes with SOCK_SEQPACKET; see
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=110045613004761
+    for reference; CAN-2004-1069.  Thanks to Fabio M. Di Nitto
+    (Andres Salomon).
+
+  * [SECURITY] Fix problems in VM_IO refcount; CAN not yet assigned.
+    Thanks to Fabio M. Di Nitto (Andres Salomon).
+
+  * Delay registration of HCDP described UARTs, fixing the PDH console
+    on HP rx1600s (merged patch from k-s 2.6.8) (dann frazier).
+
+  * [SECURITY] Fix buffer overrun in x86_64's sys32_ni_syscall
+    (Andres Salomon).
+
+  * Restore BLKRRPART semantics - breaks partitioning programms on empty disks
+    (Maximilian Attems).
+
+  * [SECURITY] scm_send local DoS fix (advisory:
+    http://www.isec.pl/vulnerabilities/isec-0019-scm.txt) (Andres Salomon).
+
+  * [SECURITY] igmp remotely exploitable bugfix
+    (http://www.isec.pl/vulnerabilities/isec-0018-igmp.txt) (Andres Salomon).
+
+  * [SECURITY] additional scm_send fix (thanks to Andre Tomt for pointing
+    this out) (Andres Salomon).
+
+  * [SECURITY] memory exhaustion fix where malformed binaries can create
+    local DoS (CAN-2004-1074).  Thanks to Moritz Muehlenhoff for pointing
+    this out.  64bit-arch fixes are also in here (Andres Salomon).
+
+  * [SECURITY] additional x86_64 buffer overflow fix; this time,
+    sys32_quotactl (Andres Salomon).
+
+  * [SECURITY] fix ip_conntrack_ftp leak;
+    https://lists.netfilter.org/pipermail/netfilter-devel/2004-December/017677.html
+    Thanks to Fabio M. Di Nitto for pointing this out (Andres Salomon).
+
+  * Add some additional reiserfs locking and error handling fixes, in
+    hopes of lessening reports of reiser corruption (Andres Salomon).
+
+  * [SECURITY] Fix memory leak in ip_options_get allowing a DoS
+    attack.  Thanks to Fabio M. Di Nitto (Andres Salomon).
+
+  * [SECURITY] Fix integer overflow in vc_resize.  Thanks to
+    Fabio M. Di Nitto (Andres Salomon).
+
+  * Fix Revoltec USB burner problem introduced in 2.6.8.  Thanks
+    to Ian Gulliver.  Note to other bug reporters: I accept bribes..
+    (Andres Salomon) (closes: #285168).
+
+  * [x86_64] Fix nasty little signal bug, where orig_rax was assumed
+    to be unsigned.  Andi Kleen assures me it's not exploitable, but
+    better to be safe than sorry (Andres Salomon).
+
+ -- Andres Salomon <dilinger@voxel.net>  Fri, 24 Dec 2004 00:39:03 -0500
+
+kernel-source-2.6.9 (2.6.9-3) unstable; urgency=low
+
+  * Include dm_io-ENOMEM-goof patch that was included in final 2.6.8-8
+    (Andres Salomon).
+
+  * [SECURITY] Further binfmt_elf fixes, and binfmt_aout fixes as well
+    (Andres Salomon).
+
+  * [SECURITY] s390: sacf local root exploit (CAN-2004-0887) (Andres Salomon).
+
+  * [SECURITY] Further smbfs overflow fixes, stolen from -ac tree
+    (Andres Salomon).
+
+  * Add missing check for tty == NULL in uart_tasklet_action to fix an init
+    oops on serial console. (Joshua Kwan)
+
+  * Adding drivers-serial-8250-ioremap-fix.dpatch: a patch from Alex
+    Williamson that prevents setserial from crashing the kernel. See:
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=109913237604338&w=2
+    (Dann Frazier)
+ 
+  * PCI IDE legacy mode fix for ata_piix
+    (Possible fix for: #279902, #273171) (Simon Horman)
+
+  * VLAN updates (Potential fix for: Bug#280743) (Simon Horman)
+
+  * Remove bogus DMA blacklist for RICOH CD-R/RW MP7083A (Maximilian Attems)
+  
+  * tmpfs inode accounting leak fix (Maximilian Attems)
+
+  * sparc fixes from ML (Joshua Kwan):
+    - sparc32: fix memcpy() bug that caused ramdisk failure (Jurij Smakov)
+    - sparc64: don't let breaks get eaten by sunsab (Jurij Smakov)
+
+ -- Andres Salomon <dilinger@voxel.net>  Thu, 25 Nov 2004 01:55:04 -0500
+
+kernel-source-2.6.9 (2.6.9-2) unstable; urgency=low
+
+  * [SECURITY] Fix problems in binfmt_elf loader; see
+    http://isec.pl/vulnerabilities/isec-0017-binfmt_elf.txt for more
+    details (Andres Salomon).
+
+  * Correctly detect VIA 8233A sound card (Simon Horman)
+
+  * VIA8231 support for parallel port driver (Simon Horman)
+
+  * Changed recomends libqt3-dev to libqt3-mt-dev as the former is debricated.
+    (closes: #279605) (Simon Horman)
+
+  * Allow READ_BUFFER_CAPACITY scsi ioctl. (Simon Horman)
+
+  * [ia64] fix a bug that causes HP systems to run out of DMA mapping resources
+    under heavy load (dann frazier)
+
+  * Include a UP build fix for the sn_console driver (dann frazier)
+
+  * Fix writeq/readq compile on alpha (Norbert Tretkowski).
+
+  * pages_scanned fix to stop kswapd going into loops (Simon Horman).
+
+  * Fixes to cope with hadrware with broken GetMaxLUN responses (Simon Horman).
+    (closes: Bug#279889)
+
+  * [ia64] Fix UP build by making sn_move_irq() a no-op when CONFIG_SMP=n
+    (dann frazier)
+
+  * Don't allow tmpfs to be mounted if the driver is not present
+    (closes: #275874) (Simon Horman)
+
+  * [sparc] Patches fixing sunzilog and cg14 (also applied to 2.6.8.)
+    (Joshua Kwan)
+
+ -- Andres Salomon <dilinger@voxel.net>  Mon, 15 Nov 2004 03:01:01 -0500
+
+kernel-source-2.6.9 (2.6.9-1) unstable; urgency=low
+
+  * New upstream release.
+
+  * Update prune-non-free (Andres Salomon).
+
+  * Delete the following unused patches (Andres Salomon):
+    . acpi-early.dpatch
+    . aic7xxx-pcitable.dpatch
+    . bio_uncopy_user-memleak.dpatch
+    . changelog.dpatch
+    . drivers-scsi-sym53c8xx_revert.dpatch
+    . modular-xfrm_tunnel.dpatch
+    . SG_IO-cap.dpatch
+    . SG_IO-safe-commands.dpatch
+
+  * Delete the following merged/backported patches (Andres Salomon):
+    . acpi-osname.dpatch
+    . acpi-speedstep-fix.dpatch
+    . alpha-epoch-comment.dpatch
+    . bio_uncopy_user-memleak-2.dpatch
+    . capi-freeing-fix.dpatch
+    . cciss-update.dpatch
+    . copy_to_high_bio_irq-leak-fix.dpatch
+    . fix-url-bsd-acct.dpatch
+    . drivers-ftape.dpatch
+    . drivers-input-hiddev-HIDIOCGUCODE.dpatch (note: Herbert's cleanups
+      dropped)
+    . drivers-macintosh-adb-trackpad.dpatch
+    . drivers-net-3c59x-build-fix.dpatch
+    . drivers-net-arcnet-crash.dpatch
+    . drivers-net-wireless-airo-build-smp.dpatch
+    . drivers-scsi-sym_2-dv-hang.dpatch
+    . drivers-usb-storage-transport_dimage_getmaxlun.dpatch
+    . ext3-direct-io-assert-fix.dpatch
+    . fix-sn_console-for-config_smp.dpatch
+    . forcedeth-update.dpatch
+    . hfs-loop-fix.dpatch
+    . i915-agp.dpatch
+    . ia64-mem-boot-param-fix.dpatch
+    . ia64-sparse-access_ok.dpatch
+    . ia64-sparse-copy_to_user.dpatch
+    . include-missing-includes.dpatch
+    . intel-cache-descriptors.dpatch
+    . jfs-memory-leak.dpatch
+    . marvell-mm.dpatch
+    . microcode-devfs-name.dpatch
+    . minix-block-accounting-fix.dpatch
+    . net-sched-fix.dpatch
+    . netstat-fix-output.dpatch
+    . nfs-fix.dpatch
+    . nfsd-subtreecheck-nostale.dpatch
+    . openpromfs-loop.dpatch
+    . pmac-no-of-stdout.dpatch
+    . powerpc-cmdline.dpatch
+    . powerpc-g4-errata.dpatch
+    . ppc-boot-isa.dpatch
+    . ptmx-fix.dpatch
+    . reiserfs-write-signed-fix.dpatch
+    . reiserfs-xattr-dont-dirty-mark.dpatch
+    . reiserfs-xattr.dpatch
+    . scsi-shutdown-fix.dpatch
+    . SG_IO-safe-commands-2.dpatch
+    . shm-segment-count-fix.dpatch
+    . sis900-add-phy.dpatch
+    . sparc32-export-more-ksyms.dpatch
+    . sparc64-sunsab-fix.dpatch
+    . sparc64-syslog-register.dpatch
+    . sparc64-update.dpatch
+    . tty-locking-fixes.dpatch
+    . xfs-ioctl32.dpatch
+
+  * Update the following patches (Andres Salomon)
+    . ia64-generic-no-smp.dpatch (partially merged)
+    . modular-ide.dpatch (triflex dropped /proc/ide/triflex)
+    . modular-vesafb.dpatch
+    . powerpc-ibm-240-e30.dpatch (partially merged)
+    . tg3-update.dpatch (no need to update tg3.h, it's not deleted)
+
+  * Drop the following patches (Andres Salomon, Christoph Hellwig):
+    . extraversion.dpatch (kernel now supports localversion; use that
+      instead)
+    . tcp_default_win_scale.dpatch (win_scale now auto-generated based
+      on optimum max win scale.  hopefully it works!)
+    . drivers-net-typhoon-build-fix.dpatch (fixes ETHTOOL stuff that's
+      only in BK?)
+    . alpha-termbits.dpatch (not needed anymore)
+    . pcxx-is-broken.dpatch (not needed anymore)
+    . powerpc-ibm-240-e30.dpatch (replaced by generie prep rtas support)
+
+  * Add build fixes for iSeries ppc64, typhoon, framemaster 2.
+    (Maximilian Attems)
+
+  * Add ext3 directio block leak fix. (Maximilian Attems)
+
+ -- Andres Salomon <dilinger@voxel.net>  Thu, 28 Oct 2004 01:11:01 -0400
+
+kernel-source-2.6.8 (2.6.8-8) unstable; urgency=medium
+
+  * Add workaround for broken Happy Meal ethernet controllers.
+    (closes: #275485) (Joshua Kwan)
+
+  * Fix goof in dm-io.c that led to uncaught errors on ENOMEM (Joshua Kwan)
+    using Nigel Cunningham's patch on LKML.
+
+  * Include a couple fixes for the mem= & max_addr= boot params on ia64.
+    (dann frazier)
+
+  * Resolved grammatical error in README.Debian
+    (closes: Bug#276359) (Simon Horman)
+
+  * Security: fix race conditions in linux terminal subsystem (CAN-2004-0814)
+    (dann frazier)
+
+  * Fix a couple ia64 argument order problems discovered by David Mosberger's
+    sparse runs (dann frazier)
+
+  * Ext3 direct io assert fix, update stale journal (Andres Salomon).
+
+  * Revert aic7xxx-pcitable patch (closes: #275302) (Andres Salomon).
+
+  * Another reiserfs xattr fix; this one keeps inodes from being marked
+    dirty if it hasn't been hashed (Andres Salomon).
+
+  * Reiserfs's write() return values should be signed, not unsigned
+    (Andres Salomon).
+
+  * Added work-around to allow usb storage device to access
+    a Konica-Minolta DiMAGE A2 camera. (closes: Bug#276134) (Simon Horman)
+
+  * Fix memory leak in packet scheduler.
+    (closes: Bug#276476) (closes: Bug#275059) (Simon Horman)
+
+  * Fix slab corruption on packet scheduler. (Simon Horman)
+
+  * NFS localhost mount netfilter fix (closes: #254645) (Andres Salomon).
+
+  * Correctly detect VIA 8233A sound card (closes: #254645) (Simon Horman)
+
+  * Update aic7xxx/aic79xx to current mainline versions (Christoph Hellwig).
+
+  * Drop aic79xx-nohw; superceded by aic7xxx-update (Andres Salomon).
+
+  * Fix smbfs overrun/leak (Andres Salomon).
+
+  * VIA8231 support for parallel port driver (closes: #279174) (Simon Horman)
+
+  * [ACPI] reserve EBDA for Dell BIOS that neglects to.
+    (Possible fix for: Bug#277298) (Simon Horman)
+
+  * Changed recomends libqt3-dev to libqt3-mt-dev as the former is debricated.
+    (closes: #279605) (Simon Horman)
+
+  * Via Velocity Driver update from 2.6.9
+    (closes: Bug#278508) (Simon Horman)
+
+  * Allow more SCSI ioctls.
+    (Possible fix for: Bug#277083) (Simon Horman)
+
+  * [ia64] fix a bug that causes HP systems to run out of DMA mapping resources
+    under heavy load (dann frazier)
+
+  * Backport of vmscan fixes from upstream. (Simon Horman)
+
+  * Fixes to cope with hardware with broken GetMaxLUN responses (Simon Horman).
+    (Possible fix for: Bug#279889)
+
+ -- Andres Salomon <dilinger@voxel.net>  Tue, 09 Nov 2004 01:28:16 -0500
+
+kernel-source-2.6.8 (2.6.8-7) unstable; urgency=medium
+
+  * Fix VGA console on PReP systems (closes: #271852) (Jens Schmalzing).
+
+  * Really enable i915 agpgart support (Christoph Hellwig).
+
+  * Fix yet another bio leak (Christoph Hellwig).
+
+  * Switch /proc/sys/net/ipv4/tcp_default_win_scale default back to 0, there's
+    just too many broken system out there in the wild. (closes: #267342)
+    (Christoph Hellwig).
+
+  * Fix ata_piix controller numbering in combined mode (closes: #270194)
+    (Christoph Hellwig).
+
+  * Update tg3 driver (Christoph Hellwig).
+  
+  * Update forcedeth driver to fix autoneg on 100Mbit cards (Christoph Hellwig).
+
+  * Fix ALSA module locking issue (closes: #259056) (Andres Salomon).
+
+  * Build-fix for 3c59x without pci (closes: #267240) (Maximilian Attems).
+
+  * Fix crash in ArcNet PCMCIA card (Maximilian Attems).
+
+  * Build-fix for airo on smp (Maximilian Attems).
+
+  * ACK old nmu (closes: #181350, #126482, #153451, #206984)
+
+  * Back out acpi-early caused problems on laptops, where APIC should not 
+    be enabled. (closes: #272177, #273474, #274011) (Maximilian Attems)
+
+ -- Andres Salomon <dilinger@voxel.net>  Sun, 03 Oct 2004 03:21:14 -0400
+
+kernel-source-2.6.8 (2.6.8-6) unstable; urgency=medium
+
+  * reiserfs xattr/acl fix if root fs (Max Attems).
+
+  * fix /proc/net/netstat output for `netstat -s` (Max Attems).
+
+  * Add missing intel CPU descriptors (Max Attems).
+
+  * Revert changelog.dpatch that was silently added (Christoph Hellwig).
+
+  * JFS: fix memory leak (Max Attems).
+
+  * Add sis900 phy (Max Attems).
+
+  * Fix bad URL in BSD acct help entry (closes: #268871) (Max Attems).
+
+  * Mark CONFIG_DIGI broken (closes: #258676) (Christoph Hellwig).
+
+  * Fix devfs name for microcode driver (closes: #221813) (Christoph Hellwig).
+
+  * Fix loop on hfs/hfsplus (closes: #261195) (Christoph Hellwig).
+
+  * Fix default kernel boot args on openfirmware powerpc (Sven Luther).
+
+  * Add CAPI skb freeing fix (closes: #269134) (Christoph Hellwig).
+
+  * Update debian/apply from 2.4 to allow us to base prune-non-free on
+    file removals in the patch series. (Closes: #267655)
+
+  * Make sure SCSI disk caches are flushed on shutdown (Christoph Hellwig).
+
+  * Handle loaded but no hardware present properly in aic79xx (closes: 270102)
+    (Christoph Hellwig).
+
+  * Export proper PCI ID table to hotplug in aic7xxx/aic79xx
+    (Christoph Hellwig).
+
+  * Add a patch by davem which suppresses a loop when reading from openpromfs.
+    (Joshua Kwan)
+  
+  * Set all files in the patch dir non-executable.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Mon,  6 Sep 2004 21:28:18 -0700
+
+kernel-source-2.6.8 (2.6.8-5) unstable; urgency=high
+
+  * Patches by the infintely wise and awesome David S. Miller:
+    - sparc64-sunsab-fix.dpatch: Fix the infamous serial output
+      bug causing every other character in kernel messages to be omitted.
+    - sparc64-syslog-register.dpatch: Fix a critical typo that
+      caused the 32-bit syslog wrapper to halt the entire system.
+    (Joshua Kwan).
+
+  * sparc32: Export enough ksyms for our modules to work  (Joshua Kwan).
+
+  * Drop patch modular-xfrm4_tunnel, which caused far more trouble than it
+    was worth. (Joshua Kwan).
+
+  * Switch to the 2.4.x patch-series system. Drop build-dependency on dpatch
+    (Joshua Kwan).
+
+  * Add myself to Uploaders (Joshua Kwan).
+
+  * Build kernel-tree package before kernel-doc, because it takes a _long_
+    time (Joshua Kwan).
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Fri, 27 Aug 2004 16:36:39 -0700
+
+kernel-source-2.6.8 (2.6.8-4) unstable; urgency=high
+
+  * Added patch by Alex Clausen to stop spurious mouse button events
+    on older ADB using pmac notebooks (Sven Luther).
+
+  * Added two SCSI commands, namely VERIFY_16 and GPCMD_SEND_CUE_SHEET,
+    that were mentioned in the list from 2.6.9-rc1 but missing from the
+    corresponding header files (closes: #268128) (Jens Schmalzing).
+
+  * Added g4-errata followup patch that clears the BTIC bit, instead of
+    just not setting it (Sven Luther).
+
+  * Add some Sparc64 backports to make Josh happy (Christoph Hellwig).
+
+ -- Jens Schmalzing <jensen@debian.org>  Thu, 26 Aug 2004 14:30:01 +0200
+
+kernel-source-2.6.8 (2.6.8-3) unstable; urgency=high
+
+  * Suggest libqt3-dev for xconfig (closes: #261784) (Andres Salomon).
+
+  * Update documentation (Christoph Hellwig).
+
+  * Add bio_uncopy_user leak fix from Kurt Garloff (closes: #256871)
+    (Christoph Hellwig).
+
+  * Update scsi blacklist for USB multi card readers (Christoph Hellwig).
+
+  * Claim we're Windows (TM) to ACPI to work around broken BIOSes
+    (Christoph Hellwig).
+
+  * Fix early boot crash on some oldworld Power Macs. (closes: #266731)
+    (Christoph Hellwig).
+
+  * Add qdisc crash fix (closes: #266892) (Christoph Hellwig).
+
+  * Replace the drivers-scsi-sym53c8xx_revert workaround with
+    drivers-scsi-sym_2-dv-hang, which is a proper fix for the hang
+    (dann frazier).
+
+  * Enter ACPI mode earlier (closes: #258061) (Christoph Hellwig).
+
+  * Add a comment about the Adaptec firmware rebuild situation to
+    README.Debian (closes: #256757) (Christoph Hellwig).
+
+  * Update bio_uncopy_user-memleak to really fix the problem
+    (closes: #267464, #267338) (Christoph Hellwig).
+
+  * Update list of safe SCSI commands for SG_IO to match 2.6.9-rc1
+    (Christoph Hellwig).
+
+  * Update CCISS driver (Christoph Hellwig).
+
+  * Add minix block accounting fix (Christoph Hellwig).
+
+  * Fix nfsd to not errornously return ESTALE on failed permission check
+    (closes: #255931) (Christoph Hellwig).
+
+  * Fix SHM segment count limit off by one (Christoph Hellwig).
+
+  * Modularize xfrm_tunnel (Christoph Hellwig).
+
+  * Add small ACPI fix that makes speedstep work on some Centrino Laptops
+    (closes: #257763) (Christoph Hellwig).
+
+ -- Sven Luther <luther@debian.org>  Wed, 25 Aug 2004 17:40:07 +0200
+
+kernel-source-2.6.8 (2.6.8-2) unstable; urgency=high
+
+  * Add updated fix for generic UP kernel builds on IA64 (dann frazier).
+
+  * Added g4 l2 flush and MSR patch from Jacob Pan (Sven Luther).
+ 
+  * Added marvell gigabit ethernet driver errata patch from Nicolas Det
+    (Sven Luther).
+
+  * Added UP build fixes for sn_console & cyclone on ia64 (dann frazier).
+
+ -- Sven Luther <luther@debian.org>  Tue, 17 Aug 2004 15:34:59 +0200
+
+kernel-source-2.6.8 (2.6.8-1) unstable; urgency=high
+
+  * New upstream release.
+  
+  * Nuke tg3.c properly in prune-non-free; rely on patch to supply driver
+    (Andres Salomon).
+
+  * The following patches have been merged upstream (Andres Salomon):
+    . acpi-typo
+    . chown-gid-check
+    . chown-procfs
+    . dont-dereference-netdev.name-before-register_netdev
+      (partially applied; this is a broken patch)
+    . drivers-atkbd-quiten
+    . drivers-dpt_i2o-fixup
+    . drivers-isdn-io_funcs-fixup
+    . drivers-net-irda-dma_api
+    . drivers-net-via_rhine-avoid_bitfield
+    . drivers-sb-pnp_unregister
+    . drivers-scsi-advansys-dma_api
+    . drivers-scsi-sd-NO_SENSE
+    . drivers-usb-net-pegasus-startstop_queue
+    . envp
+    . fs-isofs-acorn
+    . fs-isofs-dont-check-period
+    . fs-jfs-compile
+    . include-linux-mca.h-fixups
+    . netfilter-signedcharbug
+    . netlink-macro-fixups
+    . powerpc-g4-errata
+    . xfs-update
+
+  * The following patches have been modified (Andres Salomon):
+    . drivers-input-hiddev-HIDIOCGUCODE
+      (sparse fixes; s/(void *) arg/user_arg/g)
+    . remove-references-to-removed-drivers
+      (upstream now considers SMCTR a broken and legacy driver)
+    . drivers-net-tg3-readd
+      (forward port firmware changes to new tg3; from version 3.3
+      of driver to version 3.8)
+
+  * Stop the kernel distclean from nuking the debian directory by
+    having the clean rule check for debian/official (Andres Salomon).
+
+  * Fix typo in alpha-termbits patch naming (Christoph Hellwig).
+
+  * Drop two unneeded patches (Christoph Hellwig):
+    . fs-cramfs-constify
+    . include-thread_info-ifdefs
+
+  * Remove -2 postfixes from patches, this is a new upstream release
+    (Christoph Hellwig).
+
+  * Add NFS OOPS fix (Christoph Hellwig).
+
+  * Add SG_IO WRITE_BUFFER capability check (Christoph Hellwig).
+
+  * Fix IA64 generic kernel compile on UP (Christoph Hellwig).
+
+  * Add pty leak fix from Al Viro (Christoph Hellwig).
+
+  * Add patch from Gustavo Barbier to support IBM RS/6000 7043-240 and -E30
+    (Christoph Hellwig).
+
+  * Add 32bit ioctl translation support to XFS (closes: Bug#257265)
+    (Christoph Hellwig).
+
+  * Revert sym53c8xx driver (dann frazier).
+
+ -- Andres Salomon <dilinger@voxel.net>  Sat, 14 Aug 2004 02:40:50 -0400
+
+kernel-source-2.6.7 (2.6.7-4) unstable; urgency=high
+
+  * Migrated pegasos patch from the powerpc package, as it will be accepted
+    upstream (Sven Luther).
+
+  * Added a errata fix for some recent G4 processors (Sven Luther).
+
+  * Fixed the Powerpc/Pegasos marvell discovery II builtin gigabit ethernet
+    driver to use the MAC address set by the firmware, instead of reading the
+    value from the prom in a way specific to the mips board (Sven Luther).
+
+ -- Jens Schmalzing <jensen@debian.org>  Thu,  5 Aug 2004 18:32:00 +0200
+
+kernel-source-2.6.7 (2.6.7-3) unstable; urgency=low
+
+  * Upgraded the fs-asfs patch to 1.0beta7 (Jens Schmalzing).
+
+  * Updated README.NMU to explain the new build process based on split
+    patches and dpatch (Jens Schmalzing).
+
+  * Added chown security fixes (closes: Bug#257504) (Christoph Hellwig).
+
+  * Dropped modular-swsusp, doesn't work and unmaintained (Christoph Hellwig).
+
+  * Added 3ware SATA-RAID driver, backported from mainline (Christoph Hellwig).
+
+  * Update XFS to most current upstream BK version (Christoph Hellwig).
+
+  * Added Marvell Ethernet driver (closes: Bug#256064) (Christoph Hellwig).
+
+  * Added a backport of the netfilter signed char fix (Christoph Hellwig).
+
+ -- Sven Luther <luther@debian.org>  Wed,  7 Jul 2004 18:12:20 +0200
+
+kernel-source-2.6.7 (2.6.7-2) unstable; urgency=low
+
+  * Removed another tainted driver (closes: Bug#242895), and amended
+    remove-references-to-removed-drivers.dpatch accordingly.  Actually,
+    this was done in the previous revision, but we forgot the changelog
+    entry (Christoph Hellwig, Jens Schmalzing).
+
+  * Renamed debian/revision back to version.Debian.  Having it outside the
+    debian/ directory is mandatory for kernel-tree to work (Jens Schmalzing).
+
+  * Added the drivers-net-tg3 patch.  It only adds firmware loading
+    support, contrary to the drivers-net-tg3-readd patch which re-adds the
+    whole driver.  As a consequence, the Debian patch also applies to the
+    vanilla kernel again.  Note that this patch is only kept here for
+    reference for the time being and will not be activated until the next
+    upstream release (Jens Schmalzing).
+
+  * Added the fs-asfs patch by Marek Szyprowski, containing support for
+    the Amiga Smart Filesystem.  Actually, the patch was already part of
+    the kernel-patch-powerpc package and has been moved over from there
+    (Jens Schmalzing).
+
+ -- Jens Schmalzing <jensen@debian.org>  Thu, 24 Jun 2004 09:56:13 +0200
+
+kernel-source-2.6.7 (2.6.7-1) unstable; urgency=low
+
+  * New upstream release.
+
+  * Added split patches in dpatch format (Christoph Hellwig and Sven Luther).
+
+  * Lots of patches merged upstream:
+    . acpi-link
+    . console-refcounting
+    . doc-sound
+    . drivers-hotplug-acpi-unregister
+    . drivers-i810-update
+    . drivers-ide-CONFIG_IDE_STROKE-at-runtime (slight changes, allows drops
+      the config option completely)
+    . drivers-mca_53c9x-needs_mca_legacy
+    . drivers-mtd-sharp-missing-includes
+    . drivers-mtd-uclinux-rootfs
+    . drivers-neomagic-ids
+    . drivers-neomagic-oss-ids
+    . drivers-paride-epat (with minor updates)
+    . drivers-pnp-needs-x86
+    . drivers-scsi-aic7xxx-fixes (slightly different)
+    . drivers-usb-storage-new-sony-device
+    . drivers-video-tgafb-needs-selection.h
+    . drivers-watchdog-missing-includes
+    . fs-isofs-remove-unused
+    . include-linux-mca.h-fixups (only partially)
+    . makefile-wc-fixup
+    . sparc64-NR_CPUS
+    . x86-dma-mapping.h-fixups
+
+  * Dropped some patches (Christoph Hellwig):
+    . alpha_cia_window - incorrect (closes: #253787)
+    . doc-initrd_devfs - incorrect, devfs names for initrd are okay
+    . drivers-mwave_paper_over_sysfs_crap - buggy driver model integration
+      removed completely upstream
+    . drivers-net-ns83820-needs-FW_LOADER - incorrect, ns83820 doesn't
+      load firmware at all
+    . drivers-scsi-3w-xxxx-no_unregister - incorrect
+    . export-proc_get_inode - the symbol is internal for a reason.  buggy
+      drivers using it removed in 2.6.7
+    . fs-msdos-dontbug - rejected upstream
+    . fs-umsdosfs-crapola - umdos is disconnected from the build in 2.6
+    . ppc-higher-binutils-requirement - upstream disagrees, Debian uses
+      dpkg build depencies anyway
+    . 00_doc-README.Debian - now handled differently by the packaging
+  
+  * Renamed version.Debian to debian/revision, in order to have all Debian
+    specific bits in the debian directory (Jens Schmalzing).
+
+  * Added the prune target to debian/rules.  It unpacks the vanilla
+    kernel, removes the tainted bits, and creates a free .orig.tar.gz
+    (Jens Schmalzing).
+
+  * Added the monolith target to debian/rules.  It saves a copy of the
+    original kernel tree, then for each revision applies the split patches
+    via dpatch and creates a monolithic patch (Jens Schmalzing).
+
+  * Add fs-jfs-compile to fix JFS compilation (Christoph Hellwig).
+
+  * Package the upstream changelog file, taken from ChangeLog-<release>,
+    into kernel-tree.  The rationale of this being that we should
+    distribute the upstream changelog in the usual location, but it is
+    enough to do this once (Jens Schmalzing).
+
+ -- Jens Schmalzing <jensen@debian.org>  Mon, 21 Jun 2004 12:55:48 +0200
+
+kernel-source-2.6.6 (2.6.6-2) unstable; urgency=low
+
+  * Fix i386 FPU bug.
+  * Transfer control of package to debian kernel team.
+
+ -- William Lee Irwin III <wli@debian.org>  Tue, 15 Jun 2004 11:06:35 -0700
+
+kernel-source-2.6.6 (2.6.6-1) unstable; urgency=low
+
+  * New upstream release (closes: #243084, #244728, #245959, #247486).
+  * Deleted unused exit prototype in drivers/scsi/aic7xxx/aic7xxx_osm.c.
+  * Unregister properly if no devices are found in
+    drivers/scsi/aic7xxx/aic79xx_osm.c (closes: #246277, #247298).
+  * Fixed GUCODE type check in drivers/usb/input/hiddev.c (Sergey Vlasov).
+  * Added basic highmem support in drivers/scsi/advansys.c (closes: #245238).
+  * Changed all occurrences herbert@debian.org:
+    . arch/i386/power/swsusp_syms.c
+    . arch/x86_64/kernel/swsusp_syms.c
+    . kernel/power/swsusp-core.c
+    . kernel/power/swsusp.h
+  * Reverted broken "VIA KT400-8235" change in arch/i386/kernel/dmi_scan.c.
+  * Fixed IRQ assignment in drivers/acpi/pci_link.c (Len Brown).
+  * Fixed resume device check (Sau Dan Lee):
+    . kernel/power/swsusp-core.c
+    . kernel/power/swsusp.c
+    . kernel/power/swsusp.h
+  * Restored driver without firmware:
+    . drivers/net/Kconfig
+    . drivers/net/Makefile
+    . drivers/net/tg3.c
+  * Added firmware loading support (Nathaneal Nerode):
+    . drivers/net/Kconfig
+    . drivers/net/tg3.c
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 11 May 2004 19:42:16 +1000
+
+kernel-source-2.6.5 (2.6.5-4) unstable; urgency=high
+
+  * Unregister PCI driver in drivers/pci/hotplug/acpiphp_glue.c.
+  * Fixed print_pirt NULL deref in drivers/pci/hotplug/shpchprm_acpi.c
+    (closes: #246149).
+  * Reverted radeon/r128 firmware changes (closes: #246587, #246594, #246627):
+    . drivers/char/drm/Kconfig
+    . drivers/char/drm/Makefile
+    . drivers/char/drm/r128_cce.c
+    . drivers/char/drm/r128_drv.h
+    . drivers/char/drm/r128_firmware_loader.c
+    . drivers/char/drm/radeon_cp.c
+    . drivers/char/drm/radeon_drv.h
+    . drivers/char/drm/radeon_firmware_loader.c
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 30 Apr 2004 09:05:39 +1000
+
+kernel-source-2.6.5 (2.6.5-3) unstable; urgency=medium
+
+  * Added firmware loading support (Nathaneal Nerode):
+    . drivers/char/drm/Kconfig
+    . drivers/char/drm/Makefile
+    . drivers/char/drm/r128_cce.c
+    . drivers/char/drm/r128_drv.h
+    . drivers/char/drm/r128_firmware_loader.c
+    . drivers/char/drm/radeon_cp.c
+    . drivers/char/drm/radeon_drv.h
+    . drivers/char/drm/radeon_firmware_loader.c
+  * Removed non-free firmware:
+    . R128 firmware: drivers/char/drm/r128_cce.c
+    . Radeon firmware: drivers/char/drm/radeon_cp.c
+  * Read .extraversion if it exists in Makefile.
+  * Added support for removal in drivers/ide/ide-generic.c.
+  * Set GPL license in arch/i386/kernel/cpu/mcheck/non-fatal.c.
+  * Copy pages in reverse (closes: #234976):
+    . arch/i386/power/pmdisk.S
+    . arch/i386/power/swsusp.S
+  * Lowered maximum NR_CPUS to 32 in arch/sparc64/Kconfig (closes: #245971).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 27 Apr 2004 20:31:41 +1000
+
+kernel-source-2.6.5 (2.6.5-2) unstable; urgency=low
+
+  * Reverted pid == 1 change in kernel/fork.c.
+  * Allow PCI IDE drivers to be unloaded if probing fails in
+    drivers/ide/pci/atiixp.c.
+  * Fixed single word src misalign > dest misalign case in
+    arch/alpha/lib/stxncpy.S (glibc).
+  * Removed obsolete gcc workaround in sound/core/oss/Makefile.
+  * Fixed boundary checks for GUSAGE/SUSAGE in drivers/usb/input/hiddev.c.
+  * Fake inquiry for Sony Clie PEG-TJ25 in drivers/usb/storage/unusual_devs.h
+    (closes: #243650).
+  * Strip quotes from parameters in kernel/params.c (bk, closes: #243588).
+  * Added device release function in drivers/char/mwave/mwavedd.c
+    (closes: #244207).
+  * Set __exit tags on module_exit in drivers/ide/pci/*.
+  * Partially modularised software suspend:
+    . arch/i386/power/Makefile
+    . arch/i386/power/swsusp_syms.c
+    . arch/x86_64/kernel/Makefile
+    . arch/x86_64/kernel/swsusp_syms.c
+    . drivers/acpi/sleep/proc.c
+    . fs/buffer.c
+    . include/linux/suspend.h
+    . kernel/sys.c
+    . kernel/power/Kconfig
+    . kernel/power/Makefile
+    . kernel/power/console.c
+    . kernel/power/process.c
+    . kernel/power/swsusp-core.c
+    . kernel/power/swsusp.c
+    . kernel/power/swsusp.h
+    . mm/vmscan.c
+  * Fixed illegal __exit reference:
+    . drivers/scsi/aic7xxx/aic7xxx_osm.c
+    . drivers/scsi/aic7xxx/aic7xxx_osm.h
+  * Fixed local root exploit in fs/isofs/rock.c (Ernie Petrides).
+  * Clear b_data in journal_get_descriptor_buffer in fs/jbd/journal.c
+    (Ted Ts'o).
+  * Added module option parsing in drivers/video/vesafb.c (closes: #244031).
+  * Fixed vesafb_exit leaks in drivers/video/vesafb.c.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 Apr 2004 21:50:18 +1000
+
+kernel-source-2.6.5 (2.6.5-1) unstable; urgency=low
+
+  * New upstream release (closes: #235419, #238569).
+  * Applied SCSI Media Changer patch (closes: #238476).
+  * Fixed strcmp in sysfs store (closes: #234446):
+    . kernel/power/main.c
+    . kernel/power/disk.c
+  * Do not unshare files for pid == 1 in kernel/fork.c (closes: #239029).
+  * Removed ide-detect in favour of ide-generic:
+    . drivers/ide/Makefile
+    . drivers/ide/ide-default.c
+    . drivers/ide/ide-generic.c
+    . drivers/ide/ide-io.c
+    . drivers/ide/ide-probe.c
+    . drivers/ide/ide-probe-mini.c
+  * Check __HAVE_THREAD_FUNCTIONS in include/linux/thread_info.h (m68k).
+  * Unregister properly if no devices are found (closes: #237477):
+    . drivers/scsi/aic7xxx/aic7770_osm.c
+    . drivers/scsi/aic7xxx/aic7xxx_osm.c
+    . drivers/scsi/aic7xxx/aic7xxx_osm.h
+  * Fixed X86_PM_TIMER description in drivers/acpi/Kconfig (Jochen Voss,
+    closes: #241941).
+  * Removed non-free firmware and disabled their drivers (see #239952):
+    . QLA2XXX: drivers/scsi/qla2xxx/*_fw.c
+    . TIGON3: drivers/net/tg3.c
+    . Unused: sound/oss/724hwmcode.h
+    . Unused: sound/oss/Hwmcode.h
+  * Lowered priority of "too many keys" message in
+    drivers/input/keyboard/atkbd.c (closes: #239036).
+  * Made %docs depend on scripts_basic instead of scripts in Makefile.
+  * Fixed syntax error in Documentation/DocBook/parportbook.tmpl.
+  * Include linux/init.h for __init in sound/pcmcia/pdaudiocf/pdaudiocf.c
+  * Fixed bashism in Makefile.
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  6 Apr 2004 20:42:02 +1000
+
+kernel-source-2.6.4 (2.6.4-1) unstable; urgency=low
+
+  * New upstream release (closes: #234631, #234754, #236570).
+  * Added vmlinux.syms:
+    . scripts/Makefile.modpost
+    . scripts/modpost.c
+  * Allow X86_MCE_NONFATAL to be a module:
+    . arch/i386/Kconfig
+    . arch/i386/kernel/cpu/mcheck/mce.c (Andrew Morton)
+  * Black listed "TOSHIBA CD-ROM XM-1702BC" in drivers/ide/ide-dma.c.
+  * Black listed "VIA KT400-8235" for broken_pirq in
+    arch/i386/kernel/dmi_scan.c (closes: #235188).
+  * Handle NO_SENSE in sd_rw_intr in drivers/scsi/sd.c (Alan Stern,
+    closes: #232494).
+  * Reverted tasklet change in drivers/usb/host/uhci-hcd.*.
+  * Fixed ThinkPad lock up problem in drivers/usb/host/uhci-hcd.c (Alan Stern).
+  * Put __modpost under MODVERDIR in scripts/Makefile.modpost.
+  * Provide *-2.6 instead of *-2.4 (closes: #236779).
+  * Fixed IDE CD capacity detection in drivers/ide/ide-cd.c (Jens Axboe,
+    closes: #216581).
+  * Removed dev->name lookups before register_netdev (closes: #234817):
+    . drivers/net/3c501.c
+    . drivers/net/3c503.c
+    . drivers/net/8390.c
+    . drivers/net/8390.h
+    . drivers/net/ac3200.c
+    . drivers/net/apne.c
+    . drivers/net/e2100.c
+    . drivers/net/es3210.c
+    . drivers/net/hp-plus.c
+    . drivers/net/hp.c
+    . drivers/net/hydra.c
+    . drivers/net/lne390.c
+    . drivers/net/mac8390.c
+    . drivers/net/ne.c
+    . drivers/net/ne2.c
+    . drivers/net/ne2k-pci.c
+    . drivers/net/ne2k_cbus.c
+    . drivers/net/ne3210.c
+    . drivers/net/oaknet.c
+    . drivers/net/smc-mca.c
+    . drivers/net/smc-ultra.c
+    . drivers/net/smc-ultra32.c
+    . drivers/net/stnic.c
+    . drivers/net/wd.c
+    . drivers/net/zorro8390.c
+  * Set MODVERDIR based on SUBDIRS in Makefile (Andreas Gruenbacher,
+    closes: #236626).
+  * Remove reference to drivers/parport/init.c in
+    Documentation/DocBook/parportbook.tmp.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 Mar 2004 14:13:45 +1100
+
+kernel-source-2.6.3 (2.6.3-2) unstable; urgency=low
+
+  * Rebuilt to fix tarball in kernel-source package.
+  * Really added the Post-Halloween document.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 23 Feb 2004 08:01:24 +1100
+
+kernel-source-2.6.3 (2.6.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Replaced irq_resource usage:
+    . drivers/isdn/hardware/avm/b1isa.c
+    . drivers/isdn/hardware/avm/t1isa.c
+    . drivers/isdn/hisax/hisax_fcclassic.c
+  * Added Post-Halloween document.
+  * Allow PCI IDE drivers to be unloaded if probing fails (closes: #202828):
+    . drivers/ide/arm/*.c
+    . drivers/ide/pci/*.c
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 20 Feb 2004 20:48:48 +1100
+
+kernel-source-2.6.2 (2.6.2-2) unstable; urgency=high
+
+  * Added build-dependency on gs (closes: #232631).
+  * Restored generic SCSI proc_info function in drivers/scsi/scsi_proc.c
+    (closes: #232533).
+  * Fixed early chip programming in tg3_setup_copper_phy() in drivers/net/tg3.c
+    (David Miller).
+  * Fixed dev timer SMP deadlock in drivers/scsi/aic7xxx/aic7xxx_osm.c
+    (Andrew Morton).
+  * Check return value of do_munmap in do_mremap in mm/mremap.c (2.6.3).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 18 Feb 2004 21:29:09 +1100
+
+kernel-source-2.6.2 (2.6.2-1) unstable; urgency=low
+
+  * New upstream release (closes: #227071, #229745, #227240, #231466).
+  * Made PDC202XX_{BURST,FORCE} available even if it is a module in
+    drivers/ide/Kconfig.
+  * Fixed dead lock in drain_dac in sound/oss/i810_audio.c.
+  * Added drivers/ide/ide-probe-mini.c (2.4, closes: #224082, #227317, #228906,
+    #230195, #230755).
+  * Updated kernel-source description from kernel-package (closes: #226816).
+  * Added upstream changelog (closes: #230183).
+  * Added build-dependency on docbook-utils and transfig.
+  * Put kernel_thread_helper in right segment in arch/i386/kernel/process.c
+    (bk).
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  7 Feb 2004 10:36:58 +1100
+
+kernel-source-2.6.0 (2.6.0-2) unstable; urgency=low
+
+  * Don't allow mremap of zero-sized areas in mm/mremap.c (2.6.1,
+    closes: #226542).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Jan 2004 16:34:27 +1100
+
+kernel-source-2.6.0 (2.6.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Documented psmouse/mousedev in README.Debian (closes: #223596).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 21 Dec 2003 16:16:02 +1100
+
+kernel-source-2.6.0-test11 (2.6.0-test11-1) unstable; urgency=low
+
+  * New upstream release (closes: #212831, #215530, #217908, #218749, #218768,
+    #219239, #219944, #220432).
+  * Reverted set_blocksize change in fs/block_dev.c (closes: #214131).
+  * Removed libqt-dev suggestion in kernel-source.
+  * Added Freecom FX-5/FX-50 in drivers/usb/storage/unusual_devs.h
+    (Luke Kenneth Casson Leighton, closes: #218781).
+  * Unregister driver if probing fails in sound/oss/sb_card.c
+    (closes: #218845).
+  * Work around gcc bug in sound/core/oss/Makefile (closes: #203195).
+  * Use page cache for cramfs_read in fs/cramfs/inode.c (Al Viro).
+  * Fixed DMA overruns/bugs in sound/oss/i810_audio.c.
+  * Include asm/io.h and asm/scatterlist.h in include/asm-i386/dma-mapping.h.
+  * Removed uses of isa_vir_to_bus (closes: #218878):
+    . drivers/net/irda/ali-ircc.c
+    . drivers/net/irda/nsc-ircc.c
+    . drivers/net/irda/smsc-ircc2.c
+    . drivers/net/irda/via-ircc.c
+    . drivers/net/irda/via-ircc.h
+    . drivers/net/irda/w83977af_ir.c
+    . include/net/irda/ali-ircc.h
+    . include/net/irda/irda_device.h
+    . include/net/irda/nsc-ircc.h
+    . include/net/irda/w83977af_ir.h
+    . net/irda/irda_device.c
+  * Fixed Tekram DC390 driver (Guennadi Liakhovetski, closes: #221865):
+    . drivers/scsi/Kconfig
+    . drivers/scsi/dc390.h
+    . drivers/scsi/scsiiom.c
+    . drivers/scsi/tmscsim.c
+    . drivers/scsi/tmscsim.h
+  * Flush bundles when devices go down:
+    . include/net/xfrm.h
+    . net/xfrm/xfrm_policy.c
+    . net/xfrm/xfrm_state.c
+  * Fixed inclusion loop with include/net/sctp/sm.h:
+    . include/net/sctp/sctp.h
+    . net/sctp/associola.c
+    . net/sctp/outqueue.c
+    . net/sctp/socket.c
+    . net/sctp/transport.c
+  * Fixed connect/disconnect race in drivers/usb/core/hub.c (2.4,
+    closes: #218670).
+  * Initialise state for /proc/net/tcp in net/ipv4/tcp_ipv4.c (bk).
+  * Cleaned up debian/rules a little.
+  * Schedule tasklets for async removal in drivers/usb/host/uhci-hcd.*.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  8 Dec 2003 20:23:22 +1100
+
+kernel-source-2.6.0-test9 (2.6.0-test9-1) unstable; urgency=low
+
+  * New upstream release (closes: #216972).
+  * Applied x86/64bit fix in drivers/char/ftape/lowlevel/ftape-calibr.c (2.4).
+  * Include linux/fs.h for struct file:
+    . drivers/char/watchdog/scx200_wdt.c
+    . drivers/char/watchdog/wdt_pci.c
+    . drivers/char/watchdog/i810-tco.c
+    . drivers/char/watchdog/alim7101_wdt.c
+    . drivers/char/watchdog/alim1535_wdt.c
+    . drivers/char/watchdog/sc1200wdt.c
+    . drivers/char/watchdog/amd7xx_tco.c
+    . drivers/char/applicom.c
+  * Include linux/init.h for __init:
+    . drivers/char/moxa.c
+    . drivers/char/mxser.c
+    . drivers/mtd/chips/jedec_probe.c
+    . drivers/mtd/chips/sharp.c
+    . drivers/net/sb1000.c
+    . drivers/net/wan/sealevel.c
+    . drivers/net/wan/cosa.c
+  * Removed unnecessary asm/setup.h in drivers/mtd/cmdlinepart.c.
+  * Support architectures without asm/mca.h:
+    . include/linux/mca.h
+    . include/linux/mca-legacy.h
+  * Made PNPBIOS X86 only in drivers/pnp/Kconfig.
+  * Added CIBAUD/CMSPAR in include/asm-alpha/termbits.h.
+  * Include linux/selection.h for color_table in drivers/video/tgafb.c.
+  * Added optimise by size option:
+    . Makefile
+    . init/Kconfig
+  * Fixed reference count bug in net/xfrm/xfrm_policy.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 26 Oct 2003 16:16:43 +1100
+
+kernel-source-2.6.0-test7 (2.6.0-test7-1) unstable; urgency=low
+
+  * Fixed NLMSG_OK and RTA_OK:
+    . include/linux/netlink.h
+    . include/linux/rtnetlink.h
+  * Reverted process group accessor change (bk):
+    . arch/ia64/kernel/unaligned.c
+    . arch/sparc64/solaris/misc.c
+    . drivers/char/n_tty.c
+    . drivers/char/rocket.c
+    . drivers/char/tty_io.c
+    . drivers/char/vt.c
+    . drivers/char/vt_ioctl.c
+    . drivers/net/slip.c
+    . fs/binfmt_elf.c
+    . fs/compat_ioctl.c
+    . fs/dquot.c
+    . fs/exec.c
+    . fs/open.c
+    . fs/proc/array.c
+    . include/linux/sched.h
+    . kernel/acct.c
+    . kernel/exit.c
+    . kernel/fork.c
+    . kernel/pid.c
+    . kernel/signal.c
+    . kernel/sys.c
+    . net/ipv4/netfilter/ipt_owner.c
+    . net/ipv6/netfilter/ip6t_owner.c
+  * Export blk_queue_activity_fn for ide-probe in drivers/block/ll_rw_blk.c.
+    This change did not make it into the package (closes: #215223).
+  * Include mca-legacy.h for MCA_NOTFOUND in drivers/isdn/eicon/eicon_mod.c.
+  * Use gcc-2.95 compatible variadic macro in
+    drivers/media/video/saa7134/saa7134-core.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 12 Oct 2003 09:51:18 +1000
+
+kernel-source-2.6.0-test6 (2.6.0-test6-2) unstable; urgency=low
+
+  * Export blk_queue_activity_fn for ide-probe in drivers/block/ll_rw_blk.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  4 Oct 2003 13:45:40 +1000
+
+kernel-source-2.6.0-test6 (2.6.0-test6-1) unstable; urgency=low
+
+  * New upstream release (closes: #209307).
+  * Use mac_len for move ll headers:
+    . include/linux/skbuff.h
+    . net/core/dev.c
+    . net/ipv4/xfrm4_input.c
+    . net/ipv6/xfrm6_input.c
+  * Removed ACENIC/DGRS/DABUSB in arch/*/defconfig (closes: #211852).
+  * Fixed double request_region:
+    . drivers/net/arcnet/com20020.c
+    . drivers/net/arcnet/com20020-isa.c
+    . drivers/net/arcnet/com20020-pci.c
+  * Forbid unspecified tunnel mode SAs in net/xfrm/xfrm_policy.c.
+  * Removed duplicate policy checks for ipip tunnels:
+    . net/ipv4/ipip.c
+    . net/ipv4/xfrm4_tunnel.c
+  * Restored err_tty_modem label in drivers/isdn/i4l/isdn_common.c.
+  * Added probe declaration in drivers/net/wireless/arlan-main.c.
+  * Include linux/termios.h for TCGETS in fs/intermezzo/dir.c
+    (Kalle Olavi Niemitalo, closes: #208966).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  3 Oct 2003 19:38:37 +1000
+
+kernel-source-2.6.0-test4 (2.6.0-test4-3) unstable; urgency=low
+
+  * Fixed fatal bug in xfrm ll header patch:
+    . net/ipv4/xfrm4_input.c
+    . net/ipv6/xfrm6_input.c
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  4 Sep 2003 20:51:57 +1000
+
+kernel-source-2.6.0-test4 (2.6.0-test4-2) unstable; urgency=low
+
+  * Added MODULE_LICENSE to net/xfrm/xfrm_user.c.
+  * Export idedefault_driver in drivers/ide/ide-default.c.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  1 Sep 2003 21:16:07 +1000
+
+kernel-source-2.6.0-test4 (2.6.0-test4-1) unstable; urgency=low
+
+  * New upstream release (closes: #206656).
+  * Fixed ll header of tunnel packets:
+    . include/linux/skbuff.h
+    . net/ipv4/xfrm4_input.c
+    . net/ipv6/xfrm6_input.c
+  * Fixed gcc 3 declaration in drivers/net/sis190.c.
+  * Fixed synchronize_irq() call in drivers/net/sis190.c.
+  * Fixed freenet_devtypo in drivers/net/wan/cosa.c.
+  * Fixed device name setting in drivers/net/3c509.c.
+  * Removed release timer in sound/pcmcia/vx/vx_entry.c.
+  * Always define cmpxchg in include/asm-i386/system.h (closes: #206956).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 31 Aug 2003 13:41:55 +1000
+
+kernel-source-2.6.0-test2 (2.6.0-test2-1) unstable; urgency=low
+
+  * Cope with exit status 2 from md5sum in drivers/isdn/hisax/cert.c.
+  * Fixed binutils test in scripts/ver_linux.
+  * Wrapped long line in kernel-source description.
+  * Marked IDE PCI proc entries as __devinitdata (closes: #202412):
+    . drivers/ide/pci/*.h
+  * Fixed binutils version recommendation in arch/ppc/Makefile.
+  * Added per-SA ECN flag:
+    . include/linux/pfkeyv2.h
+    . include/linux/xfrm.h
+    . include/net/inet_ecn.h
+    . include/net/xfrm.h
+    . net/ipv4/ah4.c
+    . net/ipv4/esp4.c
+    . net/ipv4/ipcomp.c
+    . net/ipv4/xfrm4_input.c
+    . net/ipv6/ah6.c
+    . net/ipv6/esp6.c
+    . net/ipv6/ipcomp.c
+    . net/ipv6/xfrm6_input.c
+    . net/key/af_key.c
+    . net/xfrm/xfrm_user.c
+  * Fixed secpath xfrm state leak:
+    . include/net/xfrm.h
+    . net/ipv4/xfrm4_input.c
+    . net/ipv4/xfrm4_policy.c
+    . net/ipv6/xfrm6_input.c
+    . net/ipv6/xfrm6_policy.c
+    . net/netsyms.c
+    . net/xfrm/xfrm_input.c
+    . net/xfrm/xfrm_policy.c
+  * Fixed owner setting in drivers/net/arcnet/com20020-isa.c.
+  * Fixed module refcounting in drivers/net/pcmcia/com20020_cs.c.
+  * Fixed hdlc proto type:
+    . drivers/net/wan/dscc4.c
+    . drivers/net/wan/pc300_drv.c
+  * Use gcc-2.95 compatible variadic macro in drivers/net/wireless/wl3501_cs.c.
+  * Applied 486 emulation patch (Willy Tarreau):
+    . arch/i386/Kconfig
+    . arch/i386/kernel/Makefile
+    . arch/i386/kernel/emu.c
+    . arch/i386/kernel/entry.S
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 31 Jul 2003 20:01:30 +1000
+
+kernel-source-2.6.0-test1 (2.6.0-test1-1) unstable; urgency=low
+
+  * New upstream release (closes: #194242, #199893).
+  * Fixed size of default_port in drivers/net/via-rhine.c.
+  * Added general notes from 2.4 README.Debian file.
+  * Removed cmd640 from drivers/ide/pci/Makefile (closes: #195286).
+  * Made MCA_53C9X depend on MCA_LEGACY in drivers/scsi/Kconfig.
+  * Setup two 1G mappings if cia_rev == 1 in arch/alpha/kernel/core_cia.c.
+  * Added inclusion of linux/stddef.h due to NULL in linux/timer.h.
+  * Fixed multiline string literals in drivers/net/wan/sdla_chdlc.c.
+  * Suggest libqt-dev in kernel-source package (closes: #196296).
+  * Fixed IDE PCI proc entries for modules in drivers/ide/ide-proc.c.
+  * Fixed assembly specification in drivers/net/wan/sbni.c.
+  * Enable hw_resend_irq if io_apic is on (ac):
+    . include/asm-i386/hw_irq.h
+    . arch/i386/kernel/io_apic.c
+  * Include linux/skbuff.h for skb_put in include/linux/netlink.h.
+  * Include linux/spinlock.h for rwlock_t in include/net/ip6_fib.h.
+  * Include linux/ipv6.h for inet6_sk in include/net/ip6_route.h.
+  * Include net/sock.h for struct sock in include/net/ip6_route.h.
+  * Include linux/netdevice.h for MAX_ADDR_LEN in include/net/neighbour.h.
+  * Added forward declaration for struct neighbour in include/net/neighbour.h.
+  * Include linux/types.h for __u32 in include/linux/watchdog.h.
+  * Added forward declaration for struct net_device in include/linux/skbuff.h.
+  * Wake up km_waitq after policy changes in net/xfrm/xfrm_policy.c.
+  * Restored mdio_sem that replaced rtnl_lock in drivers/net/8139too.c.
+  * Include linux/root_dev.h for ROOT_DEV in drivers/mtd/maps/uclinux.c.
+  * Removed bogus devfs references in Documentation/initrd.txt (Nikolaus Rath).
+  * Kill temp addresses and regen timer on shutdown in net/ipv6/addrconf.c.
+  * Fixed optional choice setting in scripts/kconfig/confdata.c.
+  * Made CONFIG_IDEDISK_STROKE a runtime option (Joerg Platte):
+    . include/linux/ide.h
+    . drivers/ide/ide.c
+    . drivers/ide/ide-disk.c
+  * Export blk_rq_prep_restart for ide-disk in drivers/block/ll_rw_blk.c.
+  * Fixed IDE modularisation:
+    . drivers/ide/Kconfig
+    . drivers/ide/Makefile
+    . drivers/ide/ide.c
+    . drivers/ide/ide-io.c
+    . drivers/ide/ide-pnp.c
+    . drivers/ide/ide-probe.c
+    . drivers/ide/pci/*
+    . drivers/ide/setup-pci.c
+    . include/linux/ide.h
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 15 Jul 2003 21:36:05 +1000
+
+kernel-source-2.5.69 (2.5.69-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  7 May 2003 20:54:36 +1000
+
+kernel-source-2.4.20 (2.4.20-6) unstable; urgency=low
+
+  * Documented mem= change in README.Debian.
+  * Fixed printk warnings in init/do_mounts.c.
+  * Fixed printk warnings in fs/fat/file.c (closes: #178355).
+  * Commented out non-TeX heading in Documentation/smp.tex (Daniel van Eeden,
+    closes: #174554).
+  * Fixed dupliate detection problem in drivers/net/tokenring/ibmtr.c
+    (closes: #178874).
+  * Close old_fd and root_fd in init/do_mounts.c (Brian May, closes: #180934).
+  * Ignore errors from tw_setfeature in drivers/scsi/3w-xxxx.c
+    (closes: #181581).
+  * Changed all occurances of infobox+sleep to msgbox in scripts/Menuconfig
+    (closes: #181640).
+  * Use rq->special instead of rq->buffer in drivers/scsi/ide-scsi.c
+    (closes: #180125).
+  * Fixed precedence bug in drivers/sound/trident.c (John Levon).
+  * Documented AMD 768 erratum (closes: #177139).
+  * Fixed initialisation error handling in drivers/block/cciss.c.
+  * Fixed initialisation error handling in drivers/block/cpqarray.c.
+  * Fixed ptrace security hole (closes: #185375).
+  * Work around broken Toshiba keyboards (2.4.21pre, closes: #121335).
+  * Fixed sock address length check (2.4.21pre, closes: #171983).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Mar 2003 10:05:53 +1100
+
+kernel-source-2.4.20 (2.4.20-5) unstable; urgency=high
+
+  * Fixed ethernet packet padding information leak (2.4ac, see #176178):
+    . via-rhine
+  * Added sk_padto function (closes: #176487).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 13 Jan 2003 19:17:48 +1100
+
+kernel-source-2.4.20 (2.4.20-4) unstable; urgency=high
+
+  * Added missing printk newlines in net/sched/sch_htb.c
+    (Alexandra N. Kossovsky, closes: #174152).
+  * Removed bogus VIA KT266 IO-APIC check.  It is a useful warning.
+  * Removed bogus ip_conntrack_{ftp,irc} check.
+  * Fixed a typo in Documentation/sound/Introduction (Daniel van Eeden,
+    closes: #174944).
+  * Reverted CONFIG_VIDEO_VESA change (closes: #175614).
+  * Fixed ethernet packet padding information leak (2.4ac, see #176178):
+    . 3c501
+    . 3c505
+    . 3c507
+    . 3c523
+    . 3c527
+    . 7990
+    . 8139too
+    . 82596
+    . 8390
+    . a2065
+    . am79c961a
+    . ariadne
+    . at1700
+    . atarilance
+    . atp
+    . bagetlance
+    . de600
+    . de620
+    . declance
+    . depca
+    . eepro
+    . eexpress
+    . epic100
+    . eth16i
+    . fmv18x
+    . hp100
+    . lance
+    . lasi_82596
+    . lp486e
+    . ni5010
+    . ni52
+    . ni65
+    . axnet_cs
+    . fmvj18x_cs
+    . ray_cs
+    . xirc2ps_cs
+    . xircom_tulip_cb
+    . seeq8005
+    . sgiseeq
+    . sk_g16
+    . smc9194
+    . sun3_82586
+    . sun3lance
+    . wavelan
+    . yellowfin
+    . znet
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 11 Jan 2003 17:31:43 +1100
+
+kernel-source-2.4.20 (2.4.20-3) unstable; urgency=low
+
+  * Fixed ext3 remount deadlock added in 2.4.20-2 (Andrew Morton).
+  * Fixed ext3 use-after-free bug (Andrew Morton).
+  * Fixed i845G AGP Gart initialisation (Michael Milligan, closes: #172724).
+  * Updated i810_audio driver (2.4.21pre1, closes: #172194).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 21 Dec 2002 13:49:15 +1100
+
+kernel-source-2.4.20 (2.4.20-2) unstable; urgency=low
+
+  * Include acpidrv.o in the kernel (Mario Holbe, closes: #168439).
+  * Removed CONFIG_INET_ECN_DISABLED option.
+  * Removed CONFIG_INET_ECN check in net/ipv4/tcp_diag.c.
+  * Fixed stxncpy on alpha (2.4.21pre).
+  * Fixed ext3 data=journal umount problem (2.4.21pre1, closes: #171632).
+  * Added dependency on MTD_CONCAT for sc520cdp (closes: #173045).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 15 Dec 2002 14:53:05 +1100
+
+kernel-source-2.4.20 (2.4.20-1) unstable; urgency=low
+
+  * New upstream release (closes: #164065, #164204, #165478, #166312, #168141,
+    #168190, #170962).
+  * Disable CONFIG_VIDEO_VESA unless VESA FB support is turned on.
+  * Mention Debian changes in kernel-source package description.
+  * Fixed a bug where ACPI is always compiled as a module (closes: #168439).
+  * CONFIG_VIDEO_SELECT is always on again.
+  * Modularised VESA FB.
+  * Added coreutils as an alternative to fileutils (closes: #170459).
+  * Replaced BUG() with printk() in fs/fat/file.c (closes: #168886).
+  * Fixed circular dependency in include/linux/netfilter_ipv4/ip_conntrack.h.
+  * Do not get seqno if we will not use it in fs/isofs/inode.c.
+  * Fixed HID name fix so that produce id is actually read.
+  * Added missing semicolons in drivers/scsi/aic7xxx/aicasm/aicasm_gram.y
+    (Michael Osamu Shiobara, closes: #165375).
+  * Made CONFIG_PARIDE_EPATC8 into a runtime option.
+  * Fixed double PCI unregistration in drivers/char/joystick/pcigame.c.
+  * Include linux/init.h in drivers/char/amd76x_pm.c.
+  * Include linux/init.h in drivers/scsi/cpqfcTSinit.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 30 Nov 2002 16:39:30 +1100
+
+kernel-source-2.4.19 (2.4.19-5) unstable; urgency=high
+
+  * Fixed i386 lcall DoS (Petr Vandrovec).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 18 Nov 2002 21:22:02 +1100
+
+kernel-source-2.4.19 (2.4.19-4) unstable; urgency=low
+
+  * Added missing headers in drivers/isdn/hisax/avma1_cs.c.
+  * Added missing headers in drivers/net/wan/comx-hw-munich.c.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 16 Oct 2002 22:42:01 +1000
+
+kernel-source-2.4.19 (2.4.19-3) unstable; urgency=low
+
+  * Fixed more ACPI module building problems.
+  * Fixed initialisation oops in drivers/scsi/aic7xxx/aic7770.c
+    (closes: #162347).
+  * Made CONFIG_VIDEO_SELECT conditional in drivers/video.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  6 Oct 2002 16:33:04 +1000
+
+kernel-source-2.4.19 (2.4.19-2) unstable; urgency=low
+
+  * Inlucde pagemap.h for unlock_page in drivers/char/drm/i810_dma.c
+    (closes: #144971).
+  * Set ?time to zero in fs/cramfs/inode.c.
+  * Allow ACPI to be compiled as a module.
+  * Fixed umsdos_solve_hlink oops in fs/umsdos/dir.c (closes: #159772).
+  * Honour ide?=dma in drivers/ide/via82cxxx.c (Arne Nordmark,
+    closes: #157925).
+  * Restored priority of invalidate messages in fs/buffer.c.  The submitter of
+    #131419 did a badblocks -f.
+  * Wait before flushing in drivers/char/drm/mga_dma.c (ac, closes: #161100).
+  * Applied SCSI Media Changer patch (closes: #144850).
+  * Applied Big Physical Area Reservation patch (closes: #144849).
+  * Removed period check for executables in fs/isofs/inode.c (closes: #162190).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 28 Sep 2002 16:53:27 +1000
+
+kernel-source-2.4.19 (2.4.19-1) unstable; urgency=low
+
+  * New upstream release (closes: #139617, #146349).
+  * ip_nat_{ftp,irc} cannot be m if ip_conntrack_{ftp,irc} is y, respectively
+    (closes: #142532).
+  * Removed volume checks in fs/isofs/inode.c (closes: #138384).
+  * Removed gsem from drivers/usb/pegasus.c.
+  * Always call complete after unlinking an urb in drivers/usb/usb-ohci.c.
+  * Set hardsect size to 512 in drivers/scsi/sr.c (closes: #154510).
+  * Removed non-free firmware and disabled their drivers (closes: #150052):
+   . SMC Token Ring
+   . ACENIC
+   . DGRS
+   . DABUSB
+  * Lowed invalidate messages to priority DEBUG in fs/buffer.c
+    (closes: #131349).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  7 Aug 2002 21:12:03 +1000
+
+kernel-source-2.4.18 (2.4.18-5) unstable; urgency=low
+
+  * Corrected AdvWriteDWordLramNoSwap in drivers/scsi/advansys.c
+    (Jerome L. Quinn, closes: #128080).
+  * Added check for VIA KT266 IO-APIC, version == 2 (closes: #136163).
+  * Updated pegasus driver (2.4.19pre6).
+  * Added ATARAID device names to main.c (Eduard Bloch, closes: #139604).
+  * Updated uhci driver (Johannes Erdfelt, closes: #135785).
+  * Translate slashes in broken Acorn ISO9660 file systems (Darren Salt,
+    closes: #141660).
+  * Added newline to printk in drivers/sound/i810_audio.c
+    (handler-case@gmx.net, closes: #142214).
+  * Updated parport driver (2.4.19pre6).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 Apr 2002 22:07:22 +1000
+
+kernel-source-2.4.18 (2.4.18-4) unstable; urgency=high
+
+  * Fixed remaining double free in
+     drivers/net/zlib.c
+     fs/jffs2/zlib.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 20 Mar 2002 20:02:18 +1100
+
+kernel-source-2.4.18 (2.4.18-3) unstable; urgency=high
+
+  * Fixed double free in
+     drivers/net/zlib.c
+     fs/jffs2/zlib.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 13 Mar 2002 20:24:09 +1100
+
+kernel-source-2.4.18 (2.4.18-2) unstable; urgency=low
+
+  * Removed -g from driviers/atm/Makefile.
+  * Added missing personality patch to fs/binfmt_elf.c.
+  * Export est_cycle_freq (needed for removing CONFIG_FT_ALPHA_CLOCK).
+  * Extern inline -> static inline in
+     drivers/char/specialx.c
+     drivers/net/hamradio/soundmodem
+  * Added asm/io.h for in*/out* to
+     drivers/isdn/hisax/hisax_fcpcipnp.c
+     drivers/net/wan/farsync.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  6 Mar 2002 19:53:30 +1100
+
+kernel-source-2.4.18 (2.4.18-1) unstable; urgency=low
+
+  * New upstream release (closes: #126391, #135156).
+  * Reverted tulip BMCR_FULLDPLX patch.
+  * Moved mkcramfs to the cramfs source package.
+  * CONFIG_SERIAL_ACPI now depends on CONFIG_SERIAL == y (closes: #132038).
+  * Fixed negative inodes in /proc/net (Arnaud Giersch, closes: #134704).
+  * pcnet32_purge_tx_ring may be called from IRQ context (Darren Salt,
+    closes: #134930).
+  * Check old_bbpnt in drivers/scsi/sr.c (2.5).
+  * Removed CONFIG_FT_ALPHA_CLOCK.
+  * Fixed the use of return values from mem*_io in drivers/isdn/sc.
+  * Added missing headers in drivers/pcmcia/i82092.c.
+  * Fixed compile error in drivers/scsi/dpt_i2o.c on alpha.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 28 Feb 2002 19:40:29 +1100
+
+kernel-source-2.4.17 (2.4.17-1) unstable; urgency=low
+
+  * New upstream release (closes: #122168, #123471).
+  * Only set startup to 0 for 21143 (rev 65) in tulip.
+  * Don't clear BMCR_FULLDPLX bit in tulip_find_mii as it breaks some cards
+    (closes: #100624).
+  * Fixed atyfb compilation problem (Tobias Ringstrom).
+  * Removed obsolete vfat patch.
+  * Fixed double cache allocation in mount_devfs_fs.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Dec 2001 13:41:46 +1100
+
+kernel-source-2.4.16 (2.4.16-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 28 Nov 2001 07:30:44 +1100
+
+kernel-source-2.4.15 (2.4.15-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Nov 2001 13:34:51 +1100
+
+kernel-source-2.4.14 (2.4.14-1) unstable; urgency=low
+
+  * New upstream release (closes: #117368, #118111).
+  * Made mkcramfs more verbose about write errors.
+  * Fixed compilation problem in loopback driver.
+  * Fixed compilation problem in ps2esdi.c.
+  * Fixed compilation problem in i2c-core.c.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  9 Nov 2001 20:15:49 +1100
+
+kernel-source-2.4.13 (2.4.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * Updated kernel-source suggests (closes: #115716).
+  * Added support for nm256xl+ (Mattia Monga, closes: #116378).
+  * Fixed comment about epochs in arch/alpha/kernel/time.c.
+  * Fixed symlink size bug on tmpfs.
+  * Fixed handling of HIDs with product strings bug no manufacturer.
+  * Work around tmpfs symlink size bug in mkcramfs.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 27 Oct 2001 17:39:07 +1000
+
+kernel-source-2.4.12 (2.4.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed typo in debian/rules (closes: #114065).
+  * Fixed ECN compilation problem (closes: #114192).
+  * Fixed typo in Documentation/sound/OPL3-SA
+    (Marius Gedminas, closes: #114760).
+  * Fixed typo in drivers/parport/ieee1284_ops.c (Tim Waugh).
+  * Don't kill page cache entries in set_blocksize.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 Oct 2001 11:41:03 +1000
+
+kernel-source-2.4.10 (2.4.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added support for EPAT C7/C8 chips.
+  * Fixed dead lock on shutdown in 8139too (closes: #107779).
+  * Removed const from drivers/net/irda/smc-ircc.c
+    (Keith Owens, closes: #110193).
+  * Allow ECN to be compiled in but disabled.
+  * Removed non-free Keyspan firmware.  We're no longer pristine.
+  * Fixed list_del bug in usb-uhci (ac patches).
+  * Fixed apm argument processing (ac patches).
+  * Added ioctl defines for cpq (ac patches).
+  * Included linux/init.h in drivers/net/aironet4500_card.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 29 Sep 2001 16:05:20 +1000
+
+kernel-source-2.4.9 (2.4.9-1) unstable; urgency=low
+
+  * New upstream release (closes: #63393).
+  * Fixed highmem CramFS bug (closes: #108893).
+  * Added missing include in fs/ntfs/unistr.c.
+  * Reverted startup==1 patch from drivers/net/tulip/21142.c.
+  * Fixed obsolete use of min: drivers/net/rrunner.c.
+  * Exported snprintf/vsnprintf (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 18 Aug 2001 21:23:07 +1000
+
+kernel-source-2.4.8 (2.4.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * Menuconfig now exits with 1 if screen is too small (closes: #106510).
+  * Applied NFS client seekdir patch (closes: #63063, #107045).
+  * Build-depend on kernel-package >= 7.48 (closes: #107545).
+  * Applied emu10k fixes (ac patches).
+  * Fixed ldm macros (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 12 Aug 2001 09:04:44 +1000
+
+kernel-source-2.4.7 (2.4.7-1) unstable; urgency=low
+
+  * New upstream release (closes: #97516, #104141, #104267).
+  * Applied ReiserFS umount patch (closes: #100740).
+  * Applied DAC960 completion patch (Jens Axboe).
+  * Restricted CONFIG_FB_PVR2 to SH (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Jul 2001 11:52:29 +1000
+
+kernel-source-2.4.6 (2.4.6-1) unstable; urgency=low
+
+  * New upstream release (closes: #102864).
+  * Fixed pegasus_set_multicast lockup.
+  * Reverted sysinfo patch.
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  5 Jul 2001 19:24:12 +1000
+
+kernel-source-2.4.5 (2.4.5-1) unstable; urgency=low
+
+  * New upstream release (closes: #78761, #96443).
+  * Fixed set_blocksize() on RAMDISKs.
+  * Removed flavour patch from Makefile as it is now obsolete.
+  * Fixed typo in drivers/usb/ov511.c (ac patches).
+  * Fixed race in fs/super.c (Alexander Viro).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 27 May 2001 10:25:42 +1000
+
+kernel-source-2.4.4 (2.4.4-2) unstable; urgency=low
+
+  * Hacked ide_xlate_1024 to work when IDE is modularised (closes: #94853).
+  * Fixed typo in pci2220i.c (ac patches).
+  * Treat files that begin with FD_FILL_BYTE correctly in vfat
+    (closes: #75413).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 13 May 2001 09:33:09 +1000
+
+kernel-source-2.4.4 (2.4.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed a typo in Documentation/sound/OPL3-SA (Carlos Valdivia Yague,
+    closes: #95255).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 29 Apr 2001 10:32:51 +1000
+
+kernel-source-2.4.3 (2.4.3-4) unstable; urgency=low
+
+  * ip_conntrack_ftp fix (netfilter, closes: #94216).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Apr 2001 11:15:02 +1000
+
+kernel-source-2.4.3 (2.4.3-3) unstable; urgency=low
+
+  * Added missing SIEMENS PCI ID (ac patches).
+  * Exported proc_get_inode (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 16 Apr 2001 08:42:17 +1000
+
+kernel-source-2.4.3 (2.4.3-2) unstable; urgency=low
+
+  * Correct devfs path name in scsi-generic.txt (closes: #93405).
+  * Fixed negative padding in struct sysinfo.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 13 Apr 2001 19:42:42 +1000
+
+kernel-source-2.4.3 (2.4.3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  8 Apr 2001 16:50:40 +1000
+
+kernel-source-2.4.2 (2.4.2-3) unstable; urgency=low
+
+  * Added build-time dependency on libz-dev (closes: #89722).
+  * Compilation fixes in 6pack.c and genhd.h (closes: #90646).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 Mar 2001 20:30:03 +1100
+
+kernel-source-2.4.2 (2.4.2-2) unstable; urgency=low
+
+  * Added initrd support for cramfs.
+  * Fixed bug that prevented initrd from being freed (ac patches).
+  * Fixed a typo in Documentation/sound/VIBRA16 (Carlos Valdivia,
+    closes: #88018).
+  * Removed misleading securetty note in devfs README files (closes: #89148).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Mar 2001 08:56:27 +1100
+
+kernel-source-2.4.2 (2.4.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Created mkcramfs package.
+  * Accomodate option change in binutils (closes: #87009).
+  * Applied loopback patch by Jens Axobe.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 Feb 2001 20:19:31 +1100
+
+kernel-source-2.4.1 (2.4.1-3) unstable; urgency=low
+
+  * Applied tmpfs patch by Christoph Rohland.
+  * Fixed incorrect conditional check in struct sysinfo (closes: #85603).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Feb 2001 21:08:05 +1100
+
+kernel-source-2.4.1 (2.4.1-2) unstable; urgency=low
+
+  * Fixed the struct sysinfo warning properly (closes: #84234).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 10 Feb 2001 23:10:44 +1100
+
+kernel-source-2.4.1 (2.4.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added support for flavours to Makefile.
+  * Only include asm/bitops.h if __KERNEL__ is defined in linux/fs.h
+    (closes: #84238).
+  * Added padding to struct sysinfo so that it's identical to 2.2 (#84234).
+  * Fixed typos in asm/socket.h (closes: #39168).
+  * Updated IrDA URL in asm/termios.h (closes: #42222).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  4 Feb 2001 10:11:47 +1100
+
+kernel-source-2.4.0 (2.4.0-1) unstable; urgency=low
+
+  * New upstream release (closes: #71874, #79490).
+  * Added missing build-time dependencies (closes: #81728).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 16 Jan 2001 11:14:16 +1100
+
+kernel-source-2.4.0-test11 (2.4.0-test11-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  9 Dec 2000 11:34:37 +1100
+
+kernel-source-2.4.0-test5 (2.4.0-test5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 29 Jul 2000 17:55:37 +1000
+
+kernel-source-2.4.0-test4 (2.4.0-test4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 19 Jul 2000 18:37:17 +1000
+
+kernel-source-2.4.0-test3 (2.4.0-test3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 12 Jul 2000 09:49:57 +1000
+
+kernel-source-2.4.0-test2 (2.4.0-test2-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 10 Jul 2000 19:24:59 +1000
+
+kernel-source-2.2.17 (2.2.17pre6-1) frozen unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Jun 2000 21:53:40 +1000
+
+kernel-source-2.2.16 (2.2.16-1) frozen unstable; urgency=high
+
+  * New upstream release (closes: #65745).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 18 Jun 2000 12:42:37 +1000
+
+kernel-source-2.2.15 (1:2.2.15-3) frozen unstable; urgency=low
+
+  * Bring capabilities closer to POSIX spec (Andrew Morgan)
+    | Note. This subtly changes cap_bset behaviour.
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  1 Jun 2000 09:32:11 +1000
+
+kernel-source-2.2.15 (1:2.2.15-2) frozen unstable; urgency=low
+
+  * AIC7XXX 5.1.29 (closes: #63946).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 May 2000 09:29:50 +1000
+
+kernel-source-2.2.15 (1:2.2.15-1) frozen unstable; urgency=low
+
+  * New upstream release (closes: #63675).
+  * Built with kernel-package 7.04.potato.1 (closes: #63290).
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  9 May 2000 12:54:09 +1000
+
+kernel-source-2.2.15pre19 (2.2.15pre19-2) frozen unstable; urgency=low
+
+  * New upstream release (pre20).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 25 Apr 2000 15:31:03 +1000
+
+kernel-source-2.2.15pre19 (2.2.15pre19-1) frozen unstable; urgency=low
+
+  * New upstream release (closes: #55383).
+  * Applied patch from Chris Evans.
+  * Applied patch from David Miller.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 21 Apr 2000 12:15:30 +1000
+
+kernel-source-2.2.14 (2.2.14-5) frozen unstable; urgency=low
+
+  * Delete my copy of the control file before calling make-kpkg
+    (closes: #62269).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 13 Apr 2000 08:33:18 +1000
+
+kernel-source-2.2.14 (2.2.14-4) frozen unstable; urgency=medium
+
+  * Applied patch from Alexey Kuznetsov that fixes the AF_UNIX socket crash
+    (closes: #61335).
+  * Rebuilt with new kernel-package (closes: #61261).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 31 Mar 2000 14:12:43 +1000
+
+kernel-source-2.2.14 (2.2.14-3) frozen unstable; urgency=low
+
+  * Rebuilt with new kernel-package (closes: #60001).
+  * Included a patch from Eric Delaunay <delaunay@lix.polytechnique.fr> that
+    fixes a couple of argument parsing bugs in main.c (closes: #58566).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 23 Mar 2000 19:05:11 +1100
+
+kernel-source-2.2.14 (2.2.14-2) unstable; urgency=low
+
+  * Fixed incorrect assembly code for i386.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 16 Jan 2000 12:36:59 +1100
+
+kernel-source-2.2.14 (2.2.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed a typo in aha152x.c (closes: #12636).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 13 Jan 2000 12:09:06 +1100
+
+kernel-source-2.2.13 (2.2.13-2) unstable; urgency=low
+
+  * Updated version number in README.Debian (closes: #49033).
+  * Removed kernel-image as it will be generated by the kernel-image source
+    package.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 19 Nov 1999 19:41:45 +1100
+
+kernel-source-2.2.13 (2.2.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled ServeRAID (closes: #47653).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 24 Oct 1999 14:22:49 +1000
+
+kernel-source-2.2.12 (2.2.12-4) unstable; urgency=low
+
+  * Fixed a typo in tgafb.c.
+  * Added CONFIG_APM_DISABLE_BY_DEFAULT.
+  * Call make-kpkg to clean up (closes: #45603).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 14 Oct 1999 09:06:57 +1000
+
+kernel-source-2.2.12 (2.2.12-3) unstable; urgency=low
+
+  * Compiled with stacks aligned on dwords.
+  * Enabled serial consoles (closes: #46152).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 28 Sep 1999 17:39:34 +1000
+
+kernel-source-2.2.12 (2.2.12-2) unstable; urgency=low
+
+  * Rewrote the kmod patch to only bail out when the other side is our parent.
+  * Use the VFS patch rather than the autofs patch.
+  * Enabled Joliet extensions (fixes #42006).
+  * Enabled APM (fixes #42258).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 11 Sep 1999 23:51:00 +1000
+
+kernel-source-2.2.12 (2.2.12-1) unstable; urgency=low
+
+  * New upstream release (fixes #43865).
+  * Fixed an nlink update problem in nfs.
+  * New rules file from Hartmut Koptein.
+  * Fixed an overflow bug in the stallion driver.
+  * Fixed an autofs deadlock.
+  * Don't load a module that we're already trying to load (Chris Butler) (fixes
+    #39910).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  1 Sep 1999 09:12:15 +1000
+
+kernel-source-2.2.10 (2.2.10-1) unstable; urgency=low
+
+  * New upsream release.
+  * Moved default.config to new kernel-patch for i386.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 15 Jun 1999 21:59:48 +1000
+
+kernel-source-2.2.9 (2.2.9-2) unstable; urgency=high
+
+  * Fixed a network DoS attack.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  4 Jun 1999 21:06:28 +1000
+
+kernel-source-2.2.9 (2.2.9-1) unstable; urgency=low
+
+  * New upstream relesae.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 18 May 1999 10:20:08 +1000
+
+kernel-source-2.2.7 (2.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  7 May 1999 22:19:56 +1000
+
+kernel-source-2.2.5 (1:2.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 16 Apr 1999 13:56:45 +1000
+
+kernel-source-2.0.36 (2.0.36-3) frozen unstable; urgency=low
+
+  * Upgraded AIC7XXX to 5.1.11 which should make some owners of Adaptec cards
+    able to install Debian.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 21 Feb 1999 14:56:42 +1100
+
+kernel-source-2.0.36 (2.0.36-2) frozen unstable; urgency=low
+
+  * Applied ISDN patch from Paul Slootman that enables idle timeouts in the
+    manual dialmode and allows callback syncPPP connections to be made
+    (fixes #31516).
+  * Enlarged kernel message buffer so that all messages are caught by klogd.
+  * Included module for TLAN based network cards (fixes #31623).
+  * Include EtherExpressPro and FMV0181/182/183/184 as modules.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 16 Jan 1999 16:39:01 +1100
+
+kernel-source-2.0.36 (2.0.36-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled ETH16I.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 28 Nov 1998 17:40:21 +1100
+
+kernel-source-2.0.35 (2.0.35-3) frozen; urgency=low
+
+  * Upgraded to aic7xxx 5.1.4 (fixes #29480, #27859, #28946).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Nov 1998 15:41:44 +1100
+
+kernel-source-2.0.35 (2.0.35-2) unstable; urgency=low
+
+  * Upgraded to aic7xxx 5.1.0.
+  * Removed spurious definition in 3c523.c (fixes #25370).
+  * Built with kernel-package 5.11 (fixes #25623).
+  * Enabled autofs (fixes #22338, #27860).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Oct 1998 17:32:06 +1000
+
+kernel-source-2.0.35 (2.0.35-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 19 Jul 1998 08:59:44 +1000
+
+kernel-source-2.0.34 (2.0.34-4) frozen unstable; urgency=high
+
+  * Updated to aic7xxx 5.0.19 (fixes #24252).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  8 Jul 1998 20:06:08 +1000
+
+kernel-source-2.0.34 (2.0.34-3) frozen unstable; urgency=high
+
+  * Reversed euid test in fs/fcntl.c.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 30 Jun 1998 16:27:49 +1000
+
+kernel-source-2.0.34 (2.0.34-2) frozen unstable; urgency=low
+
+  * Upload to hamm as well.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 21 Jun 1998 16:48:13 +1000
+
+kernel-source-2.0.34 (2.0.34-1) unstable; urgency=low
+
+  * New upstream release (fixes #17651, #18788, #21231, #22330).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  7 Jun 1998 12:29:27 +1000
+
+kernel-source-2.0.33 (2.0.33-9) frozen unstable; urgency=low
+
+  * Disabled certain MCA NIC drivers (fixes #22254).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 10 May 1998 15:59:32 +1000
+
+kernel-source-2.0.33 (2.0.33-8) frozen unstable; urgency=low
+
+  * Disabled experimental drivers.
+  * Reapplied joliet patch (fixes #19160, #21537).
+  * Built with kernel-package 4.07 (fixes #21229).
+  * Replaced NO_PCI with !CONFIG_PCI in 3c59x.c (fixes #21916).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  1 May 1998 18:29:03 +1000
+
+kernel-source-2.0.33 (2.0.33-7) frozen unstable; urgency=high
+
+  * Applied IP fragmentation patch from Alan Cox.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 18 Apr 1998 12:57:56 +1000
+
+kernel-source-2.0.33 (2.0.33-6) frozen unstable; urgency=low
+
+  * Disabled scc since we don't support ax25 by default (fixes #20307).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  1 Apr 1998 19:21:05 +1000
+
+kernel-source-2.0.33 (2.0.33-5) unstable; urgency=low
+
+  * Turned rst cookies off.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 18 Mar 1998 20:41:27 +1100
+
+kernel-source-2.0.33 (2.0.33-4) unstable; urgency=low
+
+  * Applied patch from Paul Slootman (fixes #18787).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  6 Mar 1998 11:30:44 +1100
+
+kernel-source-2.0.33 (2.0.33-3) stable unstable; urgency=low
+
+  * Built with new kernel-package (3.61).
+  * Added support for fat32 (fixes #14042).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 20 Feb 1998 16:33:40 +1100
+
+kernel-source-2.0.33 (2.0.33-2) stable unstable; urgency=low
+
+  * built with new kernel-package (3.57)
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 16 Feb 1998 08:59:11 +1100
+
+kernel-source-2.0.33 (2.0.33-1) stable unstable; urgency=high
+
+  * New upstream release (fixes #15736).
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  7 Feb 1998 15:06:57 +1100
+
+kernel-source-2.0.32 (2.0.32-3) stable unstable; urgency=low
+
+  * Built with new kernel-package (3.49).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 15 Dec 1997 12:22:45 +1100
+
+kernel-source-2.0.32 (2.0.32-2) stable unstable; urgency=low
+
+  * Removed teles driver which was accidentally left in.
+  * Applied patch from Andreas Jaeger.
+  * Built with new kernel-package (3.48) for use by libc6.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 14 Dec 1997 09:29:26 +1100
+
+kernel-source-2.0.32 (2.0.32-1) unstable; urgency=low
+
+  * New upstream release.
+  * Pristine source.
+  * Bugs fixed (#6132, #6133, #8647, #11823, #13705).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 23 Nov 1997 18:34:38 +1100
+
+kernel-source-2.0.29 (1:2.0.29-10) unstable; urgency=low
+
+  * NCR53C8XX driver updates.
+  * Installed 3c59x 0.46C (#10902).
+  * Modified scc.c to compile with libc6 (#14367).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 17 Nov 1997 20:46:57 +1100
+
+kernel-source-2.0.29 (1:2.0.29-9) unstable; urgency=low
+
+  * Slight mod to pci.c to ignore bridges that the kernel can't handle (#11865).
+  * Removed sound module support.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  3 Oct 1997 11:17:02 +1000
+
+kernel-source-2.0.29 (1:2.0.29-8) unstable; urgency=low
+
+  * Used epoch numbers to deal with old kernel-source releases.
+  * Enabled support for NCPFS.
+  * Added sound support.
+  * Enabled IP firewalls, forwarding, and aliasing.
+  * Applied ne2000 patch from Paul Gortmaker.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  4 Jul 1997 22:01:16 +1000
+
+kernel-source-2.0.29 (2.0.29-7) frozen unstable; urgency=high
+
+  * Applied security patch from Alan Cox.
+  * Applied patch from Andreas Jellinghaus.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 31 May 1997 11:59:56 +1000
+
+kernel-source-2.0.29 (2.0.29-6) frozen unstable; urgency=medium
+
+  * Merged Debian changes from 2.0.30.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 25 May 1997 22:26:30 +1000
+

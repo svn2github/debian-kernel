@@ -1,0 +1,269 @@
+.\" Man page for mkinitrd
+.\"
+.\" Copyright (C) 2001-2003 Herbert Xu <herbert@debian.org>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.\" $Id: mkinitrd.8,v 1.25 2004/04/08 11:27:00 herbert Exp $
+.TH MKINITRD 8 "$Date: 2004/04/08 11:27:00 $" "Initrd Tools"
+
+.SH NAME
+mkinitrd \- make an initrd image
+
+.SH SYNOPSIS
+
+.B mkinitrd
+.RB [ \-k ]
+.RB [ \-d
+.IR confdir ]
+.RB [ \-m
+.IR command ]
+.B \-o
+.I outfile
+.RB [ \-r
+.IR root ]
+.RI [ version ]
+
+.SH DESCRIPTION
+
+The
+.B mkinitrd
+script constructs a directory structure that can serve as an
+.B initrd
+root file system.  It then generates an image containing that directory
+structure using
+.BR mkcramfs (8),
+which can be loaded using the
+.B initrd
+mechanism.  The kernel modules for the specified kernel version will be
+placed in the directory structure.
+If
+.I version
+is omitted, it defaults to the version of the kernel that is currently running.
+
+.PP
+
+The directory structure can be customised by placing scripts into
+.IR confdir/scripts .
+They will be run using
+.BR run-parts (8)
+just before the directory is fed to
+.BR mkcramfs (8).
+If there are scripts in
+.IR /usr/share/initrd-tools/scripts ,
+they will be run prior to the scripts in
+.IR confdir .
+
+.PP
+
+You can also specify modules to load by putting them in
+.IR confdir/modules ,
+whose format is identical to that of
+.IR /etc/modules ,
+which is described in
+.BR modules(5) .
+
+When the system boots using an
+.B initrd
+image created by
+.BR mkinitrd (8),
+the
+.B linuxrc
+will wait for an amount of time which is configured through
+.BR mkinitrd.conf (5),
+during which it may be interrupted by pressing
+.BR ENTER .
+After that, the modules specified in
+.I confdir/modules
+(and possibly others if
+.B ROOT
+is not null) will be loaded, followed by any actions generated when
+.B ROOT
+is not null.  Finally any scripts or executables in
+.I /scripts
+will be run in alphabetical order.
+
+If the directory
+.I /lib/modules/version/initrd
+exists, the modules in it will be included on the
+.B initrd
+image.  They will be loaded at boot time.
+
+.SH OPTIONS
+
+.TP
+\fB\-d \fIconfdir
+By default
+.B mkinitrd
+looks for its configuration files in
+.IR /etc/mkinitrd .
+Use this option to override that.
+
+.TP
+.B \-k
+Do not delete the temporary working directory that
+.B mkinitrd
+uses.  This is useful for debugging.
+
+.TP
+\fB\-m \fIcommand
+This option overrides the setting of
+.B MKIMAGE
+in
+.IR mkinitrd.conf .
+
+.TP
+\fB\-o \fIoutfile
+This option causes
+.B mkinitrd
+to write the image to
+.IR outfile .
+
+.TP
+\fB\-r \fIroot
+This option overrides the setting of
+.B ROOT
+in
+.IR mkinitrd.conf .
+
+.SH FILES
+
+.TP
+.I /etc/mkinitrd/exe
+This file contains full paths to shared executables that should be included
+in the
+.B initrd
+image.
+.B mkinitrd
+will include them as well as any shared libraries that they are linked with.
+
+.TP
+.I /etc/mkinitrd/files
+This file contains full paths to files that should be included in the
+.B initrd
+image.
+
+.TP
+.I /etc/mkinitrd/mkinitrd.conf
+The default configuration file for the script.
+
+.TP
+.I /etc/mkinitrd/modules
+All modules specified in this file will be loaded when the system boots
+using the generated image.  However, they are not automatically included
+on the image.  You will either have to use the appropriate
+.B MODULES
+setting, or copy them in using a script in
+.IR /etc/mkinitrd/scripts .
+
+.TP
+.I /etc/mkinitrd/scripts
+Scripts in this directory matching the
+.BR run-parts (8)
+naming convention are run just before the image is generated from.
+.BR INITRDDIR ,
+.B MODULEDIR
+and
+.B VERSION
+are available to the scripts.  They contain the path to the
+.B initrd
+directory structure under construction, the value of
+.IR /lib/modules/version ,
+and the value of
+.I version
+respectively.
+
+.TP
+.I /etc/mkinitrd/DSDT
+If this file exists, it will be appended to the initrd in a way that causes
+it to be loaded by ACPI.
+
+.SH NOTES
+
+By default
+.B mkinitrd
+will generate a
+.B CRAMFS
+image.
+You can generate an
+.B initrd
+image of another type by changing the
+.B MKIMAGE
+setting in
+.IR mkinitrd.conf .
+
+.PP
+
+If both
+.BR mdadm (8)
+and
+.B raidtools2
+are installed, the former is preferred.  At the moment,
+.B mkinitrd
+uses the
+.B -D
+option of
+.BR mdadm (8)
+to discover the constituent devices.  This means that only devices that are
+part of the array at the time that
+.B mkinitrd
+is run will be used later on.  This problem does not exist when
+.B raidtools2
+is used.
+
+.PP
+
+Because
+.B lvm10
+and
+.B lvm2
+cannot coexist currently, we do not support generating an
+.B initrd
+image for
+.B lvm10
+while the system is running
+.BR lvm2 .
+The converse is supported.
+
+.PP
+
+Shell scripts may be placed in
+.I /usr/share/initrd-tools/probe.d
+to add new methods for probing root devices.  These scripts will be
+sourced when
+.B mkinitrd
+runs.  They should define a shell function that assigns the value
+.I 1
+to the variable
+.B ok
+if and only if it is able to handle the device given to it.  The
+function will be called with the major and minor numbers of the
+device in decimal form.  The script should call the function
+.B register_probe
+with the name of that function.  These scripts must defer any
+real work to scripts in
+.I /usr/share/initrd-tools/scripts
+so that they do not interfere with
+.B mkinitrd
+itself.
+
+.SH "SEE ALSO"
+
+.BR mkcramfs (8),
+.BR mkinitrd.conf (5),
+.BR run-parts (8)
+
+.SH AUTHOR
+Herbert Xu <herbert@debian.org>

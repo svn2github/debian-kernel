@@ -1,0 +1,46 @@
+# origin: vojtech (BitKeeper)
+# cset: 1.1977.1.2 (2.6) key=41fa6464E1UuGu6zmketEYxm73KSyQ
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@41fa6464E1UuGu6zmketEYxm73KSyQ
+# inclusion: upstream
+# descrition: input: Only root should be able to set the N_MOUSE line discipline.
+# revision date: Mon, 28 Mar 2005 17:31:58 +0900
+#
+# S rset: ChangeSet|1.1977.1.1..1.1977.1.2
+# I rset: drivers/input/serio/serport.c|1.22..1.23
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/28 17:12:20+01:00 vojtech@suse.cz 
+#   input: Only root should be able to set the N_MOUSE line discipline.
+#   
+#   Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+# 
+# drivers/input/serio/serport.c
+#   2005/01/28 17:12:14+01:00 vojtech@suse.cz +3 -0
+#   input: Only root should be able to set the N_MOUSE line discipline.
+# 
+#
+===== drivers/input/serio/serport.c 1.22 vs 1.23 =====
+--- 1.22/drivers/input/serio/serport.c	2004-10-22 02:03:22 +09:00
++++ 1.23/drivers/input/serio/serport.c	2005-01-29 01:12:14 +09:00
+@@ -64,6 +64,9 @@ static int serport_ldisc_open(struct tty
+ 	struct serio *serio;
+ 	char name[64];
+ 
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	serport = kmalloc(sizeof(struct serport), GFP_KERNEL);
+ 	serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
+ 	if (unlikely(!serport || !serio)) {

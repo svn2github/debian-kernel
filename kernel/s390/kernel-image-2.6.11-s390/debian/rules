@@ -1,0 +1,129 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+SHELL := sh -e
+
+debian_version_temp := $(shell sed -n 's/.*kernel-headers-\([^-]*\)\(-[[:digit:]]*\)$$/\1 \2/; t e; b; :e; p; q' debian/control)
+version := $(word 1,$(debian_version_temp))
+debian_version_number := $(word 2,$(debian_version_temp))
+debian_version := $(version)$(debian_version_number)
+
+kernel_tree_version := $(shell sed -n 's/.*kernel-tree-\([^,]*\).*/\1/p; t e; b; :e q' debian/control )
+
+flavours = s390 s390x
+flavours_image = s390-tape
+
+unpack: unpack-stamp
+unpack-stamp:
+	dh_testdir
+	
+	tar -jxf /usr/src/kernel-source-$(version).tar.bz2
+	cd kernel-source-$(version); /usr/src/kernel-patches/all/$(version)/apply/debian $(kernel_tree_version)
+
+	touch $@
+
+tree: tree-stamp
+tree-stamp: unpack-stamp
+
+	@-rm -rf build
+	cp -al kernel-source-$(version) build
+	mkdir build/debian
+	cp debian/changelog debian/control debian/copyright build/debian
+	echo "official" > build/debian/official
+	install post-install build/debian
+	cd build; make-kpkg debian
+
+	touch $@
+
+configure: configure-stamp
+configure-stamp: tree-stamp
+	dh_testdir
+
+	@-rm -rf build-*
+	for i in $(flavours) $(flavours_image); do \
+		arch=`echo $$i | sed -e 's,^\([^-]*\)-.*,\1,'`; \
+		echo "cp -al build build-$$i"; \
+		cp -al build build-$$i; \
+		if [ "$$i" == "$$arch" ]; then \
+			echo "cp config/$$i build-$$i/.config"; \
+			cp config/$$i build-$$i/.config; \
+		else \
+			type=`echo $$i | sed -e 's,^[^-]*-\(.*\)$$,\1,'`; \
+			if [ "$$type" == "tape" ]; then \
+				sed -e 's/^\(.*\)=m$$/# \1 is not set/' \
+				    -e 's/^.*\(CONFIG_IPL_[A-Z]*\).*$$/# \1 is not set/' \
+				    -e 's/^.*\(CONFIG_IPL_TAPE\).*$$/\1=y/' config/$$arch > build-$$i/.config; \
+			fi; \
+		fi; \
+		make_kpkg="make-kpkg --append-to-version $(debian_version_number)-$$arch configure"; \
+		echo "cd build-$$i; $$make_kpkg"; \
+		( cd build-$$i; $$make_kpkg ); \
+	done
+
+	touch $@
+
+build: build-stamp
+build-stamp: configure-stamp
+	@for i in $(flavours) $(flavours_image); do \
+		arch=`echo $$i | sed -e 's,^\([^-]*\)-.*,\1,'`; \
+		make_kpkg="make-kpkg --append-to-version $(debian_version_number)-$$arch build"; \
+		echo "cd build-$$i; $$make_kpkg"; \
+		( cd build-$$i; $$make_kpkg ); \
+	done
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	rm -f *-stamp
+	rm -rf kernel* build* install*
+
+	dh_clean
+
+install:
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+
+# Build architecture-independent files here.
+binary-indep: install
+
+# Build architecture-dependent files here.
+binary-arch: install
+	dh_testdir
+	dh_testroot
+
+	@-rm -rf install*
+
+	@for i in $(flavours); do \
+		arch=`echo $$i | sed -e 's,^\([^-]*\)-.*,\1,'`; \
+		echo "cp -al build-$$i install-$$i"; \
+		cp -al build-$$i install-$$i; \
+		make_kpkg="make-kpkg --append-to-version $(debian_version_number)-$$arch --initrd kernel-image kernel-headers"; \
+		echo "cd install-$$i; $$make_kpkg"; \
+		( cd install-$$i; $$make_kpkg ); \
+		echo "cat install-$$i/debian/files >> debian/files"; \
+		cat install-$$i/debian/files >> debian/files; \
+	done
+	for i in $(flavours_image); do \
+		arch=`echo $$i | sed -e 's,^\([^-]*\)-.*,\1,'`; \
+		package="kernel-image-$(debian_version)-$$i"; \
+		mkdir -p debian/$$package/boot; \
+		install -m644 build-$$i/arch/s390/boot/image debian/$$package/boot/vmlinuz-$(debian_version)-$$i; \
+		dh_installchangelogs --package=$$package; \
+		dh_installdocs --package=$$package; \
+		dh_compress --package=$$package; \
+		dh_fixperms --package=$$package; \
+		dh_installdeb --package=$$package; \
+		dh_gencontrol --package=$$package; \
+		dh_md5sums --package=$$package; \
+		dh_builddeb --package=$$package; \
+	done
+	mv *.deb ..
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install unpack

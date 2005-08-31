@@ -1,0 +1,27 @@
+# This is a shell script fragment that is sourced by mkvmlinuz(8) in
+# order to determine the output file for the compressed kernel image.
+# if the output file is not specified on the command line.  Therefore,
+# it should set the shell variable "output" at some point.
+
+# When this fragment is sourced, the following shell variables are set
+# and may be used to construct the filename:
+#
+# arch    - PowerPC sub-architecture
+# kernel  - path to kernel image file in uncompressed ELF format
+# sysmap  - path to System.map file
+# initrd  - path to ramdisk (initrd) image file
+# objdir  - path to directory with additional object files
+# release - kernel release number
+
+# Example:
+output=/boot/vmlinuz-$release
+
+# Simple example:
+#output=/vmlinuz
+
+# Sophisticated example:
+#if test -z "$initrd"; then
+#output=/boot/vmlinuz-$release.$arch
+#else
+#output=/boot/vmlinuz-initrd-$release.$arch
+#fi

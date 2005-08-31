@@ -1,0 +1,295 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+
+  <!-- Fill in your name for FIRSTNAME and SURNAME. -->
+  <!ENTITY dhfirstname "<firstname>Jens</firstname>">
+  <!ENTITY dhsurname   "<surname>Schmalzing</surname>">
+  <!ENTITY dhdate      "<date>Sep 11, 2004</date>">
+  <!ENTITY dhsection   "<manvolnum>8</manvolnum>">
+  <!ENTITY dhemail     "<email>jensen@debian.org</email>">
+  <!ENTITY dhusername  "Jens Schmalzing">
+  <!ENTITY dhucpackage "<refentrytitle>MKVMLINUZ</refentrytitle>">
+  <!ENTITY dhpackage   "mkvmlinuz">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<refentry>
+  <refentryinfo>
+    <address>
+      &dhemail;
+    </address>
+    <author>
+      &dhfirstname;
+      &dhsurname;
+    </author>
+    <copyright>
+      <year>2004</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+  <refmeta>
+    &dhucpackage;
+
+    &dhsection;
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+
+    <refpurpose>create a kernel to boot a PowerPC machine from Open Firmware</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage;</command>
+      <arg><option>-o <replaceable>output</replaceable></option></arg>
+      <arg><option>-a <replaceable>arch</replaceable></option></arg>
+      <arg><option>-k <replaceable>kernel</replaceable></option></arg>
+      <arg><option>-s <replaceable>sysmap</replaceable></option></arg>
+      <arg><option>-i <replaceable>initrd</replaceable></option></arg>
+      <arg><option>-d <replaceable>objdir</replaceable></option></arg>
+      <arg><option>-r <replaceable>release</replaceable></option></arg>
+      <arg><option>-n</option></arg>
+      <arg><option>-z</option></arg>
+      <arg><option>-v</option></arg>
+      <arg><replaceable>release</replaceable> <arg><replaceable>kernel</replaceable></arg></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>DESCRIPTION</title>
+
+    <para>This manual page documents briefly the
+      <command>&dhpackage;</command> command.</para>
+
+    <para><command>&dhpackage;</command> is a program that takes a
+      PowerPC Linux kernel as an uncompressed ELF image file (usually
+      called <filename>vmlinux</filename> or somesuch) and adds boot
+      code and possibly a ramdisk to create a compressed kernel image
+      that can be booted directly from Open Firmware, thus eliminating
+      the need for a second-stage bootloader such as
+      <command>yaboot</command> or <command>quik</command>.</para>
+
+  </refsect1>
+  <refsect1>
+    <title>OPTIONS</title>
+
+    <variablelist>
+      <varlistentry>
+        <term><option>-o</option></term>
+        <listitem>
+          <para>Specify the path to the output file for the compressed
+          kernel image.  If this option is not set, the file
+          <filename>/etc/mkvmlinuz/output</filename> is sourced, in
+          the hope that it will set the shell variable
+          <varname>output</varname> to something useful.  If this
+          doesn't work either, the program stops with a non-zero exit
+          code.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-a</option></term>
+        <listitem>
+          <para>Specify the PowerPC sub-architecture to build for.  If
+          this option is not set, the program will guess based on the
+          contents of /proc/cpuinfo.  At the moment, the following
+          values are supported:</para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>chrp</term>
+	      <listitem>
+		<para>
+		  This build a compressed kernel for CHRP machines.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>coff</term>
+	      <listitem>
+		<para>
+		  The COFF format is understood by the Open Firmware of
+		  many OldWorld PowerMacs.  You will need it if you
+		  intend to boot a Linux kernel directly from Open
+		  Firmware.  Note that you can also choose between a
+		  variety of boot loaders for that platform, such as
+		  <command>quik</command>, <command>BootX</command>, and
+		  <command>miBoot</command>.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>miboot</term>
+	      <listitem>
+		<para>
+		  This prepares the Linux kernel for booting from a
+		  <command>miBoot</command> floppy.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>pmac</term>
+	      <listitem>
+		<para>
+		  While most NewWorld PowerMacs use the bootloader
+		  <command>yaboot</command>, they can also start
+		  directly from Open Firmware.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>prep</term>
+	      <listitem>
+		<para>
+		  The PReP sub-architecture is mainly found on old
+		  RS/6000 systems.  After creating the compressed
+		  kernel, you have to move it to a bootable location,
+		  either by <command>dd</command>ing it onto the PReP
+		  boot partition of a hard disk, or writing it to a CD
+		  using the <option>-prep-boot </option> option of
+		  <command>mkisofs</command>.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>ppcbug</term>
+	      <listitem>
+		<para>
+		  PPCBug is strictly a sub-sub-architecture of the
+		  above-mentioned PReP.  It uses a slightly different
+		  wrapper around the compressed kernel, though.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-k</option></term>
+	<listitem>
+	  <para>Specify the path to the Linux kernel as an
+	    uncompressed ELF image file.  Usually, this filename
+	    contains <filename>vmlinux</filename> in some form.  If
+	    this option is not set, the program will make guesses
+	    based on the release number and the currently running
+	    kernel.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-s</option></term>
+	<listitem>
+	  <para>Specify the path to the System.map file.  This will
+	  greatly enlarge the resulting image, and is only needed if
+	  you intend to use the in-kernel debugger
+	  <command>xmon</command>.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-i</option></term>
+	<listitem>
+	  <para>Specify the path to a ramdisk (initrd) image to
+	  include in the compressed kernel image.  If this option is
+	  not set, the program will look in a location analogous to
+	  the kernel image location, but will continue without a
+	  ramdisk if nothing is found there.  This guess can be turned
+	  off with the <option>-n</option> option.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-d</option></term>
+	<listitem>
+	  <para>Specify the directory containing boot code.  If this
+	  option is not set, the program will try a default directory
+	  and the current directory.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-r</option></term>
+	<listitem>
+	  <para>Specify the release of the kernel.  This option is
+	  only used for guessing path names that have not been specified
+	  explicitly.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-n</option></term>
+	<listitem>
+	  <para>Do not attempt to find an initrd image file if none
+	  was specified with the <option>-i</option> option.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-z</option></term>
+	<listitem>
+	  <para>Assume the initrd image file is already compressed.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-v</option></term>
+	<listitem>
+	  <para>Print progress messages, and echo commands as they are
+	  executed.</para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>It is also possible to specify the release number and the
+    kernel image file as the first and second non-option arguments,
+    respectively.  However, the values are only used if they are not
+    already given as option arguments.</para>
+
+  </refsect1>
+  <refsect1>
+    <title>FILES</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>/etc/mkvmlinuz/output</term>
+        <listitem>
+          <para>A shell script fragment that specifies the output file
+          for the compressed kernel image.  It is sourced by
+          &dhpackage; if the output file is not specified on the
+          command line, and therefore should set the shell variable
+          <varname>output</varname> at some point.  The shell
+          variables <varname>arch</varname>,
+          <varname>kernel</varname>, <varname>sysmap</varname>,
+          <varname>initrd</varname>, <varname>objdir</varname>, and
+          <varname>release</varname> are all set at this point and can
+          be used to construct the filename. </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+  <refsect1>
+    <title>AUTHOR</title>
+
+    <para>This manual page was written by &dhusername; &dhemail; for
+    the &debian; system (but may be used by others).  Permission is
+    granted to copy, distribute and/or modify this document under the
+    terms of the &gnu; General Public License, Version 2 any later
+    version published by the Free Software Foundation.  </para>
+
+    <para>On Debian systems, the complete text of the &gnu; General
+    Public License can be found in
+    <filename>/usr/share/common-licenses/GPL</filename>.
+    </para>
+
+  </refsect1>
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

@@ -1,0 +1,97 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: add missing #includes
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/net/wan/farsync.c kernel-source-2.4.26-1/drivers/net/wan/farsync.c
+--- kernel-source-2.4.26/drivers/net/wan/farsync.c	2003-11-29 05:26:20.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/net/wan/farsync.c	2003-11-29 20:53:37.000000000 +1100
+@@ -20,6 +20,7 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <asm/uaccess.h>
++#include <asm/io.h>
+ #include <linux/if.h>
+ #include <linux/hdlc.h>
+
+
+diff -urN kernel-source-2.4.26/include/linux/interrupt.h kernel-source-2.4.26-1/include/linux/interrupt.h
+--- kernel-source-2.4.26/include/linux/interrupt.h	2003-11-29 05:26:21.000000000 +1100
++++ kernel-source-2.4.26-1/include/linux/interrupt.h	2003-11-29 20:53:51.000000000 +1100
+@@ -6,6 +6,7 @@
+ #include <linux/kernel.h>
+ #include <linux/smp.h>
+ #include <linux/cache.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/bitops.h>
+ #include <asm/atomic.h>
+
+diff -urN kernel-source-2.4.26/include/linux/netlink.h kernel-source-2.4.26-1/include/linux/netlink.h
+--- kernel-source-2.4.26/include/linux/netlink.h	2002-11-29 10:53:15.000000000 +1100
++++ kernel-source-2.4.26-1/include/linux/netlink.h	2003-06-15 13:04:27.000000000 +1000
+@@ -1,9 +1,11 @@
+ #ifndef __LINUX_NETLINK_H
+ #define __LINUX_NETLINK_H
+ 
++#include <linux/socket.h> /* for sa_family_t */
++
+ #define NETLINK_ROUTE		0	/* Routing/device hook				*/
+ #define NETLINK_SKIP		1	/* Reserved for ENskip  			*/
+ #define NETLINK_USERSOCK	2	/* Reserved for user mode socket protocols 	*/
+ #define NETLINK_FIREWALL	3	/* Firewalling hook				*/
+ #define NETLINK_TCPDIAG		4	/* TCP socket monitoring			*/
+ #define NETLINK_NFLOG		5	/* netfilter/iptables ULOG */
+@@ -88,6 +90,8 @@
+ 
+ #ifdef __KERNEL__
++ 
++#include <linux/skbuff.h>
+ 
+ struct netlink_skb_parms
+ {
+ 	struct ucred		creds;		/* Skb credentials	*/
+diff -urN kernel-source-2.4.26/include/linux/watchdog.h kernel-source-2.4.26-1/include/linux/watchdog.h
+--- kernel-source-2.4.26/include/linux/watchdog.h	2002-11-29 10:53:15.000000000 +1100
++++ kernel-source-2.4.26-1/include/linux/watchdog.h	2003-06-15 16:20:44.000000000 +1000
+@@ -10,6 +10,7 @@
+ #define _LINUX_WATCHDOG_H
+ 
+ #include <linux/ioctl.h>
++#include <linux/types.h>
+ 
+ #define	WATCHDOG_IOCTL_BASE	'W'
+ 
+diff -urN kernel-source-2.4.26/include/net/neighbour.h kernel-source-2.4.26-1/include/net/neighbour.h
+--- kernel-source-2.4.26/include/net/neighbour.h	2003-11-29 05:26:21.000000000 +1100
++++ kernel-source-2.4.26-1/include/net/neighbour.h	2003-11-29 20:53:51.000000000 +1100
+@@ -45,12 +45,16 @@
+ 
+ #include <asm/atomic.h>
+ #include <linux/skbuff.h>
++#include <linux/netdevice.h>
++#include <linux/interrupt.h>
+ #include <linux/seq_file.h>
+ 
+ #define NUD_IN_TIMER	(NUD_INCOMPLETE|NUD_DELAY|NUD_PROBE)
+ #define NUD_VALID	(NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE|NUD_PROBE|NUD_STALE|NUD_DELAY)
+ #define NUD_CONNECTED	(NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE)
+ 
++struct neighbour;
++
+ struct neigh_parms
+ {
+ 	struct neigh_parms *next;
+diff -urN kernel-source-2.4.26/include/net/ip6_route.h kernel-source-2.4.26-1/include/net/ip6_route.h
+--- kernel-source-2.4.26/include/net/ip6_route.h	2003-06-14 00:51:39.000000000 +1000
++++ kernel-source-2.4.26-1/include/net/ip6_route.h	2003-08-02 17:53:39.000000000 +1000
+@@ -11,6 +11,7 @@
+ 
+ #include <net/flow.h>
+ #include <net/ip6_fib.h>
++#include <net/sock.h>
+ 
+ struct pol_chain {
+ 	int			type;
+

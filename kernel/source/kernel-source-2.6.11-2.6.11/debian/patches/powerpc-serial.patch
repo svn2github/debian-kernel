@@ -1,0 +1,51 @@
+#! /bin/sh -e 
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: Disables legacy serial driver on powermacs.
+## DP: Patch author: Sven Luther <luther@debian.org> 
+## DP: Patch author: adapted from the SuSE kernel tree.
+## DP: Upstream status: workaround hack waiting for a clean legacy device solution.
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+diff -urN kernel-source-2.6.11-2.6.11-orig/drivers/serial/8250.c kernel-source-2.6.11-2.6.11/drivers/serial/8250.c
+--- kernel-source-2.6.11-2.6.11-orig/drivers/serial/8250.c	2005-03-02 08:37:47.000000000 +0100
++++ kernel-source-2.6.11-2.6.11/drivers/serial/8250.c	2005-03-04 18:22:44.297293920 +0100
+@@ -46,6 +46,10 @@
+ 
+ #include "8250.h"
+ 
++#ifdef CONFIG_PPC_MULTIPLATFORM
++#include <asm/processor.h>
++#endif
++
+ /*
+  * Configuration:
+  *   share_irqs - whether we pass SA_SHIRQ to request_irq().  This option
+@@ -2151,6 +2155,12 @@
+ 
+ static int __init serial8250_console_init(void)
+ {
++#ifdef CONFIG_PPC_MULTIPLATFORM
++	if(_machine == _MACH_Pmac) {
++		printk("%s: nothing to do on PowerMac\n",__FUNCTION__);
++		return -ENODEV;
++	}
++#endif
+ 	serial8250_isa_init_ports();
+ 	register_console(&serial8250_console);
+ 	return 0;
+@@ -2482,6 +2492,12 @@
+ {
+ 	int ret, i;
+ 
++#ifdef CONFIG_PPC_MULTIPLATFORM
++	if(_machine == _MACH_Pmac) {
++		printk("%s: nothing to do on PowerMac\n",__FUNCTION__);
++		return -ENODEV;
++	}
++#endif
+ 	printk(KERN_INFO "Serial: 8250/16550 driver $Revision: 1.90 $ "
+ 		"%d ports, IRQ sharing %sabled\n", (int) UART_NR,
+ 		share_irqs ? "en" : "dis");

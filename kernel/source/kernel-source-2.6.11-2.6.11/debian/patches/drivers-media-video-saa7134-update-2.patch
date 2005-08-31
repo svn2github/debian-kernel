@@ -1,0 +1,37 @@
+# origin: akpm@osdl.org (BitKeeper)
+# cset: 4237a995sCGGX1UyT_r47klYjvnkmw
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@4237a995sCGGX1UyT_r47klYjvnkmw
+# inclusion: upstream (backport)
+# descrition: [PATCH] saa7134 !CONFIG_MODULES build fix
+# revision date: 2005-03-15 19:35:49-08:00
+#
+diff -Naru a/drivers/media/video/saa7134/saa7134-core.c b/drivers/media/video/saa7134/saa7134-core.c
+--- a/drivers/media/video/saa7134/saa7134-core.c	2005-04-01 19:08:05 -08:00
++++ b/drivers/media/video/saa7134/saa7134-core.c	2005-04-01 19:08:05 -08:00
+@@ -1212,8 +1212,10 @@
+ 
+ static void saa7134_fini(void)
+ {
++#ifdef CONFIG_MODULES
+ 	if (pending_registered)
+ 		unregister_module_notifier(&pending_notifier);
++#endif
+ 	pci_unregister_driver(&saa7134_pci_driver);
+ }
+ 
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/15 19:35:49-08:00 akpm@osdl.org 
+#   [PATCH] saa7134 !CONFIG_MODULES build fix
+#   
+#   drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_fini':
+#   drivers/media/video/saa7134/saa7134-core.c:1215: `pending_registered' undeclared (first use in this function)
+#   
+#   Signed-off-by: Andrew Morton <akpm@osdl.org>
+#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+# 
+# drivers/media/video/saa7134/saa7134-core.c
+#   2005/03/15 06:30:26-08:00 akpm@osdl.org +2 -0
+#   saa7134 !CONFIG_MODULES build fix
+# 

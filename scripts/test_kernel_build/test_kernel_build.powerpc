@@ -1,0 +1,175 @@
+#!/bin/bash
+#######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+set -e                  
+                
+TKB_BASE_DIR="$HOME/work/debian-kernel/test_kernel_build"
+TKB_LIB_DIR="$TKB_BASE_DIR/lib"
+TKB_ETC_DIR="$TKB_BASE_DIR/etc"
+		                  
+. "$TKB_LIB_DIR/libtkb.framework"
+. "$TKB_LIB_DIR/libtkb.powerpc"
+				                  
+pre_conf_setup_generic $@
+
+.  "$TKB_ETC_DIR/test_kernel_build.conf.powerpc"
+								            
+post_conf_setup_bin_generic
+
+LOG="$B_LOG"
+purgelog
+DST_DIR="$B_DST_DIR"
+STAGE_NAME="Creating $KERNEL_PKG_NAME directory"
+stage_begin "$STAGE_NAME" || {
+	{
+		rm -rf "$B_DST_DIR" "$B_PKG_DIR" "$B_OLD_DIR" "$B_LOG_DIR" \
+			"$B_TMP_DIR"
+		mkdir -p "$B_DST_DIR" "$B_OLD_DIR" "$B_LOG_DIR" "$B_TMP_DIR"
+	}
+	stage_end $?
+}
+openlog
+log "Logs in $LOG.blah"
+
+STAGE_NAME="Extracting kernel-source package"
+stage_begin "$STAGE_NAME" || {
+	(
+	if [ -n "$RELEASE" ]; then
+		echo skip
+	else
+		set -x 
+		cd "$B_DST_DIR"
+		# Using apt-get here does not work because it only
+		# prints out URLs of files that need to be downloaded,
+		# so if they are in the apt cache somewhere they
+		# won't show up
+		wget -N -q "$S_DOWNDLOAD_URL/kernel-source-${VERSION}_${S_TAG_VERSION}_all.deb"
+		dpkg-deb -x \
+		  "kernel-source-${VERSION}_${S_TAG_VERSION}_all.deb" \
+		  "$B_TMP_DIR"
+		wget -N -q "$S_DOWNDLOAD_URL/kernel-patch-debian-${VERSION}_${S_TAG_VERSION}_all.deb"
+		dpkg-deb -x \
+		  "kernel-patch-debian-${VERSION}_${S_TAG_VERSION}_all.deb" \
+		  "$B_TMP_DIR"
+	fi
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Copying $KERNEL_PKG_NAME debian directory"
+stage_begin "$STAGE_NAME" || {
+	{
+		( cd "$B_SRC_DIR/" && svn status; ) > "$LOG.$STAGE.svn" && \
+		rsync -av --exclude .svn "$B_SRC_DIR/" "$B_PKG_DIR/"  && \
+		chmod u+x "$B_PKG_DIR/debian/rules"
+	} >& "$LOG.$STAGE"
+	stage_end $?
+	if [ -s "$LOG.$STAGE.svn" ]; then
+		echo "=== SVN file stauts ==="
+		cat "$LOG.$STAGE.svn"
+	fi | tee -a "$LOG.$STAGE"
+}
+
+STAGE_NAME="Mangling $KERNEL_PKG_NAME debian/{rules,control,changelog}"
+stage_begin "$STAGE_NAME" || {
+	{
+	if [ -n "$RELEASE" ]; then
+		echo skip
+	else
+		TMP_CMD="override_version=$S_TAG_VERSION home=$B_TMP_DIR/usr/src/kernel-patches/all/$VERSION/debian sh -x $B_TMP_DIR/usr/src/kernel-patches/all/$VERSION/apply/debian $S_TAG_VERSION" && \
+		sed -e "s#/usr/src/kernel-source#$B_TMP_DIR&#" \
+			-e "s#/usr/src/.*/apply/debian.*#$TMP_CMD#" \
+			-e "s# /usr/share/doc# $B_TMP_DIR/usr/share/doc#" \
+			< "$B_PKG_DIR/debian/rules" \
+			> "$B_PKG_DIR/debian/rules.2" && \
+		mv "$B_PKG_DIR/debian/rules.2" "$B_PKG_DIR/debian/rules" && \
+		chmod u+x "$B_PKG_DIR/debian/rules" && \
+		sed -re "/^Build-Depends: / s/kernel-tree-$VERSION-[0-9]+(, )?//" \
+			< "$B_PKG_DIR/debian/control" \
+			> "$B_PKG_DIR/debian/control.2" && \
+		mv "$B_PKG_DIR/debian/control.2" \
+			"$B_PKG_DIR/debian/control" && \
+		sed -e "s/^\($KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION\) ($B_DEB_VERSION) /\1 ($B_TAG_VERSION) /" \
+			< "$B_PKG_DIR/debian/changelog" \
+			> "$B_PKG_DIR/debian/changelog.2" && \
+		mv "$B_PKG_DIR/debian/changelog.2" \
+			"$B_PKG_DIR/debian/changelog" || \
+		exit $?
+	fi
+	} >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Building $KERNEL_PKG_NAME packages"
+stage_begin "$STAGE_NAME" || {
+	(
+		cd $B_PKG_DIR && \
+		time dpkg-buildpackage -rfakeroot -us -uc
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+BUILD_STAGE=$STAGE
+
+STAGE_NAME="Uploading Kernel Image"
+stage_begin "$STAGE_NAME" || {
+	(
+		mkdir -p "$B_UPLOAD_DIR"
+		cp -vp "$B_DST_DIR"/kernel-*_"${B_TAG_VERSION}"*.{deb,dsc,changes,tar.gz} \
+			"$B_UPLOAD_DIR"
+		UP_LOG_DIR="$B_UPLOAD_DIR/$KERNEL_PKG_NAME-$VERSION-${KERNEL_ARCH}_${B_TAG_VERSION}_$KERNEL_ARCH.log"
+		mkdir -p "$UP_LOG_DIR"
+		rm -f "$UP_LOG_DIR/"*.bz2
+		cp -p "$B_DST_DIR/log/"* "$UP_LOG_DIR"
+		bzip2 --best "$UP_LOG_DIR/"*
+		(cd "$B_UPLOAD_DIR" && dpkg-scansources . /dev/null | \
+			gzip --best > Sources.gz ; )
+		(cd "$B_UPLOAD_DIR" && dpkg-scanpackages . /dev/null | \
+			gzip --best > Packages.gz; )
+		print_readme_html "$B_UPLOAD_URL" > "$B_UPLOAD_DIR/README.html"
+		chmod -R a+rX "$B_UPLOAD_DIR"
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Examining $KERNEL_PKG_NAME symbols"
+stage_begin "$STAGE_NAME" || {
+	(
+		LOOP_STATUS=0
+		echo "=== Modprobe Symbol Report ==="
+		fgrep "needs unknown symbol" $LOG.$BUILD_STAGE && \
+			LOOP_STATUS=1
+		echo "=== System.map Symbol Report ==="
+		echo "Not implemeted for powerpc"
+		#cd "$B_OLD_DIR"
+		#apt-get -q source "$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION"
+		## Using apt-get here does not work because it only
+		## prints out URLs of files that need to be downloaded,
+		## so if they are in the apt cache somewhere they
+		## won't show up
+		##awk '/^Package: kernel-headers/ {print $2}' < \
+		##	$KERNEL_PKG_NAME-2.4.27-i386-2.4.27/debian/control | \
+		##	xargs apt-get --reinstall -qq --print-uris install | \
+		##	awk -F\' '{print $2}' | \
+		##	xargs wget -nv
+		#export URL="http://ftp2.jp.debian.org/debian/"
+		#awk '/^Package: kernel-headers/ {print $2}' < \
+		#	$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION-$VERSION/debian/control | \
+		#	xargs apt-cache show |\
+		#	awk '/^Filename: / {print ENVIRON["URL"]$2}' | \
+		#	xargs wget -nv -N
+		#cd $B_PKG_DIR
+		# for f in powerpc powerpc-smppower3 power3-smp power4 power4-smp; do
+		# 	 echo "\"$f\""
+		#	kernel_symbol_check \
+		#		"$B_OLD_DIR/kernel-headers-${VERSION}_$VERSION-${f}_$KERNEL_ARCH.deb" \
+		#		"$B_DST_DIR/kernel-headers-${VERSION}_${B_TAG_VERSION}-${f}_$KERNEL_ARCH.deb" || \
+		#	LOOP_STATUS=1
+		[ $LOOP_STATUS = "0" ]
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_STATUS="ok"
+exit

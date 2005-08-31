@@ -1,0 +1,33 @@
+# origin: shaggy (BitKeeper)
+# cset: 1.1449.1.79 (2.4) key=4130e7f372QVsEXPVRihDV79AZ_BVw
+# inclusion: upstream
+# description: JFS: fix memory leak in __invalidate_metapages
+# revision date: Fri, 26 Nov 2004 14:59:38 +0900
+#
+# S rset: ChangeSet|1.1449.1.78..1.1449.1.79
+# I rset: fs/jfs/jfs_metapage.c|1.16..1.17
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/28 15:15:47-05:00 shaggy@austin.ibm.com 
+#   JFS: fix memory leak in __invalidate_metapages
+#   
+#   Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+# 
+# fs/jfs/jfs_metapage.c
+#   2004/08/28 15:15:40-05:00 shaggy@austin.ibm.com +1 -0
+#   fix memory leak
+# 
+#
+===== fs/jfs/jfs_metapage.c 1.16 vs 1.17 =====
+--- 1.16/fs/jfs/jfs_metapage.c	2004-06-15 05:26:55 +09:00
++++ 1.17/fs/jfs/jfs_metapage.c	2004-08-29 05:15:40 +09:00
+@@ -606,6 +606,7 @@
+ 			if (page) {
+ 				block_flushpage(page, 0);
+ 				UnlockPage(page);
++				page_cache_release(page);
+ 			}
+ 		}
+ 	}

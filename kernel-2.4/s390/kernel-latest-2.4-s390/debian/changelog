@@ -1,0 +1,6 @@
+kernel-latest-2.4-s390 (2.4.27-1) unstable; urgency=high
+
+  * Initial version.
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 04 Apr 2005 19:46:43 +0200
+

@@ -1,0 +1,264 @@
+#! /bin/sh -e
+## 04_ramdisk-parameter.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: rd_start and rd_size ramdisk parameters.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p0 ${patch_opts} < $0;;
+    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Index: arch/mips/kernel/setup.c
+===================================================================
+RCS file: /home/cvs/linux/arch/mips/kernel/setup.c,v
+retrieving revision 1.96.2.53
+diff -u -p -r1.96.2.53 setup.c
+--- arch/mips/kernel/setup.c	3 Mar 2004 05:24:20 -0000	1.96.2.53
++++ arch/mips/kernel/setup.c	5 May 2004 16:37:13 -0000
+@@ -232,6 +232,62 @@ static inline void parse_mem_cmdline(voi
+ 	}
+ }
+ 
++static inline int parse_rd_cmdline(unsigned long* rd_start, unsigned long* rd_end)
++{
++	/*
++	 * "rd_start=0xNNNNNNNN" defines the memory address of an initrd
++	 * "rd_size=0xNN" it's size
++	 */
++	unsigned long start = 0;
++	unsigned long size = 0;
++	unsigned long end;
++	char cmd_line[CL_SIZE];
++	char *start_str;
++	char *size_str;
++	char *tmp;
++
++	strcpy(cmd_line, command_line);
++	*command_line = 0;
++	tmp = cmd_line;
++	/* Ignore "rd_start=" strings in other parameters. */
++	start_str = strstr(cmd_line, "rd_start=");
++	if (start_str && start_str != cmd_line && *(start_str - 1) != ' ')
++		start_str = strstr(start_str, " rd_start=");
++	while (start_str) {
++		if (start_str != cmd_line)
++			strncat(command_line, tmp, start_str - tmp);
++		start = memparse(start_str + 9, &start_str);
++		tmp = start_str + 1;
++		start_str = strstr(start_str, " rd_start=");
++	}
++	if (*tmp)
++		strcat(command_line, tmp);
++
++	strcpy(cmd_line, command_line);
++	*command_line = 0;
++	tmp = cmd_line;
++	/* Ignore "rd_size" strings in other parameters. */
++	size_str = strstr(cmd_line, "rd_size=");
++	if (size_str && size_str != cmd_line && *(size_str - 1) != ' ')
++		size_str = strstr(size_str, " rd_size=");
++	while (size_str) {
++		if (size_str != cmd_line)
++			strncat(command_line, tmp, size_str - tmp);
++		size = memparse(size_str + 8, &size_str);
++		tmp = size_str + 1;
++		size_str = strstr(size_str, " rd_size=");
++	}
++	if (*tmp)
++		strcat(command_line, tmp);
++
++	end = start + size;
++	if (start && end) {
++		*rd_start = start;
++		*rd_end = end;
++		return 1;
++	}
++	return 0;
++}
+ 
+ #define PFN_UP(x)	(((x) + PAGE_SIZE - 1) >> PAGE_SHIFT)
+ #define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
+@@ -240,33 +296,24 @@ static inline void parse_mem_cmdline(voi
+ #define MAXMEM		HIGHMEM_START
+ #define MAXMEM_PFN	PFN_DOWN(MAXMEM)
+ 
++#define MAX(a,b) (((a) > (b)) ? (a) : (b))
++
+ static inline void bootmem_init(void)
+ {
+-#ifdef CONFIG_BLK_DEV_INITRD
+-	unsigned long tmp;
+-	unsigned long *initrd_header;
+-#endif
+ 	unsigned long bootmap_size;
+-	unsigned long start_pfn, max_pfn, max_low_pfn, first_usable_pfn;
++	unsigned long start_pfn, max_pfn, low_pfn_max, first_usable_pfn;
++	unsigned long reserved_end = (unsigned long)&_end;
++	unsigned long first_free_pfn;
+ 	int i;
+-
+ #ifdef CONFIG_BLK_DEV_INITRD
+-	tmp = (((unsigned long)&_end + PAGE_SIZE-1) & PAGE_MASK) - 8;
+-	if (tmp < (unsigned long)&_end)
+-		tmp += PAGE_SIZE;
+-	initrd_header = (unsigned long *)tmp;
+-	if (initrd_header[0] == 0x494E5244) {
+-		initrd_start = (unsigned long)&initrd_header[2];
+-		initrd_end = initrd_start + initrd_header[1];
+-	}
+-	start_pfn = PFN_UP(__pa((&_end)+(initrd_end - initrd_start) + PAGE_SIZE));
+-#else
++	int initrd_reserve_bootmem = 0;
++#endif
++
+ 	/*
+ 	 * Partially used pages are not usable - thus
+ 	 * we are rounding upwards.
+ 	 */
+-	start_pfn = PFN_UP(__pa(&_end));
+-#endif	/* CONFIG_BLK_DEV_INITRD */
++	start_pfn = PFN_UP(__pa(reserved_end));
+ 
+ 	/* Find the highest page frame number we have available.  */
+ 	max_pfn = 0;
+@@ -297,9 +344,9 @@ static inline void bootmem_init(void)
+ 	/*
+ 	 * Determine low and high memory ranges
+ 	 */
+-	max_low_pfn = max_pfn;
+-	if (max_low_pfn > MAXMEM_PFN) {
+-		max_low_pfn = MAXMEM_PFN;
++	low_pfn_max = max_pfn;
++	if (low_pfn_max > MAXMEM_PFN) {
++		low_pfn_max = MAXMEM_PFN;
+ #ifndef CONFIG_HIGHMEM
+ 		/* Maximum memory usable is what is directly addressable */
+ 		printk(KERN_WARNING "Warning only %ldMB will be used.\n",
+@@ -321,8 +368,38 @@ static inline void bootmem_init(void)
+ 	}
+ #endif
+ 
++#ifdef CONFIG_BLK_DEV_INITRD
++	/* Board specific code should have set up initrd_start and initrd_end */
++	ROOT_DEV = MKDEV(RAMDISK_MAJOR, 0);
++	if (&__rd_start != &__rd_end) {
++		initrd_start = (unsigned long)&__rd_start;
++		initrd_end = (unsigned long)&__rd_end;
++	} else if (parse_rd_cmdline(&initrd_start, &initrd_end)) {
++		reserved_end = MAX(reserved_end, initrd_end);
++		initrd_reserve_bootmem = 1;
++	} else {
++		unsigned long tmp;
++		unsigned long *initrd_header;
++
++		tmp = ((reserved_end + PAGE_SIZE-1) & PAGE_MASK) - 8;
++		if (tmp < reserved_end)
++			tmp += PAGE_SIZE;
++		initrd_header = (unsigned long *)tmp;
++		if (initrd_header[0] == 0x494E5244) {
++			initrd_start = (unsigned long)&initrd_header[2];
++			initrd_end = initrd_start + initrd_header[1];
++			reserved_end = MAX(reserved_end, initrd_end);
++			initrd_reserve_bootmem = 1;
++		}
++	}
++#endif
++
+ 	/* Initialize the boot-time allocator with low memory only.  */
+-	bootmap_size = init_bootmem(first_usable_pfn, max_low_pfn);
++	max_low_pfn = low_pfn_max;
++	min_low_pfn = first_usable_pfn;
++	first_free_pfn = PFN_UP(__pa(reserved_end));
++	bootmap_size = init_bootmem_core(&contig_page_data, first_free_pfn,
++					 0, low_pfn_max);
+ 
+ 	/*
+ 	 * Register fully available low RAM pages with the bootmem allocator.
+@@ -340,7 +417,7 @@ static inline void bootmem_init(void)
+ 		 * We are rounding up the start address of usable memory:
+ 		 */
+ 		curr_pfn = PFN_UP(boot_mem_map.map[i].addr);
+-		if (curr_pfn >= max_low_pfn)
++		if (curr_pfn >= low_pfn_max)
+ 			continue;
+ 		if (curr_pfn < start_pfn)
+ 			curr_pfn = start_pfn;
+@@ -351,8 +428,8 @@ static inline void bootmem_init(void)
+ 		last_pfn = PFN_DOWN(boot_mem_map.map[i].addr
+ 				    + boot_mem_map.map[i].size);
+ 
+-		if (last_pfn > max_low_pfn)
+-			last_pfn = max_low_pfn;
++		if (last_pfn > low_pfn_max)
++			last_pfn = low_pfn_max;
+ 
+ 		/*
+ 		 * Only register lowmem part of lowmem segment with bootmem.
+@@ -377,29 +454,25 @@ static inline void bootmem_init(void)
+ 	}
+ 
+ 	/* Reserve the bootmap memory.  */
+-	reserve_bootmem(PFN_PHYS(first_usable_pfn), bootmap_size);
++	reserve_bootmem(PFN_PHYS(first_free_pfn), bootmap_size);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+-	/* Board specific code should have set up initrd_start and initrd_end */
+-	ROOT_DEV = MKDEV(RAMDISK_MAJOR, 0);
+-	if (&__rd_start != &__rd_end) {
+-		initrd_start = (unsigned long)&__rd_start;
+-		initrd_end = (unsigned long)&__rd_end;
+-	}
+ 	initrd_below_start_ok = 1;
+ 	if (initrd_start) {
+ 		unsigned long initrd_size = ((unsigned char *)initrd_end) - ((unsigned char *)initrd_start);
+ 		printk("Initial ramdisk at: 0x%p (%lu bytes)\n",
+-		       (void *)initrd_start,
+-		       initrd_size);
+-		if (PHYSADDR(initrd_end) > PFN_PHYS(max_low_pfn)) {
++		       (void *)initrd_start, initrd_size);
++		if (__pa(initrd_end) > PFN_PHYS(low_pfn_max)) {
+ 			printk("initrd extends beyond end of memory "
+ 			       "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
+-			       (unsigned long) PHYSADDR(initrd_end),
+-			       PFN_PHYS(max_low_pfn));
++			       __pa(initrd_end), PFN_PHYS(low_pfn_max));
+ 			initrd_start = initrd_end = 0;
++			initrd_reserve_bootmem = 0;
+ 		}
+ 	}
++
++	if (initrd_reserve_bootmem)
++		reserve_bootmem(__pa(initrd_start), initrd_end - initrd_start);
+ #endif /* CONFIG_BLK_DEV_INITRD  */
+ }
+ 
+Index: mm/bootmem.c
+===================================================================
+RCS file: /home/cvs/linux/mm/bootmem.c,v
+retrieving revision 1.14.2.3
+diff -u -p -r1.14.2.3 bootmem.c
+--- mm/bootmem.c	11 Sep 2002 12:45:43 -0000	1.14.2.3
++++ mm/bootmem.c	5 May 2004 16:37:20 -0000
+@@ -43,7 +43,7 @@ unsigned long __init bootmem_bootmap_pag
+ /*
+  * Called once to set up the allocator itself.
+  */
+-static unsigned long __init init_bootmem_core (pg_data_t *pgdat,
++unsigned long __init init_bootmem_core (pg_data_t *pgdat,
+ 	unsigned long mapstart, unsigned long start, unsigned long end)
+ {
+ 	bootmem_data_t *bdata = pgdat->bdata;

@@ -1,0 +1,41 @@
+# origin: bk
+# key: 41c01f2bHFmPwBYQmce6Aw0owIyqkg (linux-2.4)
+# description: fix VC resize overflow
+# inclusion: 2.4.29 (backport)
+# revision date: 2005-02-17
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/15 09:25:31-02:00 marcelo@logos.cnet 
+#   [PATCH] Make sure VC resizing fits in s16
+#   
+#   Noted by George Guninski
+# 
+# drivers/char/console.c
+#   2004/12/15 10:58:17-02:00 marcelo@logos.cnet +6 -0
+#   Import patch vc-patch
+# 
+diff -Nru a/drivers/char/console.c b/drivers/char/console.c
+--- a/drivers/char/console.c	2005-02-17 11:41:29 -08:00
++++ b/drivers/char/console.c	2005-02-17 11:41:29 -08:00
+@@ -705,6 +705,9 @@
+ 	return 0;
+ }
+ 
++#define VC_RESIZE_MAXCOL (32767)
++#define VC_RESIZE_MAXROW (32767)
++
+ /*
+  * Change # of rows and columns (0 means unchanged/the size of fg_console)
+  * [this is to be used together with some user program
+@@ -716,6 +719,9 @@
+ 	unsigned int cc, ll, ss, sr, todo = 0;
+ 	unsigned int currcons = fg_console, i;
+ 	unsigned short *newscreens[MAX_NR_CONSOLES];
++
++	if (cols > VC_RESIZE_MAXCOL || lines > VC_RESIZE_MAXROW)
++		return -EINVAL;
+ 
+ 	cc = (cols ? cols : video_num_columns);
+ 	ll = (lines ? lines : video_num_lines);

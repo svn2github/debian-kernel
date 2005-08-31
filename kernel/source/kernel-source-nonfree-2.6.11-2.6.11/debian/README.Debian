@@ -1,0 +1,30 @@
+kernel-source-nonfree for DEBIAN
+------------------------
+
+Patches
+-------
+Debian applies various changes to the kernel source.  These are split up
+into small patches addressing individual problems.  Each of the patch files
+contains a description and mentions the author.  The patches can be found
+at http://svn.debian.org/wsvn/kernel/tags/kernel/source/.
+
+Drivers stripped from kernel-source
+---------------------
+The following drivers are in this package because they contain non-free
+firmware.  The firmware is contained in the following files:
+* Keyspan firmware
+  . drivers/usb/serial/ksyspan_{mpr,usa*}_fw.h
+* Emagic EMI 2|6 usb audio interface
+  . drivers/usb/misc/emi62_fw_*.h
+* SMC Token Ring firmware
+  . drivers/net/tokenring/smctr_firmware.h
+* ACENIC firwmare
+  . drivers/net/acenic_firmware.h
+* DGRS firmware
+  . drivers/net/dgrs_firmware.c
+* DAB firmware
+  . drivers/usb/media/dabfirmware.h
+* QLA2XXX firmware
+  . drivers/scsi/qla2xxx/*_fw.c
+* TIGON3 firmware
+  . drivers/net/tg3.c

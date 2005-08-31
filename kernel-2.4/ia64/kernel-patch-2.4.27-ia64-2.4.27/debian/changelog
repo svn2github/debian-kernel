@@ -1,0 +1,212 @@
+kernel-patch-2.4.27-ia64 (2.4.27-11) UNRELEASED; urgency=low
+
+  * Added build debpends on gcc-3.3 as the default gcc
+    is being changed from 3.3 to 4.0.
+
+ -- Simon Horman <horms@debian.org>  Mon,  4 Jul 2005 12:19:25 +0900
+
+kernel-patch-2.4.27-ia64 (2.4.27-4) unstable; urgency=medium
+
+  * remove-syscall-slot.patch: Revert the fix for CAN-2005-0137.  This was
+    added into kernel-source-2.4.27 (2.4.27-10).  Version the build-depend to
+    match.
+
+ -- dann frazier <dannf@hp.com>  Mon, 30 May 2005 01:45:48 -0600
+
+kernel-patch-2.4.27-ia64 (2.4.27-3) unstable; urgency=high
+
+  * Update to a backported 2.4.29 ia64 patch
+    Supersedes: ia64-unwind-fix.patch, nodebug.patch
+  * Change maintainer to the kernel team and add me as an uploader
+
+ -- dann frazier <dannf@debian.org>  Mon, 14 Mar 2005 10:49:25 -0700
+
+kernel-patch-2.4.27-ia64 (2.4.27-2) unstable; urgency=high
+
+  * Add ia64-unwind-fix.patch - unw_unwind_to_user sanity check
+
+ -- dann frazier <dannf@debian.org>  Mon, 31 Jan 2005 23:55:16 -0700
+
+kernel-patch-2.4.27-ia64 (2.4.27-1) unstable; urgency=high
+
+  * Remove fph_context_check.patch (now upstream in kernel-source)
+  * Use a bk snaphot until Bjorn releases an official patch
+  * Add nodebug.patch - don't build with -g; it makes packages huge
+
+ -- dann frazier <dannf@debian.org>  Sun, 15 Aug 2004 16:36:44 -0600
+
+kernel-patch-2.4.26-ia64 (2.4.26-2) unstable; urgency=high
+
+  * SECURITY: Add fph_context_check.patch:
+     "ia64: tighten FPH state context switch check"
+    Upstream: http://lia64.bkbits.net:8080/to-linus-2.5/cset@arun.sharma@intel.com|ChangeSet|20040604002651|28617
+
+ -- dann frazier <dannf@debian.org>  Tue, 08 Jun 2004 18:03:50 -0600
+
+kernel-patch-2.4.26-ia64 (2.4.26-1) unstable; urgency=high
+
+  * New upstream release; reset patch set to just the arch patch - all others
+    have moved upstream.
+
+ -- dann frazier <dannf@debian.org>  Wed, 19 May 2004 19:43:24 -0600
+
+kernel-patch-2.4.25-ia64 (2.4.25-3) unstable; urgency=high
+
+  * Added unwind_1.31.patch, a backport from 2.4 bitkeeper
+    "ia64: Back-port from libunwind: fix off-by-one error in kernel-unwinder.
+     There are no known failures due to this bug, but it's clearly a bug and
+     given the right compiler, it could trigger and lead to bad stack traces
+     etc."
+  * Added unwind_1.32.patch, a backport from 2.4 bitkeeper
+    "ia64: Fix typo in unwinder which could cause NULL-pointer dereferences."
+
+ -- dann frazier <dannf@debian.org>  Wed, 19 May 2004 04:18:46 -0600
+
+kernel-patch-2.4.25-ia64 (2.4.25-2) unstable; urgency=high
+
+  * Added 2.4-sigcontext-nat-fix.diff from:
+      http://marc.theaimsgroup.com/?l=linux-ia64&m=107774864921303&w=2
+    Which fixes a bug with the potential for silent data corruption.
+
+ -- dann frazier <dannf@debian.org>  Sat, 28 Feb 2004 10:54:46 -0700
+
+kernel-patch-2.4.25-ia64 (2.4.25-1) unstable; urgency=high
+
+  * initial release
+	
+ -- dann frazier <dannf@debian.org>  Tue, 24 Feb 2004 00:17:11 -0700
+
+kernel-patch-2.4.24-ia64 (2.4.24-1) unstable; urgency=high
+
+  * initial release
+	
+ -- dann frazier <dannf@debian.org>  Sat, 24 Jan 2004 21:56:12 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-7.1) unstable; urgency=high
+
+  * NMU
+  * SECURITY: add mremap.patch
+  * rename patch from ia64 to ia64-2_4_22, to avoid namespace collisions
+    with the ia64 patch packages for future kernel revs
+	
+ -- dann frazier <dannf@debian.org>  Sun, 18 Jan 2004 16:32:04 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-7) unstable; urgency=low
+
+  * split kernel-image packages into a separate source package that
+    build-deps on this one.
+
+ -- dann frazier <dannf@debian.org>  Wed, 19 Nov 2003 01:06:27 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-6) unstable; urgency=low
+
+  * add ni_syscall_hush.patch - silences complaints about non existant
+    syscalls.  See #219512.
+
+ -- dann frazier <dannf@debian.org>  Thu, 13 Nov 2003 22:01:22 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-5) unstable; urgency=low
+
+  * add a skeleton offsets.h patch.  works around a circular dependency
+    (print_offsets.c -> ptrace.h -> offsets.h -> print_offsets.c)
+
+ -- dann frazier <dannf@debian.org>  Wed, 12 Nov 2003 19:14:53 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-4) unstable; urgency=low
+
+  * turn off NUMA support, breaks on some HP machines
+
+ -- dann frazier <dannf@debian.org>  Sun, 02 Nov 2003 17:43:32 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-3) unstable; urgency=low
+
+  * turn on magic sysrq
+  * turn off CONFIG_E100, which will oops
+
+ -- dann frazier <dannf@dannf.org>  Sun, 26 Oct 2003 15:20:43 -0700
+
+kernel-patch-2.4.22-ia64 (2.4.22-2) unstable; urgency=low
+
+  * turn on devfs support in all kernels
+  * build w/ --initrd support
+  * remove udeb bits
+
+ -- dann frazier <dannf@dannf.org>  Sat, 25 Oct 2003 15:45:58 -0600
+
+kernel-patch-2.4.22-ia64 (2.4.22-1) unstable; urgency=low
+
+  * a 2.4.22 build
+
+ -- dann frazier <dannf@dannf.org>  Mon, 13 Oct 2003 21:39:21 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em20.4) unstable; urgency=low
+
+  * add ide-probe-mod to ide-modules, closes: #212328
+  * ifdef out the CONFIG_TR definition to avoid polluting userspace
+    includes, closes #210359
+  * update cciss driver - increases card support & fixes a bug that
+    affects newer ia64 platforms
+  * added myself as an uploader
+
+ -- dann frazier <dannf@dannf.org>  Mon, 13 Oct 2003 20:57:30 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em20.3) unstable; urgency=low
+
+  * add devfs to kernel used by d-i, closes: #210352
+  * remove bogus dependency in udeb builds from debian/rules, closes: #201065
+  * change autofs to modules, closes: #203513
+  * pick up perfmon task pinning fix for system-wide monitoring in SMP 
+    systems, closes: #197983
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 11 Sep 2003 16:36:50 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em20.2) unstable; urgency=low
+
+  * fresh build to pick up kernel-source-2.4.20 security updates
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 15 Aug 2003 08:35:55 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em20.1) unstable; urgency=low
+
+  * updated patch from HP, fixes problems with itanium-smp on i2000 and 
+    updates support for serial ports on the remote management cards in HP
+    systems, closes: #194371
+  * update config files to enable CONFIG_HP_DIVA.
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 10 Jun 2003 13:04:17 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em18.3) unstable; urgency=low
+
+  * change config files to build raid devices into kernel not modules
+  * pull pal.h patch forward from 2.4.19 tree to fix syntax errors due to 
+    asm/pal.h inclusion by other headers, closes: #191114
+  * force use of gcc-3.2 since gcc-3.3 isn't building ia64 kernels right now!
+
+ -- Bdale Garbee <bdale@gag.com>  Mon,  2 Jun 2003 23:12:00 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em18.2) unstable; urgency=low
+
+  * fix type in patching scripts, closes: #191161
+  * fix duplicated patch, closes: #191164
+  * enable CONFIG_SERIAL_ACPI, closes: #190583
+  * enable QLA2XXX fibre channel driver
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 30 Apr 2003 12:27:41 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em18.1) unstable; urgency=low
+
+  * updated patchset from HP
+  * fix typo in description field... this isn't for powerpc!  closes: #185427
+  * enable CONFIG_IP_NF_NAT_LOCAL as a module per request from Ryan Bradetich
+  * enable CONFIG_VLAN_8021Q as a module per request from Grant Grundler
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 10 Apr 2003 11:10:00 -0600
+
+kernel-patch-2.4.20-ia64 (021210.em6.1) unstable; urgency=low
+
+  * new upstream kernel version, first instance of a kernel-patch package
+    for ia64 instead of a full source package.  borrowing heavily from the
+    powerpc version maintained by Daniel Jacobowitz <dan@debian.org>
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 10 Mar 2003 16:32:19 -0700
+

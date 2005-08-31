@@ -1,0 +1,10 @@
+This package was created by Jens Schmalzing <jensen@debian.org> on
+Fri, 23 Apr 2004 10:19:35 +0200.
+
+This package consists of a small shell script that performs a tiny
+portion of the PowerPC kernel generation originally encoded in the
+Makefiles in the Linux kernel tree, namely in arch/ppc/boot/.
+
+Linux is copyrighted by Linus Torvalds and others, and is licensed
+under the GNU General Public License, which on Debian systems will
+be installed in the file /usr/share/common-licenses/GPL.

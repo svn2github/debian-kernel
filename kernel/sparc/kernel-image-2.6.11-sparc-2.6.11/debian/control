@@ -1,0 +1,154 @@
+Source: kernel-image-2.6.11-sparc
+Section: devel
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Joshua Kwan <joshk@triplehelix.org>, Ben Collins <bcollins@debian.org>, Andres Salomon <dilinger@debian.org>
+Standards-Version: 3.6.1.0
+Build-Depends: gcc (>= 4:3.3), kernel-tree-2.6.11-5, debhelper (>= 4), kernel-package, sparc-utils, module-init-tools
+
+Package: kernel-build-2.6.11-1
+Architecture: sparc
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.11-1-sparc32, kernel-headers-2.6.11-1-sparc64, kernel-headers-2.6.11-1-sparc64-smp
+Description: Headers for building modules for Linux 2.6.11
+ This package provides kernel header files for building modules for the
+ precompiled kernel images on the 64-bit SPARC architecture (uniprocessor and
+ multiprocessor.)
+
+Package: kernel-headers-2.6.11-1
+Architecture: sparc
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-kbuild-2.6-3 (>= 2.6.8-2)
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files related to Linux kernel version 2.6.11
+ This package provides kernel header files for version 2.6.11, generally
+ used for building out-of-tree kernel modules. See the 'module-assistant'
+ package for more information.
+ .
+ This package consists mostly of the common files between the three header
+ packages you should really be using for building modules:
+ .
+ - kernel-headers-2.6.11-1-sparc32
+ - kernel-headers-2.6.11-1-sparc64
+ - kernel-headers-2.6.11-1-sparc64-smp
+ .
+ For more information you can also read:
+ /usr/share/doc/kernel-headers-2.6.11-1/debian.README.gz.
+
+Package: kernel-headers-2.6.11-1-sparc32
+Architecture: sparc
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.11-1
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files for Linux kernel 2.6.11 on uniprocessor 32-bit SPARC
+ This package provides kernel header files for version 2.6.11 on the 32-bit 
+ SPARC architecture, used to build out-of-tree kernel modules. If you have
+ more than one processor, you want the kernel-headers-2.6.11-1-sparc64-smp
+ package.
+
+Package: kernel-image-2.6.11-1-sparc32
+Section: base
+Architecture: sparc
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Suggests: silo, fdutils, kernel-doc-2.6.11
+Depends: module-init-tools, initrd-tools (>= 0.1.74)
+Description: Linux kernel binary image for UltraSPARC (sparc32) systems
+ This package contains the Linux kernel image, the System.map file,
+ and the modules built by the packager.  It also contains scripts that
+ try to ensure that the system is not left in a unbootable state
+ after an update.
+ .
+ If you wish to update a bootdisk, or to use a bootloader to make
+ installing and using the image easier, we suggest you install the latest
+ fdutils (for formatting a floppy to be used as boot disk), and LILO, for a
+ powerful bootloader. Of course, both these are optional. 
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+ .
+ NOTE: This kernel is strictly for 32-bit Super/HyperSPARC (sun4m) class
+ systems. If you do not have a SuperSPARC or HyperSPARC CPU, then most likely
+ you want the sparc64 image. See kernel-image-2.6-sparc64.
+
+Package: kernel-headers-2.6.11-1-sparc64
+Architecture: sparc
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.11-1
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files for Linux kernel 2.6.11 on uniprocessor 64-bit SPARC
+ This package provides kernel header files for version 2.6.11 on the 64-bit 
+ SPARC architecture, used to build out-of-tree kernel modules. If you have
+ more than one processor, you want the kernel-headers-2.6.11-1-sparc64-smp
+ package.
+
+Package: kernel-image-2.6.11-1-sparc64
+Section: base
+Architecture: sparc
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Suggests: silo, fdutils, kernel-doc-2.6.11
+Depends: module-init-tools, initrd-tools (>= 0.1.63)
+Description: Linux kernel binary image for UltraSPARC (sparc64) systems
+ This package contains the Linux kernel image, the System.map file,
+ and the modules built by the packager.  It also contains scripts that
+ try to ensure that the system is not left in a unbootable state
+ after an update.
+ .
+ If you wish to update a bootdisk, or to use a bootloader to make
+ installing and using the image easier, we suggest you install the latest
+ fdutils (for formatting a floppy to be used as boot disk), and LILO, for a
+ powerful bootloader. Of course, both these are optional. 
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+ .
+ NOTE: This kernel is strictly for UltraSPARC (sparc64) class systems. If you
+ do not have an UltraSPARC, then most likely you want the sparc32 image. See
+ kernel-image-2.6-sparc32.
+
+Package: kernel-headers-2.6.11-1-sparc64-smp
+Architecture: sparc
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.6.11-1
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files for Linux kernel 2.6.11 on multiprocessor 64-bit SPARC
+ This package provides kernel header files for version 2.6.11 on the 64-bit
+ SPARC architecture, used to build out-of-tree kernel modules. If you only
+ have one processor, you want the kernel-headers-2.6.11-1-sparc64 package
+ instead.
+
+Package: kernel-image-2.6.11-1-sparc64-smp
+Section: base
+Architecture: sparc
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Suggests: silo, fdutils, kernel-doc-2.6.11
+Depends: module-init-tools, initrd-tools (>= 0.1.63)
+Description: Linux kernel binary image for SMP UltraSPARC (sparc64) systems
+ This package contains the Linux kernel image, the System.map file,
+ and the modules built by the packager.  It also contains scripts that
+ try to ensure that the system is not left in a unbootable state
+ after an update.
+ .
+ If you wish to update a bootdisk, or to use a bootloader to make
+ installing and using the image easier, we suggest you install the latest
+ fdutils (for formatting a floppy to be used as boot disk), and LILO, for a
+ powerful bootloader. Of course, both these are optional.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+ .
+ NOTE: This kernel is strictly for UltraSPARC (sparc64) class systems. If you
+ do not have an UltraSPARC, then most likely you want the sparc32 image, which
+ only exists for the 2.4 kernel series. See kernel-image-2.4-sparc32.
+ Also, this kernel is specifically for SMP (multiple processors) systems. If
+ you do not have more than one CPU, then choose the non-SMP kernel image.

@@ -1,0 +1,45 @@
+# origin: bk
+# cset: 1.1136.66.1
+# inclusion: n/a (projected: 2.4.28-pre3)
+# description: export proc_get_inode to allow modular comx
+# revision date: 2004-09-03
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2003/11/15 11:29:46-02:00 xose@wanadoo.es 
+#   [PATCH] Export proc_get_inode
+#   
+#   Xose Vazquez Perez wrote:
+#   
+#   > depmod: *** Unresolved symbols in /lib/modules/2.4.23-pre5/kernel/drivers/net/wan/comx.o
+#   > depmod:         proc_get_inode
+#   
+#   This bug was fixed in aa since 2.4.19pre8aa2 !!
+#   Maybe someone needs to do a sync between 2.4.24-pre1 against pac and aa patches.
+#   
+#   http://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23pre6aa3/00_comx-driver-compile-1
+#   
+#   00_comx-driver-compile-1 first appeared in 2.4.19pre8aa2 - 258 bytes
+#   
+#   	Export proc_get_inode for kernel/drivers/net/wan/comx.o so
+#   	it can link as a module, noticed by Eyal Lebedinsky.
+#   
+#   -thanks-
+#   --
+#   HTML mails are going to trash automagically
+#   
+#       [ Part 2: "Attached Text" ]
+# 
+# fs/proc/root.c
+#   2002/05/04 10:45:30-03:00 xose@wanadoo.es +1 -0
+#   Export proc_get_inode
+# 
+diff -Nru a/fs/proc/root.c b/fs/proc/root.c
+--- a/fs/proc/root.c	2004-09-03 19:25:35 -07:00
++++ b/fs/proc/root.c	2004-09-03 19:25:35 -07:00
+@@ -145,3 +145,4 @@
+ EXPORT_SYMBOL(proc_net);
+ EXPORT_SYMBOL(proc_bus);
+ EXPORT_SYMBOL(proc_root_driver);
++EXPORT_SYMBOL(proc_get_inode);

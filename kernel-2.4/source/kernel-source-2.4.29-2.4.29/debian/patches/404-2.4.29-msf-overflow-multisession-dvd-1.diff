@@ -1,0 +1,66 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/28 15:18:14-02:00 kronos@kronoz.cjb.net 
+#   [PATCH] Fix MSF overflow in ide-cd with multisession DVDs
+#   
+#   This a backport of my patch that went into 2.6.10.
+#   
+#   cdrom_read_toc (ide-cd.c) always reads the TOC using MSF format. If the
+#   last session of the disk starts beyond block 1152000 (LBA) there's an
+#   overflow in the MSF format and kernel complains:
+#   
+#   Unable to identify CD-ROM format.
+#   
+#   So read the multi-session TOC in LBA format in order to avoid an
+#   overflow in MSF format with multisession DVDs.
+#   
+#   Signed-off-by: Luca Tettamanti <kronos@kronoz.cjb.net>
+# 
+# drivers/ide/ide-cd.c
+#   2005/01/08 18:53:08-02:00 kronos@kronoz.cjb.net +15 -9
+#   Fix MSF overflow in ide-cd with multisession DVDs
+# 
+diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	2005-02-03 05:58:34 -08:00
++++ b/drivers/ide/ide-cd.c	2005-02-03 05:58:34 -08:00
+@@ -2206,24 +2206,30 @@
+ 	/* Read the multisession information. */
+ 	if (toc->hdr.first_track != CDROM_LEADOUT) {
+ 		/* Read the multisession information. */
+-		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
++		stat = cdrom_read_tocentry(drive, 0, 0, 1, (char *)&ms_tmp,
+ 					   sizeof(ms_tmp), sense);
+ 		if (stat) return stat;
++	
++		toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
+ 	} else {
+-		ms_tmp.ent.addr.msf.minute = 0;
+-		ms_tmp.ent.addr.msf.second = 2;
+-		ms_tmp.ent.addr.msf.frame  = 0;
+ 		ms_tmp.hdr.first_track = ms_tmp.hdr.last_track = CDROM_LEADOUT;
++		toc->last_session_lba = msf_to_lba(0, 2, 0); /* 0m 2s 0f */
+ 	}
+ 
+ #if ! STANDARD_ATAPI
+-	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
++	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd) {
++		/* Re-read multisession information using MSF format */
++		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
++					   sizeof(ms_tmp), sense);
++		if (stat)
++			return stat;
++
+ 		msf_from_bcd (&ms_tmp.ent.addr.msf);
++		toc->last_session_lba = msf_to_lba(ms_tmp.ent.addr.msf.minute,
++					  	   ms_tmp.ent.addr.msf.second,
++						   ms_tmp.ent.addr.msf.frame);
++	}
+ #endif  /* not STANDARD_ATAPI */
+-
+-	toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
+-					    ms_tmp.ent.addr.msf.second,
+-					    ms_tmp.ent.addr.msf.frame);
+ 
+ 	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
+ 

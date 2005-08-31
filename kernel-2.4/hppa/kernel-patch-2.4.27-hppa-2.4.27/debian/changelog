@@ -1,0 +1,43 @@
+kernel-patch-2.4.27-hppa (2.4.27-pa4.3) UNRELEASED; urgency=low
+
+  * Added build debpends on gcc-3.3 as the default gcc
+    is being changed from 3.3 to 4.0.
+
+ -- Simon Horman <horms@debian.org>  Mon,  4 Jul 2005 12:18:04 +0900
+
+kernel-patch-2.4.27-hppa (2.4.27-pa4.2) unstable; urgency=high
+
+  * Fix wrong indentation in the patch.
+
+ -- Thibaut VARENE <varenet@debian.org>  Sun, 23 Jan 2005 03:53:02 +0100
+
+kernel-patch-2.4.27-hppa (2.4.27-pa4.1) unstable; urgency=high
+
+  * Fix FTBFS (closes: #289590).
+  * Uses a modified version of -pa4
+  * Adds sym53c8xx_26_compat patch.
+
+ -- Thibaut VARENE <varenet@debian.org>  Sun, 23 Jan 2005 02:13:05 +0100
+
+kernel-patch-2.4.27-hppa (2.4.27-pa4) unstable; urgency=high
+
+  * Fix spinlocks memory barriers that caused SMP troubles.
+  * urg=high because of sarge freeze.
+
+ -- Thibaut VARENE <varenet@debian.org>  Sun, 29 Aug 2004 23:13:03 +0200
+
+kernel-patch-2.4.27-hppa (2.4.27-pa2) unstable; urgency=high
+
+  * Fix userspace denial of service attacks:
+     traps.c:handle_interruption, add check to see if
+     faulting space is the same as users space.
+  * Priority set to high incase this is our default sarge kernel.
+
+ -- Kyle McMartin <kyle@debian.org>  Sun, 22 Aug 2004 23:39:19 -0400
+
+kernel-patch-2.4.27-hppa (2.4.27-pa1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Kyle McMartin <kyle@debian.org>  Mon, 16 Aug 2004 03:28:21 -0400
+

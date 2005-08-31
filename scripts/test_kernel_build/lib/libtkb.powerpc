@@ -1,0 +1,12 @@
+#!/bin/bash
+######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+if [ "$LIBTKB_BIN_POWERPC" != "YES" ]; then
+LIBTKB_BIN_POWERPC="YES"
+
+. "$TKB_LIB_DIR/libtkb.generic"
+. "$TKB_LIB_DIR/libtkb.bin.generic"
+
+fi # LIBTKB_BIN_POWERPC

@@ -1,0 +1,234 @@
+kernel-image-2.6.11-s390 (2.6.11-1) unstable; urgency=low
+
+  * New upstream release.
+    - Use kernel-tree-2.6.11-2.
+    - Remove patches.
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 04 Apr 2005 16:40:31 +0200
+
+kernel-image-2.6.10-s390 (2.6.10-2) unstable; urgency=low
+
+  * diffs:
+    - Split ibm into eui64 and kerntypes.
+    - Replace eui64 with upstream patch.
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 31 Jan 2005 17:01:04 +0100
+
+kernel-image-2.6.10-s390 (2.6.10-1) unstable; urgency=low
+
+  * New upstream release.
+    - Use kernel-tree-2.6.10-4.
+    - Disable qeth VLAN support.
+    - Update ibm patch.
+
+ -- Bastian Blank <waldi@debian.org>  Wed, 19 Jan 2005 15:35:09 +0100
+
+kernel-image-2.6.8-s390 (2.6.8-4) unstable; urgency=high
+
+  * config
+    - Enable scsi legacy proc interface.
+    - Enable tape support.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 27 Nov 2004 21:45:36 +0100
+
+kernel-image-2.6.8-s390 (2.6.8-3) unstable; urgency=high
+
+  * debian/rules
+    - Ask patch to suppress backup.
+  * Use kernel-tree-2.6.8-10
+    - CAN-2004-0887
+
+ -- Bastian Blank <waldi@debian.org>  Wed, 24 Nov 2004 21:22:42 +0100
+
+kernel-image-2.6.8-s390 (2.6.8-2) unstable; urgency=medium
+
+  * Use kernel-tree-2.6.8-6.
+
+ -- Bastian Blank <waldi@debian.org>  Wed, 15 Sep 2004 14:59:30 +0200
+
+kernel-image-2.6.8-s390 (2.6.8-1) unstable; urgency=low
+
+  * New upstream release.
+    - Use kernel-tree-2.6.8-2
+  * Use initrd.
+
+ -- Bastian Blank <waldi@debian.org>  Tue, 17 Aug 2004 20:46:10 +0000
+
+kernel-image-2.4.25-s390 (2.4.25-2) unstable; urgency=low
+
+  * Use kernel-tree-2.4.25-3
+    - CAN-2004-0003
+    - CAN-2004-0010
+    - CAN-2004-0109
+    - CAN-2004-0177
+
+ -- Bastian Blank <waldi@debian.org>  Wed, 14 Apr 2004 17:35:49 +0200
+
+kernel-image-2.4.25-s390 (2.4.25-1) unstable; urgency=low
+
+  * New upstream release.
+    - Use kernel-tree-2.4.25-1 and kernel-patch-2.4.25-s390.
+  * debian/control:
+    - Update.
+  * debian/rules:
+    - Enable s390x kernels.
+
+ -- Bastian Blank <waldi@debian.org>  Sun, 04 Apr 2004 14:04:51 +0200
+
+kernel-image-2.4.21-s390 (2.4.21-2) unstable; urgency=low
+
+  * Rebuild against new kernel-patch.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 06 Mar 2004 21:55:59 +0100
+
+kernel-image-2.4.21-s390 (2.4.21-1) unstable; urgency=low
+
+  * New upstream release.
+    - Use kernel-tree-2.4.21-7 and kernel-patch-2.4.21-s390.
+  * debian/control:
+    - Change Maintainer to debian-s390@lists.debian.org.
+    - Add Bastian Blank and Jochen Röhrig to Uploaders.
+    - Update.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 14 Feb 2004 21:36:58 +0100
+
+kernel-image-2.4.19-s390 (2.4.19-2) unstable; urgency=low
+
+  * Some restructuring by Bastian Blank <waldi@debian.org>:
+    - new udebs for debian installer
+    - support for 64 bit kernel on 31 bit (not yet enabled)
+
+ -- Jochen Röhrig <jr@debian.org>  Thu, 28 Nov 2002 21:57:59 +0100
+
+kernel-image-2.4.19-s390 (2.4.19-1) unstable; urgency=high
+
+  * New upstream release.
+  * Replaced 2.4.17-patches by the initial 2.4.19-patch from the
+    IBM Developerworks website (released on 2002.09.13).
+    This patch includes the source code for the qdio I/O-driver which
+    was only available as object code only module so far, and support for
+    the new zSeries FCP attachment for SCSI.
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website which fixes a lot of problems (released on 2002.10.24).
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website which fixes further problems (released on 2002.11.25).
+  * Integrated the kerntypes patch from the IBM Developerworks
+    website (released on 2002.09.13).
+  * Integrated the on-demand timer patch from the IBM Developerworks
+    website (released on 2002.10.24).
+  * Ported the ramdisk-patch to apply on 2.4.19-kernel-source
+    (port by Bastian Blank <waldi@debian.org>).
+  * Ported the cmsfs-patch to apply on 2.4.19-kernel-source
+    (port by Bastian Blank <waldi@debian.org>).
+  * Removed ksyms-fix-patch (not needed any longer).
+
+ -- Jochen R<F6>hrig <jr@debian.org>  Wed, 27 Nov 2002 22:36:43 +0100
+
+kernel-image-2.4.17-s390 (2.4.17-3) unstable; urgency=high
+
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website (released on 2002.06.12).
+    This patch fixes the DASD deadlock problem and some other severe
+    problems.
+  * Removed NMU DASD deadlock fix.
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website (released on 2002.08.16).
+    This patch fixes a problem related to the IUCV driver.
+
+ -- Jochen Röhrig <jr@debian.org>  Tue, 10 Sep 2002 21:33:13 +0200
+
+kernel-image-2.4.17-s390 (2.4.17-2.1) unstable; urgency=high
+
+  * NMU
+  * Rebuilt with kernel-patch-2.4.17-s390 0.0.20020415-1.1 which
+    fixes a possible DASD deadlock
+
+ -- Stefan Gybas <sgybas@debian.org>  Mon, 29 Apr 2002 21:15:18 +0200
+
+kernel-image-2.4.17-s390 (2.4.17-2) unstable; urgency=high
+
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website (released on 2002.04.15).
+  * Added cpint-patch by Neale Ferguson which allows to invoke CP commands
+    from Linux.
+  * Added cmsfs-patch by Rick Troth <rtroth@bmc.com> which enables read
+    only access to CMS disks.
+
+ -- Jochen Röhrig <jr@debian.org>  Tue, 16 Apr 2002 20:14:50 +0200
+
+kernel-image-2.4.17-s390 (2.4.17-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use kernel-patch-2.4.17-s390.
+  * First kernel-image package including the freshly open sourced lcs
+    network driver module which was only available from the IBM
+    Developerworks website as object code only module so far. 
+
+ -- Jochen Röhrig <jr@debian.org>  Wed,  6 Mar 2002 21:25:25 +0100
+
+kernel-image-2.4.16-s390 (2.4.16-2) unstable; urgency=low
+
+  * Integrated a patch by Gerhard Tonn <gt@debian.org> which fixes
+    compile problems for some packages that use the kernel-headers.
+  * Use new kernel-package which generates /etc/zipl.conf correctly
+    in the kernel-image-postinstall-script. 
+
+ -- Jochen Röhrig <jr@debian.org>  Wed, 13 Feb 2002 22:25:16 +0100 
+
+kernel-image-2.4.16-s390 (2.4.16-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use kernel-patch-2.4.16-s390.
+  * Enable CONFIG_EXT3_FS.
+
+ -- Jochen Röhrig <jr@debian.org>  Fri, 21 Dec 2001 01:04:09 +0100
+
+kernel-image-2.4.7-s390 (2.4.7-5) unstable; urgency=low
+
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website (released on 2001.11.23).
+  * Updated the patch by Gerhard Ton <gt@debian.org> which adds
+    support for a second initrd (needed by the s390 boot-floppies).
+  * Enable CONFIG_FILTER and CRAMFS.
+
+ -- Jochen Röhrig <jr@debian.org>  Tue, 11 Dec 2001 22:28:02 +0100
+
+kernel-image-2.4.7-s390 (2.4.7-4) unstable; urgency=low
+
+  * Integrated a new kernel-patch from the IBM Developerworks
+    website (released on 2001.11.09).
+  * Integrated a patch by Gerhard Ton <gt@debian.org> which adds
+    support for a second initrd (needed by the s390 boot-floppies).
+
+ -- Jochen Röhrig <jr@debian.org>  Tue, 13 Nov 2001 22:05:01 +0100
+
+kernel-image-2.4.7-s390 (2.4.7-3) unstable; urgency=low
+
+  * Integrated the current kernel-patches from the IBM Developerworks
+    website.
+  * Renamed kernel-headers-deb and fixed problem with version-info in
+    include/linux/version.h
+  * Install System.map and config in /boot/ of s390-tape-udeb.
+
+ -- Jochen Röhrig <jr@debian.org>  Fri, 26 Oct 2001 00:45:08 +0200
+
+kernel-image-2.4.7-s390 (2.4.7-2) unstable; urgency=low
+
+  * Compile NFS support as module.
+  * Corrected some dependencies.
+  * Changed section to devel.
+
+ -- Jochen Röhrig <jr@debian.org>  Thu,  6 Sep 2001 20:36:32 +0200
+
+kernel-image-2.4.7-s390 (2.4.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * Build s390-tape binary package as udeb.
+
+ -- Jochen Röhrig <jr@debian.org>  Wed, 22 Aug 2001 00:43:24 +0200
+
+kernel-image-2.4.5-s390 (2.4.5-1) unstable; urgency=low
+
+  * Initial release, based on the kernel-image-2.4.7-i386 package
+
+ -- Stefan Gybas <sgybas@debian.org>  Wed,  1 Aug 2001 09:03:24 +0200

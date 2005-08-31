@@ -1,0 +1,440 @@
+#!/usr/bin/make -f 
+
+# debian/rules for kernel-patch-powerpc
+
+# original version by Jens Schmalzing <jensen@debian.org>
+# modified by Sven Luther <luther@debian.org>
+
+# debhelper compatibility version
+export DH_COMPAT=4
+
+# set the build architecture if necessary
+DEB_HOST_ARCH ?= $(shell dpkg --print-architecture)
+
+# the archs, subarchs and flavours we are building for
+archs := $(shell grep ^archs: debian/flavours | sed -e 's/^archs: *//')
+arch := $(DEB_HOST_ARCH)
+subarchs := $(shell grep "^subarchs $(arch):" debian/flavours | sed -e 's/^subarchs $(arch): *//')
+flavours := $(shell grep "^flavours $(subarch):" debian/flavours | sed -e 's/^flavours $(subarch): *//')
+makekpkg := $(shell grep "^make-kpkg match $(subarch):" debian/flavours | sed -e 's/^make-kpkg match $(subarch): *//')
+ifeq (,$(makekpkg))
+makekpkg := $(subarch)
+endif
+
+# cut the upstream version and the Debian revision from the changelog
+kernel	:= $(shell head -1 debian/changelog | sed 's/^.*(\(.*\)-.*).*$$/\1/')
+debian	:= $(shell head -1 debian/changelog | sed 's/^.*(.*-\(.*\)).*$$/\1/')
+version	:= $(shell head -1 debian/changelog | sed 's/^.*(\(.*\)).*$$/\1/')
+
+# some files in debian/ get version numbers and stuff updated on the fly
+M4 = m4 -DM4VERSION="$(version)" -DM4KERNEL="$(kernel)" -DM4ARCH="$(arch)" -DM4SUBARCH="$(subarch)" -DM4FLAVOUR="$(flavour)"
+debian/%: debian/%.m4
+	$(M4) $< > $@
+
+# installation of files and programs
+INSTALL_DATA	= install -m 644 -o root -g root
+INSTALL_EXEC	= install -m 755 -o root -g root
+
+# build locations - point TMP to a tmpfs for best performance
+TMP ?= $(CURDIR)/tmp
+KSOURCE	 = $(TMP)/kernel-source-$(kernel)
+KSUBARCH = $(TMP)/kernel-source-$(kernel)-$(subarch)
+KFLAVOUR = $(TMP)/kernel-source-$(kernel)-$(subarch)-$(flavour)
+KDUMMYSA = $(TMP)/kernel-image-$(kernel)-$(subarch)_$(version)_powerpc.deb
+KDUMMY   = $(TMP)/kernel-image-$(kernel)-$(flavour)_$(version)_powerpc.deb
+KHEADERS = $(TMP)/kernel-headers-$(kernel)-$(subarch)_$(version)_powerpc.deb
+KSCRIPTS = $(TMP)/scripts/$(flavour)
+KSCRIPTSA= $(TMP)/scripts/$(subarch)
+
+# install locations
+KHEADERDIR = $(CURDIR)/debian/kernel-headers-$(kernel)-$(subarch)
+KPATCH    = $(CURDIR)/debian/kernel-patch-powerpc-$(subarch)/usr/src/kernel-patches/powerpc/$(kernel)-$(subarch)
+KBUILD    = $(CURDIR)/debian/kernel-build-$(kernel)-$(flavour)
+KBUILDSA    = $(CURDIR)/debian/kernel-build-$(kernel)-$(subarch)
+KBUILDDOC = $(KBUILD)/usr/share/doc/kernel-build-$(kernel)-$(flavour)
+KBUILDDOCSA = $(KBUILDSA)/usr/share/doc/kernel-build-$(kernel)-$(subarch)
+KSRC      = $(KBUILD)/usr/src/kernel-build-$(kernel)-$(flavour)
+KSRCSA     = $(KBUILDSA)/usr/src/kernel-build-$(kernel)-$(subarch)
+KIMAGE    = $(CURDIR)/debian/kernel-image-$(kernel)-$(flavour)
+KIMAGESA  = $(CURDIR)/debian/kernel-image-$(kernel)-$(subarch)
+KIMAGEDOC = $(KIMAGE)/usr/share/doc/kernel-image-$(kernel)-$(flavour)
+KIMAGEDOCSA = $(KIMAGESA)/usr/share/doc/kernel-image-$(kernel)-$(subarch)
+KLIB      = $(KIMAGE)/usr/lib/kernel-image-$(kernel)-$(flavour)
+KLIBSA      = $(KIMAGESA)/usr/lib/kernel-image-$(kernel)-$(subarch)
+
+# environment for make-kpkg
+export APPEND_TO_VERSION=-$(flavour)
+export CONCURRENCY_LEVEL=8
+# Don't know why i have to force this here, apparently make-kpkg doesn't 
+# get passed the -r command of the dpkg-buildpackage invocation :/
+MAKEKPKG=make-kpkg --rootcmd fakeroot
+
+# the configure target is responsible for setting up the build arena,
+# i.e. unpacking the Debian kernel source, applying the PowerPC patch,
+# and preparing a separate build tree for each flavour.
+
+configure: stamp-configure
+
+# the following is the first of a number of loop implementations using
+# recursive make.  This provides much easier access to the loop
+# variable than extracting it from the target.  In order to safeguard
+# against infinite loops, the recursion level is checked for the
+# critical targets.  This particular example calls a common target,
+# then runs the loop, and also includes some common commands to
+# process after the loop.
+
+stamp-configure: \
+stamp-configure-arch-$(arch) \
+$(foreach subarch,$(subarchs),stamp-configure-subarch-$(subarch))
+	touch $@
+
+# Per arch configure processing.
+# We unpack the main kernel-source tree and prepare it for our needs.
+stamp-configure-arch-$(arch):
+	test -d $(dir $(KSOURCE)) || mkdir -p $(dir $(KSOURCE))
+	tar jxCf $(dir $(KSOURCE)) /usr/src/kernel-source-$(kernel).tar.bz2
+	cd $(KSOURCE); /usr/src/kernel-patches/all/$(kernel)/apply/debian
+
+	test -d $(KSOURCE)/debian || mkdir $(KSOURCE)/debian
+	cp -p /usr/share/doc/kernel-source-$(kernel)/changelog.Debian.gz \
+		$(KSOURCE)/debian/changelog.Debian.kernel-source.gz
+	cd debian; cp -p changelog control copyright $(KSOURCE)/debian
+	> $(KSOURCE)/debian/official
+
+	touch $@
+
+ifeq (0,$(MAKELEVEL))
+
+stamp-configure-subarch-%:
+	$(MAKE) -f debian/rules stamp-configure-subarch-$* subarch=$*
+	touch $@
+
+else
+ifeq (1,$(MAKELEVEL))
+
+# Per subarch configure processing.
+# We copy the kernel-source tree, apply the subarch patches
+# add subarch entries in the control file and add the default
+# subarch configuration file.
+stamp-configure-subarch-$(subarch): \
+stamp-configure-prepare-subarch-$(subarch) \
+$(foreach flavour,$(flavours),stamp-configure-flavour-$(subarch)-$(flavour))
+
+stamp-configure-prepare-subarch-$(subarch):
+	test -d $(dir $(KSUBARCH)) || mkdir -p $(dir $(KSUBARCH))
+	cp -al $(KSOURCE) $(KSUBARCH)
+
+	rm -f $(KSUBARCH)/debian/control
+	$(M4) debian/control-arch-$(arch).m4 > $(KSUBARCH)/debian/control
+	$(M4) debian/control-subarch-$(arch)-$(subarch).m4 >> $(KSUBARCH)/debian/control
+	zcat patches/debian-$(subarch).diff.gz | patch -p1 -d $(KSUBARCH) 
+	rm -f $(KSUBARCH)/.config
+	-$(MAKE) --no-print-directory -s -C config $(subarch).default >$(KSUBARCH)/.config
+
+	touch $@
+
+stamp-configure-flavour-$(subarch)-%:
+	$(MAKE) -f debian/rules stamp-configure-flavour-$(subarch)-$* subarch=$(subarch) flavour=$*
+
+else
+ifeq (2,$(MAKELEVEL))
+
+# Per flavour configure processing.
+# We copy the kernel-source tree, add flavour entries in the
+# contol file and add the flavour configuration file.
+stamp-configure-flavour-$(subarch)-$(flavour):
+	test -d $(dir $(KFLAVOUR)) || mkdir -p $(dir $(KFLAVOUR))
+	cp -al $(KSUBARCH) $(KFLAVOUR)
+
+	rm -f $(KFLAVOUR)/debian/control
+	$(M4) debian/control-arch-$(arch).m4 > $(KFLAVOUR)/debian/control
+	$(M4) debian/control-subarch-$(arch)-$(subarch).m4 >> $(KFLAVOUR)/debian/control
+	$(M4) debian/control-flavour-$(arch)-$(subarch)-$(flavour).m4 >> $(KFLAVOUR)/debian/control
+	rm -f $(KFLAVOUR)/.config
+	-$(MAKE) --no-print-directory -s -C config $(flavour) > $(KFLAVOUR)/.config
+ifeq (powerpc,$(subarch))
+	cd debian; cp -p post-install $(KFLAVOUR)/debian
+endif
+	touch $@
+
+endif
+endif
+endif
+
+# the build target is responsible for, well, building the kernels and
+# modules for each flavour.  To that end, it uses the build target of
+# make-kpkg.
+
+ifeq ($(DEB_HOST_ARCH),powerpc)
+build: stamp-build
+else
+build:
+endif
+
+stamp-build: \
+stamp-configure \
+stamp-build-$(arch) \
+$(foreach subarch,$(subarchs),stamp-build-subarch-$(subarch))
+	touch $@
+
+# Per arch build processing.
+stamp-build-$(arch):
+	dh_testdir
+	touch $@
+
+ifeq (0,$(MAKELEVEL))
+
+stamp-build-subarch-%:
+	$(MAKE) -f debian/rules stamp-build-subarch-$* subarch=$*
+
+else
+ifeq (1,$(MAKELEVEL))
+
+# Per subarch build processing.
+stamp-build-subarch-$(subarch): \
+$(foreach flavour,$(flavours),stamp-build-flavour-$(subarch)-$(flavour))
+	cd $(KSUBARCH); \
+	MFLAGS="$(filter-out -j --j%,$(MFLAGS))" \
+	MAKEFLAGS="$(filter-out -j --j%,$(MAKEFLAGS))" \
+	$(MAKEKPKG) --subarch $(makekpkg) --append-to-version -$(subarch) kernel_headers
+ifeq (,$(flavours))
+	# Let's build subarches who have no flavours here.
+	cd $(KSUBARCH); \
+	MFLAGS="$(filter-out -j --j%,$(MFLAGS))" \
+	MAKEFLAGS="$(filter-out -j --j%,$(MAKEFLAGS))" \
+	$(MAKEKPKG) --subarch $(makekpkg) --append-to-version -$(subarch) build
+endif
+	touch $@
+
+stamp-build-flavour-$(subarch)-%:
+	$(MAKE) -f debian/rules stamp-build-flavour-$(subarch)-$* subarch=$(subarch) flavour=$*
+
+else
+ifeq (2,$(MAKELEVEL))
+
+# Per flavour build processing.
+stamp-build-flavour-$(subarch)-$(flavour):
+	cd $(KFLAVOUR); \
+	MFLAGS="$(filter-out -j --j%,$(MFLAGS))" \
+	MAKEFLAGS="$(filter-out -j --j%,$(MAKEFLAGS))" \
+	$(MAKEKPKG) --subarch $(makekpkg) --append-to-version -$(flavour) build
+	touch $@
+
+endif
+endif
+endif
+
+# the install target is responsible for assigning the built kernels
+# and modules to the right kernel-image and kernel-modules packages.
+# The main work is done through the kernel-image target of make-kpkg.
+# The resulting intermediate package is immediately unpacked again and
+# its contents re-arranged slightly.  The whole process results in one
+# kernel-image directory per flavour.  Also, the install target puts
+# together the patch package itself and the build infrastructure for
+# modules.
+
+install: stamp-install
+
+stamp-install: \
+stamp-configure \
+stamp-build \
+stamp-install-$(arch) \
+$(foreach subarch,$(subarchs),stamp-install-subarch-$(subarch))
+	touch $@
+
+# Per arch install processing.
+stamp-install-$(arch):
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+	touch $@
+
+ifeq (0,$(MAKELEVEL))
+
+stamp-install-subarch-%:
+	$(MAKE) -f debian/rules stamp-install-subarch-$* subarch=$*
+
+else
+ifeq (1,$(MAKELEVEL))
+
+# Per subarch install processing.
+stamp-install-subarch-$(subarch): \
+stamp-install-patch-subarch-$(subarch) \
+stamp-install-headers-subarch-$(subarch) \
+$(foreach flavour,$(flavours),stamp-install-flavour-$(subarch)-$(flavour))
+ifeq (,$(flavours))
+	# create and unpack the intermediate kernel image package
+	cd $(KSUBARCH); \
+	MFLAGS="$(filter-out -j --j%,$(MFLAGS))" \
+	MAKEFLAGS="$(filter-out -j --j%,$(MAKEFLAGS))" \
+	$(MAKEKPKG) --subarch $(makekpkg) --append-to-version -$(subarch) kernel-image
+	dpkg -x $(KDUMMYSA) $(KIMAGESA)
+	mkdir -p $(KSCRIPTSA)/DEBIAN
+	dpkg -e $(KDUMMYSA) $(KSCRIPTSA)/DEBIAN
+
+	# copy build infrastructure for kernel modules
+	cd $(KSUBARCH); find scripts -type f ! -name '*.o' | cpio -pd $(KSRCSA)
+	cat debian/build-files | ( cd $(KSUBARCH); cpio -pd $(KSRCSA) )
+
+	# add some README files and the kernel-source changelog
+	mkdir -p $(KBUILDDOCSA)
+	$(INSTALL_DATA) debian/README.kernel-build $(KBUILDDOCSA)/README.Debian
+	$(INSTALL_DATA) debian/README.kernel-image $(KIMAGEDOCSA)/NEWS.Debian
+	$(INSTALL_DATA) /usr/share/doc/kernel-source-$(kernel)/changelog.Debian.gz \
+		$(KBUILDDOCSA)/changelog-kernel-source.Debian.gz
+
+	touch $@
+endif
+	touch $@
+
+stamp-install-patch-subarch-$(subarch):
+	mkdir -p $(KPATCH)/patches $(KPATCH)/apply $(KPATCH)/unpatch
+	$(INSTALL_DATA) patches/debian-$(subarch).diff.gz $(KPATCH)/patches
+	$(M4) debian/apply.m4 > debian/apply-$(subarch)
+	$(INSTALL_EXEC) debian/apply-$(subarch) $(KPATCH)/apply/0$(subarch)
+	$(M4) debian/unpatch.m4 > debian/unpatch-$(subarch)
+	$(INSTALL_EXEC) debian/unpatch-$(subarch) $(KPATCH)/unpatch/0$(subarch)
+
+stamp-install-headers-subarch-$(subarch):
+	dpkg -x $(KHEADERS) $(KHEADERDIR)
+	mkdir -p $(KSCRIPTSA)/DEBIAN-HEADER
+	dpkg -e $(KHEADERS) $(KSCRIPTSA)/DEBIAN-HEADER
+
+stamp-install-flavour-$(subarch)-%:
+	$(MAKE) -f debian/rules stamp-install-flavour-$(subarch)-$* subarch=$(subarch) flavour=$*
+
+else
+ifeq (2,$(MAKELEVEL))
+
+# Per flavour install processing.
+stamp-install-flavour-$(subarch)-$(flavour):
+	# create and unpack the intermediate kernel image package
+	cd $(KFLAVOUR); \
+	MFLAGS="$(filter-out -j --j%,$(MFLAGS))" \
+	MAKEFLAGS="$(filter-out -j --j%,$(MAKEFLAGS))" \
+	$(MAKEKPKG) --subarch $(makekpkg) --append-to-version -$(flavour) kernel-image
+	dpkg -x $(KDUMMY) $(KIMAGE)
+	mkdir -p $(KSCRIPTS)/DEBIAN
+	dpkg -e $(KDUMMY) $(KSCRIPTS)/DEBIAN
+
+	# remove the coff image
+	rm -f $(KIMAGE)/boot/vmlinux.coff-$(kernel)-$(flavour)
+
+	# copy build infrastructure for kernel modules
+	cd $(KFLAVOUR); find scripts -type f ! -name '*.o' | cpio -pd $(KSRC)
+	cat debian/build-files | ( cd $(KFLAVOUR); cpio -pd $(KSRC) )
+
+	# add some README files and the kernel-source changelog
+	mkdir -p $(KBUILDDOC)
+	$(INSTALL_DATA) debian/README.kernel-image $(KIMAGEDOC)/NEWS.Debian
+	$(INSTALL_DATA) debian/README.kernel-build $(KBUILDDOC)/README.Debian
+	$(INSTALL_DATA) /usr/share/doc/kernel-source-$(kernel)/changelog.Debian.gz \
+		$(KBUILDDOC)/changelog-kernel-source.Debian.gz
+
+	touch $@
+
+endif
+endif
+endif
+
+ifeq ($(DEB_HOST_ARCH),powerpc)
+binary: stamp-configure stamp-build stamp-install
+	dh_testdir -a
+	dh_testroot -a
+	dh_installdocs -a
+	dh_installexamples -X.svn -a
+	dh_installmodules -a
+	dh_installchangelogs -a
+	dh_compress -X.stub -a
+	dh_link -a
+	dh_strip -a
+	dh_fixperms -a
+	dh_installdeb -a
+	for p in apus nubus powerpc powerpc-smp powerpc-small; do \
+		cp $(TMP)/scripts/$$p/DEBIAN/p* $(CURDIR)/debian/kernel-image-$(kernel)-$$p/DEBIAN; \
+	done
+	for p in $(subarchs); do \
+		cp $(TMP)/scripts/$$p/DEBIAN-HEADER/p* $(CURDIR)/debian/kernel-headers-$(kernel)-$$p/DEBIAN; \
+	done
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+else
+binary:
+endif
+
+# the clean target flushes the whole shebang down the drain, generated
+# files in debian/, build directories, stamp files, everything.  The
+# install-clean target reverts only the install stage, which is nice
+# for changing the packaging without having to rebuild in all the
+# kernel source trees.
+
+install-clean:
+	for file in debian/*.m4; do rm -f $${file%.m4}; done
+	for dir in debian/kernel-*; do if test -d $$dir; then rm -rf $$dir; fi; done
+	rm -f stamp-install-*
+
+clean:	install-clean
+	dh_testdir
+
+	rm -rf $(TMP)
+	rm -f stamp-*
+
+	dh_clean
+
+.PHONY:	configure build install binary clean
+
+# this target is intended for easy upgrade of the control file, in
+# case the kernel version, the Debian revision, or the flavours
+# change.
+
+# debian/control is generated here.
+
+ifeq ($(DEB_HOST_ARCH),powerpc)
+debian/control: stamp-control
+else
+debian/control
+endif
+
+stamp-control: \
+stamp-control-$(arch) \
+$(foreach subarch,$(subarchs),stamp-control-subarch-$(subarch))
+	touch $@
+
+# Per arch control processing.
+stamp-control-$(arch):
+	$(M4) debian/control-arch-$(arch).m4 > debian/control
+	touch $@
+
+ifeq (0,$(MAKELEVEL))
+
+stamp-control-subarch-%:
+	$(MAKE) -f debian/rules stamp-control-subarch-$* subarch=$*
+
+else
+ifeq (1,$(MAKELEVEL))
+
+# Per subarch control processing.
+stamp-control-subarch-$(subarch): \
+stamp-control-do-subarch-$(subarch) \
+$(foreach flavour,$(flavours),stamp-control-flavour-$(subarch)-$(flavour))
+	touch $@
+
+stamp-control-do-subarch-$(subarch):
+	$(M4) debian/control-subarch-$(arch)-$(subarch).m4 >> debian/control
+
+stamp-control-flavour-$(subarch)-%:
+	$(MAKE) -f debian/rules stamp-control-flavour-$(subarch)-$* subarch=$(subarch) flavour=$*
+
+else
+ifeq (2,$(MAKELEVEL))
+
+# Per flavour control processing.
+stamp-control-flavour-$(subarch)-$(flavour):
+	$(M4) debian/control-flavour-$(arch)-$(subarch)-$(flavour).m4 >> debian/control
+	touch $@
+
+endif
+endif
+endif

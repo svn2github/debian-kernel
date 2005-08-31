@@ -1,0 +1,15 @@
+kernel-latest-2.4-alpha (101) unstable; urgency=high
+
+  * updated for 2.4.27-2
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sun, 09 Jan 2005 20:28:26 +0100
+
+kernel-latest-2.4-alpha (100) unstable; urgency=high
+
+  * this is a new package containing these metapackages:
+    - kernel-image-2.4-generic
+    - kernel-image-2.4-smp
+    - kernel-headers-2.4-generic
+    - kernel-headers-2.4-smp
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sat, 05 Sep 2004 20:44:52 +0200

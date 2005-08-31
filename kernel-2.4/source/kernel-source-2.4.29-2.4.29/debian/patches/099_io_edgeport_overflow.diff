@@ -1,0 +1,23 @@
+# origin: http://xforce.iss.net/xforce/xfdb/18433
+# description: fix buffer underflow problem in io_edgeport
+# inclusion: not submitted (!)
+# revision date: 2005-02-17
+
+===== io_edgeport.c 1.84 vs edited =====
+--- 1.84/drivers/usb/serial/io_edgeport.c	2004-11-15 09:27:17 -08:00
++++ edited/io_edgeport.c	2004-11-26 10:46:12 -08:00
+@@ -2797,9 +2797,12 @@ static void change_port_settings (struct
+ static void unicode_to_ascii (char *string, __le16 *unicode, int unicode_size)
+ {
+ 	int i;
+-	for (i = 0; i < unicode_size; ++i) {
++
++	if (unicode_size <= 0)
++		return;
++
++	for (i = 0; i < unicode_size; ++i)
+ 		string[i] = (char)(le16_to_cpu(unicode[i]));
+-	}
+ 	string[unicode_size] = 0x00;
+ }
+ 

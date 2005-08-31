@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# This is the hook which runs when make-kpkg is invoked to create the
+# flavour-independent kernel-headers package.
+#
+set -e
+
+# Remove unneeded include/asm-* directories.
+find . -mindepth 2 -maxdepth 2 \
+	-path './include/asm-generic' -o -path './include/asm-mips' -prune \
+	-o -path './include/asm-*' -exec rm -r '{}' \+
+
+find . -mindepth 2 -maxdepth 2 \
+	-path './arch/mips' -prune \
+	-o -path './arch/*' -exec rm -r '{}' \+
+
+# Remove flavour-specific configuration.
+rm -r .config include/config include/asm include/asm-mips/offset.h
+#	include/linux/autoconf.h \
+#	include/linux/compile.h \
+#	include/linux/version.h
+
+# The scripts/ directory should be supplied for each flavour, since some
+# archs do some *very* strange things...
+rm -rf scripts

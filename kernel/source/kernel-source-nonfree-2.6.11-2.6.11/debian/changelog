@@ -1,0 +1,16 @@
+kernel-source-nonfree-2.6.11 (2.6.11-2) UNRELEASED; urgency=low
+
+  * 001_ifndef-64bit.patch: do not build smctr module on amd64 and ia64.
+  * Add amd64-specific handling to rules files.
+  * Release this package (closes: #306930) (Simon Horman)
+  * Add ia64 support (dann frazier)
+  * Fix the build so that the debian version doesn't have to be a number
+
+ -- dann frazier <dannf@debian.org>  Mon, 27 Jun 2005 17:58:05 -0600
+
+kernel-source-nonfree-2.6.11 (2.6.11-1) unstable; urgency=low
+
+  * Initial release; nonfree drivers split out from kernel-source-2.6.11.
+
+ -- Andres Salomon <dilinger@debian.org>  Mon, 04 Apr 2005 01:45:09 -0400
+

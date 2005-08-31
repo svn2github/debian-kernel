@@ -1,0 +1,14 @@
+Source: kernel-patch-2.4.27-ia64
+Section: devel
+Priority: extra
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: dann frazier <dannf@hp.com>
+Standards-Version: 3.5.10
+Build-Depends-Indep: debhelper, dh-kpatches (>= 0.99.21), kernel-source-2.4.27 (>= 2.4.27-10), gcc-3.3
+
+Package: kernel-patch-2.4.27-ia64
+Architecture: all
+Depends: ${kpatch:Depends}
+Description: Diffs to the kernel source for Itanium
+ This patch contains the kernel.org ia64 architecture patch, as well as any
+ additional bug fix or security patches specific to the ia64 architecture.

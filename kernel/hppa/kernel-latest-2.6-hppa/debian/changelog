@@ -1,0 +1,9 @@
+kernel-latest-2.6-hppa (2.6.8-1) unstable; urgency=high
+
+  * Created this package for meta packages that had
+    previously been provided by kernel-image-2.6.XX-hppa
+    - This is to allow kernel-image packages for multiple
+      upstream kernel versions to co-exist.
+
+ -- Kyle McMartin <kyle@debian.org>  Tue, 1 Feb 2005 01:57:10 -0500
+

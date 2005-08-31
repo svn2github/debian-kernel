@@ -1,0 +1,23 @@
+Package: kernel-image-@@KERNMAJ@@-r3k-kn02
+Architecture: mipsel
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNVER@@-@@ABIVER@@-r3k-kn02
+Description: Linux kernel image for version @@KERNMAJ@@ on mipsel r3k-kn02
+ This package will always depend on the latest @@KERNMAJ@@ kernel image
+ available for the mipsel r3k-kn02 subarchitecture.
+ .
+ This covers the DECstation 5000/1xx series with xx=20,25,33 and the
+ DECstation 5000/240.
+
+Package: kernel-image-r3k-kn02
+Architecture: mipsel
+Section: base
+Priority: optional
+Depends: kernel-image-@@KERNMAJ@@-r3k-kn02
+Description: Linux kernel image for mipsel r3k-kn02
+ This package will always depend on the latest kernel image
+ available for the mipsel r3k-kn02 subarchitecture.
+ .
+ This covers the DECstation 5000/1xx series with xx=20,25,33 and the
+ DECstation 5000/240.

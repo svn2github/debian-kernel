@@ -1,0 +1,12 @@
+# /etc/mkinitrd/modules: Kernel modules to load for initrd.
+#
+# This file should contain the names of kernel modules and their arguments
+# (if any) that are needed to mount the root file system, one per line.
+# Comments begin with a `#', and everything on the line after them are ignored.
+#
+# You must run mkinitrd(8) to effect this change.
+#
+# Examples:
+#
+#  ext2
+#  wd io=0x300

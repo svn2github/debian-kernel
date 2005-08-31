@@ -1,0 +1,726 @@
+# origin: bk
+# cset: 1.1722.10.22 (linux-2.6)
+# inclusion: n/a (only in linux-2.6 bk)
+# description: backport of some IPsec fixes from Herbert
+# revision date: 2004-09-03
+
+#ChangeSet1.1722.10.22
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/22 13:35:20-07:00 herbet@gondor.apana.org.au 
+#   [IPSEC]: Lock policy in policy timer.
+# 
+# net/xfrm/xfrm_policy.c
+#   2004/05/22 13:35:06-07:00 herbet@gondor.apana.org.au +3 -0
+#   [IPSEC]: Lock policy in policy timer.
+# 
+diff -Nru a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+--- a/net/xfrm/xfrm_policy.c	2004-07-28 22:26:39 -07:00
++++ b/net/xfrm/xfrm_policy.c	2004-07-28 22:26:39 -07:00
+@@ -148,6 +148,8 @@
+ 	int warn = 0;
+ 	int dir;
+ 
++	read_lock(&xp->lock);
++
+ 	if (xp->dead)
+ 		goto out;
+ 
+@@ -197,6 +199,7 @@
+ 		xfrm_pol_hold(xp);
+ 
+ out:
++	read_unlock(&xp->lock);
+ 	xfrm_pol_put(xp);
+ 	return;
+ 
+#ChangeSet1.1722.15.5
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/25 11:01:22-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Do not leak entries in xfrm_state_find.
+#   
+#   In xfrm_state_find, the larval state never actually matures with
+#   Openswan so it only ever gets deleted by the timer which means
+#   that the time crash can't happen :)  It becomes a (possible) memory
+#   leak instead.
+# 
+# net/xfrm/xfrm_state.c
+#   2004/05/25 11:01:09-07:00 herbert@gondor.apana.org.au +6 -10
+#   [IPSEC]: Do not leak entries in xfrm_state_find.
+#   
+#   In xfrm_state_find, the larval state never actually matures with
+#   Openswan so it only ever gets deleted by the timer which means
+#   that the time crash can't happen :)  It becomes a (possible) memory
+#   leak instead.
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:51:45 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:51:45 -07:00
+@@ -331,14 +331,8 @@
+ 		}
+ 	}
+ 
+-	if (best) {
+-		xfrm_state_hold(best);
+-		spin_unlock_bh(&xfrm_state_lock);
+-		return best;
+-	}
+-
+-	x = NULL;
+-	if (!error && !acquire_in_progress &&
++	x = best;
++	if (!x && !error && !acquire_in_progress &&
+ 	    ((x = xfrm_state_alloc()) != NULL)) {
+ 		/* Initialize temporary selector matching only
+ 		 * to current session. */
+@@ -363,10 +357,12 @@
+ 			error = 1;
+ 		}
+ 	}
+-	spin_unlock_bh(&xfrm_state_lock);
+-	if (!x)
++	if (x)
++		xfrm_state_hold(x);
++	else
+ 		*err = acquire_in_progress ? -EAGAIN :
+ 			(error ? -ESRCH : -ENOMEM);
++	spin_unlock_bh(&xfrm_state_lock);
+ 	return x;
+ }
+ 
+#ChangeSet1.1722.15.6
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/25 11:02:07-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Fix outdated comment in __xfrm_state_delete.
+# 
+# net/xfrm/xfrm_state.c
+#   2004/05/25 11:01:54-07:00 herbert@gondor.apana.org.au +3 -7
+#   [IPSEC]: Fix outdated comment in __xfrm_state_delete.
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:50:36 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:50:36 -07:00
+@@ -221,13 +221,9 @@
+ 		if (atomic_read(&x->refcnt) > 2)
+ 			xfrm_flush_bundles();
+ 
+-		/* All xfrm_state objects are created by one of two possible
+-		 * paths:
+-		 *
+-		 * 2) xfrm_state_lookup --> xfrm_state_insert
+-		 *
+-		 * The xfrm_state_lookup or xfrm_state_alloc call gives a
+-		 * reference, and that is what we are dropping here.
++		/* All xfrm_state objects are created by xfrm_state_alloc.
++		 * The xfrm_state_alloc call gives a reference, and that
++		 * is what we are dropping here.
+ 		 */
+ 		atomic_dec(&x->refcnt);
+ 	}
+#ChangeSet1.1722.15.7
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/25 11:02:48-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Use add_timer() in xfrm_state_find.
+# 
+# net/xfrm/xfrm_state.c
+#   2004/05/25 11:02:35-07:00 herbert@gondor.apana.org.au +2 -1
+#   [IPSEC]: Use add_timer() in xfrm_state_find.
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:45:32 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:45:32 -07:00
+@@ -345,7 +345,8 @@
+ 			}
+ 			x->lft.hard_add_expires_seconds = XFRM_ACQ_EXPIRES;
+ 			xfrm_state_hold(x);
+-			mod_timer(&x->timer, XFRM_ACQ_EXPIRES*HZ);
++			x->timer.expires = jiffies + XFRM_ACQ_EXPIRES*HZ;
++			add_timer(&x->timer);
+ 		} else {
+ 			x->km.state = XFRM_STATE_DEAD;
+ 			xfrm_state_put(x);
+#ChangeSet1.1722.2.41
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/29 12:46:04-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Fix ref counting in __xfrmN_bundle_create().
+# 
+# net/ipv4/xfrm4_policy.c
+#   2004/05/29 12:45:43-07:00 herbert@gondor.apana.org.au +2 -1
+#   [IPSEC]: Fix ref counting in __xfrmN_bundle_create().
+# 
+# net/ipv6/xfrm6_policy.c
+#   2004/05/29 12:45:43-07:00 herbert@gondor.apana.org.au +2 -1
+#   [IPSEC]: Fix ref counting in __xfrmN_bundle_create().
+# 
+# net/xfrm/xfrm_policy.c
+#   2004/05/29 12:45:43-07:00 herbert@gondor.apana.org.au +2 -0
+#   [IPSEC]: Fix ref counting in __xfrmN_bundle_create().
+# 
+diff -Nru a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
+--- a/net/ipv4/xfrm4_policy.c	2004-07-28 23:04:01 -07:00
++++ b/net/ipv4/xfrm4_policy.c	2004-07-28 23:04:01 -07:00
+@@ -90,7 +90,6 @@
+ 			goto error;
+ 		}
+ 
+-		dst1->xfrm = xfrm[i];
+ 		if (!dst)
+ 			dst = dst1;
+ 		else {
+@@ -120,10 +119,12 @@
+ 		dst_hold(&rt->u.dst);
+ 	}
+ 	dst_prev->child = &rt->u.dst;
++	i = 0;
+ 	for (dst_prev = dst; dst_prev != &rt->u.dst; dst_prev = dst_prev->child) {
+ 		struct xfrm_dst *x = (struct xfrm_dst*)dst_prev;
+ 		x->u.rt.fl = *fl;
+ 
++		dst_prev->xfrm = xfrm[i++];
+ 		dst_prev->dev = rt->u.dst.dev;
+ 		if (rt->u.dst.dev)
+ 			dev_hold(rt->u.dst.dev);
+diff -Nru a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+--- a/net/ipv6/xfrm6_policy.c	2004-07-28 23:04:01 -07:00
++++ b/net/ipv6/xfrm6_policy.c	2004-07-28 23:04:01 -07:00
+@@ -107,7 +107,6 @@
+ 			goto error;
+ 		}
+ 
+-		dst1->xfrm = xfrm[i];
+ 		if (!dst)
+ 			dst = dst1;
+ 		else {
+@@ -139,9 +138,11 @@
+ 		dst_hold(&rt->u.dst);
+ 	}
+ 	dst_prev->child = &rt->u.dst;
++	i = 0;
+ 	for (dst_prev = dst; dst_prev != &rt->u.dst; dst_prev = dst_prev->child) {
+ 		struct xfrm_dst *x = (struct xfrm_dst*)dst_prev;
+ 
++		dst_prev->xfrm = xfrm[i++];
+ 		dst_prev->dev = rt->u.dst.dev;
+ 		if (rt->u.dst.dev)
+ 			dev_hold(rt->u.dst.dev);
+diff -Nru a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+--- a/net/xfrm/xfrm_policy.c	2004-07-28 23:04:01 -07:00
++++ b/net/xfrm/xfrm_policy.c	2004-07-28 23:04:01 -07:00
+@@ -1017,6 +1017,8 @@
+ 
+ static void xfrm_dst_destroy(struct dst_entry *dst)
+ {
++	if (!dst->xfrm)
++		return;
+ 	xfrm_state_put(dst->xfrm);
+ 	dst->xfrm = NULL;
+ }
+#ChangeSet1.1722.2.72
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/29 19:02:23-07:00 viro@parcelfarce.linux.theplanet.co.uk 
+#   [PATCH] sparse: ->[gs]etsockopt() annotation
+#   
+#   	optval (and in case of getsockopt - optlen) made __user, changes
+#   percolated down into the instances.
+# 
+# include/net/xfrm.h
+#   2004/05/29 14:41:07-07:00 viro@parcelfarce.linux.theplanet.co.uk +2 -2
+#   ->[gs]etsockopt() annotation
+# 
+# net/xfrm/xfrm_state.c
+#   2004/05/29 14:39:38-07:00 viro@parcelfarce.linux.theplanet.co.uk +1 -1
+#   ->[gs]etsockopt() annotation
+# 
+diff -Nru a/include/net/xfrm.h b/include/net/xfrm.h
+--- a/include/net/xfrm.h	2004-07-28 21:39:20 -07:00
++++ b/include/net/xfrm.h	2004-07-28 21:39:20 -07:00
+@@ -821,10 +821,10 @@
+ 
+ #ifdef CONFIG_XFRM
+ extern int xfrm4_rcv_encap(struct sk_buff *skb, __u16 encap_type);
+-extern int xfrm_user_policy(struct sock *sk, int optname, u8 *optval, int optlen);
++extern int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen);
+ extern int xfrm_dst_lookup(struct xfrm_dst **dst, struct flowi *fl, unsigned short family);
+ #else
+-static inline int xfrm_user_policy(struct sock *sk, int optname, u8 *optval, int optlen)
++static inline int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
+ {
+  	return -ENOPROTOOPT;
+ } 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:39:20 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:39:20 -07:00
+@@ -795,7 +795,7 @@
+ 		wake_up(&km_waitq);
+ }
+ 
+-int xfrm_user_policy(struct sock *sk, int optname, u8 *optval, int optlen)
++int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
+ {
+ 	int err;
+ 	u8 *data;
+#ChangeSet1.1722.6.4
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/21 14:43:13-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Fix state modifications in xfrm_state_update().
+#   
+#   doing a mod_timer on a live state without holding a lock or for that
+#   matter not even checking whether the state is dead is definitely a bad
+#   idea
+# 
+# net/xfrm/xfrm_state.c
+#   2004/05/21 14:42:59-07:00 herbert@gondor.apana.org.au +6 -5
+#   [IPSEC]: Fix state modifications in xfrm_state_update().
+#   
+#   doing a mod_timer on a live state without holding a lock or for that
+#   matter not even checking whether the state is dead is definitely a bad
+#   idea
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:52:49 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:52:49 -07:00
+@@ -489,14 +489,15 @@
+ 			memcpy(x1->encap, x->encap, sizeof(*x1->encap));
+ 		memcpy(&x1->lft, &x->lft, sizeof(x1->lft));
+ 		x1->km.dying = 0;
++
++		if (!mod_timer(&x1->timer, jiffies + HZ))
++			xfrm_state_hold(x1);
++		if (x1->curlft.use_time)
++			xfrm_state_check_expire(x1);
++
+ 		err = 0;
+ 	}
+ 	spin_unlock_bh(&x1->lock);
+-
+-	if (!mod_timer(&x1->timer, jiffies + HZ))
+-		xfrm_state_hold(x1);
+-	if (x1->curlft.use_time)
+-		xfrm_state_check_expire(x1);
+ 
+ 	xfrm_state_put(x1);
+ 
+#ChangeSet1.1722.74.3
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/06/01 12:35:39-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Fix xfrm_tunnel leak.
+#   
+#   Turns out that the IPIP tunnel used by IPCOMP states are only freed
+#   if the IPCOMP state is deleted by xfrm_state_delete.
+#   
+#   This is not the case for all states.  For example, an immature IPCOMP
+#   state that dies in add_sa will not go through xfrm_state_delete.
+#   
+#   The following patch moves the delete_tunnel call into IPCOMP's
+#   destructor.  I think it makes more sense there as IPCOMP is the
+#   only user of the tunnel anyway.
+# 
+# net/ipv4/ipcomp.c
+#   2004/06/01 12:35:15-07:00 herbert@gondor.apana.org.au +1 -0
+#   [IPSEC]: Fix xfrm_tunnel leak.
+#   
+#   Turns out that the IPIP tunnel used by IPCOMP states are only freed
+#   if the IPCOMP state is deleted by xfrm_state_delete.
+#   
+#   This is not the case for all states.  For example, an immature IPCOMP
+#   state that dies in add_sa will not go through xfrm_state_delete.
+#   
+#   The following patch moves the delete_tunnel call into IPCOMP's
+#   destructor.  I think it makes more sense there as IPCOMP is the
+#   only user of the tunnel anyway.
+# 
+# net/xfrm/xfrm_state.c
+#   2004/06/01 12:35:15-07:00 herbert@gondor.apana.org.au +0 -1
+#   [IPSEC]: Fix xfrm_tunnel leak.
+#   
+#   Turns out that the IPIP tunnel used by IPCOMP states are only freed
+#   if the IPCOMP state is deleted by xfrm_state_delete.
+#   
+#   This is not the case for all states.  For example, an immature IPCOMP
+#   state that dies in add_sa will not go through xfrm_state_delete.
+#   
+#   The following patch moves the delete_tunnel call into IPCOMP's
+#   destructor.  I think it makes more sense there as IPCOMP is the
+#   only user of the tunnel anyway.
+# 
+diff -Nru a/net/ipv4/ipcomp.c b/net/ipv4/ipcomp.c
+--- a/net/ipv4/ipcomp.c	2004-07-28 21:37:23 -07:00
++++ b/net/ipv4/ipcomp.c	2004-07-28 21:37:23 -07:00
+@@ -339,6 +339,7 @@
+ 	struct ipcomp_data *ipcd = x->data;
+ 	if (!ipcd)
+ 		return;
++	xfrm_state_delete_tunnel(x);
+ 	ipcomp_free_data(ipcd);
+ 	kfree(ipcd);
+ }
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-07-28 21:37:23 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-07-28 21:37:23 -07:00
+@@ -231,7 +231,6 @@
+ 
+ void xfrm_state_delete(struct xfrm_state *x)
+ {
+-	xfrm_state_delete_tunnel(x);
+ 	spin_lock_bh(&x->lock);
+ 	__xfrm_state_delete(x);
+ 	spin_unlock_bh(&x->lock);
+ 
+#ChangeSet1.1784.11.13
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/09 16:51:35-07:00 herbert@gondor.apana.org.au 
+#   [XFRM]: Add FLUSHSA and FLUSHPOLICY.
+#   
+#   This patch adds FLUSHSA and FLUSHPOLICY to xfrm_user which are
+#   analagous to SADB_FLUSH and SADB_X_SPDFLUSH in af_key.
+#   
+#   This is useful in KMs on startup/shutdown so that the system is
+#   reset to a known state.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# include/linux/xfrm.h
+#   2004/07/09 16:51:20-07:00 herbert@gondor.apana.org.au +9 -0
+#   [XFRM]: Add FLUSHSA and FLUSHPOLICY.
+#   
+#   This patch adds FLUSHSA and FLUSHPOLICY to xfrm_user which are
+#   analagous to SADB_FLUSH and SADB_X_SPDFLUSH in af_key.
+#   
+#   This is useful in KMs on startup/shutdown so that the system is
+#   reset to a known state.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_user.c
+#   2004/07/09 16:51:20-07:00 herbert@gondor.apana.org.au +20 -0
+#   [XFRM]: Add FLUSHSA and FLUSHPOLICY.
+#   
+#   This patch adds FLUSHSA and FLUSHPOLICY to xfrm_user which are
+#   analagous to SADB_FLUSH and SADB_X_SPDFLUSH in af_key.
+#   
+#   This is useful in KMs on startup/shutdown so that the system is
+#   reset to a known state.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/include/linux/xfrm.h b/include/linux/xfrm.h
+--- a/include/linux/xfrm.h	2004-07-28 22:44:21 -07:00
++++ b/include/linux/xfrm.h	2004-07-28 22:44:21 -07:00
+@@ -122,6 +122,9 @@
+ 
+ #define XFRM_MSG_POLEXPIRE	(XFRM_MSG_BASE + 11)
+ 
++#define XFRM_MSG_FLUSHSA	(XFRM_MSG_BASE + 12)
++#define XFRM_MSG_FLUSHPOLICY	(XFRM_MSG_BASE + 13)
++
+-#define XFRM_MSG_MAX		(XFRM_MSG_POLEXPIRE+1)
++#define XFRM_MSG_MAX		(XFRM_MSG_FLUSHPOLICY+1)
+ 
+ struct xfrm_user_tmpl {
+@@ -240,6 +245,10 @@
+ struct xfrm_user_polexpire {
+ 	struct xfrm_userpolicy_info	pol;
+ 	__u8				hard;
++};
++
++struct xfrm_usersa_flush {
++	__u8				proto;
+ };
+ 
+ #define XFRMGRP_ACQUIRE		1
+diff -Nru a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+--- a/net/xfrm/xfrm_user.c	2004-07-28 22:44:21 -07:00
++++ b/net/xfrm/xfrm_user.c	2004-07-28 22:44:21 -07:00
+@@ -814,6 +814,20 @@
+ 	return err;
+ }
+ 
++static int xfrm_flush_sa(struct sk_buff *skb, struct nlmsghdr *nlh, void **xfrma)
++{
++	struct xfrm_usersa_flush *p = NLMSG_DATA(nlh);
++
++	xfrm_state_flush(p->proto);
++	return 0;
++}
++
++static int xfrm_flush_policy(struct sk_buff *skb, struct nlmsghdr *nlh, void **xfrma)
++{
++	xfrm_policy_flush();
++	return 0;
++}
++
+ static const int xfrm_msg_min[(XFRM_MSG_MAX + 1 - XFRM_MSG_BASE)] = {
+ 	NLMSG_LENGTH(sizeof(struct xfrm_usersa_info)),	/* NEW SA */
+ 	NLMSG_LENGTH(sizeof(struct xfrm_usersa_id)),	/* DEL SA */
+@@ -826,6 +840,9 @@
+ 	NLMSG_LENGTH(sizeof(struct xfrm_user_expire)),	/* EXPIRE */
+ 	NLMSG_LENGTH(sizeof(struct xfrm_userpolicy_info)),/* UPD POLICY */
+ 	NLMSG_LENGTH(sizeof(struct xfrm_usersa_info)),	/* UPD SA */
++	NLMSG_LENGTH(sizeof(struct xfrm_user_polexpire)), /* POLEXPIRE */
++	NLMSG_LENGTH(sizeof(struct xfrm_usersa_flush)),	/* FLUSH SA */
++	NLMSG_LENGTH(0),				/* FLUSH POLICY */
+ };
+ 
+ static struct xfrm_link {
+@@ -849,6 +866,9 @@
+ 	{},
+ 	{	.doit	=	xfrm_add_policy 	},
+ 	{	.doit	=	xfrm_add_sa, 		},
++	{},
++	{	.doit	=	xfrm_flush_sa		},
++	{	.doit	=	xfrm_flush_policy	},
+ };
+ 
+ static int xfrm_done(struct netlink_callback *cb)
+#ChangeSet1.1807.13.20
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/25 16:54:54-07:00 kaber@trash.net 
+#   [XFRM]: Wake up km_waitq once per gc-run instead of once per state.
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_state.c
+#   2004/07/25 16:54:39-07:00 kaber@trash.net +1 -1
+#   [XFRM]: Wake up km_waitq once per gc-run instead of once per state.
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-08-11 23:21:30 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-08-11 23:21:30 -07:00
+@@ -65,7 +65,6 @@
+ 		xfrm_put_type(x->type);
+ 	}
+ 	kfree(x);
+-	wake_up(&km_waitq);
+ }
+ 
+ static void xfrm_state_gc_task(void *data)
+@@ -82,6 +81,7 @@
+ 		x = list_entry(entry, struct xfrm_state, bydst);
+ 		xfrm_state_gc_destroy(x);
+ 	}
++	wake_up(&km_waitq);
+ }
+ 
+ static inline unsigned long make_jiffies(long secs)
+#ChangeSet1.1807.13.3
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/23 13:23:48-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Missing unlock in policy timer.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_policy.c
+#   2004/07/23 13:23:33-07:00 herbert@gondor.apana.org.au +1 -0
+#   [IPSEC]: Missing unlock in policy timer.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+--- a/net/xfrm/xfrm_policy.c	2004-08-11 23:25:52 -07:00
++++ b/net/xfrm/xfrm_policy.c	2004-08-11 23:25:52 -07:00
+@@ -204,6 +204,7 @@
+ 	return;
+ 
+ expired:
++	read_unlock(&xp->lock);
+ 	km_policy_expired(xp, dir, 1);
+ 	xfrm_policy_delete(xp, dir);
+ 	xfrm_pol_put(xp);
+#ChangeSet1.1807.19.12
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/28 18:56:51-07:00 nakam@linux-ipv6.org 
+#   [IPSEC]: xfrm_user code forgets to call xfrm_probe_algs()
+#   
+#   Signed-off-by: Masahide Nakmura <nakam@linux-ipv6.org>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_user.c
+#   2004/07/28 18:56:37-07:00 nakam@linux-ipv6.org +2 -0
+#   [IPSEC]: xfrm_user code forgets to call xfrm_probe_algs()
+#   
+#   Signed-off-by: Masahide Nakmura <nakam@linux-ipv6.org>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+--- a/net/xfrm/xfrm_user.c	2004-08-11 23:01:30 -07:00
++++ b/net/xfrm/xfrm_user.c	2004-08-11 23:01:30 -07:00
+@@ -267,6 +267,8 @@
+ 	if (err)
+ 		return err;
+ 
++	xfrm_probe_algs();
++
+ 	x = xfrm_state_construct(p, (struct rtattr **) xfrma, &err);
+ 	if (!x)
+ 		return err;
+#ChangeSet1.1836
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/31 23:30:00-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: Remove redundant check in xfrm_state_add()
+#   
+#   This is the patch referred to in the netlink_get_spi thread.
+#   
+#   I was actually wrong about the reason for this patch though.  Firstly
+#   it's the SPI check that is redundant and not the find_acq() call.
+#   And it's redundant because of the find_acq() patch, not because
+#   of the fact that this is in xfrm_state_add().
+#   
+#   Now that find_acq() only returns SAs with SPIs, we don't need to
+#   check this in xfrm_state_add() anymore.
+#   
+#   We do still need the call though to clean up leftover larval states.
+#   
+#   Another side-effect of the change is that we can move the existence
+#   check above find_acq() since find_acq() will never return any SAs
+#   matching the SPI we're trying to add (It doesn't need to because if
+#   an SA with a matching SPI existed, it would've been returned by
+#   state_lookup() already).
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_state.c
+#   2004/07/31 23:29:46-07:00 herbert@gondor.apana.org.au +5 -11
+#   [IPSEC]: Remove redundant check in xfrm_state_add()
+#   
+#   This is the patch referred to in the netlink_get_spi thread.
+#   
+#   I was actually wrong about the reason for this patch though.  Firstly
+#   it's the SPI check that is redundant and not the find_acq() call.
+#   And it's redundant because of the find_acq() patch, not because
+#   of the fact that this is in xfrm_state_add().
+#   
+#   Now that find_acq() only returns SAs with SPIs, we don't need to
+#   check this in xfrm_state_add() anymore.
+#   
+#   We do still need the call though to clean up leftover larval states.
+#   
+#   Another side-effect of the change is that we can move the existence
+#   check above find_acq() since find_acq() will never return any SAs
+#   matching the SPI we're trying to add (It doesn't need to because if
+#   an SA with a matching SPI existed, it would've been returned by
+#   state_lookup() already).
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-08-11 23:14:58 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-08-11 23:14:58 -07:00
+@@ -400,22 +400,16 @@
+ 	spin_lock_bh(&xfrm_state_lock);
+ 
+ 	x1 = afinfo->state_lookup(&x->id.daddr, x->id.spi, x->id.proto);
+-	if (!x1) {
+-		x1 = afinfo->find_acq(
+-			x->props.mode, x->props.reqid, x->id.proto,
+-			&x->id.daddr, &x->props.saddr, 0);
+-		if (x1 && x1->id.spi != x->id.spi && x1->id.spi) {
+-			xfrm_state_put(x1);
+-			x1 = NULL;
+-		}
+-	}
+-
+-	if (x1 && x1->id.spi) {
++	if (x1) {
+ 		xfrm_state_put(x1);
+ 		x1 = NULL;
+ 		err = -EEXIST;
+ 		goto out;
+ 	}
++
++	x1 = afinfo->find_acq(
++		x->props.mode, x->props.reqid, x->id.proto,
++		&x->id.daddr, &x->props.saddr, 0);
+ 
+ 	__xfrm_state_insert(x);
+ 	err = 0;
+#ChangeSet1.1837
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/31 23:33:16-07:00 herbert@gondor.apana.org.au 
+#   [IPSEC]: xfrm_alloc_spi always succeeds on non-trivial range
+#   
+#   xfrm_alloc_spi will always succeed if minspi < maxspi, even if
+#   minspi + 1 == maxspi.  If the range is already occupied this
+#   will obviously lead to breakage.
+#   
+#   Of course this is very unlikely to occur in reality due to the
+#   size of the range.  Although with IPCOMP it might actually happen
+#   on a very large server.
+#   
+#   The fix is obivous.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/xfrm/xfrm_state.c
+#   2004/07/31 23:33:00-07:00 herbert@gondor.apana.org.au +3 -2
+#   [IPSEC]: xfrm_alloc_spi always succeeds on non-trivial range
+#   
+#   xfrm_alloc_spi will always succeed if minspi < maxspi, even if
+#   minspi + 1 == maxspi.  If the range is already occupied this
+#   will obviously lead to breakage.
+#   
+#   Of course this is very unlikely to occur in reality due to the
+#   size of the range.  Although with IPCOMP it might actually happen
+#   on a very large server.
+#   
+#   The fix is obivous.
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+--- a/net/xfrm/xfrm_state.c	2004-08-11 23:21:50 -07:00
++++ b/net/xfrm/xfrm_state.c	2004-08-11 23:21:50 -07:00
+@@ -624,11 +624,12 @@
+ 		for (h=0; h<maxspi-minspi+1; h++) {
+ 			spi = minspi + net_random()%(maxspi-minspi+1);
+ 			x0 = xfrm_state_lookup(&x->id.daddr, htonl(spi), x->id.proto, x->props.family);
+-			if (x0 == NULL)
++			if (x0 == NULL) {
++				x->id.spi = htonl(spi);
+ 				break;
++			}
+ 			xfrm_state_put(x0);
+ 		}
+-		x->id.spi = htonl(spi);
+ 	}
+ 	if (x->id.spi) {
+ 		spin_lock_bh(&xfrm_state_lock);

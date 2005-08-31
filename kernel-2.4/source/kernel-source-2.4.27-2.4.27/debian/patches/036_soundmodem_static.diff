@@ -1,0 +1,30 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: extern inline makes no sense
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/net/hamradio/soundmodem/sm.h kernel-source-2.4.26-1/drivers/net/hamradio/soundmodem/sm.h
+--- kernel-source-2.4.26/drivers/net/hamradio/soundmodem/sm.h	2002-08-03 10:39:44.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/hamradio/soundmodem/sm.h	2002-03-06 19:49:48.000000000 +1100
+@@ -363,7 +363,7 @@
+ 
+ /* --------------------------------------------------------------------- */
+ 
+-extern void inline sm_int_freq(struct sm_state *sm)
++static void inline sm_int_freq(struct sm_state *sm)
+ {
+ #ifdef SM_DEBUG
+ 	unsigned long cur_jiffies = jiffies;
+diff -urN kernel-source-2.4.26/drivers/net/hamradio/soundmodem/sm_wss.c kernel-source-2.4.26-1/drivers/net/hamradio/soundmodem/sm_wss.c
+--- kernel-source-2.4.26/drivers/net/hamradio/soundmodem/sm_wss.c	2002-11-29 10:53:13.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/net/hamradio/soundmodem/sm_wss.c	2002-11-30 15:49:40.000000000 +1100
+@@ -100,7 +100,7 @@
+ 
+ /* --------------------------------------------------------------------- */
+ 
+-extern void inline wss_ack_int(struct net_device *dev)
++static void inline wss_ack_int(struct net_device *dev)
+ {
+ 	outb(0, WSS_CODEC_STATUS(dev->base_addr));
+ }

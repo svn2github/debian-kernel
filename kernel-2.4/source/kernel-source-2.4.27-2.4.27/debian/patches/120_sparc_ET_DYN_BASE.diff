@@ -1,0 +1,71 @@
+# origin: linux-sparc
+# cset: 1.1528 (linux-2.4)
+# inclusion: expected in 2.4.29
+# description: unf**k huge sparc allocations
+# revision date: 2004-12-26
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/08 23:08:19-08:00 davem@nuts.davemloft.net 
+#   [SPARC]: Adjust 32-bit ELF_ET_DYN_BASE.
+#   
+#   We were using 0x08000000 instead of TASK_UNMAPPED_BASE
+#   so that running something like "/lib/ld-linux.so.2 emacs"
+#   would work.
+#   
+#   The issue there was that wherever /lib/ld-linux.so.2 gets
+#   mapped (controlled by ELF_ET_DYN_BASE), that is where the
+#   BSS start for the process ends up.  Now, emacs allocates
+#   dynamic memory for LISP objects from the BSS, and needs
+#   the top 4 bits of the virtual address to be clear so that
+#   it can encode LISP type and GC marking information there.
+#   
+#   But making this obscure emacs case work breaks lots of other
+#   stuff.  For example, programs with a reasonably large data
+#   section fail to load via direct ld.so interpreter execution
+#   because the data section is large enough to begin overlapping
+#   with the ELF_ET_DYN_BASE area.
+#   
+#   The /lib/ld-linux.so.2 emacs case does not work on a lot of
+#   platforms due to this issue, including i386, so it is not
+#   worth making work on sparc either.  It is indeed useful
+#   sometimes when debugging a new experimental build of glibc
+#   for example, but people doing that can hack the value of
+#   ELF_ET_DYN_BASE in their kernels.  Perhaps at some point
+#   we will make a sysctl controllable value.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# include/asm-sparc/elf.h
+#   2004/12/08 23:08:07-08:00 davem@nuts.davemloft.net +1 -1
+#   [SPARC]: Adjust 32-bit ELF_ET_DYN_BASE.
+# 
+# arch/sparc64/kernel/binfmt_elf32.c
+#   2004/12/08 23:08:07-08:00 davem@nuts.davemloft.net +1 -1
+#   [SPARC]: Adjust 32-bit ELF_ET_DYN_BASE.
+# 
+diff -Nru a/arch/sparc64/kernel/binfmt_elf32.c b/arch/sparc64/kernel/binfmt_elf32.c
+--- a/arch/sparc64/kernel/binfmt_elf32.c	2004-12-08 23:09:43 -08:00
++++ b/arch/sparc64/kernel/binfmt_elf32.c	2004-12-08 23:09:43 -08:00
+@@ -81,7 +81,7 @@
+ 
+ #define elf_check_arch(x)	(((x)->e_machine == EM_SPARC) || ((x)->e_machine == EM_SPARC32PLUS))
+ 
+-#define ELF_ET_DYN_BASE         0x08000000
++#define ELF_ET_DYN_BASE         0x70000000
+ 
+ 
+ #include <asm/processor.h>
+diff -Nru a/include/asm-sparc/elf.h b/include/asm-sparc/elf.h
+--- a/include/asm-sparc/elf.h	2004-12-08 23:09:43 -08:00
++++ b/include/asm-sparc/elf.h	2004-12-08 23:09:43 -08:00
+@@ -81,7 +81,7 @@
+    the loader.  We need to make sure that it is out of the way of the program
+    that it will "exec", and that there is sufficient room for the brk.  */
+ 
+-#define ELF_ET_DYN_BASE         (0x08000000)
++#define ELF_ET_DYN_BASE         (TASK_UNMAPPED_BASE)
+ 
+ /* This yields a mask that user programs can use to figure out what
+    instruction set this cpu supports.  This can NOT be done in userspace

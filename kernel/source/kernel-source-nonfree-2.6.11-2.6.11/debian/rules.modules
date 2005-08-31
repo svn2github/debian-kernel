@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+# module-assistant stuff
+PACKAGE = kernel-nonfree-modules
+MA_DIR ?= /usr/share/modass
+-include $(MA_DIR)/include/generic.make
+-include $(MA_DIR)/include/common-rules.make
+
+ifeq ($(DEB_HOST_ARCH), amd64)
+MAKEFLAGS := CC=gcc-3.4 V=1
+endif
+
+kdist_clean: prep-deb-files
+	dh_clean
+	$(MAKE) clean DIR=$(KSRC)
+
+kdist_config: prep-deb-files
+
+TARGET = $(CURDIR)/debian/kernel-nonfree-modules-$(KVERS)
+
+binary-modules: kdist_config
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs lib/modules/$(KVERS)
+
+	# build and install the module
+	$(MAKE) $(MAKEFLAGS) DIR=$(KSRC) INSTALL_MOD_PATH=$(TARGET) KERNELRELEASE=$(KVERS)
+	$(MAKE) $(MAKEFLAGS) DIR=$(KSRC) INSTALL_MOD_PATH=$(TARGET) KERNELRELEASE=$(KVERS) install
+
+	dh_installdocs
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol -- -v$(VERSION)
+	dh_md5sums
+	dh_builddeb --destdir=$(DEB_DESTDIR)

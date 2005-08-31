@@ -1,0 +1,36 @@
+# origin: len.brown (BitKeeper)
+# cset: 1.1458.1.3 (2.4) key=412c2d7cayRolUr38hIDNJwGwEaE-A
+# inclusion: upstream
+# descrition: [ACPI] build fix
+# revision date: Tue, 21 Dec 2004 17:02:45 +0900
+#
+# S rset: ChangeSet|1.1458.1.2..1.1458.1.3
+# I rset: init/main.c|1.31..1.32
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/25 02:11:08-04:00 len.brown@intel.com 
+#   [ACPI] build fix
+# 
+# init/main.c
+#   2004/08/25 02:11:03-04:00 len.brown@intel.com +2 -2
+#   build fix
+# 
+#
+===== init/main.c 1.31 vs 1.32 =====
+--- 1.31/init/main.c	2004-08-25 11:54:26 +09:00
++++ 1.32/init/main.c	2004-08-25 15:11:03 +09:00
+@@ -101,10 +101,10 @@
+ extern int init_pcmcia_ds(void);
+ 
+ extern void free_initmem(void);
+-#ifdef  CONFIG_ACPI_BOOT
++#ifdef  CONFIG_ACPI_BUS
+ extern void acpi_early_init(void);
+ #else
+-static inline acpi_early_init() { }
++static inline void acpi_early_init(void) { }
+ #endif
+ 
+ #ifdef CONFIG_TC

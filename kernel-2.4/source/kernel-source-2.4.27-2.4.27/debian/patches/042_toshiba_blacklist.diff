@@ -1,0 +1,17 @@
+# origin: Debian, #222939
+# cset: n/a
+# inclusion: not submitted
+# description: XM-1702C doesn't work in DMA mode, blacklist it
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/ide/ide-dma.c kernel-source-2.4.26-1/drivers/ide/ide-dma.c
+--- kernel-source-2.4.26/drivers/ide/ide-dma.c	2003-08-25 21:44:41.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/ide/ide-dma.c	2004-02-28 14:54:23.000000000 +1100
+@@ -132,6 +132,7 @@
+ 	{ "HITACHI CDR-8335"	,	"ALL"		},
+ 	{ "HITACHI CDR-8435"	,	"ALL"		},
+ 	{ "Toshiba CD-ROM XM-6202B"	,	"ALL"		},
++	{ "TOSHIBA CD-ROM XM-1702BC"	,	"ALL"		},
+ 	{ "CD-532E-A"		,	"ALL"		},
+ 	{ "E-IDE CD-ROM CR-840",	"ALL"		},
+ 	{ "CD-ROM Drive/F5A",	"ALL"		},

@@ -1,0 +1,124 @@
+#!/usr/bin/make -f
+#
+# debian/rules for kernel-image-*-alpha
+#
+# GNU copyright 1997 to 1999 by Joey Hess.
+# Copyright (c) 2000 Ben Collins <bcollins@debian.org>
+# Copyright (c) 1999-2001 Herbert Xu <herbert@debian.org>
+#
+# $Id: rules,v 1.14 2003/10/26 05:42:43 herbert Exp $
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+SHELL := sh -e
+
+khsed := s/^Package: kernel-headers-\([^-]*\)\(-[[:digit:]]*\)$$/\1 \2/
+debver := $(shell sed -n '$(khsed); t e; b; :e; p; q' debian/control)
+export version := $(firstword $(debver))
+export debnum := $(word 2,$(debver))
+debver := $(version)$(debnum)
+appvan :=
+
+ifneq ($(debnum),)
+appvan := --append_to_version $(debnum)
+endif
+
+STRIP ?= strip
+
+flavours := $(shell \
+	find config -maxdepth 1 -type f ! -name default -printf '%f\n' \
+)
+bpkg := kernel-build-$(debver)
+
+ktver := $(shell \
+	sed -n 's/.*kernel-tree-\([^,]*\).*/\1/p; t e; b; :e q' \
+		debian/control \
+)
+kdir := kernel-source-$(version)
+
+export DEBIAN_SRCTOP := $(CURDIR)/$(kdir)
+
+unpack: unpack-stamp
+unpack-stamp:
+	tar jxf /usr/src/kernel-source-$(version).tar.bz2
+	cd $(kdir); \
+		/usr/src/kernel-patches/all/$(version)/apply/debian $(ktver)
+	mkdir -p $(kdir)/debian
+	cp debian/changelog $(kdir)/debian
+	cp debian/control $(kdir)/debian
+	cp debian/copyright $(kdir)/debian
+	touch $(kdir)/debian/official
+	install post-install $(kdir)/debian
+	for i in $(flavours); do \
+		karch=$${i%-smp}; karch=$${karch%32}; \
+		cp -al $(kdir) build-$$i; \
+		cp config/$$i build-$$i/.config; \
+		make -C build-$$i ARCH=$$karch oldconfig; \
+		if ! diff -u config/$$i build-$$i/.config; then \
+			echo "oldconfig has changed config/$$i - please fix this problem and try again"; \
+			exit 1; \
+		fi; \
+	done
+	cp config/default $(kdir)/.config
+	ln -s `command -v touch` bin/touch.orig
+
+	touch unpack-stamp
+
+build: build-stamp
+build-stamp: unpack-stamp
+	PATH=$$PWD/bin:$$PATH; \
+	for i in $(flavours); do \
+		cd build-$$i; \
+		make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i build; \
+		$(STRIP) -R .comment -R .note -K sun4u_init -K _end -K _start vmlinux; \
+		cd ..; \
+	done
+
+	touch $@
+
+debnum:
+	@echo $(debnum)
+
+clean:
+	rm -f *-stamp *.deb
+	rm -rf kernel-source-$(version) build-* install-* bin/touch.orig
+	dh_clean
+
+install: build
+	dh_clean -k
+	dh_installdirs
+
+# Build architecture-independent files here.
+binary-indep:
+
+# Build architecture-dependent files here.
+binary-arch: install
+	dh_testdir
+
+	cd kernel-source-$(version); HEADER_CLEAN_HOOK=$(CURDIR)/header-install \
+		make-kpkg --subarch sparc64 $(appvan) kernel-headers
+	mv kernel-source-$(version)/debian/files debian
+
+	for i in $(flavours); do \
+		cp -al build-$$i install-$$i; \
+		cd install-$$i; \
+		$${i%-smp} make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i --initrd \
+			kernel-image; \
+		cd ..; \
+		cat install-$$i/debian/files >> debian/files; \
+		rm -rf install-$$i; \
+	done
+	mv *.deb ..
+
+	dh_installdocs -p$(bpkg)
+	dh_installchangelogs -p$(bpkg)
+	dh_compress -p$(bpkg)
+	dh_fixperms -p$(bpkg)
+	dh_installdeb -p$(bpkg)
+	dh_gencontrol -p$(bpkg)
+	dh_md5sums -p$(bpkg)
+	dh_builddeb -p$(bpkg)
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install unpack

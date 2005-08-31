@@ -1,0 +1,5 @@
+kernel-image-2.6.11-m68k (2.6.11-1) unstable; urgency=low
+
+  * Initial release of kernel-image-2.6.11 for m68k.
+
+ -- Christian T. Steigies <cts@debian.org>  Sat,  7 May 2005 22:00:45 +0200

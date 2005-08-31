@@ -1,0 +1,40 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: read iProduct string even when iManufacturer is not present
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/drivers/usb/hid-core.c kernel-source-2.4.26-1/drivers/usb/hid-core.c
+--- kernel-source-2.4.26/drivers/usb/hid-core.c	2004-04-14 23:05:32.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/usb/hid-core.c	2004-04-17 14:24:00.000000000 +1000
+@@ -1342,20 +1342,18 @@
+ 		hid->out[n].dr.wIndex = cpu_to_le16(hid->ifnum);
+ 	}
+ 
+-	hid->name[0] = 0;
+-
+-	if (!(buf = kmalloc(63, GFP_KERNEL)))
+-		return NULL;
+-
+-	if (usb_string(dev, dev->descriptor.iManufacturer, buf, 63) > 0) {
+-		strcat(hid->name, buf);
+-		if (usb_string(dev, dev->descriptor.iProduct, buf, 63) > 0)
+-			sprintf(hid->name, "%s %s", hid->name, buf);
+-	} else
++	buf = hid->name;
++	*buf = 0;
++	n = usb_string(dev, dev->descriptor.iManufacturer, buf, 63);
++	if (n > 0)
++		buf += n + 1;
++	if (usb_string(dev, dev->descriptor.iProduct, buf, 63) > 0) {
++		if (n > 0)
++			buf[-1] = ' ';
++	}
++	if (!*hid->name)
+ 		sprintf(hid->name, "%04x:%04x", dev->descriptor.idVendor, dev->descriptor.idProduct);
+ 
+-	kfree(buf);
+-
+ 	FILL_CONTROL_URB(&hid->urbout, dev, usb_sndctrlpipe(dev, 0),
+ 		(void*) &hid->out[0].dr, hid->out[0].buffer, 1, hid_ctrl, hid);
+ 

@@ -1,0 +1,72 @@
+# origin: Debian, #116378
+# cset: n/a
+# inclusion: not submitted
+# description: NM256XL+ support for nm256_audio driver
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/drivers/sound/nm256.h kernel-source-2.4.26-1/drivers/sound/nm256.h
+--- kernel-source-2.4.26/drivers/sound/nm256.h	2000-12-12 08:02:32.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/sound/nm256.h	2001-10-20 16:47:17.000000000 +1000
+@@ -5,7 +5,7 @@
+ 
+ /* The revisions that we currently handle.  */
+ enum nm256rev {
+-    REV_NM256AV, REV_NM256ZX
++    REV_NM256AV, REV_NM256ZX, REV_NM256XL_PLUS
+ };
+ 
+ /* Per-card structure. */
+diff -urN kernel-source-2.4.26/drivers/sound/nm256_audio.c kernel-source-2.4.26-1/drivers/sound/nm256_audio.c
+--- kernel-source-2.4.26/drivers/sound/nm256_audio.c	2003-08-25 21:44:42.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/sound/nm256_audio.c	2003-09-03 20:27:11.000000000 +1000
+@@ -47,10 +47,6 @@
+ static void nm256_interrupt_zx (int irq, void *dev_id, struct pt_regs *dummy);
+ static int handle_pm_event (struct pm_dev *dev, pm_request_t rqst, void *data);
+ 
+-/* These belong in linux/pci.h. */
+-#define PCI_DEVICE_ID_NEOMAGIC_NM256AV_AUDIO 0x8005
+-#define PCI_DEVICE_ID_NEOMAGIC_NM256ZX_AUDIO 0x8006
+-
+ /* List of cards.  */
+ static struct nm256_info *nmcard_list;
+ 
+@@ -1259,10 +1255,14 @@
+ static int __devinit
+ nm256_probe(struct pci_dev *pcidev,const struct pci_device_id *pciid)
+ {
+-    if (pcidev->device == PCI_DEVICE_ID_NEOMAGIC_NM256AV_AUDIO)
++    switch (pcidev->device) {
++    case PCI_DEVICE_ID_NEOMAGIC_NM256AV_AUDIO:
+ 	return nm256_install(pcidev, REV_NM256AV, "256AV");
+-    if (pcidev->device == PCI_DEVICE_ID_NEOMAGIC_NM256ZX_AUDIO)
++    case PCI_DEVICE_ID_NEOMAGIC_NM256ZX_AUDIO:
+ 	return nm256_install(pcidev, REV_NM256ZX, "256ZX");
++    case PCI_DEVICE_ID_NEOMAGIC_NM256XL_PLUS_AUDIO:
++	return nm256_install(pcidev, REV_NM256XL_PLUS, "256XL+");
++    }
+     return -1; /* should not come here ... */
+ }
+ 
+@@ -1650,6 +1650,8 @@
+ 	PCI_ANY_ID, PCI_ANY_ID, 0, 0},
+ 	{PCI_VENDOR_ID_NEOMAGIC, PCI_DEVICE_ID_NEOMAGIC_NM256ZX_AUDIO,
+ 	PCI_ANY_ID, PCI_ANY_ID, 0, 0},
++	{PCI_VENDOR_ID_NEOMAGIC, PCI_DEVICE_ID_NEOMAGIC_NM256XL_PLUS_AUDIO,
++	PCI_ANY_ID, PCI_ANY_ID, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, nm256_pci_tbl);
+
+diff -urN kernel-source-2.4.26/include/linux/pci_ids.h kernel-source-2.4.26-1/include/linux/pci_ids.h
+--- kernel-source-2.4.26/include/linux/pci_ids.h	2004-04-14 23:05:40.000000000 +1000
++++ kernel-source-2.4.26-1/include/linux/pci_ids.h	2004-04-17 14:24:05.000000000 +1000
+@@ -952,6 +952,9 @@
+ #define PCI_DEVICE_ID_NEOMAGIC_MAGICGRAPH_NM2160 0x0004
+ #define PCI_DEVICE_ID_NEOMAGIC_MAGICMEDIA_256AV       0x0005
+ #define PCI_DEVICE_ID_NEOMAGIC_MAGICGRAPH_128ZVPLUS   0x0083
++#define PCI_DEVICE_ID_NEOMAGIC_NM256AV_AUDIO 0x8005
++#define PCI_DEVICE_ID_NEOMAGIC_NM256ZX_AUDIO 0x8006
++#define PCI_DEVICE_ID_NEOMAGIC_NM256XL_PLUS_AUDIO 0x8016
+ 
+ #define PCI_VENDOR_ID_ASP		0x10cd
+ #define PCI_DEVICE_ID_ASP_ABP940	0x1200

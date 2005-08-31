@@ -1,0 +1,43 @@
+#! /usr/bin/make -f
+
+PACKAGE=kernel-patch-2.6.10-hppa
+
+####################
+
+arch=$(shell dpkg --print-architecture)
+
+topdir=$(shell pwd)
+destdir=${topdir}/debian/tmp
+docdir=${destdir}/usr/share/doc/${PACKAGE}
+
+build:
+	dh_testdir
+
+clean:
+	find . -name .svn | xargs rm -rf
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+binary-arch:	build
+
+binary-indep:	build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+
+	mkdir $(destdir)
+	dh_installkpatches
+	dh_installchangelogs
+	dh_installdocs
+
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep clean checkroot

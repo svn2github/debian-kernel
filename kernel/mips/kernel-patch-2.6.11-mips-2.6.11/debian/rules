@@ -1,0 +1,182 @@
+#!/usr/bin/make -f
+#
+# debian/rules for kernel-patch-mips
+#
+# Copyright (C) 2005 Thiemo Seufer
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+SHELL := sh -e
+
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+# The package version should be
+# <kernel upstream>-<abi version>-<debian revision>
+# e.g. 2.6.10-1-1
+debver := $(shell dpkg-parsechangelog |grep '^Version: ' |sed -e 's/^Version: //')
+kernabiver := $(shell echo $(debver) |sed 's/-[^-]*$$//')
+kernver := $(shell echo $(kernabiver) |sed 's/-[^-]*$$//')
+abiver := $(shell echo $(kernabiver) |sed 's/.*-//g')
+
+mtdir := mips-tools
+kdir := build-tmp/kernel-source-$(kernver)
+
+# the flavours we're building for
+flavours := $(shell grep -v ^\# debian/flavours.$(DEB_HOST_ARCH))
+
+# handle mips-tools package build
+MT_CFLAGS = -W -Wall -g -pipe
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+  MT_CFLAGS += -O0
+else
+  MT_CFLAGS += -O2
+endif
+
+MT_INSTALL = install -m 755 -o root -g root
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+  MT_INSTALL += -s
+endif
+
+NUM_CPUS=`cat /proc/cpuinfo | grep '^processor[:space:]*' | wc -l`
+
+unpack: stamps/source-unpack-stamp
+stamps/source-unpack-stamp:
+	rm -rf stamps build-tmp
+	mkdir stamps build-tmp
+	tar -C build-tmp --bzip2 -xf /usr/src/kernel-source-$(kernver).tar.bz2
+	ln -sf asm-mips $(kdir)/include/asm
+	touch $@
+
+patch: stamps/source-patch-stamp
+stamps/source-patch-stamp: stamps/source-unpack-stamp
+	dpatch -d $(kdir) apply-all
+	dpatch cat-all > $@
+
+unpatch:
+ifneq (,$(wildcard stamps/source-patch-stamp))
+	dpatch -d $(kdir) deapply-all
+	rm -f stamps/source-patch-stamp
+endif
+
+debian/control: debian/changelog debian/flavours.$(DEB_HOST_ARCH) \
+		debian/control.in/stub \
+		$(foreach sub,$(flavours),debian/control.in/$(sub))
+	sed -e 's/@@KERNVER@@/$(kernver)/g' \
+		-e 's/@@ABIVER@@/$(abiver)/g' \
+		debian/control.in/stub >$@ && echo '' >> $@
+	$(foreach sub,$(flavours), \
+		sed -e 's/@@KERNVER@@/$(kernver)/g' \
+			-e 's/@@ABIVER@@/$(abiver)/g' \
+			debian/control.in/$(sub) >>$@ \
+			&& echo '' >> $@ &&) :
+
+clean:
+	dh_testdir
+	rm -rf stamps build-tmp
+	dh_clean
+
+# We can't use the build target because the tree is mangled by the
+# binary targets afterwards
+build: debian/control
+
+install: stamps/source-patch-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs -p$(mtdir)
+
+	# build the mips-tools
+	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cd $(kdir)/arch/mips/boot \
+		&& gcc $(MT_CFLAGS) -o elf2ecoff elf2ecoff.c
+
+	# install files for mips-tools package
+	$(MT_INSTALL) -D $(kdir)/arch/mips/boot/elf2ecoff debian/$(mtdir)/usr/bin/elf2ecoff
+
+binary-headers: install
+	dh_testdir
+	dh_testroot
+ifneq ($(flavours),)
+	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cp -p debian/changelog debian/control debian/copyright debian/post-install $(kdir)/debian/
+	echo official > $(kdir)/debian/official
+	# We use a random config. If this is not generic enough, we
+	# have to switch to flavour-specific header packages.
+	cp debian/config/mips/r4k-ip22 $(kdir)/.config
+	cd $(kdir) && make-kpkg --append-to-version=-$(abiver) kernel_headers
+	mv build-tmp/kernel-headers-$(kernabiver)_$(debver)_$(DEB_HOST_ARCH).deb ..
+endif
+
+binary-images: stamps/source-patch-stamp
+	dh_testdir
+	dh_testroot
+	#chmod a+x ./scripts/copy-modules
+
+	# Messes up version detection with kernel-package - but that's good
+	$(foreach sub,$(flavours), \
+		echo "Building subarch $(sub)" && \
+		( cd $(kdir) && make-kpkg clean && make-kpkg debian ) && \
+		cp -p debian/changelog debian/control debian/copyright \
+			debian/post-install $(kdir)/debian/ && \
+		echo official > $(kdir)/debian/official && \
+		cp debian/config/$(DEB_HOST_ARCH)/$(sub) $(kdir)/.config && \
+		( cd $(kdir) && CONCURRENCY_LEVEL=$(NUM_CPUS) make-kpkg \
+		  --subarch $(sub) --append-to-version=-$(abiver)-$(sub) kernel_image ) && \
+		mv build-tmp/kernel-image-$(kernabiver)-$(sub)_$(debver)_$(DEB_HOST_ARCH).deb .. && ) :
+
+binary-arch: binary-images binary-headers
+	dh_testdir
+	dh_testroot
+	dh_installdocs -p$(mtdir)
+	dh_installexamples -p$(mtdir) -X.svn
+	dh_installmodules -p$(mtdir)
+	dh_installchangelogs -p$(mtdir)
+	dh_installman -p$(mtdir)
+
+	dh_shlibdeps -p$(mtdir)
+	dh_compress -p$(mtdir) -X.stub
+	dh_link -p$(mtdir)
+	dh_strip -p$(mtdir)
+	dh_fixperms -p$(mtdir)
+	dh_installdeb -p$(mtdir)
+	dh_gencontrol -p$(mtdir)
+	dh_md5sums -p$(mtdir)
+	dh_builddeb -p$(mtdir)
+	# finally add the kernel images and headers
+	$(foreach sub,$(flavours), \
+		dpkg-distaddfile kernel-image-$(kernabiver)-$(sub)_$(debver)_$(DEB_HOST_ARCH).deb base optional && ) :
+ifneq ($(flavours),)
+	dpkg-distaddfile kernel-headers-$(kernabiver)_$(debver)_$(DEB_HOST_ARCH).deb devel optional
+endif
+
+binary-indep:
+
+binary: binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep binary-images binary-headers build \
+	clean install patch unpatch
+
+#############################################################
+
+## environment for make-kpkg
+#export INITRD=Yes
+#export INITRD_OK=WeKnowWhatWeAreDoing
+
+#stamp-configure-prepare:
+#	-$(MAKE) -s -C config default > $(KSOURCE)/.config
+
+## copy build infrastructure for kernel modules
+#	cd $(KFLAVOUR); find scripts -type f ! -name '*.o' | cpio -pd $(KSRC)
+#	cat debian/build-files | ( cd $(KFLAVOUR); cpio -pd $(KSRC) )
+
+#install-clean:
+#	for file in debian/*.m4; do rm -f $${file%.m4}; done
+#	for dir in debian/kernel-*; do if test -d $$dir; then rm -rf $$dir; fi; done
+#	rm -f stamp-install-*
+
+#############################################################
+
+# Local Variables:
+# mode:Makefile
+# End:

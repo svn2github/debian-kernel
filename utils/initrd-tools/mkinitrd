@@ -1,0 +1,1419 @@
+#!/bin/sh
+#
+# mkinitrd - make an initrd image
+#
+# Copyright (C) 2001-2003 Herbert Xu <herbert@debian.org>
+# Copyright (C) 2004-2005 Debian kernel Team <debian-kernel@lists.debian.org>
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# $Id: mkinitrd,v 1.201 2004/05/16 22:00:48 herbert Exp $
+
+set -e
+
+defaults() {
+	MODULES=most
+	DELAY=0
+	ROOT=probe
+	UMASK=022
+	MKIMAGE='mkcramfs %s %s > /dev/null'
+	BUSYBOX=
+	PKGSCRIPTS=yes
+	INITRD_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+}
+
+cleanse_bool() {
+	eval "
+		case \$$1 in
+		[yY1]*)
+			$1=yes
+			;;
+		*)
+			$1=
+			;;
+		esac
+	"
+}
+
+cleanse() {
+	case "$MODULES" in
+	all | most | dep | none)
+		;;
+	*)
+		echo "$PROG: MODULES: Unknown value $MODULES" >&2
+		exit 1
+		;;
+	esac
+
+	if [ ${PROBE+1} ]; then
+		echo "$PROG: warning: PROBE is obsolete" >&2
+		if [ "$PROBE" != on ] && [ "$ROOT" = probe ]; then
+			# Check conffile again.
+			ROOT="$(
+				unset ROOT
+				. "$CONFDIR"/mkinitrd.conf
+				echo "$ROOT"
+			)"
+		fi
+	fi
+
+	if [ -z "${DELAY##*[!0-9]*}" ]; then
+		echo "$PROG: $DELAY: Illegal delay value" >&2
+		exit 1
+	fi
+
+	cleanse_bool BUSYBOX
+	cleanse_bool PKGSCRIPTS
+}
+
+initvars() {
+	FSTYPES=
+	IDE_CORE=
+	IDE_MODULE=
+	SHARE=/usr/share/initrd-tools
+	LVM=
+}
+
+usage() {
+	 revision='$Id: mkinitrd,v 1.201 2004/05/16 22:00:48 herbert Exp $'
+	 cat >&2 << EOF
+
+$revision
+
+Usage: $PROG [OPTION]... <-o outfile> [version]
+
+Options:
+  -d confdir  Specify an alternative configuration directory.
+  -k          Keep temporary directory used to make the image.
+  -m command  Set the command to make an initrd image.
+  -o outfile  Write to outfile.
+  -r root     Override ROOT setting in mkinitrd.conf.
+
+See mkinitrd(8) for further details.
+EOF
+	exit 1
+}
+
+parseraidtab() {
+	awk '
+		BEGIN {
+			oldmd = "/dev/md'$1'"
+			newmd = "/dev/md/'$1'"
+		}
+		$1 == "raiddev" {
+			if ($2 == oldmd || $2 == newmd) {
+				start = 1
+				print "echo " $2 " >&4"
+				print "device=" $2
+			} else if (start) {
+				exit
+			}
+			next
+		}
+		!start {
+			next
+		}
+		$1 == "persistent-superblock" {
+			sb = $2
+			next
+		}
+		$1 == "raid-level" {
+			raidlevel = $2
+			next
+		}
+		$1 == "device" {
+			device = $2
+		}
+		$1 == "raid-disk" {
+			print device >> "getroot"
+		}
+		END {
+			if (raidlevel ~ /^[0-9]/) {
+				print "echo raid" raidlevel
+			} else {
+				print "echo " raidlevel
+			}
+			if (start) {
+				if (!raidlevel && !sb) {
+					print "style=old"
+				} else {
+					print "style=new"
+				}
+			} else {
+				print "style=bad"
+			}
+		}
+	' /etc/raidtab
+}
+
+getraid_mdadm() {
+	mdadm=$(mdadm -D "$device") || {
+		echo "$PROG: mdadm -D $device failed" >&2
+		exit 1
+	}
+	eval "$(
+		echo "$mdadm" | awk '
+			$1 == "Raid" && $2 == "Level" { print "echo " $4; next }
+			$1 == "Number" && $2 == "Major" { start = 1; next }
+			$1 == "UUID" { print "uuid=" $3; start = 0; next }
+			!start { next }
+			$2 == 0 && $3 == 0 { next }
+			{ devices = devices " " $NF }
+			END { print "devices='\''" devices "'\''" }
+		'
+	)"
+
+	printf '%s\n' $devices > getroot
+	echo $device >&4
+	echo mdadm -A $device -R -u $uuid $devices \
+		> md$minor-script
+	echo /sbin/mdadm >&6
+}
+
+getraid_raidtools() {
+	if [ ! -f /etc/raidtab ]; then
+		echo "$PROG: RAID support requires mdadm" >&2
+		exit 1
+	fi
+	{
+		echo "/etc/raidtab"
+	} >&4
+	eval "$(parseraidtab "$minor")"
+	case $style in
+	new)
+		echo raidstart $device > md$minor-script
+		echo /sbin/raidstart >&6
+		;;
+	old)
+		echo raid0run $device > md$minor-script
+		echo /sbin/raid0run >&6
+		;;
+	*)
+		echo "$PROG: $device: Device not listed in raidtab" >&2
+		exit 1
+		;;
+	esac
+}
+
+lvmdetect1() {
+	minor0=$(printf %02d $minor)
+	lv=$(grep -l "^device: *$major:$minor0" /proc/lvm/VGs/*/LVs/*)
+	vg=${lv%/*/*}
+	devices=$(
+		sed -n 's/^device: *0*\(..*\):0*\(..*\)/getroot \1 \2/p' \
+			$vg/PVs/*
+	)
+	root=/dev/${vg##*/}/${lv##*/}
+}
+
+lvmdetect2() {
+	eval "$(vgdisplay -v | awk '
+		/^vgdisplay/ { $0 = substr($0, 10) }
+		found < 1 {
+			if (/^ *LV Name/) {
+				lvname = $3
+				next
+			}
+			if (/^ *Block device/ && $3 == "'$major:$minor'") {
+				found++
+				root = lvname
+			}
+			next
+		}
+		found < 2 { if (/^ *--- Physical volumes/) found++; next }
+		/^PV Name \(#\)/ { devices = devices "\ngetroot " $4; next }
+		/^ *PV Name/ { devices = devices "\ngetroot " $3 }
+		/^$/ { exit }
+		END {
+			print "devices='\''" devices "'\''"
+			print "root=" root
+			if (found < 2)
+				print "false"
+		}
+	')"
+}
+
+lvm() {
+	local root
+
+	iopver=$(lvmiopversion)
+	if [ "$iopver" -lt 200 ]; then
+		lvmdetect1
+	else
+		lvmdetect2
+	fi || {
+		echo "$PROG: $device: Cannot find LVM device" >&2
+		exit 1
+	}
+	eval "$devices"
+
+	vg=${root#/dev/}
+	vg=${vg%/*}
+	DEVLINKS="$DEVLINKS $vg"
+
+	if [ $LVM ]; then
+		return
+	fi
+	LVM=yes
+
+	if ([ "$iopver" -lt 200 ] || ! module_exists drivers/md/dm-mod) \
+	   && module_exists drivers/md/lvm-mod && [ -d /lib/lvm-10 ]; then
+		echo lvm-mod
+		echo /dev/lvm >&4
+		{
+			echo '[ -c /dev/lvm ] || mknod /dev/lvm c 109 0'
+			echo mount_tmpfs /etc
+			echo vgscan
+			echo vgchange -a y ${vg}
+			echo umount -n /etc
+		} >&5
+		{
+			echo /lib/lvm-10/vgchange
+			echo /lib/lvm-10/vgscan
+			echo /sbin/vgchange
+			echo /sbin/vgscan
+		} >&6
+	elif module_exists drivers/md/dm-mod; then
+		if [ ! -d /lib/lvm-200 ]; then
+			echo "$PROG: $device: LVM2 is required" >&2
+			exit 1
+		fi
+
+		echo dm-mod
+		if [ -f /etc/lvm/lvm.conf ]; then
+			echo /etc/lvm/lvm.conf >&4
+		fi
+		cat <<- EOF >&5
+			mkdir /devfs/$vg
+			mount_tmpfs /var
+			if [ -f /etc/lvm/lvm.conf ]; then
+				cat /etc/lvm/lvm.conf > /var/lvm.conf
+			fi
+			mount_tmpfs /etc/lvm
+			if [ -f /var/lvm.conf ]; then
+				cat /var/lvm.conf > /etc/lvm/lvm.conf
+			fi
+			mount -nt devfs devfs /dev
+			vgchange -a y ${vg}
+			umount /dev
+			umount -n /var
+			umount -n /etc/lvm
+		EOF
+		{
+			echo /bin/mkdir
+			echo /lib/lvm-200/vgchange
+			echo /sbin/vgchange
+		} >&6
+	elif module_exists drivers/md/lvm-mod; then
+		echo "$PROG: $device: LVM1 is required" >&2
+		exit 1
+	else
+		echo "$PROG: $device: Kernel does not support LVM" >&2
+		exit 1
+	fi
+}
+
+dmcrypt() {
+	local cipher_mode devname submajor subminor
+	
+	if ! command -v cryptsetup > /dev/null 2>&1; then
+		echo Root is on a DM crypt device, but cryptsetup not installed >&2
+	fi
+	
+	cipher_mode=$(dmsetup table $dmname | cut -d" " -f4)
+
+	echo dm-crypt
+	echo $cipher_mode | cut -d- -f1
+
+	devname=$(grep -m 1 "^$dmname[[:space:]]" /etc/crypttab | sed 's/^[^[:space:]]*[[:space:]]*\([^[:space:]]*\).*/\1/')
+	if [ ! -b ${devname:-/dev/null} ]; then
+		echo \'$dmname\' does not have a valid block device in /etc/crypttab >&2
+		exit 1
+	fi
+	
+	eval "$(stat -c 'submajor=$((0x%t)); subminor=$((0x%T))' $(readlink -f "$devname"))"
+	
+	if [ $submajor != $(dmsetup deps $dmname | sed 's/^.*(\([0-9]*\), \([0-9]*\))$/\1/') \
+	  -o $subminor != $(dmsetup deps $dmname | sed 's/^.*(\([0-9]*\), \([0-9]*\))$/\2/') ]; then
+		echo /etc/crypttab entry for \'$dmname\' does not agree with dmsetup >&2
+		exit 1
+	fi
+		
+	getroot $devname
+	
+	cat <<EOF >&5
+mount_tmpfs dev2
+
+save_rootdev="\$rootdev"
+save_ROOT="\$ROOT"
+rootdev=$(($submajor*256+$subminor))
+ROOT="$devname"
+get_device
+rootdev="\$save_rootdev"
+ROOT="\$save_ROOT"
+
+export device
+export dmname="$dmname"
+export cipher_mode="$cipher_mode"
+for i in /keyscripts/*; do
+	[ -f "\$i" ] || continue
+	case "\$i" in
+	*.sh)
+		(. \$i)
+		;;
+	*)
+		\$i
+		;;
+	esac
+done
+[ -b /dev/mapper/\$dmname ] || \\
+	/sbin/cryptsetup -c \$cipher_mode create \$dmname \$device
+
+umount -n dev2
+EOF
+	{
+		echo /sbin/cryptsetup
+		echo /lib/libdevmapper.so.1.01
+		echo /lib/libpopt.so.0
+	} >&6
+}
+
+dm() {
+	local dmname
+	
+	if command -v dmsetup > /dev/null 2>&1; then
+		dmdev=$(printf "(%d, %d)" $major $minor)
+	
+		if ! dmsetup ls | grep -q "$dmdev\$"; then
+			echo Unknown DM device $major:$minor >&2
+			exit 1
+		fi
+		
+		dmname=$(dmsetup ls | grep "$dmdev\$" | sed 's/^\([^[:space:]]*\).*$/\1/')
+	fi
+	
+	if [ -n "$dmname" ] && \
+	   dmsetup table $dmname | cut -d" " -f3 | grep -q ^crypt$ ; then
+		dmcrypt
+	elif command -v lvmiopversion > /dev/null 2>&1; then
+		lvm
+	elif [ ! -x /etc/mkinitrd/scripts/evms ]; then
+		echo Unknown DM device $major:$minor >&2
+		exit 1
+	fi
+}
+
+module_exists() {
+	[ -n "$(find "$MODULEDIR/kernel/${1%/*}" -name "${1##*/}.$o")" ]
+}
+
+print_module() {
+	local i
+
+	for i; do
+		if module_exists "$i"; then
+			echo ${i##*/}
+		fi
+	done
+}
+
+print_ide_modules() {
+	if [ -n "$IDE_MODULE" ]; then
+		return
+	fi
+
+	if [ $oldkernel ] && ! [ $oldstyle ]; then
+		print_module \
+			drivers/scsi/ata_piix \
+			drivers/scsi/sd_mod
+	fi
+
+	IDE_MODULE=none
+	for i in ide-probe-mod ide-detect ide-generic; do
+		if [ -f "$MODULEDIR/kernel/drivers/ide/$i.$o" ]; then
+			IDE_MODULE=$i
+			break
+		fi
+	done
+
+	if [ -d "$MODULEDIR/kernel/drivers/ide/pci" ]; then
+		IDE_PCI_MODULES=$(
+			find "$MODULEDIR/kernel/drivers/ide/pci" \
+				-name "*.$o" -printf '%f\n' |
+				sed 's%\.'$o'$%%'
+		)
+		if [ -n "$IDE_PCI_MODULES" ]; then
+			printf '%s > /dev/null 2>&1\n' $IDE_PCI_MODULES
+			echo unload_unused_ide "'$oldstyle'" $IDE_PCI_MODULES \
+				>&5
+		fi
+	fi
+
+	case $IDE_MODULE in
+	ide-probe-mod)
+		IDE_CORE=ide-mod
+		;;
+	ide-detect | ide-generic)
+		IDE_CORE=ide-core
+		;;
+	*)
+		IDE_CORE=none
+		print_module drivers/ide/ide-disk
+		return
+		;;
+	esac
+
+	echo $IDE_MODULE
+	if [ $IDE_MODULE = ide-detect ]; then
+		print_module drivers/ide/ide-generic
+	fi
+
+	print_module drivers/ide/ide-disk
+}
+
+getroot() {
+	local major minor device flag soft= setroot=
+	local OPTIND=1 OPTARG
+	local i
+
+	while getopts "rs" flag; do
+		case $flag in
+		r)
+			setroot=yes
+			;;
+		s)
+			soft=yes
+			;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+
+	if [ $# -eq 2 ]; then
+		device=$1:$2
+		major=$1
+		minor=$2
+	elif [ ! -b "$1" ]; then
+		case "$1" in
+		/*)
+			echo "$PROG: device $1 is not a block device" >&2
+			exit 1
+			;;
+		esac
+
+		# Assume label or UUID.
+		eval "$(
+			awk 'NR > 2 { printf "getroot -s %d %d\n", $1, $2 }' \
+				/proc/partitions
+		)"
+		return
+	else
+		if [ $setroot ]; then
+			echo "ROOT=$1" >&5
+			setroot=
+		fi
+		device=$(readlink -f "$1")
+		eval "$(stat -c 'major=$((0x%t)); minor=$((0x%T))' "$device")"
+	fi
+
+	if [ $setroot ]; then
+		echo "ROOT=" >&5
+	fi
+
+	run_probe $major $minor
+	if [ $ok ]; then
+		return
+	fi
+
+	case $major in
+	9)
+		device=/dev/md/$minor
+		[ -b $device ] || device=/dev/md$minor
+		[ -b $device ] || {
+			echo "$PROG: Cannot find /dev/md/$minor" >&2
+			exit 1
+		}
+		if command -v mdadm > /dev/null 2>&1; then
+			getraid_mdadm
+		else
+			getraid_raidtools
+		fi
+		cat getroot >&4
+		eval "$(sed 's/^/getroot /' getroot)"
+		cat md$minor-script >&5
+		;;
+	8 | 11)
+		if [ ! -d /proc/scsi ]; then
+			echo "$PROG: Cannot determine SCSI module" >&2
+			exit 1
+		fi
+
+		isp1020="qlogicisp"
+		qla1280="qla1280"
+
+		# Educate mkinitrd about different arches..
+		case "$(dpkg --print-architecture)" in
+			alpha)
+				# XXX Workaround: 2.6 qlogicisp is broken on alpha
+				# handle 2.6 -> 2.4
+				if dpkg --compare-versions $VERSION lt 2.5 && [ -z "$oldkernel" ]; then
+					qla1280='qla1280\nqlogicisp'
+				# handle 2.4 -> 2.6
+				elif dpkg --compare-versions $VERSION gt 2.5 && [ "$oldkernel" ]; then
+					isp1020="qla1280"
+				fi
+				;;
+			mips) ARCH_ESP=jazz_esp ;;
+			mipsel) ARCH_ESP=dec_esp ;;
+			m68k)
+				if [ ! -f /proc/hardware ]; then
+					echo "$PROG: Cannot determine m68k variant" >&2
+					exit 1
+				fi
+				
+				case "$(grep ^Model: /proc/hardware | sed 's/Model:[ ]*//')" in
+				# Archdetect in sh!
+					Sun\ 3*) ARCH_ESP=sun3x_esp ;;
+					Macintosh) ARCH_ESP=mac_esp ;;
+					Amiga) ARCH_ESP=mca_53c9x ;;
+				esac
+			;;
+			sparc*) ARCH_ESP=esp ;;
+		esac
+
+		# XXX Workaround: 2.4 and 2.6 disagrees about the name of the new sym53c8xx module
+		if dpkg --compare-versions $VERSION lt 2.5; then
+			sym53c8xx="sym53c8xx_2"
+		else
+			sym53c8xx="sym53c8xx"
+		fi
+
+		find /proc/scsi -mindepth 1 -maxdepth 1 -type d \
+			-printf "%f\n" | sed '
+				/^ide-scsi$/d
+				/^usb-storage-/d
+				/^sbp2_/d
+				s/^aac$/aacraid/; t
+				s/^am53c974$/AM53C974/; t
+				s/^eata2x$/eata/; t
+				s/^isp1020$/'$isp1020'/; t
+				s/^isp2x00$/qlogicfc/; t
+				s/^ncr53c7xx$/53c7,8xx/; t
+				s/^ncr53c8xx$/'$sym53c8xx'/; t
+				s/^A2091$/a2091/; t
+				s/^A3000$/a3000/; t
+				s/^Amiga7xx$/amiga7xx/; t
+				s/^Atari$/atari_scsi/; t
+				s/^BVME6000$/bvme6000/; t
+				s/^cpqfcTS$/cpqfc/; t
+				s/^dtc3x80$/dtc/; t
+				s/^GVP11$/gvp11/; t
+				s/^INI9100U$/initio/; t
+				s/^INIA100$/inia100/; t
+				s/^mac5380$/mac_scsi/; t
+				s/^MVME147$/mvme147/; t
+				s/^MVME16x$/mvme16x/; t
+				s/^SGIWD93$/sgiwd93/; t
+				s/^Sun3 5380 SCSI$/sun3_scsi/; t
+				s/^esp-blz1230$/blz1230/; t
+				s/^esp-blz2060$/blz2060/; t
+				s/^esp-cyberstorm$/cyberstorm/; t
+				s/^esp-cyberstormII$/cyberstormII/; t
+				s/^esp$/'$ARCH_ESP'/; t 
+				s/^esp-fastlane$/fastlane/; t
+				s/^GVP11$/gvp11/; t
+				s/^53c94$/mac53c94/; t
+				s/^qla2xxx$/qla2100\
+qla2200\
+qla2300\
+qla2322\
+qla6312\
+qla6322/; t
+				s/^esp-oktagon$/octagon_esp/; t
+				s/^sym53c8xx.*$/'$sym53c8xx'/; t
+				s/^qla1280$/'$qla1280'/
+			' | tac
+
+#
+# New kernels don't list the scsi drivers in /proc/scsi
+#
+
+			for i in $(cat /proc/modules | awk '{if ( $4 == "-" ) print $1;}'); do
+				if module_exists drivers/scsi/$i; then
+					echo $i
+				elif ! [ $oldstyle ]; then
+					i=$(echo "$i" | sed 's/_/-/g')
+					if module_exists drivers/scsi/$i; then
+						echo $i
+					fi
+				fi
+			done | tac
+			echo sd_mod
+		;;
+	7[2-9])
+		echo cpqarray
+		;;
+	4[89] | 5[0-5])
+		echo DAC960
+		;;
+	10[4-9] | 11[01])
+		echo cciss
+		;;
+	11[4-9] | 12[0-9])
+		print_ide_modules
+		echo hptraid
+		echo pdcraid
+		;;
+	2)
+		echo floppy
+		;;
+	3 | 22 | 3[34] | 5[67] | 8[89] | 9[01])
+		print_ide_modules
+		;;
+	58)
+		lvm
+		;;
+	94)
+		echo dasd_eckd_mod
+		echo dasd_fba_mod
+		;;
+	98)
+		echo ubd
+		;;
+	*)
+		type=
+		case $(awk '
+			!block { if (/^Block devices/) block++; next }
+			$1 == '$major' { print $2; exit }
+		' /proc/devices) in
+		device-mapper)
+			dm
+			return
+			;;
+		esac
+
+		if [ $soft ]; then
+			return
+		fi
+
+		{
+			echo "$PROG: $device: Unknown root device"
+			printf "%$((${#PROG} + 2))s%s\n" \
+				' ' 'Please refer to the manual page.'
+		} >&2
+		exit 1
+		;;
+	esac >&3
+}
+
+run_probe() {
+	ok=
+	for i in $PROBE_FUNCTIONS; do
+		$i "$@"
+		if [ $ok ]; then
+			return
+		fi
+	done
+}
+
+register_probe() {
+	PROBE_FUNCTIONS="$PROBE_FUNCTIONS $1"
+}
+
+probe() {
+	PROBE_FUNCTIONS=
+
+	local i
+
+	for i in $SHARE/probe.d/*; do
+		case ${i##*/} in
+		*[!A-Za-z0-9_-]*)
+			continue
+			;;
+		esac
+		. $i
+	done
+
+	set -f
+	set +f -- $ROOT
+	device=$1
+	type=$2
+
+	local fstabtype=
+	if [ "$device" = probe ]; then
+		local script root
+
+		script='
+			BEGIN { printf "set -- " }
+			/^#/ { next }
+			$2 == "/" { root = $1; type = $3; next }
+			$3 == "swap" { printf "'\''%s'\''", $1 }
+			END {
+				print ""
+				print "root=" root
+				print "fstabtype=" type
+			}
+		'
+		root=
+		eval "$(awk "$script" /etc/fstab)"
+		if [ -z "$root" ]; then
+			echo "$PROG: Cannot determine root device" >&2
+			exit 1
+		fi
+		device=$root
+
+		for i; do
+			[ -b "$i" ] || continue
+			getroot "$i"
+		done
+	fi
+
+	if [ -z "$type" ]; then
+		set -- $(
+			{
+				awk -F '	' '!$1 { print $2 }' \
+					/proc/filesystems
+				if [ -n "$fstabtype" ]; then
+					IFS=,
+					printf '%s\n' $fstabtype
+				fi
+			} | cat -n | sort -u -k 2,2 | sort -n | cut -f 2-
+		)
+		if [ $# -eq 0 ]; then
+			echo "$PROG: Cannot determine root file system" >&2
+			exit 1
+		fi
+	else
+		FSTYPES=$type
+		set --
+	fi
+
+	noext3=
+	cramfs=
+
+	for fs; do
+		case $fs in
+		ext2)
+			if [ $noext3 ]; then
+				FSTYPES=${FSTYPES:+$FSTYPES,}ext2
+			else
+				FSTYPES=${FSTYPES:+$FSTYPES,}ext3,ext2
+				noext3=yes
+			fi
+			;;
+		ext3)
+			if ! [ $noext3 ]; then
+				FSTYPES=${FSTYPES:+$FSTYPES,}ext3
+				noext3=yes
+			fi
+			;;
+		cramfs)
+			cramfs=yes
+			;;
+		*)
+			FSTYPES=${FSTYPES:+$FSTYPES,}$fs
+			;;
+		esac
+	done
+
+	if [ $cramfs ]; then
+		FSTYPES=${FSTYPES:+$FSTYPES,}cramfs
+	fi
+
+	getroot -r "$device"
+}
+
+xldd() {
+	i=$1
+
+	set +e
+	if [ $oldstyle ]; then
+		x=$(
+			LD_LIBRARY_PATH=$INITRD_LD_LIBRARY_PATH \
+			LD_ASSUME_KERNEL=2.4 ldd "$i"
+		)
+	else
+		x=$(
+			LD_LIBRARY_PATH=$INITRD_LD_LIBRARY_PATH \
+			ldd "$i"
+		)
+	fi
+	err=$?
+	set -e
+
+	case $err in
+	0)
+		;;
+	1)
+		[ -n "$x" ] || return
+		set -f
+		set +f -- $x
+		[ "$*" = 'not a dynamic executable' ]
+		return
+		;;
+	*)
+		return $err
+		;;
+	esac
+	echo "$x"
+}
+
+add_modules_most() {
+	if [ -d "$MODULEDIR/initrd" ]; then
+		find "$MODULEDIR/initrd" -type f
+	elif [ -d "$MODULEDIR/boot" ]; then
+		find "$MODULEDIR/boot" -type f
+	fi
+	if [ -d "$MODULEDIR/kernel" ]; then
+		set "$MODULEDIR"/kernel/drivers/video/fb*.$o
+		[ -e "$1" ] && printf '%s\n' "$@"
+		set "$MODULEDIR"/kernel/drivers/video/cfb*.$o
+		[ -e "$1" ] && printf '%s\n' "$@"
+		set "$MODULEDIR"/kernel/drivers/video/console/f*.$o
+		[ -e "$1" ] && printf '%s\n' "$@"
+		for i in \
+			"$MODULEDIR/kernel/drivers/block" \
+			"$MODULEDIR/kernel/drivers/ide" \
+			"$MODULEDIR/kernel/drivers/md" \
+			"$MODULEDIR/kernel/drivers/scsi" \
+			"$MODULEDIR/kernel/fs" \
+			"$MODULEDIR/kernel/net/unix"
+		do
+			[ -d "$i/" ] || continue
+			find "$i/" -type f
+		done > tmp1
+		< tmp1 awk "
+			!/fs\/binfmt_[^\/]*\$/ &&
+			!/fs\/autofs.*\/[^\/]*\$/ &&
+			!/fs\/coda\/[^\/]*\$/ &&
+			!/fs\/intermezzo\/[^\/]*\$/ &&
+			!/fs\/lockd\/[^\/]*\$/ &&
+			!/fs\/ncpfs.*\/[^\/]*\$/ &&
+			!/fs\/nfs.*\/[^\/]*\$/ &&
+			!/fs\/nls\/[^\/]*\$/ &&
+			!/fs\/ramfs\/[^\/]*\$/ &&
+			!/fs\/smbfs\/[^\/]*\$/ &&
+			!/drivers\/block\/loop\.$o\$/ &&
+			!/drivers\/block\/nbd\.$o\$/ &&
+			!/drivers\/block\/drbd\.$o\$/ &&
+			!/drivers\/block\/paride\/[^\/]*\$/ &&
+			!/drivers\/ide\/ide-cs\.$o\$/ &&
+			!/drivers\/ide\/ide-tape\.$o\$/ &&
+			!/drivers\/scsi\/ide-scsi\.$o\$/ &&
+			!/drivers\/scsi\/osst\.$o\$/ &&
+			!/drivers\/scsi\/pcmcia\/[^\/]*\$/ &&
+			!/drivers\/scsi\/ppa\.$o\$/ &&
+			!/drivers\/scsi\/scsi_debug\.$o\$/ &&
+			!/drivers\/scsi\/s[gt]\.$o\$/ {
+				print
+			}
+		"
+		for i in \
+			"$MODULEDIR/kernel/drivers/message/fusion/mptbase".* \
+			"$MODULEDIR/kernel/drivers/message/fusion/mptscsih".*
+		do
+			[ -f "$i" ] || continue
+			echo "$i"
+		done
+	else
+		for i in \
+			"$MODULEDIR/block" \
+			"$MODULEDIR/fs" \
+			"$MODULEDIR/scsi"
+		do
+			[ -d "$i/" ] || continue
+			find "$i/" -type f
+		done
+		[ -f "$MODULEDIR/misc/unix.$o" ] &&
+			echo "$MODULEDIR/misc/unix.$o"
+	fi | tee modules.most |
+		sed 's%.*/%%; s/\.'$o'$//; s/^/. /' >> modules.2
+	cat modules.most
+	:
+}
+
+add_modules_dep() {
+	find "$MODULEDIR/" -maxdepth 1 -name 'modules.*'
+
+	if [ $oldstyle ] && [ $oldkernel ]; then
+		add_modules_dep_2_4
+		return
+	elif ! [ $oldstyle ]; then
+		add_modules_dep_2_5 $VERSION
+		return
+	fi
+
+	if [ $1 ]; then
+		return
+	fi
+
+	echo "$PROG: MODULES=dep cannot be done due to version conflict" >&2
+	echo "$PROG: using MODULES=most instead" >&2
+	add_modules_most
+	return
+}
+
+add_modules_dep_2_4() {
+	cat <<- EOF > modules.conf
+		depfile=$MODULEDIR/modules.dep
+		path[toplevel]=$MODULEDIR
+		$(egrep -v '^(depfile|path\[toplevel\])=' /etc/modules.conf)
+	EOF
+
+	IFS=,
+	set -- $FSTYPES
+	unset IFS
+
+	if [ $# -gt 0 ]; then
+		printf '. %s\n' "$@"
+	fi | cat - modules.? |
+		awk '{ print "modprobe -C 'modules.conf' -nv " $2 }' |
+		sh 2> /dev/null | awk ' /^\/sbin\/insmod /{
+			for (i = 2; i <= NF; i++) {
+				if ($i ~ /^\//) {
+					print $i
+					next
+				}
+			}
+		}'
+}
+
+add_modules_dep_2_5() {
+	ver=$1
+	IFS=,
+	set -- $FSTYPES
+	unset IFS
+
+	if [ $# -gt 0 ]; then
+		printf '. %s 2> /dev/null\n' "$@"
+	fi | cat - modules.? |
+		awk '
+			BEGIN {
+				cmd = \
+					"modprobe --set-version '$ver' " \
+					"--show-depends "
+			}
+			{ $1 = ""; print cmd $0 " >&3" }
+		' | sh 2> modprobe.err 3>&1 |
+		sed -n 's%^insmod \([^ ]\+\).*%\1%p'
+	if [ -s modprobe.err ]; then
+		echo "$PROG: add_modules_dep_2_5: modprobe failed" >&2
+		cat modprobe.err >&2
+		echo "WARNING: This failure MAY indicate that your kernel will not boot!" >&2
+		echo "but it can also be triggered by needed modules being compiled into" >&2
+		echo "the kernel." >&2
+		rm modprobe.err
+	fi
+}
+
+add_command() {
+	if [ -h initrd/"$1" ]; then
+		return
+	fi
+	echo "$1"
+	xldd "$1" >&3
+}
+
+checkpkg() {
+	err=$(dpkg -s $1) || {
+		echo "$PROG: checkpkg: dpkg -s $1 failed" >&2
+		exit 1
+	}
+
+	eval "$(echo "$err" | awk '
+		/^Status:/ && !/installed/ { exit }
+		/^Version:/ { gsub(/[ \t]/, ""); version = substr($0, 9) }
+		END { print "err=" version }
+	')"
+
+	if dpkg --compare-versions "$err" lt $2; then
+		err="$1 >= $2 is required"
+		return 1
+	fi
+}
+
+gendir() {
+	dir=$1
+	cd $dir
+
+	if [ ! -d "$MODULEDIR" ]; then
+		if [ "$MODULES" != none ]; then
+			echo "$PROG: $MODULEDIR: Not a directory" >&2
+			echo "$PROG: MODULES needs to be set to none?" >&2
+			exit 1
+		fi
+		mkdir empty
+		MODULEDIR=empty
+	fi
+
+	oldstyle=yes
+	o=o
+	insmod='/sbin/modprobe /sbin/rmmod'
+	if [ -n "$(find "$MODULEDIR/" -name '*.ko')" ]; then
+		unset oldstyle
+		o=ko
+
+		if ! checkpkg module-init-tools 0.9.13; then
+			unset insmod
+		fi
+	else
+		if [ -f /sbin/modprobe.modutils ]; then
+			insmod="$insmod /sbin/modprobe.modutils"
+			insmod="$insmod /sbin/insmod.modutils"
+			insmod="$insmod /sbin/rmmod.modutils"
+		else
+			insmod="$insmod /sbin/insmod /sbin/rmmod"
+		fi
+
+		if ! checkpkg modutils 2.3.13; then
+			unset insmod
+		fi
+	fi
+
+	if ! [ ${insmod:+y} ] && [ "$MODULES" != none ]; then
+		echo "$PROG: $err" >&2
+		exit 1
+	fi
+
+	oldkernel=yes
+	if dpkg --compare-versions $(uname -r) gt 2.5; then
+		unset oldkernel
+	fi
+
+	DEVLINKS=
+
+	exec \
+		3> modules 4> files 5> script 6> exe 7>> modules.2
+
+	{
+		if [ -d "$MODULEDIR/initrd" ]; then
+			set "$MODULEDIR"/initrd/*
+		else
+			set "$MODULEDIR"/boot/*
+		fi
+		[ -e "$1" ] || set --
+		fbcon=
+		for i; do
+			i=${i##*/}
+			i=${i%.*}
+			case $i in
+			*fb)
+				echo "$i > /dev/null 2>&1"
+				fbcon=yes
+				continue
+				;;
+			esac
+			echo "$i"
+		done
+		if [ $fbcon ]; then
+			echo 'fbcon 2> /dev/null'
+		fi
+		echo 'unix 2> /dev/null'
+		echo '. swsusp 2> /dev/null' >&7
+	} >&3
+	[ -z "$ROOT" ] || probe
+
+	exec 3>&- 4>&- 5>&- 6>&-
+
+	mkdir initrd
+
+	shell=/bin/dash
+	[ -f $shell ] || shell=/bin/ash
+
+	# Let's add the keyboard input modules on powerpc
+	if [ `dpkg --print-architecture` = "powerpc" ]; then
+		for m in i8042 atkbd ehci-hcd ohci-hcd uhci-hcd usbhid; do
+			echo ". $m 2> /dev/null" >> modules.3;
+		done;
+	fi
+
+	egrep -v '^(#.*)?$' "$CONFDIR"/modules | cat -n - modules |
+		sort -u -k 2 | sort -n -k 1,1 > modules.1
+
+	{
+		set "$CONFDIR/files"
+		[ -f "$1" ] || set --
+		cat "$@" files
+
+		case $MODULES in
+		all)
+			find "$MODULEDIR/" -type f
+			add_modules_dep maybe
+			;;
+		most)
+			add_modules_most
+			add_modules_dep maybe
+			;;
+		dep)
+			add_modules_dep
+			;;
+		none)
+			find "$MODULEDIR/" -maxdepth 1 -name 'modules.*'
+			;;
+		esac
+
+		exec 3> tmp2
+		if [ $BUSYBOX ]; then
+			bb=$(command -v busybox)
+			add_command "$bb"
+
+			case $bb in
+			/bin/*)
+				bb=/bin2/${bb#/bin/}
+				;;
+			esac
+
+			for i in $(
+				busybox 2>&1 |
+				sed -n 's/^Curr.*//;tn;b;:n;s/,//g;p;n;bn'
+			); do
+				case $i in
+				busybox | init)
+					continue
+					;;
+				esac
+
+				for j in /usr/bin /sbin /usr/sbin /bin; do
+					if [ -x $j/$i ]; then
+						break
+					fi
+				done
+				pdir=initrd$j
+				[ -d $pdir ] || mkdir -p $pdir
+				ln -s $bb $pdir/$i
+			done
+		fi
+
+		readlink=
+		if ! stat -L . > /dev/null 2>&1; then
+			readlink=`command -v readlink`
+		fi
+
+		set "$CONFDIR/exe"
+		[ -f "$1" ] || set --
+		for i in \
+			$([ $DELAY -gt 0 ] && echo /bin/sleep) \
+			$insmod $shell \
+			/bin/mount /bin/umount \
+			/sbin/pivot_root /bin/cat /bin/mknod \
+			/usr/sbin/chroot /bin/uname \
+			`command -v stat` $readlink \
+			`cat "$@" exe`
+		do
+			add_command $i
+		done
+		exec 3>&-
+		< tmp2 sed 's/\(.*=>\)\?[[:blank:]]*\(.*\)[[:blank:]]\+\((.*)\)/\2/;/^$/d'
+
+		echo /dev/console
+		echo /dev/null
+		if [ ${insmod:+y} ]; then
+			if [ $oldstyle ]; then
+				echo /etc/modules.conf
+			else
+				if [ -f /lib/modules/modprobe.conf ]; then
+					echo /etc/modprobe.conf
+					echo /lib/modules/modprobe.conf
+				else
+					find /etc/modprobe.d -maxdepth 1 \
+						! -type d
+				fi
+
+				if [ -f /etc/modprobe.devfs ]; then
+					echo /etc/modprobe.devfs
+				fi
+			fi
+		fi
+	} > tmp3
+	< tmp3 sort -u | cpio -pLd --quiet initrd
+
+	ln -sf ${shell##*/} initrd/bin/sh
+	if ! [ -h initrd/bin/echo ]; then
+		install $SHARE/echo initrd/bin
+	fi
+	cp -al initrd/bin initrd/bin2
+
+	install $SHARE/init initrd/sbin
+	install $SHARE/linuxrc initrd
+	cat - $SHARE/version <<- EOF > initrd/linuxrc.conf
+		RESUME=$RESUME
+		DELAY=$DELAY
+		BUSYBOX=$BUSYBOX
+		FSTYPES=$FSTYPES
+		IDE_CORE=${IDE_CORE:-ide-mod}
+	EOF
+	< modules.1 \
+		awk '{ $1 = "modprobe -k "; print }' > initrd/loadmodules
+	mv script initrd
+
+	# Let's make sure the keyboard input modules are actually loaded on powerpc
+	case `dpkg --print-architecture` in
+		powerpc)
+			echo "while read name colon value; do" >>initrd/loadmodules.powerpc
+			echo "  case \$name in" >>initrd/loadmodules.powerpc
+			echo "    machine)" >>initrd/loadmodules.powerpc
+			echo "      case \$value in" >>initrd/loadmodules.powerpc
+			echo "        *PReP*|*CHRP*)" >>initrd/loadmodules.powerpc
+			echo "          modprobe -k i8042" >>initrd/loadmodules.powerpc
+			echo "          modprobe -k atkbd" >>initrd/loadmodules.powerpc
+			echo "          ;;" >>initrd/loadmodules.powerpc
+			echo "      esac" >>initrd/loadmodules.powerpc
+			echo "      ;;" >>initrd/loadmodules.powerpc
+			echo "  esac" >>initrd/loadmodules.powerpc
+			echo "done < /proc/cpuinfo" >>initrd/loadmodules.powerpc
+			echo "modprobe -k ehci-hcd" >>initrd/loadmodules.powerpc
+			echo "modprobe -k ohci-hcd" >>initrd/loadmodules.powerpc
+			echo "modprobe -k uhci-hcd" >>initrd/loadmodules.powerpc
+			echo "modprobe -k usbhid" >>initrd/loadmodules.powerpc
+		;;
+	esac
+
+	cd initrd
+	mkdir -p dev2 devfs etc keyscripts mnt proc scripts sys tmp var
+
+	> etc/mtab
+
+	devices=
+	for i in \
+		cciss ida ide scsi md mapper $DEVLINKS
+	do
+		[ -e dev/$i ] || [ -h dev/$i ] ||
+			devices="$devices ../devfs/$i"
+	done
+	if [ -n "$devices" ]; then
+		printf '%s\n' $devices | sort -u |
+			xargs ln -s --target-directory=dev
+	fi
+
+	if [ $PKGSCRIPTS ]; then
+		INITRDDIR=$dir/initrd MODULEDIR=$MODULEDIR VERSION=$VERSION \
+			run-parts $SHARE/scripts
+	fi
+	INITRDDIR=$dir/initrd MODULEDIR=$MODULEDIR VERSION=$VERSION \
+		run-parts "$CONFDIR"/scripts
+}
+
+ORIGDIR=`pwd`
+PROG="$0"
+
+CONFDIR=/etc/mkinitrd
+unset keep croot cmkimage out || :
+
+while getopts "d:km:o:r:" flag; do
+	case $flag in
+	d)
+		CONFDIR="$OPTARG"
+		if [ ! -d "$CONFDIR" ]; then
+			echo "$PROG: $CONFDIR: Not a directory" >&2
+			exit 1
+		fi
+		[ -z "${CONFDIR##/*}" ] || CONFDIR="$ORIGDIR/$CONFDIR"
+		;;
+	k)
+		keep=yes
+		;;
+	m)
+		cmkimage=$OPTARG
+		;;
+	o)
+		initrd_file="${OPTARG}"
+		out=yes
+		;;
+	r)
+		croot=$OPTARG
+		;;
+	*)
+		usage
+		;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+if ! [ $out ] || [ $# -gt 1 ]; then
+	usage
+fi
+
+VERSION=$1
+[ $# -gt 0 ] || unset VERSION
+case $VERSION in
+/lib/modules/*/[!/]*)
+	;;
+/lib/modules/[!/]*)
+	VERSION=${VERSION#/lib/modules/}
+	VERSION=${VERSION%%/*}
+	;;
+esac
+
+case $VERSION in
+*/*)
+	echo $PROG: $VERSION is not a valid kernel version >&2
+	exit 1
+	;;
+esac
+
+VERSION="${VERSION-$(uname -r)}"
+MODULEDIR="${VERSION:+/lib/modules/$VERSION}"
+
+if [ ! -f "$CONFDIR"/mkinitrd.conf ]; then
+	echo "$PROG: $CONFDIR/mkinitrd.conf: Configuration file not found" >&2
+	exit 1
+fi
+
+defaults
+. "$CONFDIR"/mkinitrd.conf
+cleanse
+initvars
+
+ROOT=${croot-$ROOT}
+MKIMAGE=${cmkimage-$MKIMAGE}
+
+if [ -d /dev/fd ]; then
+	FD=/dev/fd
+elif [ -d /proc/self/fd ]; then
+	FD=/proc/self/fd
+else
+	echo "$PROG: neither /dev/fd or /proc/self/fd exists!" >&2
+	echo "Try mounting the proc filesystem: mount -tproc none /proc" >&2
+	exit 1
+fi
+
+DSIG=
+exittrap='if [ $DSIG ]; then trap - "$DSIG"; kill -s $DSIG $$; fi'
+trap "$exittrap" EXIT
+for i in HUP INT TERM; do
+	trap "DSIG=$i; exit" $i
+done
+
+workdir=$(mktemp -d -t mkinitrd.XXXXXX)
+eval "$(
+	trap '' HUP INT TERM
+	if [ ! -d $workdir ]; then
+		echo "$PROG: $workdir: Cannot create temporary directory" >&2
+		echo exit 1
+		exit
+	fi
+	if [ $keep ]; then
+		echo "$PROG: The working directory $workdir will be kept." >&2
+	else
+		echo trap "'rm -r $workdir; $exittrap'" EXIT
+	fi
+)"
+
+umask "$UMASK"
+gendir $workdir
+eval "$(printf "$MKIMAGE" $workdir/initrd ${initrd_file})" 3>&1 >&2
+
+if [ -e /etc/mkinitrd/DSDT ]; then
+       echo -n "INITRDDSDT123DSDT123" >>${initrd_file}
+       cat /etc/mkinitrd/DSDT >>${initrd_file}
+fi

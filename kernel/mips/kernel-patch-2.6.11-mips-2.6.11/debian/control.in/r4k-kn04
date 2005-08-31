@@ -1,0 +1,14 @@
+Package: kernel-image-@@KERNVER@@-@@ABIVER@@-r4k-kn04
+Section: base
+Architecture: mipsel
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.76), coreutils, module-init-tools
+Suggests: kernel-doc-@@KERNVER@@, delo
+Description: Linux kernel image for @@KERNVER@@-r4k-kn04
+ This package contains the Linux/MIPS kernel image, the System.map
+ file, and the modules built by the package.
+ .
+ This version is for R4X00 based DECstations with KN04 (or compatible)
+ mainboard, such as the DECstation 5000/150, the Personal DECstation
+ 5000/50 and the DECstation 5000/260.

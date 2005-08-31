@@ -1,0 +1,311 @@
+#!/bin/sh
+
+# usage information
+usage() {
+    echo 'usage:'
+    echo ' -o <output>  - path to output file for compressed kernel image'
+    echo ' -a <arch>    - PowerPC sub-architecture'
+    echo ' -k <kernel>  - path to kernel image file in ELF format'
+    echo ' -s <sysmap>  - path to System.map file'
+    echo ' -i <initrd>  - path to initrd image file'
+    echo ' -d <objdir>  - path to directory with additional object files'
+    echo ' -r <release> - kernel release number'
+    echo ' -n           - do not use an initrd'
+    echo ' -z           - assume the initrd image file is already compressed'
+    echo ' -v           - verbose operation (print commands)'
+
+    exit 0
+}
+
+# echo a shell command if desired, and execute it
+do_cmd() {
+    if test -n "$verbose"; then
+	echo $@
+	eval $@
+    else
+	eval $@ > /dev/null 2>&1
+    fi
+    return
+}
+
+# parse command line
+while getopts o:k:s:i:d:r:a:nzv option; do
+    case "$option" in
+	o) output=$OPTARG ;;
+	k) kernel=$OPTARG ;;
+	s) sysmap=$OPTARG ;;
+	i) initrd=$OPTARG ;;
+	d) objdir=$OPTARG ;;
+	r) release=$OPTARG ;;
+	a) arch=$OPTARG ;;
+	n) noinitrd="Yes" ;;
+	z) compressed="Yes" ;;
+	v) verbose="Yes" ;;
+	*) usage; exit 0 ;;
+    esac
+done
+
+# use non-option arguments as release version and kernel image file if needed
+shift $((OPTIND-1))
+if test -z "$release" -a -n "$1"; then
+    release=$1
+fi
+if test -z "$kernel" -a -n "$2"; then
+    kernel=$2
+fi
+
+# if no sub-architecture was specified, read it from /proc
+if test -z "$arch"; then
+    case $(grep ^machine /proc/cpuinfo) in
+	*PReP*Blackhawk*) arch=ppcbug ;;
+	*PReP*) arch=prep ;;
+	*CHRP*) arch=chrp ;;
+	*)
+	    case $(grep ^pmac-generation /proc/cpuinfo) in
+		*NewWorld) arch=pmac ;;
+		*OldWorld) arch=coff ;;
+	    esac
+	    ;;
+    esac
+fi
+
+test -z "$verbose" || echo === Building for sub-architecture $arch.
+
+# if no kernel was specified, try to find one
+if test -z "$kernel"; then
+
+    # guess the location of a kernel
+    if kernel=/boot/vmlinux-$release; test -n "$release" -a -r $kernel; then
+	:
+    elif kernel=/boot/vmlinux-$(uname -r); test -r $kernel; then
+	:
+    else
+	kernel=""
+    fi
+
+    # we couldn't find a kernel, and therefore give up
+    if test -z "$kernel"; then
+	echo Could not find a kernel image file, please specify one.
+	exit 1
+    fi
+
+    # sanitize the location of the kernel
+    kernel=$(readlink -f $kernel)
+
+fi
+
+test -z "$verbose" || echo === Using kernel image file $kernel.
+
+# if no initrd was specified, try to find one that goes with the kernel
+if test -z "$noinitrd" -a -z "$initrd"; then
+
+    # guess the location of an initrd, but don't try too hard
+    if initrd=${kernel/vmlinux/initrd.img}; test -r $initrd; then
+	:
+    else
+	initrd=""
+    fi
+
+    # sanitize the location of the initrd
+    if test -n "$initrd"; then
+	initrd=$(readlink -f $initrd)
+    fi
+
+fi
+
+test -z "$verbose" -o -z "$initrd" || echo === Using initrd image file $initrd.
+
+# if no release was specified, extract it from the kernel image name
+if test -z "$release"; then
+    release=$(echo $kernel | sed s/.*vmlinux-//)
+    if echo $release | grep -q '2\.[46]\.[0-9]*'; then
+	:
+    else
+	release=""
+    fi
+fi
+
+test -z "$verbose" || echo === Release version seems to be $release.
+
+# if no object file directory was specified, try to find one
+if test -z "$objdir"; then
+
+    # try a default location, then use the current directory
+    if objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
+	:
+    else
+	objdir="$PWD"
+    fi
+fi
+
+test -z "$verbose" || echo === Using object files from $objdir.
+
+# if no output file was specified, source the configuration file
+if test -z "$output" -a -r /etc/mkvmlinuz/output; then
+    . /etc/mkvmlinuz/output
+fi
+
+# we absolutely need an output file, and won't attempt guesses
+if test -z "$output"; then
+    echo Please specify an output file.
+    exit 1
+fi
+
+test -z "$verbose" || echo === Building a bootable compressed kernel image in $output.
+
+# create a work directory
+work=$(mktemp -d)
+
+test -z "$verbose" || echo === Doing build in $work.
+
+# utilities
+ADDNOTE=$objdir/utils/addnote
+HACKOFF=$objdir/utils/hack-coff
+MKNOTE=$objdir/utils/mknote
+MKPREP=$objdir/utils/mkprep
+MKBUGBOOT=$objdir/utils/mkbugboot
+LD=ld
+OBJCOPY=objcopy
+
+GZIP="--force --best"
+
+# libraries and common object files
+libs=$objdir/lib
+objs=$objdir/obj
+case "$arch","$release" in
+    prep,2.6*|ppcbug,2.6*)
+	test -d $objs/simple && objs=$objs/simple
+	if test -r $objs/legacy.o; then prepmap=legacy; else prepmap=prepmap; fi
+	OBJS="$objs/head.o $objs/relocate.o $objs/$prepmap.o $objs/misc.o $objs/misc-prep.o $objs/mpc10x_memory.o"
+	LIBS="$libs/common.a $libs/ppc.a $libs/of.a"
+	dummy=$objs/dummy.o
+	;;
+    pmac,2.6*)
+	test -d $objs/openfirmware && objs=$objs/openfirmware
+	OBJS="$objs/start.o $objs/misc.o $objs/common.o $objs/newworldmain.o"
+	LIBS="$libs/lib.a $libs/ppc.a $libs/of.a $libs/common.a"
+	dummy=$objs/dummy.o
+	;;
+    *,2.6*)
+	test -d $objs/openfirmware && objs=$objs/openfirmware
+	OBJS="$objs/start.o $objs/misc.o $objs/common.o $objs/${arch}main.o"
+	LIBS="$libs/lib.a $libs/ppc.a $libs/of.a $libs/common.a"
+	dummy=$objs/dummy.o
+	;;
+    chrp,2.4*)
+	test -d $objs/chrp && objs=$objs/chrp
+	OBJS="$objs/start.o $objs/main.o $objs/misc.o"
+	OBJS="$OBJS $objs/../common/string.o $objs/../common/ofcommon.o"
+	LIBS="$libs/lib.a $libs/zlib.a $libs/of1275.a"
+	dummy=$objs/../common/dummy.o
+	;;
+esac
+
+# off we go...
+
+# create the compressed kernel image file
+test -z "$verbose" || echo === Creating compressed kernel image vmlinux.gz...
+do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
+do_cmd gzip $work/vmlinux
+
+# create the compressed initrd image file
+if test -n "$initrd"; then
+    test -z "$verbose" || echo === Creating compressed initrd image initrd.gz...
+    if test -n "$compressed"; then
+	do_cmd cp -p $initrd $work/initrd.gz
+    else
+	do_cmd cp -p $initrd $work/initrd
+	do_cmd gzip $work/initrd
+    fi
+fi
+
+# create the raw ELF image file; this is not needed for the miBoot image
+if test "$arch" != miboot; then
+    test -z "$verbose" || echo === Putting everything into ELF image file image.o...
+    do_cmd $OBJCOPY -R .comment $dummy $work/image.o
+    do_cmd $OBJCOPY $work/image.o $work/image.o \
+	--add-section=.image=$work/vmlinux.gz \
+	--set-section-flags=.image=contents,alloc,load,readonly,data
+    if test -n "$sysmap"; then
+	do_cmd $OBJCOPY $work/image.o $work/image.o \
+	    --add-section=.sysmap=$sysmap \
+	    --set-section-flags=.sysmap=contents,alloc,load,readonly,data
+    fi
+    if test -n "$initrd"; then
+	do_cmd $OBJCOPY $work/image.o $work/image.o \
+	    --add-section=.ramdisk=$work/initrd.gz \
+	    --set-section-flags=.ramdisk=contents,alloc,load,readonly,data
+    fi
+fi
+
+# link everything into the final image file and make it bootable
+vmlinuz=$work/vmlinuz.$arch
+LD_ARGS="-T $objdir/boot/ld.script"
+OBJCOPY_ARGS="-R .comment"
+test -z "$verbose" || echo === Creating bootable kernel image file vmlinuz.$arch...
+case "$arch","$release" in
+    chrp,2.6*)
+	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00800000"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $work/image.o $LIBS
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
+	do_cmd cp -p $objdir/boot/note $work
+	do_cmd $ADDNOTE $vmlinuz
+	;;
+    chrp,2.4*)
+	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00800000"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/../common/crt0.o $OBJS $work/image.o $LIBS
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
+	do_cmd $ADDNOTE $vmlinuz
+	;;
+    coff,2.6*)
+	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00500000 -Bstatic"
+	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/coffcrt0.o $OBJS $work/image.o $LIBS
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
+	do_cmd $HACKOFF $vmlinuz
+	;;
+    miboot,2.6*)
+	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
+	do_cmd $OBJCOPY $OBJCOPY_ARGS --add-section=image=$work/vmlinux.gz $objs/dummy.o $vmlinuz
+	if test -n "$initrd"; then
+	    do_cmd $OBJCOPY $OBJCOPY_ARGS --add-section=initrd=$work/initrd.gz $vmlinuz $vmlinuz
+	fi
+	;;
+    pmac,2.6*)
+	LD_ARGS="$LD_ARGS -e _start -Ttext 0x01000000"
+	OBJCOPY_ARGS="--add-section=.note=$work/note $OBJCOPY_ARGS"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $LIBS $work/image.o
+	do_cmd $MKNOTE > $work/note
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
+	;;
+    ppcbug,2.6*)
+	LD_ARGS="$LD_ARGS -Ttext 0x00800000 -Bstatic"
+	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
+	do_cmd $MKBUGBOOT $vmlinuz.tmp $vmlinuz
+	;;
+    prep,2.6*)
+	LD_ARGS="$LD_ARGS -Ttext 0x00800000 -Bstatic"
+	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
+	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
+	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
+	do_cmd $MKPREP -pbp $vmlinuz.tmp $vmlinuz
+	;;
+    *)
+	echo Sorry, I do not know how to handle PowerPC sub-architecture $arch in version $release.
+esac
+
+# move bootable kernel image to its final location
+if test -e $vmlinuz; then
+    test -z "$verbose" || echo === Moving bootable kernel image file to $output...
+    if test -e $output; then
+	echo Output file $output exists, attempting to back it up...
+	mv $output $output.old 2> /dev/null
+    fi
+    cat $vmlinuz > $output
+fi
+
+# clean up
+test -z "$verbose" || echo === Cleaning up...
+rm -rf $work

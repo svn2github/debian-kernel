@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+INSTALL_DATA = install -m 644 -o root -g root
+INSTALL_EXEC = install -m 755 -o root -g root
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp: configure-stamp mkvmlinuz.8
+	dh_testdir
+	touch build-stamp
+
+%.8:	debian/%.sgml
+	/usr/bin/docbook-to-man $< > $@
+
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	rm -f mkvmlinuz.8
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/tmp/usr/sbin
+	$(INSTALL_EXEC) debian/kernel-image.postinst $(CURDIR)/debian/tmp/etc/kernel/postinst.d/mkvmlinuz
+	$(INSTALL_EXEC) debian/kernel-image.postrm $(CURDIR)/debian/tmp/etc/kernel/postrm.d/mkvmlinuz
+	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/tmp/usr/sbin
+	$(INSTALL_DATA) mkvmlinuz.8 $(CURDIR)/debian/tmp/usr/share/man/man8
+	$(INSTALL_DATA) output $(CURDIR)/debian/tmp/etc/mkvmlinuz
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installman
+	dh_installdebconf
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,16 @@
+Source: initrd-tools
+Section: utils
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Jeff Bailey <jbailey@raspberryginger.com>, Bastian Blank <waldi@debian.org>, Steve Langasek <vorlon@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 3)
+
+Package: initrd-tools
+Architecture: all
+Depends: coreutils | fileutils (>= 4.1.9) | stat (>= 3.0), cpio, cramfsprogs (>= 1.1-4), dash, util-linux (>= 2.11b-3)
+Description: tools to create initrd image for prepackaged Linux kernel
+ This package contains tools needed to generate an initrd image suitable for
+ booting a prepackaged Linux kernel image (as shipped with the Debian main
+ distribution).  It does not cater for other uses of initrd at the moment.
+

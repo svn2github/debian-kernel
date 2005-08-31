@@ -1,0 +1,101 @@
+Source: kernel-image-2.4.27-alpha
+Section: devel
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Norbert Tretkowski <nobse@debian.org>
+Standards-Version: 3.6.1.1
+Build-Depends: debhelper, kernel-package (>= 8.042), kernel-tree-2.4.27-11, modutils, gcc-3.3
+
+Package: kernel-headers-2.4.27-2
+Architecture: alpha
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0)
+Provides: kernel-headers, kernel-headers-2.4
+Description: Header files related to Linux kernel version 2.4.27
+ This package provides kernel header files for version 2.4.27, for sites
+ that want the latest kernel headers. Please read
+ /usr/share/doc/kernel-headers-2.4.27-2/debian.README.gz for details
+
+Package: kernel-build-2.4.27-2
+Architecture: alpha
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.4.27-2-generic, kernel-headers-2.4.27-2-smp
+Description: Headers for building modules for Linux 2.4.27
+ This package provides kernel header files for building modules for the
+ precompiled kernel images on alpha.
+
+Package: kernel-headers-2.4.27-2-generic
+Architecture: alpha
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.4.27-2
+Provides: kernel-headers, kernel-headers-2.4
+Description: Linux kernel headers 2.4.27 on Alpha
+ This package provides kernel header files for version 2.4.27 on
+ the Alpha architecture,
+ for sites that want the latest kernel headers.
+ Please read /usr/share/doc/kernel-headers-2.4.27-2-generic/debian.README.gz for
+ details
+
+Package: kernel-image-2.4.27-2-generic
+Architecture: alpha
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.4
+Depends: initrd-tools (>= 0.1.48), coreutils | fileutils (>= 4.0), modutils (>= 2.4.23)
+Suggests: aboot, fdutils, kernel-doc-2.4.27 | kernel-source-2.4.27
+Description: Linux kernel image for version 2.4.27 on Alpha.
+ This package contains the Linux kernel image for version 2.4.27 on
+ the Alpha architecture,
+ the corresponding System.map file, and the modules built by the packager.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ If you wish to update a bootdisk, or to use a bootloader to make
+ installing and using the image easier, we suggest you install the latest
+ fdutils (for formatting a floppy to be used as boot disk), and LILO, for a
+ powerful bootloader. Of course, both these are optional.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.
+
+Package: kernel-headers-2.4.27-2-smp
+Architecture: alpha
+Section: devel
+Priority: optional
+Depends: coreutils | fileutils (>= 4.0), kernel-headers-2.4.27-2
+Provides: kernel-headers, kernel-headers-2.4
+Description: Linux kernel headers 2.4.27 on Alpha SMP
+ This package provides kernel header files for version 2.4.27 on
+ the Alpha architecture with SMP support,
+ for sites that want the latest kernel headers.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ Please read /usr/share/doc/kernel-headers-2.4.27-2-smp/debian.README.gz for
+ details
+
+Package: kernel-image-2.4.27-2-smp
+Architecture: alpha
+Section: base
+Priority: optional
+Provides: kernel-image, kernel-image-2.4
+Depends: initrd-tools (>= 0.1.48), coreutils | fileutils (>= 4.0), modutils (>= 2.4.23)
+Suggests: aboot, fdutils, kernel-doc-2.4.27 | kernel-source-2.4.27
+Description: Linux kernel image for version 2.4.27 on Alpha SMP.
+ This package contains the Linux kernel image for version 2.4.27 on
+ the Alpha architecture with SMP support,
+ the corresponding System.map file, and the modules built by the packager.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+ It also contains scripts that try to ensure that the system is not left in
+ a unbootable state after an update.
+ .
+ If you wish to update a bootdisk, or to use a bootloader to make
+ installing and using the image easier, we suggest you install the latest
+ fdutils (for formatting a floppy to be used as boot disk), and LILO, for a
+ powerful bootloader. Of course, both these are optional.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel from the sources.

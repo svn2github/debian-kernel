@@ -1,0 +1,244 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not suitable for mainline
+# description: disable non-free config options (source files removed in p-n-f)
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/drivers/net/Config.in kernel-source-2.4.26-1/drivers/net/Config.in
+--- kernel-source-2.4.26/drivers/net/Config.in	2004-04-14 23:05:30.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/Config.in	2004-02-22 20:28:19.000000000 +1100
+@@ -184,7 +184,6 @@
+       fi
+       if [ "$CONFIG_PCI" = "y" -o "$CONFIG_EISA" = "y" ]; then
+          tristate '    Generic DECchip & DIGITAL EtherWORKS PCI/EISA' CONFIG_DE4X5
+-         tristate '    Digi Intl. RightSwitch SE-X support' CONFIG_DGRS
+       fi
+       dep_tristate '    Davicom DM910x/DM980x support' CONFIG_DM9102 $CONFIG_PCI
+       dep_tristate '    EtherExpressPro/100 support (eepro100, original Becker driver)' CONFIG_EEPRO100 $CONFIG_PCI
+@@ -258,10 +257,6 @@
+ mainmenu_option next_comment
+ comment 'Ethernet (1000 Mbit)'
+ 
+-dep_tristate 'Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support' CONFIG_ACENIC $CONFIG_PCI
+-if [ "$CONFIG_ACENIC" != "n" ]; then
+-   bool '  Omit support for old Tigon I based AceNICs' CONFIG_ACENIC_OMIT_TIGON_I
+-fi
+ dep_tristate 'D-Link DL2000-based Gigabit Ethernet support' CONFIG_DL2K $CONFIG_PCI
+ dep_tristate 'Intel(R) PRO/1000 Gigabit Ethernet support' CONFIG_E1000 $CONFIG_PCI
+ if [ "$CONFIG_E1000" != "n" ]; then
+
+diff -urN kernel-source-2.4.26/drivers/net/tokenring/Config.in kernel-source-2.4.26-1/drivers/net/tokenring/Config.in
+--- kernel-source-2.4.26/drivers/net/tokenring/Config.in	2004-02-19 00:36:31.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/net/tokenring/Config.in	2004-02-22 20:28:23.000000000 +1100
+@@ -25,10 +25,6 @@
+    dep_tristate '    Generic TMS380 ISA support' CONFIG_TMSISA $CONFIG_ISA $CONFIG_TMS380TR
+    dep_tristate '    Madge Smart 16/4 PCI Mk2 support' CONFIG_ABYSS $CONFIG_PCI $CONFIG_TMS380TR
+    dep_tristate '    Madge Smart 16/4 Ringnode MicroChannel' CONFIG_MADGEMC $CONFIG_MCA $CONFIG_TMS380TR
+-
+-   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_MCA" = "y" ]; then
+-      tristate '  SMC ISA/MCA adapter support' CONFIG_SMCTR
+-   fi
+ fi
+ 
+ endmenu
+diff -urN kernel-source-2.4.26/drivers/usb/Config.in kernel-source-2.4.26-1/drivers/usb/Config.in
+--- kernel-source-2.4.26/drivers/usb/Config.in	2004-02-19 00:36:31.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/usb/Config.in	2004-02-22 20:28:26.000000000 +1100
+@@ -81,7 +81,6 @@
+       dep_tristate '  USB W996[87]CF Camera support' CONFIG_USB_W9968CF $CONFIG_USB $CONFIG_VIDEO_DEV $CONFIG_I2C
+       dep_tristate '  USB 3com HomeConnect (aka vicam) support (EXPERIMENTAL)' CONFIG_USB_VICAM $CONFIG_USB $CONFIG_VIDEO_DEV $CONFIG_EXPERIMENTAL
+       dep_tristate '  D-Link USB FM radio support (EXPERIMENTAL)' CONFIG_USB_DSBR $CONFIG_USB $CONFIG_VIDEO_DEV $CONFIG_EXPERIMENTAL
+-      dep_tristate '  DABUSB driver' CONFIG_USB_DABUSB $CONFIG_USB
+    fi
+ 
+    comment 'USB Network adaptors'
+diff -urN kernel-source-2.4.26/drivers/usb/serial/Config.in kernel-source-2.4.26-1/drivers/usb/serial/Config.in
+--- kernel-source-2.4.26/drivers/usb/serial/Config.in	2003-06-14 00:51:36.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/usb/serial/Config.in	2003-06-01 20:43:53.000000000 +1000
+@@ -20,20 +20,6 @@
+    dep_tristate '  USB Inside Out Edgeport Serial Driver (TI devices)' CONFIG_USB_SERIAL_EDGEPORT_TI $CONFIG_USB_SERIAL
+    dep_tristate '  USB Keyspan PDA Single Port Serial Driver (EXPERIMENTAL)' CONFIG_USB_SERIAL_KEYSPAN_PDA $CONFIG_USB_SERIAL $CONFIG_EXPERIMENTAL
+    dep_tristate '  USB Keyspan USA-xxx Serial Driver' CONFIG_USB_SERIAL_KEYSPAN $CONFIG_USB_SERIAL
+-   if [ "$CONFIG_USB_SERIAL_KEYSPAN" != "n" ]; then
+-      bool '    USB Keyspan USA-28 Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA28
+-      bool '    USB Keyspan USA-28X Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA28X
+-      bool '    USB Keyspan USA-28XA Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA28XA
+-      bool '    USB Keyspan USA-28XB Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA28XB
+-      bool '    USB Keyspan USA-19 Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA19
+-      bool '    USB Keyspan USA-18X Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA18X
+-      bool '    USB Keyspan USA-19W Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA19W
+-      bool '    USB Keyspan USA-19QW Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA19QW
+-      bool '    USB Keyspan USA-19QI Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA19QI
+-      bool '    USB Keyspan MPR Firmware' CONFIG_USB_SERIAL_KEYSPAN_MPR
+-      bool '    USB Keyspan USA-49W Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA49W
+-      bool '    USB Keyspan USA-49WLC Firmware' CONFIG_USB_SERIAL_KEYSPAN_USA49WLC
+-   fi
+    dep_tristate '  USB MCT Single Port Serial Driver' CONFIG_USB_SERIAL_MCT_U232 $CONFIG_USB_SERIAL
+    dep_tristate '  USB KL5KUSB105 (Palmconnect) Driver' CONFIG_USB_SERIAL_KLSI $CONFIG_USB_SERIAL
+    dep_tristate '  USB KOBIL chipcard reader (EXPERIMENTAL)' CONFIG_USB_SERIAL_KOBIL_SCT $CONFIG_USB_SERIAL $CONFIG_EXPERIMENTAL
+--- a/Documentation/Configure.help
++++ b/Documentation/Configure.help
+@@ -11931,31 +11931,6 @@
+   say M here and read <file:Documentation/modules.txt>.  This is
+   recommended.  The module will be called starfire.o.
+ 
+-Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support
+-CONFIG_ACENIC
+-  Say Y here if you have an Alteon AceNIC, 3Com 3C985(B), NetGear
+-  GA620, SGI Gigabit or Farallon PN9000-SX PCI Gigabit Ethernet
+-  adapter. The driver allows for using the Jumbo Frame option (9000
+-  bytes/frame) however it requires that your switches can handle this
+-  as well. To enable Jumbo Frames, add `mtu 9000' to your ifconfig
+-  line.
+-
+-  If you want to compile this driver as a module ( = code which can be
+-  inserted in and removed from the running kernel whenever you want),
+-  say M here and read <file:Documentation/modules.txt>.  This is
+-  recommended.  The module will be called acenic.o.
+-
+-Omit support for old Tigon I based AceNICs
+-CONFIG_ACENIC_OMIT_TIGON_I
+-  Say Y here if you only have Tigon II based AceNICs and want to leave
+-  out support for the older Tigon I based cards which are no longer
+-  being sold (ie. the original Alteon AceNIC and 3Com 3C985 (non B
+-  version)).  This will reduce the size of the driver object by
+-  app. 100KB.  If you are not sure whether your card is a Tigon I or a
+-  Tigon II, say N here.
+-
+-  The safe and default value for this is N.
+-
+ Marvell Yukon / SysKonnect SK-98xx and SK-95xx Gigabit Ethernet Adapter family support
+ CONFIG_SK98LIN
+   Say Y here if you have a Marvell Yukon or SysKonnect SK-98xx/SK-95xx
+@@ -13005,21 +12980,6 @@
+   obscure bugs if your mainboard has memory controller timing issues.
+   If in doubt, say N.
+ 
+-Digi Intl. RightSwitch SE-X support
+-CONFIG_DGRS
+-  This is support for the Digi International RightSwitch series of
+-  PCI/EISA Ethernet switch cards. These include the SE-4 and the SE-6
+-  models.  If you have a network card of this type, say Y and read the
+-  Ethernet-HOWTO, available from
+-  <http://www.tldp.org/docs.html#howto>.  More specific
+-  information is contained in <file:Documentation/networking/dgrs.txt>.
+-
+-  This driver is also available as a module ( = code which can be
+-  inserted in and removed from the running kernel whenever you want).
+-  The module will be called dgrs.o.  If you want to compile it as a
+-  module, say M here and read <file:Documentation/modules.txt> as well
+-  as <file:Documentation/networking/net-modules.txt>.
+-
+ EtherExpress Pro/100 support
+ CONFIG_EEPRO100
+   If you have an Intel EtherExpress PRO/100 PCI network (Ethernet)
+@@ -13425,22 +13385,6 @@
+   The module will be called madgemc.o. If you want to compile it
+   as a module, say M here and read <file:Documentation/modules.txt>.
+ 
+-SMC ISA/MCA Token Ring adapter support
+-CONFIG_SMCTR
+-  This is support for the ISA and MCA SMC Token Ring cards,
+-  specifically SMC TokenCard Elite (8115T) and SMC TokenCard Elite/A
+-  (8115T/A) adapters.
+-
+-  If you have such an adapter and would like to use it, say Y or M and
+-  read the Token-Ring mini-HOWTO, available from
+-  <http://www.tldp.org/docs.html#howto> and the file
+-  <file:Documentation/networking/smctr.txt>.
+-
+-  This driver is also available as a module ( = code which can be
+-  inserted in and removed from the running kernel whenever you want).
+-  The module will be called smctr.o. If you want to compile it
+-  as a module, say M here and read <file:Documentation/modules.txt>.
+-
+ 3COM 3C359 Token Link Velocity XL PCI adapter support
+ CONFIG_3C359
+   This is support for the 3Com PCI Velocity XL cards, specifically
+@@ -15263,55 +15394,6 @@
+   The module will be called keyspan.o. If you want to compile it as a
+   module, say M here and read <file:Documentation/modules.txt>.
+ 
+-USB Keyspan USA-28 Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA28
+-  Say Y here to include firmware for the USA-28 converter.
+-
+-USB Keyspan USA-28X Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA28X
+-  Say Y here to include firmware for the USA-28X converter.
+-  Be sure you have a USA-28X, there are also 28XA and 28XB
+-  models, the label underneath has the actual part number.
+-
+-USB Keyspan USA-28XA Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA28XA
+-  Say Y here to include firmware for the USA-28XA converter.
+-  Be sure you have a USA-28XA, there are also 28X and 28XB
+-  models, the label underneath has the actual part number.
+-
+-USB Keyspan USA-28XB Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA28XB
+-  Say Y here to include firmware for the USA-28XB converter.
+-  Be sure you have a USA-28XB, there are also 28X and 28XA
+-  models, the label underneath has the actual part number.
+-
+-USB Keyspan USA-19 Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA19
+-  Say Y here to include firmware for the USA-19 converter.
+-
+-USB Keyspan USA-18X Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA18X
+-  Say Y here to include firmware for the USA-18X converter.
+-
+-USB Keyspan USA-19W Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA19W
+-  Say Y here to include firmware for the USA-19W converter.
+-
+-USB Keyspan USA-19QW Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA19QW
+-  Say Y here to include firmware for the USA-19QW converter.
+-
+-USB Keyspan USA-19QI Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA19QI
+-  Say Y here to include firmware for the USA-19QI converter.
+-
+-USB Keyspan USA-49W Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_USA49W
+-  Say Y here to include firmware for the USA-49W converter.
+-
+-CONFIG_USB_SERIAL_KEYSPAN_USA49WLC
+-  Say Y here to include firmware for the USA-49WLC converter.
+-
+ USB ZyXEL omni.net LCD Plus Driver
+ CONFIG_USB_SERIAL_OMNINET
+   Say Y here if you want to use a ZyXEL omni.net LCD ISDN TA.
+@@ -15975,19 +15919,6 @@
+   about USB bandwidth usage to be logged and some devices or
+   drivers may not work correctly.
+ 
+-DABUSB driver
+-CONFIG_USB_DABUSB
+-  A Digital Audio Broadcasting (DAB) Receiver for USB and Linux
+-  brought to you by the DAB-Team (<http://dab.in.tum.de/>).  This
+-  driver can be taken as an example for URB-based bulk, control, and
+-  isochronous transactions. URB's are explained in
+-  <file:Documentation/usb/URB.txt>.
+-
+-  This code is also available as a module ( = code which can be
+-  inserted in and removed from the running kernel whenever you want).
+-  The module will be called dabusb.o.  If you want to compile it as a
+-  module, say M here and read <file:Documentation/modules.txt>.
+-
+ Host-to-Host USB networking
+ CONFIG_USB_USBNET
+   This driver supports network links over USB with USB "Network"
+@@ -26518,10 +26449,6 @@
+   The module will be called io_ti.o.  If you want to compile it
+   as a module, say M here and read <file:Documentation/modules.txt>.
+ 
+-USB Keyspan MPR Firmware
+-CONFIG_USB_SERIAL_KEYSPAN_MPR
+-  Say Y here to include firmware for the Keyspan MPR converter.
+-
+ Winbond W83977AF IrDA Device Driver
+ CONFIG_WINBOND_FIR
+   Say Y here if you want to build IrDA support for the Winbond

@@ -1,0 +1,57 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/06 20:55:36-08:00 davem@nuts.davemloft.net 
+#   [SPARC64]: Add missing membars for xchg() and cmpxchg().
+#   
+#   read_unlock should order all previous memory operations
+#   before the atomic counter update to drop the lock.
+#   The debugging version of write_unlock had a similar error.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# arch/sparc64/lib/rwlock.S
+#   2005/02/06 20:54:57-08:00 davem@nuts.davemloft.net +2 -1
+#   [SPARC64]: Correct rwlock membars.
+# 
+# arch/sparc64/lib/debuglocks.c
+#   2005/02/06 20:54:57-08:00 davem@nuts.davemloft.net +2 -0
+#   [SPARC64]: Correct rwlock membars.
+# 
+diff -Nru a/arch/sparc64/lib/debuglocks.c b/arch/sparc64/lib/debuglocks.c
+--- a/arch/sparc64/lib/debuglocks.c	2005-02-09 09:11:29 -08:00
++++ b/arch/sparc64/lib/debuglocks.c	2005-02-09 09:11:29 -08:00
+@@ -162,6 +162,7 @@
+ runlock_again:
+ 	/* Spin trying to decrement the counter using casx.  */
+ 	__asm__ __volatile__(
++"	membar	#StoreLoad | #LoadLoad\n"
+ "	ldx	[%0], %%g5\n"
+ "	sub	%%g5, 1, %%g7\n"
+ "	casx	[%0], %%g5, %%g7\n"
+@@ -276,6 +277,7 @@
+ 	current->thread.smp_lock_count--;
+ wlock_again:
+ 	__asm__ __volatile__(
++"	membar	#StoreLoad | #LoadLoad\n"
+ "	mov	1, %%g3\n"
+ "	sllx	%%g3, 63, %%g3\n"
+ "	ldx	[%0], %%g5\n"
+diff -Nru a/arch/sparc64/lib/rwlock.S b/arch/sparc64/lib/rwlock.S
+--- a/arch/sparc64/lib/rwlock.S	2005-02-09 09:11:29 -08:00
++++ b/arch/sparc64/lib/rwlock.S	2005-02-09 09:11:29 -08:00
+@@ -24,12 +24,13 @@
+ 99:	retl
+ 	 nop
+ __read_unlock: /* %o0 = lock_ptr */
++	membar		#StoreLoad | #LoadLoad
+ 	lduw		[%o0], %g5
+ 	sub		%g5, 1, %g7
+ 	cas		[%o0], %g5, %g7
+ 	cmp		%g5, %g7
+ 	be,pt		%xcc, 99b
+-	 membar		#StoreLoad | #StoreStore
++	 nop
+ 	ba,a,pt		%xcc, __read_unlock
+ 
+ __read_wait_for_writer:

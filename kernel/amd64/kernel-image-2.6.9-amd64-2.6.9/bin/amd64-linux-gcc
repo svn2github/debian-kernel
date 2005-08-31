@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#echo >&2 cc "$@"
+ARGS="$@"
+M64="-m64"
+
+while [ $# -gt 1 ]; do
+  if [ "$1" = "-m32" ]; then
+    M64=""
+    break;
+  fi
+  shift
+done
+
+gcc-3.4 $M64 $ARGS

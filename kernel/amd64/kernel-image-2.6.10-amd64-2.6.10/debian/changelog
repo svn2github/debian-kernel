@@ -1,0 +1,228 @@
+kernel-image-2.6.10-amd64 (2.6.10-5) unstable; urgency=low
+
+  * Added versioned dependency on e2fsprogs (>= 1.35-7), needed for
+    successfull installation on 32bit userland systems.
+  * Updated kernel images description.
+  * Rebuild with kernel-source-2.6.10 version 2.6.10-6.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue, 15 Mar 2005 00:18:53 +0100
+
+kernel-image-2.6.10-amd64 (2.6.10-4) unstable; urgency=low
+
+  * Set CONFIG_EXT2_FS=y to make D-I working with the generic kernel.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed,  9 Feb 2005 20:52:26 +0100
+
+kernel-image-2.6.10-amd64 (2.6.10-3) unstable; urgency=low
+
+  * Rebuild with kernel-source-2.6.10 version 2.6.10-5.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue,  8 Feb 2005 18:02:29 +0100
+
+kernel-image-2.6.10-amd64 (2.6.10-2) unstable; urgency=low
+
+  * Enable CONFIG_EFI_PARTITION (Christoph Hellwig)
+  * Acivated CONFIG_AUDIT for better selinux support. (Frederik Schüler)
+  * Rebuild with kernel-source-2.6.9 version 2.6.9-4. (Frederik Schüler)
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed, 19 Jan 2005 12:03:47 +0100
+
+kernel-image-2.6.10-amd64 (2.6.10-1) unstable; urgency=low
+
+  * Frederik Schüler
+    - New upstream release.
+    - Kernel images now depend on initrd-tools >= 0.1.76.
+    - Built with kernel-source-2.6.10 version 2.6.10-3.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sun,  9 Jan 2005 18:31:22 +0100
+
+kernel-image-2.6.9-amd64 (2.6.9-5) unstable; urgency=high
+
+  * Bumped SONAME.
+  * Rebuilt with kernel-source-2.6.9-4.
+  * Urgency: high because this release fixes some security issues.
+  * set CONFIG_SECURITY_CAPABILITIES=y to work around security issue.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Thu, 30 Dec 2004 09:08:05 +0100
+
+kernel-image-2.6.9-amd64 (2.6.9-4) unstable; urgency=low
+
+  * Removed kernel-image-2.6-* and kernel-headers-2.6-* packages, they are
+    now provided by the new kernel-latest-2.6-amd64 package.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Fri,  3 Dec 2004 19:36:20 +0100
+
+kernel-image-2.6.9-amd64 (2.6.9-3) unstable; urgency=low
+
+  *  Rebuild with new kernel-source version 2.6.9-3
+
+ -- Frederik Schüler <fschueler@gmx.net>  Thu,  2 Dec 2004 11:59:56 +0100
+
+kernel-image-2.6.9-amd64 (2.6.9-2) unstable; urgency=low
+
+  * Frederik Schüler
+    - Deactivated CONFIG_BLK_DEV_UB
+    - Deactivated CONFIG_MEGARAID_NEWGEN in favor of
+      CONFIG_MEGARAID_LEGACY
+    - Activated SELinux support.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed, 10 Nov 2004 16:35:34 +0100
+
+kernel-image-2.6.9-amd64 (2.6.9-1) unstable; urgency=low
+
+  * Frederik Schüler
+    - New upstream release.
+    - Unset CONFIG_PCI_MSI, this should fix emachines laptop problems.
+    - According to upstream CONFIG_SOFTWARE_SUSPEND is fixed on amd64 now, 
+      enabling it.
+  
+ -- Frederik Schüler <fschueler@gmx.net>  Sat, 23 Oct 2004 17:08:10 +0200
+
+kernel-image-2.6.8-amd64 (2.6.8-5) unstable; urgency=high
+
+  * Frederik Schüler
+    - Kind of resolve the kernel-headers-2.6.8 binary package issue on i386
+      by using a high soname for the packages. Closes: #273672
+    - Updated package descriptions.
+    - Fixed most of the lintian warnings.
+    - Build-depend on kernel-tree-2.6.8-7.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sun,  3 Oct 2004 15:38:30 +0200
+
+kernel-image-2.6.8-amd64 (2.6.8-4) unstable; urgency=high
+
+  * Frederik Schüler
+    - Urgency set to high because this has to go into sarge.
+    - Replaced amd64-xeon flavour with em64t-p4 and em64t-p4-smp flavours.
+      This hopefully will be the last name change of a kernel-image before
+      Sarge releases.
+    - Build-depend on gcc-3.4 on amd64.
+    - Build-depend on kernel-tree-2.6.8-6.
+    - Updated packages descriptions in control file.
+    - Disabled CONFIG_USB_STORAGE_RW_DETECT to fix #268184 on amd64 too.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Mon, 20 Sep 2004 00:45:05 +0200
+
+kernel-image-2.6.8-amd64 (2.6.8-3) unstable; urgency=high
+
+  * Frederik Schüler:
+    - Removed MTD drivers for all BIOS chips as requested in #257631
+    - Activated Message Signaled Interrupts for all kernel flavours
+    - Activated Initio INI-A100U2W SCSI module
+    - Activated Dallas Semiconductor DS1621 and DS1625 sensors modules
+    - Activated new Zoran ZR36057/36067 based video modules
+    - Deactivated CONFIG_PREEMPT and CONFIG_IDE_TASKFILE_IO
+    - Activated CONFIG_IDEDMA_ONLYDISK in the generic flavour to prevent
+      installation problems
+    - Rebuild with final 2.6.8-5 source package
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sun, 29 Aug 2004 21:46:38 +0200
+
+kernel-image-2.6.8-amd64 (2.6.8-2) unstable; urgency=high
+
+  * Frederik Schüler:
+    - Set CONFIG_AGP=m CONFIG_AGP_INTEL_MCH=m for amd64-xeon flavour
+    - Fixed typos in packages description: e64mt -> em64t
+    - Added missing cross-compile wrapper scripts to allow building on i386.
+
+  * Roberto Lumbreras:
+    - Sponsoring the upload
+    - Removed i386 from architecture list of kernel-headers-2.6.8-2, it is
+      already provided by kernel-image-2.6.8-i386 and hacked debian/rules so
+      make-kpkg does not compliant
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue, 24 Aug 2004 20:53:15 +0200
+
+kernel-image-2.6.8-amd64 (2.6.8-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Frederik Schüler <fschueler@gmx.net>  Mon, 16 Aug 2004 17:05:57 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-6) unstable; urgency=low
+
+  * Goswin von Brederlow:
+    - Add i386 to Architecture: in debian/control
+    - Set KPKG_ARCH=amd64 on i386 for cross builds
+    - Add Build-Depends for biarch gcc-3.4 on i386
+    - Add bin/amd64-linux-* wrappers to use the right gcc and flags
+    - Build-Depend on new enough dpkg-dev that knows amd64
+
+  * Frederik Schüler:
+    - Build-depend on kernel-tree-2.6.7-4
+    - Kernel-headers-* has to depend on kernel-kbuild-2.6-3
+    - Updated copyright
+    - Rebuilt with new 2.6.7-4 kernel tree
+
+ -- Frederik Schüler <fschueler@gmx.net>  Fri, 13 Aug 2004 17:43:53 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-5) unstable; urgency=low
+
+  * Frederik Schüler: 
+    - renamed flavours:
+      generic -> amd64-generic
+      k8      -> amd64-k8
+      k8-smp  -> amd64-k8-smp
+      nocona  -> amd64-xeon
+    - Changed maintainer field to Debian Kernel Team
+
+ -- Frederik Schüler <fschueler@gmx.net>  Thu, 15 Jul 2004 00:16:19 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-4) unstable; urgency=low
+
+  * built against kernel-tree-2.6.7-3
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sun, 11 Jul 2004 20:05:37 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-3) unstable; urgency=low
+
+  * Synced with kernel-image-2.6.6-i386 files and scripts
+  * Added a workaround to post-install and headers-install to
+    realize $DEB_HOST_ARCH != x86_64
+  * Added Intel nocona kernel support (no k8-numa and no iommu, but 
+    hyperthreading and smp by default on -nocona kernel flavour)
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed, 30 Jun 2004 00:37:27 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-2) unstable; urgency=low
+
+  * built against kernel-tree 2.6.7-2
+
+ -- Frederik Schüler <fschueler@gmx.net>  Mon, 28 Jun 2004 19:50:37 +0200
+
+kernel-image-2.6.7-amd64 (2.6.7-1) unstable; urgency=low
+
+  * repackaged kernel 2.6.7.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue, 22 Jun 2004 17:25:43 +0200
+
+kernel-image-2.6.6-amd64 (2.6.6-4) unstable; urgency=low
+
+  * made usb and full hid static
+  * removed preempt
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sat,  5 Jun 2004 22:53:06 +0200
+
+kernel-image-2.6.6-amd64 (2.6.6-3) unstable; urgency=low
+
+  * don't mount devfs by default on k8 and k8-smp 
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue, 25 May 2004 16:10:05 +0200
+
+kernel-image-2.6.6-amd64 (2.6.6-2) unstable; urgency=low
+
+  * raised reamdisk size to 65536K
+
+ -- Frederik Schüler <fschueler@gmx.net>  Mon, 24 May 2004 18:40:54 +0200
+
+kernel-image-2.6.6-amd64 (2.6.6-1) unstable; urgency=low
+
+  * repackaged kernel 2.6.6
+
+ -- Frederik Schüler <fschueler@gmx.net>  Sat, 22 May 2004 01:13:48 +0200
+
+kernel-image-2.6.5-amd64 (2.6.5-1) unstable; urgency=low
+
+  * initial release
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue,  6 Apr 2004 22:52:18 +0200

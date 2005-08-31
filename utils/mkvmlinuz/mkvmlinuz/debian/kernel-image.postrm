@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_get mkvmlinuz/bootloaders
+bootloader="$RET"
+
+# Let's erase the kernel created by mkvmlinuz too.
+if [ "$bootloader" = mkvmlinuz ]; then
+    vmlinuz=`echo $2 | sed -e 's/vmlinux/vmlinuz/'`
+    rm -f $vmlinuz
+    if [ -e "$vmlinuz.old" ]; then
+	mv $vmlinuz.old $vmlinuz
+    fi
+fi

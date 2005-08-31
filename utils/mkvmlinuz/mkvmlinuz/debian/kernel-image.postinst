@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_get mkvmlinuz/bootloaders
+bootloader="$RET"
+
+if [ "$bootloader" = mkvmlinuz ]; then
+    /usr/sbin/mkvmlinuz $1 $2
+fi

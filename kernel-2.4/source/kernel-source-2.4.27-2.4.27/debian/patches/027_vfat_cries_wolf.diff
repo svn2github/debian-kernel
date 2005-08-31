@@ -1,0 +1,18 @@
+# origin: Debian, #168886
+# cset: n/a
+# inclusion: not submitted
+# description: replace bogus BUG() with a printk
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/fs/fat/file.c kernel-source-2.4.26-1/fs/fat/file.c
+--- kernel-source-2.4.26/fs/fat/file.c	2001-08-13 03:56:56.000000000 +1000
++++ kernel-source-2.4.26-1/fs/fat/file.c	2003-07-18 21:30:37.000000000 +1000
+@@ -63,7 +63,7 @@
+ 	if (!create)
+ 		return 0;
+ 	if (iblock << sb->s_blocksize_bits != MSDOS_I(inode)->mmu_private) {
+-		BUG();
++		printk("FAT: invalid block: %ld %lu\n", iblock, MSDOS_I(inode)->mmu_private);
+ 		return -EIO;
+ 	}
+ 	if (!(iblock % MSDOS_SB(inode->i_sb)->cluster_size)) {

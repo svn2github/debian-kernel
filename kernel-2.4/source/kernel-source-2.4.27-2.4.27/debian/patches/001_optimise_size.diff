@@ -1,0 +1,50 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not suitable for mainline
+# description: allow compilation using -Os over -O2
+# revision date: 2004-09-05
+
+--- kernel-source-2.4.27-2.4.27/Documentation/Configure.help~	2004-08-10 23:53:40.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/Documentation/Configure.help	2004-08-10 23:54:32.000000000 -0700
+@@ -26057,6 +26057,11 @@
+   you are concerned with the code size or don't want to see these
+   messages.
+ 
++Optimise kernel by size
++CONFIG_OPTIMISE_SIZE
++  If you say Y here, the resulting kernel will be slightly slower but
++  smaller.  Say N unless you have extreme resource constraints.
++
+ Compile kernel with frame pointer
+ CONFIG_FRAME_POINTER
+   If you say Y here, the resulting kernel will be slightly larger and
+--- kernel-source-2.4.27-2.4.27/Makefile~	2004-08-10 23:56:13.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/Makefile	2004-08-10 23:55:29.000000000 -0700
+@@ -91,7 +91,14 @@
+ 
+ CPPFLAGS := -D__KERNEL__ -I$(HPATH)
+ 
+-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
++ifdef CONFIG_OPTIMISE_SIZE
++# I strive to cast both spellings into public light.  -joshk
++optimize = -Os
++else
++optimize = -O2
++endif
++
++CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs $(optimize) \
+ 	  -fno-strict-aliasing -fno-common
+ ifndef CONFIG_FRAME_POINTER
+ CFLAGS += -fomit-frame-pointer
+
+--- kernel-source-2.4.27-2.4.27/arch/i386/config.in~
++++ kernel-source-2.4.27-2.4.27/arch/i386/config.in
+@@ -345,6 +349,8 @@
+ 
+ source drivers/acpi/Config.in
+ 
++bool 'Optimise the kernel by size' CONFIG_OPTIMISE_SIZE
++
+ endmenu
+ 
+ source drivers/mtd/Config.in

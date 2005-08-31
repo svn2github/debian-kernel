@@ -1,0 +1,44 @@
+# origin: davem (BitKeeper)
+# cset: 1.1499.1.2
+# inclusion: upstream
+# description: [SECURITY] Serialize dgram read using semaphore
+# revision date: 2004-11-15 14:06:05-08:00
+#
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/15 14:06:05-08:00 davem@nuts.davemloft.net 
+#   [AF_UNIX]: Serialize dgram read using semaphore just like stream.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/unix/af_unix.c
+#   2004/11/15 14:05:55-08:00 davem@nuts.davemloft.net +5 -1
+#   [AF_UNIX]: Serialize dgram read using semaphore just like stream.
+# 
+diff -Nru a/net/unix/af_unix.c b/net/unix/af_unix.c
+--- a/net/unix/af_unix.c	2004-12-13 19:12:05 -08:00
++++ b/net/unix/af_unix.c	2004-12-13 19:12:05 -08:00
+@@ -1403,9 +1403,11 @@
+ 
+ 	msg->msg_namelen = 0;
+ 
++	down(&sk->protinfo.af_unix.readsem);
++
+ 	skb = skb_recv_datagram(sk, flags, noblock, &err);
+ 	if (!skb)
+-		goto out;
++		goto out_unlock;
+ 
+ 	wake_up_interruptible(&sk->protinfo.af_unix.peer_wait);
+ 
+@@ -1449,6 +1451,8 @@
+ 
+ out_free:
+ 	skb_free_datagram(sk,skb);
++out_unlock:
++	up(&sk->protinfo.af_unix.readsem);
+ out:
+ 	return err;
+ }

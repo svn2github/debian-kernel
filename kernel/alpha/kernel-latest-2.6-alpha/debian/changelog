@@ -1,0 +1,15 @@
+kernel-latest-2.6-alpha (101) unstable; urgency=high
+
+  * updated for 2.6.8-2
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sun, 09 Jan 2005 11:36:23 +0100
+
+kernel-latest-2.6-alpha (100) unstable; urgency=high
+
+  * this is a new package containing these metapackages:
+    - kernel-image-2.6-generic
+    - kernel-image-2.6-smp
+    - kernel-headers-2.6-generic
+    - kernel-headers-2.6-smp
+
+ -- Norbert Tretkowski <nobse@debian.org>  Sat, 28 Aug 2004 22:28:32 +0200

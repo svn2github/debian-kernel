@@ -1,0 +1,49 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: fix crash on ide-core unload
+# revision date: 2004-09-04
+
+--- linux-2.4.27/drivers/ide/ide-proc.c	2004-04-14 15:05:29.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/ide-proc.c	2004-08-11 23:52:58.000000000 +0200
+@@ -895,6 +895,16 @@
+ EXPORT_SYMBOL(destroy_proc_ide_interfaces);
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
++static inline void create_pci_proc_entry(ide_pci_host_proc_t *p)
++{
++	if (p->name == NULL || p->set != 1 || p->get_info == NULL) 
++		return;
++
++	p->parent = proc_ide_root;
++	create_proc_info_entry(p->name, 0, p->parent, p->get_info);
++	p->set = 2;
++}
++
+ void ide_pci_register_host_proc (ide_pci_host_proc_t *p)
+ {
+ 	ide_pci_host_proc_t *tmp;
+@@ -908,6 +918,9 @@
+ 		tmp->next = p;
+ 	} else
+ 		ide_pci_host_proc_list = p;
++
++	if (proc_ide_root)
++		create_pci_proc_entry(p);
+ }
+ 
+ EXPORT_SYMBOL(ide_pci_register_host_proc);
+@@ -931,12 +944,7 @@
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+ 	while (p != NULL)
+ 	{
+-		if (p->name != NULL && p->set == 1 && p->get_info != NULL) 
+-		{
+-			p->parent = proc_ide_root;
+-			create_proc_info_entry(p->name, 0, p->parent, p->get_info);
+-			p->set = 2;
+-		}
++		create_pci_proc_entry(p);
+ 		p = p->next;
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEPCI */

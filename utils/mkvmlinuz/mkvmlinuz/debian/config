@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+case $(grep ^machine /proc/cpuinfo) in
+    *PReP*Blackhawk*) arch=ppcbug ;;
+    *PReP*) arch=prep ;;
+    *CHRP*Pegasos*) arch=chrp_pegasos ;;
+    *CHRP*) arch=chrp ;;
+    *Amiga*) arch=apus ;;
+    *iSeries*) arch=iseries ;;
+    *)
+	case $(grep ^pmac-generation /proc/cpuinfo) in
+	    *NewWorld) arch=pmac_newworld ;;
+	    *OldWorld) arch=pmac_oldworld ;;
+	    *NuBus) arch=pmac_nubus ;;
+	    *) arch=unknown ;;
+	esac
+	;;
+esac
+
+# List of bootloader per subarch.
+case $arch in
+    chrp|pmac_newworld) bootloaders="yaboot, mkvmlinuz" ;;
+    pmac_oldworld) bootloaders="quik, mkvmlinuz" ;;
+    ppcbug|prep|chrp_pegasos) bootloaders="mkvmlinuz" ;;
+    *) bootloaders="unknown" ;;
+esac
+
+# If there is more than one bootloader present, ask the user
+# at medium priority
+
+db_subst mkvmlinuz/bootloaders choices "$bootloaders"
+db_subst mkvmlinuz/bootloaders default "${bootloaders%, *}"
+db_input medium mkvmlinuz/bootloaders || true
+db_go || true

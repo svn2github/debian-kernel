@@ -1,0 +1,1564 @@
+kernel-source-2.4.29 (2.4.29-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * Patches removed
+    - 008_DAC960_alpha_fw.diff (merged)
+    - 025_proc_tty_security.diff (backport)
+    - 073_tg3_hw_autoneg.diff (backport)
+    - 077_isofs_ignore_volseqno.diff (irrelevant)
+    - 093_tty_lockup.diff (backport)
+    - 114-binfmt_aout-CAN-2004-1074.diff (backport)
+  * Patches added
+    - 097_ipsec.diff (Herbert's backport)
+    - 098_skb_reset_ip_summed.diff: resolve checksumming exploit in
+      fragmented packet forwarding
+    - 099_io_edgeport_overflow.diff: [CAN-2004-1017] fix buffer overflow
+      (underflow, really) that opens multiple attack vectors.
+    - 100_VM_IO.diff: [CAN-2004-1057] fix possible DoS from accessing freed
+      kernel pages by flagging VM_IO where necessary.
+    - 101-503: add Willy Tarreau's hotfix patchset (2.4.29-hf2), addressing
+      some new security issues and bugs in 2.4.29
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Fri, 18 Feb 2005 11:02:54 -0800
+
+kernel-source-2.4.28 (2.4.28-1) unstable; urgency=low
+
+  * New upstream release. (Not actually uploaded - see above.)
+  * Patches removed (merged upstream, or were backports to begin with):
+    - 000_panic_vsnprintf.diff
+    - 020_cpqphp_proc_cond.diff
+    - 022_radeonfb_fixes.diff
+    - 064_driver_MODULE_LICENSE.diff
+    - 065_copy_user_parens.diff
+    - 068_ehci_oops.diff
+    - 074_fealnx_ampersand.diff
+    - 094_menuconfig_crash.diff
+  * Patches removed (pruned during 2.4.27 series):
+    - 018_core_cia_1G.diff
+    - 066_dep_fw_loader.diff
+    - 024_isofs_fixes.diff
+    - 021_ide_module_fix.diff
+    - 023_jbd_commit_interval.diff
+    - 059_ea_acl.diff
+    - 003_kbuild_fixes.diff
+  * Patches that have been combined:
+    - 067_tg3_ampersand.diff into 063_firmwareless_tg3.diff
+  * Patches added:
+    - 095_sparc32_initrd_memcpy.diff: fix by Jurij Smakov that allows
+      cramfs ramdisks to successfully load on some sparc32s
+    - 096_megaraid2_proc_name.diff: Change proc_name for megaraid2 to
+      megaraid2, so the right module is inserted into the ramdisk
+    - 114-binfmt_aout-CAN-2004-1074.diff: [SECURITY] Fix potential oops in
+      the a.out binfmt code (CAN-2004-1074) (dann frazier)
+  * add dh_fixperms to the build targets to kernel-patch-debian-2.4.28
+    to ensure that the permissions of the files in this package are
+    sensible. (See: Bug#288279) (Simon Horman)
+
+ -- Simon Horman <horms@debian.org>  Fri,  7 Jan 2005 15:00:40 +0900
+
+kernel-source-2.4.27 (2.4.27-6) unstable; urgency=low
+
+  * Split out many monolithic diffs into smaller diffs for easy submission
+    to upstream. (Dann Frazier)
+  * Annotate all diffs for the same purpose. (Dann Frazier)
+  * Fix $(upstream) regex, thanks Michael Tokarev. (Joshua Kwan)
+  * Add asm/ptrace.h include as it is needed for pt_regs.
+    (Closes: #271533) (Simon Horman)
+  * Add workaround for broken Happy Meal ethernet controllers.
+    (closes: #275485) (Simon Horman)
+  * Fix for bug which causes spddelete of individual entries using setkey
+    to fail. Teddy Hogeborn <teddy@fukt.bth.se>
+    (closes: #272719) (Simon Horman)
+    . net/key/af_key.c
+  * Security: fix race conditions in linux terminal subsystem
+    [CAN-2004-0814] (Closes: #277681) (Simon Horman)
+  * Apply patch by Jurij Smakov that fixes bad memcpy() behavior on
+    sparc32, especially with respect to loading ramdisks. (Joshua Kwan)
+  * Fix menuconfig crash due to infinite recursion (Maximilian Attems)
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Mon, 15 Nov 2004 22:25:03 -0800
+
+kernel-source-2.4.27 (2.4.27-5) unstable; urgency=high
+
+  * Fix a goofup in debian/apply that didn't really affect normal users.
+  * 070_ide_scan_pcibus.diff: Add this very crucial hunk of code that was
+    missed while exploding the monolithic patchset into small diffs.
+  * 071_dep_fw_loader-2.diff: Simplify 066_dep_fw_loader.diff (removed) so
+    that it works with make xconfig as well. (Closes: #268436)
+  * Remove obsoleted README.NMU.
+  * 072_6300esb_sata.diff: Enable DMA support for Intel 6300ESB SATA disk
+    controller through piix. (Closes: #254748)
+  * 073_tg3_hw_autoneg.diff: A patch by David S. Miller fixes problems when
+    using tg3 devices plugged into hubs and switches that don't support
+    autonegotiation.
+  * 074_fealnx_ampersand.diff: Fix spurious ampersand in a
+    spin_unlock_irqrestore call that caused a hang on SMP.
+  * 075_lvm_ioctl.diff: Fix some problems with generic LVM ioctl handling,
+    patch by David S. Miller.
+  * Extend debian/apply to be able to try to remove files (actually, back
+    them up) so that we can run the debian/apply script on a real pristine
+    source tree. (Closes: #269412)
+  * Remove Documentation/man in clean target, make-kpkg kernel-doc leaves it
+    lying around.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Thu,  2 Sep 2004 18:56:21 -0700
+
+kernel-source-2.4.27 (2.4.27-4) unstable; urgency=high
+
+  * 065_copy_user_parens.diff: This patch is cset 1.1447.4.7 from linux-2.4,
+    allowing us to build arch/sparc/lib/copy_user.S using binutils 2.15.
+  * 066_dep_fw_loader.diff: Prevent TIGON3 and PCMCIA_ATMEL from being
+    enabled if FW_LOADER is not selected. (Closes: #266397)
+  * 067_tg3_ampersand.diff: Remove spurious & to tp->pdev, which caused a
+    warning in pci_name. May or may not have affected firmware loading.
+  * 068_ehci_oops.diff: probable fix for some ehci-hcd hang issues. cset
+    1.1483 from linux-2.4. (Closes: #266621)
+  * 069_parisc_comment.diff: Fix an unterminated comment in
+    include/asm-parisc/som.h. (Closes: #266594)
+  * Remove a bogus Conflicts on 2.4.27-4, due to copy and waste from
+    kernel-source-2.4.26 where this was necessary.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Thu, 19 Aug 2004 13:55:50 -0700
+
+kernel-source-2.4.27 (2.4.27-3) unstable; urgency=high
+
+  * 018_core_cia_1G.diff: Backed out. Verified bogus.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Tue, 17 Aug 2004 12:22:39 -0700
+
+kernel-source-2.4.27 (2.4.27-2) unstable; urgency=high
+
+  * Urgency high to enter sarge. NEW processing was quick, thanks Randall!
+  * Bah. Remove .patch-stamps support from debian/apply as it prevents the
+    user from being able to unapply kernel-patch-debian-2.4.27 on an
+    unpacked kernel-source.tar.bz2.
+  * debian/patches/series/2.4.27-2: file with only a newline in it (so
+    it doesn't get reaped by make-kpkg clean for being size 0.)
+  * Use --no-backup-if-mismatch in debian/apply.
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Mon, 16 Aug 2004 09:24:56 -0700
+
+kernel-source-2.4.27 (2.4.27-1) unstable; urgency=low
+
+  * New upstream release.
+
+  * Bugs fixed (will shortly be fixed in 2.4.26 as well, and closed there):
+        - #264202: doesn't build with CONFIG_ACPI_ASUS enabled
+        - #255406: Kernel crash when removing interface from wrong bridge
+          group
+        - #262870: device-mapper patch screwed up; prevents application of
+          evms patches (see below)
+
+  * CVE issues fixed by this release:
+        - CAN-2004-0495 (Al Viro sparse fixes)
+        - CAN-2004-0497 (users could modify group ID of arbitrary files on
+          the system)
+        - CAN-2004-0535 (e1000 minor info leak)
+        - CAN-2004-0685 (backported Conectiva usb sparse fixes)
+        - CAN-2004-0415 (file offset pointer handling race)
+        - CAN-2004-0565 (information leak ia64)
+
+  * Split out all of the monolithic patches into feature-divided patches.
+    Change apply/unpatch scripts to use this new system, using metadata to
+    describe which patches are added or removed in a given release.
+
+    However, apply script retains the same features on the outside as the
+    old one (i.e. incremental updates to old kernel-source trees of the same
+    upstream version.)
+
+  * Update the DM patch from kernel-patch-device-mapper.
+
+  * Apply IPsec update, thanks Horms.
+
+  * Merge patches from kernel-image-sparc-2.4 in.
+
+  * Run prune-non-free. This removes tg3.c, but 063_firmwareless_tg3.diff
+    adds the firmware-unencumbered one.
+
+  * Fix build dependencies:
+        - Everything becomes Build-Depends-Indep: this package produces
+          no arch-dependent packages.
+        - libc-dev -> libc6-dev | libc-dev.
+        - libncurses-dev | ncurses-dev -> libncurses5-dev | libncurses-dev.
+        - debian/compat is 3, so add a versioned B-D-I on debhelper (>= 3).
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Sat, 14 Aug 2004 13:01:08 -0700
+
+kernel-source-2.4.26 (2.4.26-5) unstable; urgency=high
+
+  * Cleaned up after the previous upload.  In particular, patch-2.4.26-3
+    is now part of the kernel-source tarball again.  Urgency set to high
+    since this patch fixes a couple of security issues.
+
+  * Added a conflict to kernel-tree to make sure that unsuspecting package
+    builders (both human and non-human) do not use the previous upload of
+    kernel-source for their kernel-image packages.
+
+  * Added an almost empty patch to handle the revision bump.
+
+ -- Jens Schmalzing <jensen@debian.org>  Tue,  3 Aug 2004 15:10:31 +0200
+
+kernel-source-2.4.26 (2.4.26-4) unstable; urgency=low
+
+  * Fix stack allocation in crypt(). Patch by Herbert Xu
+    (closes: #257120)
+    . crypto/cipher.c
+  * Reversed patch to PCI initialisation code on Alpha
+    Patch by Herbert Xu, Steve Langasek
+    (closes: #253787)
+    . arch/alpha/kernel/core_cia.c
+
+ -- Simon Horman <horms@debian.org>  Thu, 22 Jul 2004 12:27:39 +0900
+
+kernel-source-2.4.26 (2.4.26-3) unstable; urgency=low
+
+  * Changed Maintainer to kernel team.
+  * Set uploaders to DD members of that team as per the alioth.debian.org
+    kernel project
+  * Merged hiddev.c with upstream (2.4.27-pre3) as there
+    were some inconsistencies and it seems the same person,
+    Herbert Xu was working on both copies of the code
+    and the upstream code seems to be more up to date.
+    . drivers/usb/hiddev.c
+  * Fixup for C1 Halt Disconnect problem on nForce2 systems
+    . arch/i386/kernel/pci-pc.c
+  * Fix clear_cpu() marco [CAN-2004-0554]
+    . include/asm-i386/i387.h
+    . include/asm-x86_64/i387.h
+  * Fix missing DAC check in sys_chown() [CAN-2004-0497]
+    . fs/attr.c
+  * Fix multiple information leaks discovered by Al Viro [CAN-2004-0495]
+    . drivers/net/wireless/airo.c
+    . drivers/acpi/asus_acpi.c
+    . drivers/sound/mpu401.c
+    . linux/drivers/sound/msnd.c
+    . linux/drivers/sound/msnd.h
+    . linux/drivers/sound/msnd_pinnacle.c,
+    . drivers/sound/pss.c, 
+  * Fix potential buffer overflow in panic [CAN-2004-0394]
+    . kernel/panic.c
+  * List of Kernel Vulterablilities with CAN numebers which have
+    been resolved by previous kernels but are not listed in this ChangeLog
+    Goes back to the begining of 2003
+    For desciptions of the bugs please see www.mitre.org
+    . CAN-2003-0001 fixed in 2.4.20-5  (upstream 2.4.21-pre5)
+    . CAN-2003-0018 fixed in 2.4.21-1  (upstream 2.4.21-pre4)
+    . CAN-2003-0127 fixed in 2.4.20-6  (upstream 2.4.21-rc2)
+    . CAN-2003-0187 fixed in 2.4.20-13 (upstream 2.4.21-pre6)
+    . CAN-2003-0244 fixed in 2.4.20-7  (upstream 2.4.21-rc2)
+    . CAN-2003-0246 fixed in 2.4.20-7  (upstream 2.4.21-rc4)
+    . CAN-2003-0247 fixed in 2.4.20-8  (upstream 2.4.21-rc4)
+    . CAN-2003-0465 fixed in 2.4.20-8  (upstream 2.4.22-pre10)
+    . CAN-2003-0465 unsure, does not effect x86, need to check other arch
+    . CAN-2003-0619 fixed in 2.4.22-1  (upstream 2.4.21-pre3)
+    . CAN-2003-0643 fixed in 2.4.21-4  (upstream 2.4.22-pre10)
+    . CAN-2003-0699 fixed in 2.4.21-1  (upstream 2.4.21-rc2)
+    . CAN-2003-0700 fixed in 2.4.21-4  (upstream 2.4.22-pre3)
+    . CAN-2003-0961 fixed in 2.4.23-1  (upstream 2.4.23-pre7)
+    . CAN-2003-0984 fixed in 2.4.24-1  (upstream 2.4.24-rc1)
+    . CAN-2003-0985 fixed in 2.4.24-1  (upstream 2.4.24-rc1)
+    . CAN-2004-0003 fixed in 2.4.25-2  (upstream 2.4.26-rc4)
+    . CAN-2004-0010 fixed in 2.4.25-1  (upstream 2.4.25-pre7)
+    . CAN-2004-0075 fixed in 2.4.25-1  (upstream 2.4.25-pre5)
+    . CAN-2004-0077 fixed in 2.4.24-3  (upstream 2.4.26-pre3)
+    . CAN-2004-0109 fixed in 2.4.25-2  (upstream 2.4.26-rc4)
+    . CAN-2004-0133 fixed in 2.4.26-1  (upstream 2.4.26-pre2)
+    . CAN-2004-0177 fixed in 2.4.26-1  (upstream 2.4.26-pre4)
+    . CAN-2004-0178 fixed in 2.4.25-2  (upstream 2.4.26-pre5)
+    . CAN-2004-0228 code is not present, not vulnerable
+    . CAN-2004-0229 code is not present, not vulnerable
+    . CAN-2004-0424 fixed in 2.4.26-1  (upstream 2.4.26-pre3)
+    . CAN-2004-0427 fixed in 2.4.26-1  (upstream 2.4.26-rc4)
+    . CAN-2004-0427 fixed in 2.4.26-1  (upstream 2.4.26-rc4)
+    . CAN-2004-0535 fixed in 2.4.26-2  (upstream 2.4.27-rc3)
+    . CAN-2004-0587 code is not present, not vulnerable
+
+ -- Simon Horman <horms@debian.org>  Fri,  9 Jul 2004 17:35:39 +0900
+
+kernel-source-2.4.26 (2.4.26-2) unstable; urgency=low
+
+  * Set __exit tag on module_exit in drivers/ide/pci/atiixp.c.
+  * Require firmware 2.70 on alpha in drivers/block/DAC960.c (2.6, closes:
+    #244585).
+  * Removed cmpxchg definition in drivers/char/drm-4.0/drmP.h.
+  * Added regs.len check in drivers/net/e1000/e1000_ethtool.c (bk).
+  * Added SATA support (bk, closes: #245334):
+    . Documentation/Configure.help
+    . Documentation/DocBook/Makefile
+    . Documentation/DocBook/libata.tmpl
+    . drivers/block/Config.in
+    . drivers/block/Makefile
+    . drivers/block/carmel.c
+    . drivers/scsi/Config.in
+    . drivers/scsi/Makefile
+    . drivers/scsi/libata-core.c
+    . drivers/scsi/libata-scsi.c
+    . drivers/scsi/libata.h
+    . drivers/scsi/sata_promise.c
+    . drivers/scsi/sata_sil.c
+    . drivers/scsi/sata_sis.c
+    . drivers/scsi/sata_svw.c
+    . drivers/scsi/sata_via.c
+    . drivers/scsi/sata_vsc.c
+    . include/linux/ata.h
+    . include/linux/libata.h
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  1 May 2004 09:17:56 +1000
+
+kernel-source-2.4.26 (2.4.26-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed copy_to_user usage in drivers/usb/hiddev.c.
+  * Fixed build without procfs in drivers in drivers/hotplug/Makefile.
+  * Updated IPsec patch to 20040416-1.
+  * Updated ea and acl to 0.8.71.
+  * Removed cmpxchg definition in drivers/char/drm/drmP.h.
+  * Removed non-free firmware:
+    . Unused: drivers/sound/724hwmcode.h
+    . Unused: drivers/sound/Hwmcode.h
+  * Fixed module unloading in drivers/ide/pci/atiixp.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 17 Apr 2004 17:27:33 +1000
+
+kernel-source-2.4.25 (2.4.25-3) unstable; urgency=low
+
+  * Zero log buffer at mount time in fs/xfs/xfs_log.c (bk).
+  * Fixed boundary checks for GUSAGE/SUSAGE in drivers/usb/hiddev.c.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 14 Apr 2004 19:05:13 +1000
+
+kernel-source-2.4.25 (2.4.25-2) unstable; urgency=low
+
+  * Black listed "TOSHIBA CD-ROM XM-1702BC" in drivers/ide/ide-dma.c
+    (Moritz Lennert, closes: #222939).
+  * Set protocol in ip_route_me_harder in net/core/netfilter.c
+    (closes: #236479).
+  * Reverted hardsect change in drivers/scsi/sr.c (closes: #232586).
+  * Tighten sanity in time_init to 250 PPM in arch/alpha/kernel/time.c
+    (Scott Bailey, closes: #233096).
+  * Call mkdep on headers with xargs in Makefile.
+  * Fixed tuner support on WinTV-D boards in drivers/media/video/bttv-cards.c
+    (2.6, closes: #241272).
+  * Fixed single word src misalign > dest misalign case in
+    arch/alpha/lib/stxncpy.S (glibc, closes: #237884).
+  * Enhanced user input validation (Thomas Biege):
+    . drivers/char/drm/r128_state.c
+    . drivers/char/drm-4.0/r128_state.c
+  * Fixed audio sampe size in drivers/sound/sb_audio.c (bk).
+  * Fixed local root exploit in fs/isofs/rock.c (Ernie Petrides).
+  * Clear b_data in journal_get_descriptor_buffer in fs/jbd/journal.c
+    (Ted Ts'o).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 12 Apr 2004 11:12:11 +1000
+
+kernel-source-2.4.25 (2.4.25-1) unstable; urgency=low
+
+  * New upstream release.
+  * Applied Medley Software RAID patch, version 6 (closes: #232479).
+  * Applied ea 0.8.68 and acl 0.8.70 (closes: #229205).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 23 Feb 2004 20:57:16 +1100
+
+kernel-source-2.4.24 (2.4.24-3) unstable; urgency=high
+
+  * Added build-dependency on docbook-utils, gs and transfig (closes: #231201).
+  * Fixed off-by-one kmalloc in ntfs_dupuni2map in fs/ntfs/support.c
+    (closes: #207138).
+  * Fixed early chip programming in tg3_setup_copper_phy() in drivers/net/tg3.c
+    (David Miller).
+  * Fixed dev timer SMP deadlock in drivers/scsi/aic7xxx/aic7xxx_osm.c
+    (Andrew Morton).
+  * Check return value of do_munmap in do_mremap in mm/mremap.c (2.4.25).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 18 Feb 2004 19:00:31 +1100
+
+kernel-source-2.4.24 (2.4.24-2) unstable; urgency=low
+
+  * Fixed dead lock in drain_dac in drivers/sound/i810_audio.c
+    (closes: #228101).
+  * Fixed typos (Jochen Voss, closes: #227633):
+    . drivers/s390/block/xpram.c
+    . Documentation/usb/sl811hc.txt
+  * Updated IPsec patch to 20030202-1 (closes: #225995, #227507, #226000,
+    #230901).
+  * Updated sk98lin in drivers/net/sk98lin/* (2.4.25pre, closes: #229863).
+  * Added forcedeth driver (closes: #229895):
+    . Documentation/Configure.help
+    . drivers/net/Config.in
+    . drivers/net/Makefile
+    . drivers/net/forcedeth.c
+  * Added upstream changelog.
+  * Fixed invalid kfree in ntfs_printcb in fs/ntfs/fs.c.
+  * Clear nf_debug in ip_local_deliver_finish in net/ipv4/ip_input.c
+    (Valentijn Sessink).
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  3 Feb 2004 21:22:41 +1100
+
+kernel-source-2.4.24 (2.4.24-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed ipchains MASQ crash in net/ipv4/netfilter/ip_fw_compat_masq.c (bk).
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  6 Jan 2004 18:16:13 +1100
+
+kernel-source-2.4.23 (2.4.23-1) unstable; urgency=low
+
+  * New upstream release (closes: #212633, #212706, #215883, #219195, #221621).
+  * Fixed red/blue typo in drivers/video/radeonfb.c.
+  * Set fb owner in drivers/video/radeonfb.c.
+  * Fixed DMA overruns/bugs in drivers/sound/i810_audio.c (closes: #219398).
+  * Applied cut-down version device mapper patch 1.00.07 (closes: #213063).
+  * Removed obsolete jbd_commit_interval option in fs/jbd/journal.c.
+  * Included README.Debian in debian patch.
+  * Updated IPsec patch to 20031129-4.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 30 Nov 2003 11:31:38 +1100
+
+kernel-source-2.4.22 (2.4.22-4) unstable; urgency=low
+
+  * Fixed initialisation lockup in drivers/scsi/ide-scsi.c
+    (bk, closes: #213663).
+  * Removed README note about mem= as it no longer applies.
+  * Fixed handling of acpi=on in arch/i386/kernel/setup.c
+    (Manuel Estrada Sainz, closes: #216023).
+  * Made AMD_PM768 conditional on X86/X86_64 in drivers/char/Config.in.
+  * Removed floating operations in drivers/net/amd8111e.* (2.5).
+  * Fixed kupdated dequeueing of SIGSTOP signals in fs/buffer.c (bk,
+    closes: #212424).
+  * Renamed BUS_ISA to CTL_BUS_ISA (closes: #217191):
+    . arch/arm/kernel/isa.c
+    . include/linux/sysctl.h
+  * Handle cases where child queues empty suddenly in net/sched/sch_htb.c (bk,
+    closes: #219939).
+  * Initialise reset_task properly in drivers/net/tg3.c.
+  * Removed bogus panic calls in arch/i386/kernel/mpparse.c (Jochen Voss).
+  * Updated IPsec patch to 20031030-1 (closes: #214779, #215503, #219486).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 15 Nov 2003 14:54:18 +1100
+
+kernel-source-2.4.22 (2.4.22-3) unstable; urgency=medium
+
+  * Set ide_xlate_1024_hook before probing probing (closes: #213192).
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  4 Oct 2003 14:34:33 +1000
+
+kernel-source-2.4.22 (2.4.22-2) unstable; urgency=low
+
+  * Added jbd_commit_interval option:
+    . fs/jbd/journal.c
+    . fs/jbd/transaction.c
+  * Do not unshare files for pid == 1 in kernel/fork.c (closes: #211717).
+  * Made static CONFIG_IDEDISK_STROKE work again in drivers/ide/ide-disk.c
+    (closes: #210589).
+  * Added CONFIG_ACPI_OFF option:
+    . Documentation/Configure.help
+    . arch/i386/kernel/setup.c
+    . drivers/acpi/Config.in
+  * Added optimise by size option:
+    . Documentation/Configure.help
+    . Makefile
+    . arch/i386/config.in
+  * Fixed pci_pool_create macro in drivers/atm/he.c (bk,
+    closes: #211138, #211189).
+  * Fixed wrong address in ICMP log entry in net/ipv4/icmp.c (2.5,
+    closes: #211654).
+  * Fixed atm_clip_ops->owner crash (bk, closes: #211348):
+    . drivers/atm/common.c
+    . drivers/atm/proc.c
+  * Fixed double request_region (closes: #210289):
+    . drivers/net/arcnet/com20020.c
+    . drivers/net/arcnet/com20020-isa.c
+    . drivers/net/arcnet/com20020-pci.c
+  * Updated IPsec patch to 20030927-1 (closes: #211761).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 27 Sep 2003 17:40:11 +1000
+
+kernel-source-2.4.22 (2.4.22-1) unstable; urgency=low
+
+  * New upstream release.
+  * Probe existing drivers when loading ide-probe-mod:
+    . drivers/ide/ide-probe.c
+    . include/linux/ide.h
+  * Fixed CONFIG_IDEDISK_STROKE in drivers/ide/ide-disk.c (2.6,
+    closes: #205147).
+  * Removed -Werror in drivers/scsi/aic7xxx/Makefile.
+  * Updated IPsec patch to 20030904-1.
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  4 Sep 2003 21:31:15 +1000
+
+kernel-source-2.4.21 (2.4.21-5) unstable; urgency=low
+
+  * Fixed steal_locks race (closes: #206399):
+    . fs/binfmt_elf.c
+    . fs/exec.c
+  * Fixed rare initialisation crash in drivers/char/amd76x_pm.c
+    (closes: #205537).
+  * Added license in drivers/acpi/driver.c (closes: #205190).
+  * Fixed multiline string literals in net/decnet/dn_table.c (closes: #206721).
+  * Updated IPsec patch to 20030824-1 (closes: #204947).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 24 Aug 2003 11:36:15 +1000
+
+kernel-source-2.4.21 (2.4.21-4) unstable; urgency=low
+
+  * Made /proc/tty/driver root-only (CAN-2003-0461):
+    . include/linux/proc_fs.h
+    . fs/proc/generic.c
+    . fs/proc/proc_tty.c
+  * Fixed exec file handling semantics (CAN-2003-0462, CAN-2003-0476):
+    . fs/binfmt_elf.c
+    . fs/exec.c
+    . fs/locks.c
+    . include/linux/fs.h
+    . kernel/fork.c
+  * Fixed sunrpc UDP reuse bug in net/sunrpc/svcsock.c (CAN-2003-0464).
+  * Fixed unchecked copy_to_user in fs/proc/proc_misc.c.
+  * Fixed ptrace/proc bug in fs/proc/base.c (CAN-2003-0501).
+  * Fixed bridging security issues (CAN-2003-055[012]):
+    . net/bridge/br_fdb.c
+    . net/bridge/br_if.c
+    . net/bridge/br_input.c
+    . net/bridge/br_private.h
+    . net/bridge/br_stp_bpdu.c
+  * Fixed boundary check in net/core/filter.c (Patrick McHardy).
+  * Fixed copy from user bug in drivers/sound/cmpci.c (bk).
+  * Fixed O_DIRECT races (bk):
+    . fs/buffer.c
+    . fs/inode.c
+    . fs/open.c
+    . include/linux/fs.h
+    . mm/filemap.c
+  * Fixed unused variables warning in arch/i386/kernel/emu.c.
+  * Updated IPsec patch to 20030802-1 (closes: #203008).
+  * Fixed incremental patch for 2.4.21-3.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  2 Aug 2003 20:31:15 +1000
+
+kernel-source-2.4.21 (2.4.21-3) unstable; urgency=low
+
+  * Use spinlock_t filler even with gcc 2.96 in include/linux/spinlock.h.
+  * Made CONFIG_IDEDISK_STROKE a runtime option (Joerg Platte,
+    closes: #200366):
+    . include/linux/ide.h
+    . drivers/ide/ide.c
+    . drivers/ide/ide-disk.c
+  * Work around broken Olympus cameras (RedHat, closes: #201114).
+  * Added nolapic option on i386 (closes: #201865):
+    . Documentation/kernel-parameters.txt
+    . arch/i386/kernel/apic.c
+  * AGP update - new intel, add nvidia (Alan Cox, closes: #196209):
+    . drivers/char/agp/agp.h
+    . drivers/char/agp/agpgart_be.c
+    . include/linux/agp_backend.h
+    . include/linux/pci_ids.h
+  * Fixed a bunch of warnings (closes: #196836).
+    . Cope with exit status 2 from md5sum in drivers/isdn/hisax/cert.c.
+    . Fixed printk format in fs/fat/file.c.
+    . Fixed macro redefinition warning in fs/nfs/nfs3proc.c.
+    . Fixed constant overflow warning in fs/nfs/nfs3xdr.c.
+  * Fixed multiline string literals (closes: #198651):
+    . drivers/scai/aic7xxx/aicasm/aicasm.c
+    . drivers/scai/aic7xxx/aicasm/aicasm_symbol.c
+  * Updated IPsec patch to 20030720-1.
+  * Fixed binutils test in scripts/ver_linux (closes: #202142).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 20 Jul 2003 11:41:23 +1000
+
+kernel-source-2.4.21 (2.4.21-2) unstable; urgency=low
+
+  * Added forward declaration for struct net_device in include/linux/skbuff.h.
+  * Restored mdio_sem that replaced rtnl_lock in drivers/net/8139too.c.
+  * Fixed impossible eid comparison in drivers/sound/cs46xx.c (Russell Coker).
+  * Replaced elif with else if in crypto/Config.in (closes: #198870).
+  * Fixed CMedia mixer initialisation bug in drivers/sound/ac97_codec.c
+    (ac, closes: #198847).
+  * Do not perform initial PCI scan until ide-probe-mod is loaded:
+    . include/linux/ide.h
+    . drivers/ide/ide.c
+    . drivers/ide/ide-probe.c
+    . drivers/ide/setup-pci.c
+  * Update gendisk devfs handler in lvrename in drivers/md/lvm.c
+    (closes: #189650).
+  * Applied 486 emulation patch (Willy Tarreau):
+    . Documentation/Configure.help
+    . arch/i386/config.in
+    . arch/i386/kernel/Makefile
+    . arch/i386/kernel/emu.c
+    . arch/i386/kernel/entry.S
+  * Moved debian patch into version-specific directory (closes: #199370).
+  * Updated IPsec patch:
+    . Use davme's 2.4 tree (closes: #199329, #199366).
+  * Removed bogus devfs references in Documentation/initrd.txt (Nikolaus Rath,
+    closes: #199619).
+  * Fixed merging error in arch/alpha/kernel/core_cia.c (closes: #199877).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  4 Jul 2003 21:12:04 +1000
+
+kernel-source-2.4.21 (2.4.21-1) unstable; urgency=low
+
+  * New upstream release (closes: #173329, #175032, #192026).
+  * Applied IDE modularisation patch (ac):
+    . drivers/ide/Makefile
+    . drivers/ide/ide.c
+    . drivers/ide/ide-default.c
+    . drivers/ide/ide-pnp.c
+    . drivers/ide/legacy/pdc4030.c
+    . drivers/ide/pci/cmd640.c
+    . include/linux/ide.h
+  * Use old IDE module names in drivers/ide/Makefile.
+  * Fixed IDE modularisation in drivers/ide/Config.in.
+  * Cope with namespace polluters in drivers/net/e1000/e1000_osdep.h.
+  * Added inclusion of linux/stddef.h due to NULL in linux/timer.h.
+  * Added inclusion of linux/socket.h due to sa_family_t in linux/in.h.
+  * Export symbols for ide-probe-mod:
+    . drivers/ide/ide.c
+    . drivers/ide/ide-io.c
+  * Fixed unload crash in drivers/ide/ide-proc.c.
+  * Enable hw_resend_irq if io_apic is on (ac):
+    . include/asm-i386/hw_irq.h
+    . arch/i386/kernel/io_apic.c
+  * Fixed mp_bus_id_to_pci_bus init in arch/i386/kernel/mpparse.c.
+  * Fixed IDE PCI proc entries for modules in drivers/ide/ide-proc.c.
+  * Merged Linux 2.5 IPsec stack backport.
+  * Moved ip6_route_me_harder exportation from net/netsyms.c to
+    net/ipv6/ipv6_syms.c.
+  * Added kernel-patch-debian and kernel-tree packages.
+  * Include linux/socket.h in include/linux/netlink.h (2.5).
+  * Include linux/skbuff.h for skb_put in include/linux/netlink.h.
+  * Include linux/spinlock.h for spinlock_t in include/linux/interrupt.h.
+  * Include linux/netdevice.h for MAX_ADDR_LEN in include/net/neighbour.h.
+  * Include linux/interrupt.h for tasklet_struct in include/net/neighbour.h.
+  * Added foreward declaration for struct neighbour in include/net/neighbour.h.
+  * Include linux/spinlock.h for rwlock_t in include/net/ip6_fib.h.
+  * Include net/sock.h for struct sock in include/net/ip6_route.h.
+  * Include linux/types.h for __u32 in include/linux/watchdog.h.
+  * Added CONFIG_ALPHA_LEGACY_NR_IRQS option for MILO users:
+    . Documentation/Configure.help
+    . arch/alpha/config.in
+    . arch/alpha/kernel/Makefile
+    . include/asm-alpha/irq.h
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 14 Jun 2003 21:16:17 +1000
+
+kernel-source-2.4.20 (2.4.20-8) unstable; urgency=low
+
+  * Fixed mxcsr security hole in arch/i386/kernel/i387.c (2.5.70).
+  * Fixed TIOCCONS and writing to /dev/console (2.4.21rc7):
+    . drivers/char/tty_io.c
+    . include/linux/tty.h
+  * Fixed hashing exploits in fragment processing (2.4.21rc7).
+  * Fixed slot_tablelen type in drivers/ide/ide-cd.h.
+  * Use static inline in net/core/rtnetlink.c (closes: #194196).
+  * Fixed multiline string literals:
+    . drivers/scsi/aic7xxx/aic7xxx_osm.c
+    . driver/net/tokenring/olympic.c
+    . driver/net/wan/sdla_chdlc.c
+    . fs/reiserfs/super.c
+    . arch/i386/math-emu/poly.h
+  * Setup two 1G mappings if cia_rev == 1 in arch/alpha/kernel/core_cia.c
+    (closes: #195135).
+  * Added bswap explanation to README.Debian.
+  * Fixed some CPP pasting in drivers/atm/ambassador.c (David S. Miller).
+  * Fixed cpp abuse in drivers/net/irda/ma600.c.
+  * Fixed assembly specification in drivers/net/wan/sbni.c.
+  * Fixed InitStruct member types in drivers/sound/cs46xx.c.
+  * Use include/asm-ppc/unistd.h from 2.4.21-rc7 (closes: #194435).
+  * Fixed nr_sects types in include/linux/mtd/nftl.h.
+  * Fixed typos in drivers/net/fealnx.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  7 Jun 2003 19:49:21 +1000
+
+kernel-source-2.4.20 (2.4.20-7) unstable; urgency=low
+
+  * Removed kernel_thread prototype from arch/sparc64/kernel/sparc64_ksyms.c
+    (Eric de Beaumont, closes: #187341).
+  * Fixed arcnet/packet socket crash (closes: #187980):
+    . include/linux/arcdevices.h
+    . drivers/net/arcnet/*
+  * Check mm in is_dumpable in include/linux/sched.h (closes: #189103).
+  * Fixed size of default_port in drivers/net/via-rhine.c (closes: #192259).
+  * Fixed TSS I/O bitmap initialisation in arch/i386/kernel/ioport.c.
+  * Fixed hashing exploits in network stack (David S. Miller).
+  * Fixed ptrace fix (2.4.21rc, closes: #188092, #191783).
+  * Applied ext3-scheduling-storm patch to fs/jbd/transaction.c (Andrew Morton).
+  * Applied synx_fs-fix-2 patch (Andrew Morton, closes: #186136):
+    . fs/super.c
+    . Documentation/filesystems/Locking
+  * Fixed CIA rev 1 DMA window limitations (2.4.21rc, closes: #187055):
+    . arch/alpha/kernel/core_cia.c
+    . include/asm-alpha/core_cia.h
+  * Paper over X server bug in drivers/char/drm/i810_dma.c (closes: #187962).
+  * Fixed ISDN channel bonding crash (2.4.21rc, closes: #192459):
+    . drivers/isdn/isdn_net.c
+    . drivers/isdn/isdn_ppp.c
+  * Made binfmt_misc unloadable again (closes: #155570).
+  * Use seq interface for /proc/modules (closes: #193365):
+    . fs/proc/proc_misc.c
+    . kernel/module.c
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 18 May 2003 17:56:06 +1000
+
+kernel-source-2.4.20 (2.4.20-6) unstable; urgency=low
+
+  * Documented mem= change in README.Debian.
+  * Fixed printk warnings in init/do_mounts.c.
+  * Fixed printk warnings in fs/fat/file.c (closes: #178355).
+  * Commented out non-TeX heading in Documentation/smp.tex (Daniel van Eeden,
+    closes: #174554).
+  * Fixed dupliate detection problem in drivers/net/tokenring/ibmtr.c
+    (closes: #178874).
+  * Close old_fd and root_fd in init/do_mounts.c (Brian May, closes: #180934).
+  * Ignore errors from tw_setfeature in drivers/scsi/3w-xxxx.c
+    (closes: #181581).
+  * Changed all occurances of infobox+sleep to msgbox in scripts/Menuconfig
+    (closes: #181640).
+  * Use rq->special instead of rq->buffer in drivers/scsi/ide-scsi.c
+    (closes: #180125).
+  * Fixed precedence bug in drivers/sound/trident.c (John Levon).
+  * Documented AMD 768 erratum (closes: #177139).
+  * Fixed initialisation error handling in drivers/block/cciss.c.
+  * Fixed initialisation error handling in drivers/block/cpqarray.c.
+  * Fixed ptrace security hole (closes: #185375).
+  * Work around broken Toshiba keyboards (2.4.21pre, closes: #121335).
+  * Fixed sock address length check (2.4.21pre, closes: #171983).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Mar 2003 10:05:53 +1100
+
+kernel-source-2.4.20 (2.4.20-5) unstable; urgency=high
+
+  * Fixed ethernet packet padding information leak (2.4ac, see #176178):
+    . via-rhine
+  * Added sk_padto function (closes: #176487).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 13 Jan 2003 19:17:48 +1100
+
+kernel-source-2.4.20 (2.4.20-4) unstable; urgency=high
+
+  * Added missing printk newlines in net/sched/sch_htb.c
+    (Alexandra N. Kossovsky, closes: #174152).
+  * Removed bogus VIA KT266 IO-APIC check.  It is a useful warning.
+  * Removed bogus ip_conntrack_{ftp,irc} check.
+  * Fixed a typo in Documentation/sound/Introduction (Daniel van Eeden,
+    closes: #174944).
+  * Reverted CONFIG_VIDEO_VESA change (closes: #175614).
+  * Fixed ethernet packet padding information leak (2.4ac, see #176178):
+    . 3c501
+    . 3c505
+    . 3c507
+    . 3c523
+    . 3c527
+    . 7990
+    . 8139too
+    . 82596
+    . 8390
+    . a2065
+    . am79c961a
+    . ariadne
+    . at1700
+    . atarilance
+    . atp
+    . bagetlance
+    . de600
+    . de620
+    . declance
+    . depca
+    . eepro
+    . eexpress
+    . epic100
+    . eth16i
+    . fmv18x
+    . hp100
+    . lance
+    . lasi_82596
+    . lp486e
+    . ni5010
+    . ni52
+    . ni65
+    . axnet_cs
+    . fmvj18x_cs
+    . ray_cs
+    . xirc2ps_cs
+    . xircom_tulip_cb
+    . seeq8005
+    . sgiseeq
+    . sk_g16
+    . smc9194
+    . sun3_82586
+    . sun3lance
+    . wavelan
+    . yellowfin
+    . znet
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 11 Jan 2003 17:31:43 +1100
+
+kernel-source-2.4.20 (2.4.20-3) unstable; urgency=low
+
+  * Fixed ext3 remount deadlock added in 2.4.20-2 (Andrew Morton).
+  * Fixed ext3 use-after-free bug (Andrew Morton).
+  * Fixed i845G AGP Gart initialisation (Michael Milligan, closes: #172724).
+  * Updated i810_audio driver (2.4.21pre1, closes: #172194).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 21 Dec 2002 13:49:15 +1100
+
+kernel-source-2.4.20 (2.4.20-2) unstable; urgency=low
+
+  * Include acpidrv.o in the kernel (Mario Holbe, closes: #168439).
+  * Removed CONFIG_INET_ECN_DISABLED option.
+  * Removed CONFIG_INET_ECN check in net/ipv4/tcp_diag.c.
+  * Fixed stxncpy on alpha (2.4.21pre).
+  * Fixed ext3 data=journal umount problem (2.4.21pre1, closes: #171632).
+  * Added dependency on MTD_CONCAT for sc520cdp (closes: #173045).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 15 Dec 2002 14:53:05 +1100
+
+kernel-source-2.4.20 (2.4.20-1) unstable; urgency=low
+
+  * New upstream release (closes: #164065, #164204, #165478, #166312, #168141,
+    #168190, #170962).
+  * Disable CONFIG_VIDEO_VESA unless VESA FB support is turned on.
+  * Mention Debian changes in kernel-source package description.
+  * Fixed a bug where ACPI is always compiled as a module (closes: #168439).
+  * CONFIG_VIDEO_SELECT is always on again.
+  * Modularised VESA FB.
+  * Added coreutils as an alternative to fileutils (closes: #170459).
+  * Replaced BUG() with printk() in fs/fat/file.c (closes: #168886).
+  * Fixed circular dependency in include/linux/netfilter_ipv4/ip_conntrack.h.
+  * Do not get seqno if we will not use it in fs/isofs/inode.c.
+  * Fixed HID name fix so that produce id is actually read.
+  * Added missing semicolons in drivers/scsi/aic7xxx/aicasm/aicasm_gram.y
+    (Michael Osamu Shiobara, closes: #165375).
+  * Made CONFIG_PARIDE_EPATC8 into a runtime option.
+  * Fixed double PCI unregistration in drivers/char/joystick/pcigame.c.
+  * Include linux/init.h in drivers/char/amd76x_pm.c.
+  * Include linux/init.h in drivers/scsi/cpqfcTSinit.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 30 Nov 2002 16:39:30 +1100
+
+kernel-source-2.4.19 (2.4.19-5) unstable; urgency=high
+
+  * Fixed i386 lcall DoS (Petr Vandrovec).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 18 Nov 2002 21:22:02 +1100
+
+kernel-source-2.4.19 (2.4.19-4) unstable; urgency=low
+
+  * Added missing headers in drivers/isdn/hisax/avma1_cs.c.
+  * Added missing headers in drivers/net/wan/comx-hw-munich.c.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 16 Oct 2002 22:42:01 +1000
+
+kernel-source-2.4.19 (2.4.19-3) unstable; urgency=low
+
+  * Fixed more ACPI module building problems.
+  * Fixed initialisation oops in drivers/scsi/aic7xxx/aic7770.c
+    (closes: #162347).
+  * Made CONFIG_VIDEO_SELECT conditional in drivers/video.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  6 Oct 2002 16:33:04 +1000
+
+kernel-source-2.4.19 (2.4.19-2) unstable; urgency=low
+
+  * Inlucde pagemap.h for unlock_page in drivers/char/drm/i810_dma.c
+    (closes: #144971).
+  * Set ?time to zero in fs/cramfs/inode.c.
+  * Allow ACPI to be compiled as a module.
+  * Fixed umsdos_solve_hlink oops in fs/umsdos/dir.c (closes: #159772).
+  * Honour ide?=dma in drivers/ide/via82cxxx.c (Arne Nordmark,
+    closes: #157925).
+  * Restored priority of invalidate messages in fs/buffer.c.  The submitter of
+    #131419 did a badblocks -f.
+  * Wait before flushing in drivers/char/drm/mga_dma.c (ac, closes: #161100).
+  * Applied SCSI Media Changer patch (closes: #144850).
+  * Applied Big Physical Area Reservation patch (closes: #144849).
+  * Removed period check for executables in fs/isofs/inode.c (closes: #162190).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 28 Sep 2002 16:53:27 +1000
+
+kernel-source-2.4.19 (2.4.19-1) unstable; urgency=low
+
+  * New upstream release (closes: #139617, #146349).
+  * ip_nat_{ftp,irc} cannot be m if ip_conntrack_{ftp,irc} is y, respectively
+    (closes: #142532).
+  * Removed volume checks in fs/isofs/inode.c (closes: #138384).
+  * Removed gsem from drivers/usb/pegasus.c.
+  * Always call complete after unlinking an urb in drivers/usb/usb-ohci.c.
+  * Set hardsect size to 512 in drivers/scsi/sr.c (closes: #154510).
+  * Removed non-free firmware and disabled their drivers (closes: #150052):
+   . SMC Token Ring
+   . ACENIC
+   . DGRS
+   . DABUSB
+  * Lowed invalidate messages to priority DEBUG in fs/buffer.c
+    (closes: #131349).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  7 Aug 2002 21:12:03 +1000
+
+kernel-source-2.4.18 (2.4.18-5) unstable; urgency=low
+
+  * Corrected AdvWriteDWordLramNoSwap in drivers/scsi/advansys.c
+    (Jerome L. Quinn, closes: #128080).
+  * Added check for VIA KT266 IO-APIC, version == 2 (closes: #136163).
+  * Updated pegasus driver (2.4.19pre6).
+  * Added ATARAID device names to main.c (Eduard Bloch, closes: #139604).
+  * Updated uhci driver (Johannes Erdfelt, closes: #135785).
+  * Translate slashes in broken Acorn ISO9660 file systems (Darren Salt,
+    closes: #141660).
+  * Added newline to printk in drivers/sound/i810_audio.c
+    (handler-case@gmx.net, closes: #142214).
+  * Updated parport driver (2.4.19pre6).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 Apr 2002 22:07:22 +1000
+
+kernel-source-2.4.18 (2.4.18-4) unstable; urgency=high
+
+  * Fixed remaining double free in
+     drivers/net/zlib.c
+     fs/jffs2/zlib.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 20 Mar 2002 20:02:18 +1100
+
+kernel-source-2.4.18 (2.4.18-3) unstable; urgency=high
+
+  * Fixed double free in
+     drivers/net/zlib.c
+     fs/jffs2/zlib.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 13 Mar 2002 20:24:09 +1100
+
+kernel-source-2.4.18 (2.4.18-2) unstable; urgency=low
+
+  * Removed -g from driviers/atm/Makefile.
+  * Added missing personality patch to fs/binfmt_elf.c.
+  * Export est_cycle_freq (needed for removing CONFIG_FT_ALPHA_CLOCK).
+  * Extern inline -> static inline in
+     drivers/char/specialx.c
+     drivers/net/hamradio/soundmodem
+  * Added asm/io.h for in*/out* to
+     drivers/isdn/hisax/hisax_fcpcipnp.c
+     drivers/net/wan/farsync.c
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  6 Mar 2002 19:53:30 +1100
+
+kernel-source-2.4.18 (2.4.18-1) unstable; urgency=low
+
+  * New upstream release (closes: #126391, #135156).
+  * Reverted tulip BMCR_FULLDPLX patch.
+  * Moved mkcramfs to the cramfs source package.
+  * CONFIG_SERIAL_ACPI now depends on CONFIG_SERIAL == y (closes: #132038).
+  * Fixed negative inodes in /proc/net (Arnaud Giersch, closes: #134704).
+  * pcnet32_purge_tx_ring may be called from IRQ context (Darren Salt,
+    closes: #134930).
+  * Check old_bbpnt in drivers/scsi/sr.c (2.5).
+  * Removed CONFIG_FT_ALPHA_CLOCK.
+  * Fixed the use of return values from mem*_io in drivers/isdn/sc.
+  * Added missing headers in drivers/pcmcia/i82092.c.
+  * Fixed compile error in drivers/scsi/dpt_i2o.c on alpha.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 28 Feb 2002 19:40:29 +1100
+
+kernel-source-2.4.17 (2.4.17-1) unstable; urgency=low
+
+  * New upstream release (closes: #122168, #123471).
+  * Only set startup to 0 for 21143 (rev 65) in tulip.
+  * Don't clear BMCR_FULLDPLX bit in tulip_find_mii as it breaks some cards
+    (closes: #100624).
+  * Fixed atyfb compilation problem (Tobias Ringstrom).
+  * Removed obsolete vfat patch.
+  * Fixed double cache allocation in mount_devfs_fs.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Dec 2001 13:41:46 +1100
+
+kernel-source-2.4.16 (2.4.16-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 28 Nov 2001 07:30:44 +1100
+
+kernel-source-2.4.15 (2.4.15-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Nov 2001 13:34:51 +1100
+
+kernel-source-2.4.14 (2.4.14-1) unstable; urgency=low
+
+  * New upstream release (closes: #117368, #118111).
+  * Made mkcramfs more verbose about write errors.
+  * Fixed compilation problem in loopback driver.
+  * Fixed compilation problem in ps2esdi.c.
+  * Fixed compilation problem in i2c-core.c.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  9 Nov 2001 20:15:49 +1100
+
+kernel-source-2.4.13 (2.4.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * Updated kernel-source suggests (closes: #115716).
+  * Added support for nm256xl+ (Mattia Monga, closes: #116378).
+  * Fixed comment about epochs in arch/alpha/kernel/time.c.
+  * Fixed symlink size bug on tmpfs.
+  * Fixed handling of HIDs with product strings bug no manufacturer.
+  * Work around tmpfs symlink size bug in mkcramfs.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 27 Oct 2001 17:39:07 +1000
+
+kernel-source-2.4.12 (2.4.12-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed typo in debian/rules (closes: #114065).
+  * Fixed ECN compilation problem (closes: #114192).
+  * Fixed typo in Documentation/sound/OPL3-SA
+    (Marius Gedminas, closes: #114760).
+  * Fixed typo in drivers/parport/ieee1284_ops.c (Tim Waugh).
+  * Don't kill page cache entries in set_blocksize.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 Oct 2001 11:41:03 +1000
+
+kernel-source-2.4.10 (2.4.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added support for EPAT C7/C8 chips.
+  * Fixed dead lock on shutdown in 8139too (closes: #107779).
+  * Removed const from drivers/net/irda/smc-ircc.c
+    (Keith Owens, closes: #110193).
+  * Allow ECN to be compiled in but disabled.
+  * Removed non-free Keyspan firmware.  We're no longer pristine.
+  * Fixed list_del bug in usb-uhci (ac patches).
+  * Fixed apm argument processing (ac patches).
+  * Added ioctl defines for cpq (ac patches).
+  * Included linux/init.h in drivers/net/aironet4500_card.c.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 29 Sep 2001 16:05:20 +1000
+
+kernel-source-2.4.9 (2.4.9-1) unstable; urgency=low
+
+  * New upstream release (closes: #63393).
+  * Fixed highmem CramFS bug (closes: #108893).
+  * Added missing include in fs/ntfs/unistr.c.
+  * Reverted startup==1 patch from drivers/net/tulip/21142.c.
+  * Fixed obsolete use of min: drivers/net/rrunner.c.
+  * Exported snprintf/vsnprintf (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 18 Aug 2001 21:23:07 +1000
+
+kernel-source-2.4.8 (2.4.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * Menuconfig now exits with 1 if screen is too small (closes: #106510).
+  * Applied NFS client seekdir patch (closes: #63063, #107045).
+  * Build-depend on kernel-package >= 7.48 (closes: #107545).
+  * Applied emu10k fixes (ac patches).
+  * Fixed ldm macros (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 12 Aug 2001 09:04:44 +1000
+
+kernel-source-2.4.7 (2.4.7-1) unstable; urgency=low
+
+  * New upstream release (closes: #97516, #104141, #104267).
+  * Applied ReiserFS umount patch (closes: #100740).
+  * Applied DAC960 completion patch (Jens Axboe).
+  * Restricted CONFIG_FB_PVR2 to SH (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Jul 2001 11:52:29 +1000
+
+kernel-source-2.4.6 (2.4.6-1) unstable; urgency=low
+
+  * New upstream release (closes: #102864).
+  * Fixed pegasus_set_multicast lockup.
+  * Reverted sysinfo patch.
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  5 Jul 2001 19:24:12 +1000
+
+kernel-source-2.4.5 (2.4.5-1) unstable; urgency=low
+
+  * New upstream release (closes: #78761, #96443).
+  * Fixed set_blocksize() on RAMDISKs.
+  * Removed flavour patch from Makefile as it is now obsolete.
+  * Fixed typo in drivers/usb/ov511.c (ac patches).
+  * Fixed race in fs/super.c (Alexander Viro).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 27 May 2001 10:25:42 +1000
+
+kernel-source-2.4.4 (2.4.4-2) unstable; urgency=low
+
+  * Hacked ide_xlate_1024 to work when IDE is modularised (closes: #94853).
+  * Fixed typo in pci2220i.c (ac patches).
+  * Treat files that begin with FD_FILL_BYTE correctly in vfat
+    (closes: #75413).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 13 May 2001 09:33:09 +1000
+
+kernel-source-2.4.4 (2.4.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed a typo in Documentation/sound/OPL3-SA (Carlos Valdivia Yagüe,
+    closes: #95255).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 29 Apr 2001 10:32:51 +1000
+
+kernel-source-2.4.3 (2.4.3-4) unstable; urgency=low
+
+  * ip_conntrack_ftp fix (netfilter, closes: #94216).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Apr 2001 11:15:02 +1000
+
+kernel-source-2.4.3 (2.4.3-3) unstable; urgency=low
+
+  * Added missing SIEMENS PCI ID (ac patches).
+  * Exported proc_get_inode (ac patches).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 16 Apr 2001 08:42:17 +1000
+
+kernel-source-2.4.3 (2.4.3-2) unstable; urgency=low
+
+  * Correct devfs path name in scsi-generic.txt (closes: #93405).
+  * Fixed negative padding in struct sysinfo.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 13 Apr 2001 19:42:42 +1000
+
+kernel-source-2.4.3 (2.4.3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  8 Apr 2001 16:50:40 +1000
+
+kernel-source-2.4.2 (2.4.2-3) unstable; urgency=low
+
+  * Added build-time dependency on libz-dev (closes: #89722).
+  * Compilation fixes in 6pack.c and genhd.h (closes: #90646).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 Mar 2001 20:30:03 +1100
+
+kernel-source-2.4.2 (2.4.2-2) unstable; urgency=low
+
+  * Added initrd support for cramfs.
+  * Fixed bug that prevented initrd from being freed (ac patches).
+  * Fixed a typo in Documentation/sound/VIBRA16 (Carlos Valdivia,
+    closes: #88018).
+  * Removed misleading securetty note in devfs README files (closes: #89148).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Mar 2001 08:56:27 +1100
+
+kernel-source-2.4.2 (2.4.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Created mkcramfs package.
+  * Accomodate option change in binutils (closes: #87009).
+  * Applied loopback patch by Jens Axobe.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 Feb 2001 20:19:31 +1100
+
+kernel-source-2.4.1 (2.4.1-3) unstable; urgency=low
+
+  * Applied tmpfs patch by Christoph Rohland.
+  * Fixed incorrect conditional check in struct sysinfo (closes: #85603).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Feb 2001 21:08:05 +1100
+
+kernel-source-2.4.1 (2.4.1-2) unstable; urgency=low
+
+  * Fixed the struct sysinfo warning properly (closes: #84234).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 10 Feb 2001 23:10:44 +1100
+
+kernel-source-2.4.1 (2.4.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added support for flavours to Makefile.
+  * Only include asm/bitops.h if __KERNEL__ is defined in linux/fs.h
+    (closes: #84238).
+  * Added padding to struct sysinfo so that it's identical to 2.2 (#84234).
+  * Fixed typos in asm/socket.h (closes: #39168).
+  * Updated IrDA URL in asm/termios.h (closes: #42222).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  4 Feb 2001 10:11:47 +1100
+
+kernel-source-2.4.0 (2.4.0-1) unstable; urgency=low
+
+  * New upstream release (closes: #71874, #79490).
+  * Added missing build-time dependencies (closes: #81728).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 16 Jan 2001 11:14:16 +1100
+
+kernel-source-2.4.0-test11 (2.4.0-test11-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  9 Dec 2000 11:34:37 +1100
+
+kernel-source-2.4.0-test5 (2.4.0-test5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 29 Jul 2000 17:55:37 +1000
+
+kernel-source-2.4.0-test4 (2.4.0-test4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 19 Jul 2000 18:37:17 +1000
+
+kernel-source-2.4.0-test3 (2.4.0-test3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 12 Jul 2000 09:49:57 +1000
+
+kernel-source-2.4.0-test2 (2.4.0-test2-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 10 Jul 2000 19:24:59 +1000
+
+kernel-source-2.2.17 (2.2.17pre6-1) frozen unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Jun 2000 21:53:40 +1000
+
+kernel-source-2.2.16 (2.2.16-1) frozen unstable; urgency=high
+
+  * New upstream release (closes: #65745).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 18 Jun 2000 12:42:37 +1000
+
+kernel-source-2.2.15 (1:2.2.15-3) frozen unstable; urgency=low
+
+  * Bring capabilities closer to POSIX spec (Andrew Morgan)
+    | Note. This subtly changes cap_bset behaviour.
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  1 Jun 2000 09:32:11 +1000
+
+kernel-source-2.2.15 (1:2.2.15-2) frozen unstable; urgency=low
+
+  * AIC7XXX 5.1.29 (closes: #63946).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 13 May 2000 09:29:50 +1000
+
+kernel-source-2.2.15 (1:2.2.15-1) frozen unstable; urgency=low
+
+  * New upstream release (closes: #63675).
+  * Built with kernel-package 7.04.potato.1 (closes: #63290).
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  9 May 2000 12:54:09 +1000
+
+kernel-source-2.2.15pre19 (2.2.15pre19-2) frozen unstable; urgency=low
+
+  * New upstream release (pre20).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 25 Apr 2000 15:31:03 +1000
+
+kernel-source-2.2.15pre19 (2.2.15pre19-1) frozen unstable; urgency=low
+
+  * New upstream release (closes: #55383).
+  * Applied patch from Chris Evans.
+  * Applied patch from David Miller.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 21 Apr 2000 12:15:30 +1000
+
+kernel-source-2.2.14 (2.2.14-5) frozen unstable; urgency=low
+
+  * Delete my copy of the control file before calling make-kpkg
+    (closes: #62269).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 13 Apr 2000 08:33:18 +1000
+
+kernel-source-2.2.14 (2.2.14-4) frozen unstable; urgency=medium
+
+  * Applied patch from Alexey Kuznetsov that fixes the AF_UNIX socket crash
+    (closes: #61335).
+  * Rebuilt with new kernel-package (closes: #61261).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 31 Mar 2000 14:12:43 +1000
+
+kernel-source-2.2.14 (2.2.14-3) frozen unstable; urgency=low
+
+  * Rebuilt with new kernel-package (closes: #60001).
+  * Included a patch from Eric Delaunay <delaunay@lix.polytechnique.fr> that
+    fixes a couple of argument parsing bugs in main.c (closes: #58566).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 23 Mar 2000 19:05:11 +1100
+
+kernel-source-2.2.14 (2.2.14-2) unstable; urgency=low
+
+  * Fixed incorrect assembly code for i386.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 16 Jan 2000 12:36:59 +1100
+
+kernel-source-2.2.14 (2.2.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed a typo in aha152x.c (closes: #12636).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 13 Jan 2000 12:09:06 +1100
+
+kernel-source-2.2.13 (2.2.13-2) unstable; urgency=low
+
+  * Updated version number in README.Debian (closes: #49033).
+  * Removed kernel-image as it will be generated by the kernel-image source
+    package.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 19 Nov 1999 19:41:45 +1100
+
+kernel-source-2.2.13 (2.2.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled ServeRAID (closes: #47653).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 24 Oct 1999 14:22:49 +1000
+
+kernel-source-2.2.12 (2.2.12-4) unstable; urgency=low
+
+  * Fixed a typo in tgafb.c.
+  * Added CONFIG_APM_DISABLE_BY_DEFAULT.
+  * Call make-kpkg to clean up (closes: #45603).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 14 Oct 1999 09:06:57 +1000
+
+kernel-source-2.2.12 (2.2.12-3) unstable; urgency=low
+
+  * Compiled with stacks aligned on dwords.
+  * Enabled serial consoles (closes: #46152).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 28 Sep 1999 17:39:34 +1000
+
+kernel-source-2.2.12 (2.2.12-2) unstable; urgency=low
+
+  * Rewrote the kmod patch to only bail out when the other side is our parent.
+  * Use the VFS patch rather than the autofs patch.
+  * Enabled Joliet extensions (fixes #42006).
+  * Enabled APM (fixes #42258).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 11 Sep 1999 23:51:00 +1000
+
+kernel-source-2.2.12 (2.2.12-1) unstable; urgency=low
+
+  * New upstream release (fixes #43865).
+  * Fixed an nlink update problem in nfs.
+  * New rules file from Hartmut Koptein.
+  * Fixed an overflow bug in the stallion driver.
+  * Fixed an autofs deadlock.
+  * Don't load a module that we're already trying to load (Chris Butler) (fixes
+    #39910).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  1 Sep 1999 09:12:15 +1000
+
+kernel-source-2.2.10 (2.2.10-1) unstable; urgency=low
+
+  * New upsream release.
+  * Moved default.config to new kernel-patch for i386.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 15 Jun 1999 21:59:48 +1000
+
+kernel-source-2.2.9 (2.2.9-2) unstable; urgency=high
+
+  * Fixed a network DoS attack.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  4 Jun 1999 21:06:28 +1000
+
+kernel-source-2.2.9 (2.2.9-1) unstable; urgency=low
+
+  * New upstream relesae.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 18 May 1999 10:20:08 +1000
+
+kernel-source-2.2.7 (2.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  7 May 1999 22:19:56 +1000
+
+kernel-source-2.2.5 (1:2.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 16 Apr 1999 13:56:45 +1000
+
+kernel-source-2.0.36 (2.0.36-3) frozen unstable; urgency=low
+
+  * Upgraded AIC7XXX to 5.1.11 which should make some owners of Adaptec cards
+    able to install Debian.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 21 Feb 1999 14:56:42 +1100
+
+kernel-source-2.0.36 (2.0.36-2) frozen unstable; urgency=low
+
+  * Applied ISDN patch from Paul Slootman that enables idle timeouts in the
+    manual dialmode and allows callback syncPPP connections to be made
+    (fixes #31516).
+  * Enlarged kernel message buffer so that all messages are caught by klogd.
+  * Included module for TLAN based network cards (fixes #31623).
+  * Include EtherExpressPro and FMV0181/182/183/184 as modules.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 16 Jan 1999 16:39:01 +1100
+
+kernel-source-2.0.36 (2.0.36-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled ETH16I.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 28 Nov 1998 17:40:21 +1100
+
+kernel-source-2.0.35 (2.0.35-3) frozen; urgency=low
+
+  * Upgraded to aic7xxx 5.1.4 (fixes #29480, #27859, #28946).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 22 Nov 1998 15:41:44 +1100
+
+kernel-source-2.0.35 (2.0.35-2) unstable; urgency=low
+
+  * Upgraded to aic7xxx 5.1.0.
+  * Removed spurious definition in 3c523.c (fixes #25370).
+  * Built with kernel-package 5.11 (fixes #25623).
+  * Enabled autofs (fixes #22338, #27860).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 24 Oct 1998 17:32:06 +1000
+
+kernel-source-2.0.35 (2.0.35-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 19 Jul 1998 08:59:44 +1000
+
+kernel-source-2.0.34 (2.0.34-4) frozen unstable; urgency=high
+
+  * Updated to aic7xxx 5.0.19 (fixes #24252).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  8 Jul 1998 20:06:08 +1000
+
+kernel-source-2.0.34 (2.0.34-3) frozen unstable; urgency=high
+
+  * Reversed euid test in fs/fcntl.c.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 30 Jun 1998 16:27:49 +1000
+
+kernel-source-2.0.34 (2.0.34-2) frozen unstable; urgency=low
+
+  * Upload to hamm as well.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 21 Jun 1998 16:48:13 +1000
+
+kernel-source-2.0.34 (2.0.34-1) unstable; urgency=low
+
+  * New upstream release (fixes #17651, #18788, #21231, #22330).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  7 Jun 1998 12:29:27 +1000
+
+kernel-source-2.0.33 (2.0.33-9) frozen unstable; urgency=low
+
+  * Disabled certain MCA NIC drivers (fixes #22254).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 10 May 1998 15:59:32 +1000
+
+kernel-source-2.0.33 (2.0.33-8) frozen unstable; urgency=low
+
+  * Disabled experimental drivers.
+  * Reapplied joliet patch (fixes #19160, #21537).
+  * Built with kernel-package 4.07 (fixes #21229).
+  * Replaced NO_PCI with !CONFIG_PCI in 3c59x.c (fixes #21916).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  1 May 1998 18:29:03 +1000
+
+kernel-source-2.0.33 (2.0.33-7) frozen unstable; urgency=high
+
+  * Applied IP fragmentation patch from Alan Cox.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 18 Apr 1998 12:57:56 +1000
+
+kernel-source-2.0.33 (2.0.33-6) frozen unstable; urgency=low
+
+  * Disabled scc since we don't support ax25 by default (fixes #20307).
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  1 Apr 1998 19:21:05 +1000
+
+kernel-source-2.0.33 (2.0.33-5) unstable; urgency=low
+
+  * Turned rst cookies off.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 18 Mar 1998 20:41:27 +1100
+
+kernel-source-2.0.33 (2.0.33-4) unstable; urgency=low
+
+  * Applied patch from Paul Slootman (fixes #18787).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  6 Mar 1998 11:30:44 +1100
+
+kernel-source-2.0.33 (2.0.33-3) stable unstable; urgency=low
+
+  * Built with new kernel-package (3.61).
+  * Added support for fat32 (fixes #14042).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 20 Feb 1998 16:33:40 +1100
+
+kernel-source-2.0.33 (2.0.33-2) stable unstable; urgency=low
+
+  * built with new kernel-package (3.57)
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 16 Feb 1998 08:59:11 +1100
+
+kernel-source-2.0.33 (2.0.33-1) stable unstable; urgency=high
+
+  * New upstream release (fixes #15736).
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  7 Feb 1998 15:06:57 +1100
+
+kernel-source-2.0.32 (2.0.32-3) stable unstable; urgency=low
+
+  * Built with new kernel-package (3.49).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 15 Dec 1997 12:22:45 +1100
+
+kernel-source-2.0.32 (2.0.32-2) stable unstable; urgency=low
+
+  * Removed teles driver which was accidentally left in.
+  * Applied patch from Andreas Jaeger.
+  * Built with new kernel-package (3.48) for use by libc6.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 14 Dec 1997 09:29:26 +1100
+
+kernel-source-2.0.32 (2.0.32-1) unstable; urgency=low
+
+  * New upstream release.
+  * Pristine source.
+  * Bugs fixed (#6132, #6133, #8647, #11823, #13705).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 23 Nov 1997 18:34:38 +1100
+
+kernel-source-2.0.29 (1:2.0.29-10) unstable; urgency=low
+
+  * NCR53C8XX driver updates.
+  * Installed 3c59x 0.46C (#10902).
+  * Modified scc.c to compile with libc6 (#14367).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 17 Nov 1997 20:46:57 +1100
+
+kernel-source-2.0.29 (1:2.0.29-9) unstable; urgency=low
+
+  * Slight mod to pci.c to ignore bridges that the kernel can't handle (#11865).
+  * Removed sound module support.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  3 Oct 1997 11:17:02 +1000
+
+kernel-source-2.0.29 (1:2.0.29-8) unstable; urgency=low
+
+  * Used epoch numbers to deal with old kernel-source releases.
+  * Enabled support for NCPFS.
+  * Added sound support.
+  * Enabled IP firewalls, forwarding, and aliasing.
+  * Applied ne2000 patch from Paul Gortmaker.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  4 Jul 1997 22:01:16 +1000
+
+kernel-source-2.0.29 (2.0.29-7) frozen unstable; urgency=high
+
+  * Applied security patch from Alan Cox.
+  * Applied patch from Andreas Jellinghaus.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 31 May 1997 11:59:56 +1000
+
+kernel-source-2.0.29 (2.0.29-6) frozen unstable; urgency=medium
+
+  * Merged Debian changes from 2.0.30.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 25 May 1997 22:26:30 +1000
+

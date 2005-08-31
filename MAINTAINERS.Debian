@@ -1,0 +1,54 @@
+The following people maintain the Debian kernels and some
+kernel-related packages:
+
+General kernel work:
+
+  - William Lee Irwin III
+  - Christoph Hellwig
+  - Maximilian Attems
+
+Kernel packages, sorted by architecture:
+
+  * alpha
+    - Norbert Tretkowski
+  * amd64
+    - Goswin von Brederlow
+    - Frederik Schueler
+  * arm
+    - N.N.
+  * hppa
+    - Matthew Wilcox
+    - Kyle McMartin
+  * i386
+    - Andres Salomon
+    - Simon Horman
+    - Joshua Kwan
+  * ia64
+    - Matthew Wilcox
+    - dann frazier
+  * m68k
+    - Christian T. Steigies
+  * mips
+    - Thiemo Seufer
+  * mipsel
+    - Thiemo Seufer
+  * powerpc
+    - Sven Luther
+    - Jens Schmalzing
+  * s390
+    - Bastian Blank
+  * sparc
+    - Joshua Kwan
+    - Ben Collins
+
+Kernel-related packages:
+
+  * initrd-tools
+    - Jeff Bailey
+  * cramfs
+    - Francesco P. Lovergine
+  * module-init-tools
+    - Marco d'Itri 
+  * mkvmlinuz
+    - Jens Schmalzing
+

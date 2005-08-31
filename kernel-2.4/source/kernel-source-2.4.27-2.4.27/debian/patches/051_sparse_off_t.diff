@@ -1,0 +1,41 @@
+# origin: ?
+# cset: n/a
+# inclusion: not submitted (?)
+# description: sparse off_t fixes
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/fs/readdir.c kernel-source-2.4.26-1/fs/readdir.c
+--- kernel-source-2.4.26/fs/readdir.c	2004-02-19 00:36:31.000000000 +1100
++++ kernel-source-2.4.26-1/fs/readdir.c	2004-02-22 20:28:30.000000000 +1100
+@@ -377,7 +377,8 @@
+ 	lastdirent = buf.previous;
+ 	if (lastdirent) {
+ 		struct linux_dirent64 d;
+-		d.d_off = file->f_pos;
++		/* get the sign extension right */
++		d.d_off = (off_t)file->f_pos;
+ 		copy_to_user(&lastdirent->d_off, &d.d_off, sizeof(d.d_off));
+ 		error = count - buf.count;
+ 	}
+
+diff -urN kernel-source-2.4.26/fs/nfs/nfs2xdr.c kernel-source-2.4.26-1/fs/nfs/nfs2xdr.c
+--- kernel-source-2.4.26/fs/nfs/nfs2xdr.c	2002-11-29 10:53:15.000000000 +1100
++++ kernel-source-2.4.26-1/fs/nfs/nfs2xdr.c	2002-11-30 15:49:27.000000000 +1100
+@@ -369,7 +369,7 @@
+ 		count = count >> 2;
+ 
+ 	p = xdr_encode_fhandle(p, args->fh);
+-	*p++ = htonl(args->cookie);
++	*p++ = htonl(args->cookie & 0xFFFFFFFF);
+ 	*p++ = htonl(count); /* see above */
+ 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
+ 
+@@ -466,7 +466,7 @@
+ 	entry->name	  = (const char *) p;
+ 	p		 += XDR_QUADLEN(entry->len);
+ 	entry->prev_cookie	  = entry->cookie;
+-	entry->cookie	  = ntohl(*p++);
++	entry->cookie	  = (s64)((off_t)ntohl(*p++));
+ 	entry->eof	  = !p[0] && p[1];
+ 
+ 	return p;

@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# debian/post-install for kernel-patch-powerpc
+
+# written by Jens Schmalzing <jensen@debian.org>
+# modified for 2.4 by Svne Luther <luther@debian.org>
+
+# This shell script is intended to be put into the debian subdirectory
+# of a Linux kernel tree, where make-kpkg will find and execute it
+# while building a kernel-image package.  The purpose of this script
+# is to add glue (object code, libraries, utilities and so on) from
+# the kernel tree to the kernel-image package.  Later, the mkvmlinuz
+# utility, which is available as a separate Debian package, can use
+# this glue to create a bootable compressed kernel from the
+# uncompressed kernel in the kernel-image package and optionally a
+# ramdisk.  This is especially important on PowerPC subarchitectures
+# that don't have a boot loader, but also comes handy for rescue
+# systems and the like.
+
+KSRC=${PWD}
+KLIB=${PWD}/${IMAGE_TOP}/usr/lib/kernel-image-${version}
+INSTALL_DATA="install -m 644 -o root -g root"
+INSTALL_EXEC="install -m 755 -o root -g root"
+
+# get rid of the coff image (not strictly necessary, but cleaner)
+
+rm -f ${IMAGE_TOP}/boot/vmlinux.coff-${version}
+
+# add glue for creating bootable compressed kernel images
+
+mkdir -p ${KLIB}/boot
+cd ${KSRC}/arch/ppc/boot
+${INSTALL_DATA} ld.script ${KLIB}/boot
+
+mkdir -p ${KLIB}/lib
+cd ${KSRC}
+${INSTALL_DATA} lib/lib.a ${KLIB}/lib
+${INSTALL_DATA} arch/ppc/boot/lib/zlib.a ${KLIB}/lib
+${INSTALL_DATA} arch/ppc/boot/of1275/of1275.a ${KLIB}/lib
+
+mkdir -p ${KLIB}/obj/common
+cd ${KSRC}/arch/ppc/boot/common
+${INSTALL_DATA} *.o ${KLIB}/obj/common
+
+mkdir -p ${KLIB}/obj/chrp
+cd ${KSRC}/arch/ppc/boot/chrp
+${INSTALL_DATA} *.o ${KLIB}/obj/chrp
+rm -f ${KLIB}/obj/chrp/image*
+
+mkdir -p ${KLIB}/obj/pmac
+cd ${KSRC}/arch/ppc/boot/pmac
+${INSTALL_DATA} *.o ${KLIB}/obj/pmac
+rm -f ${KLIB}/obj/chrp/pmac*
+
+mkdir -p ${KLIB}/obj/prep
+cd ${KSRC}/arch/ppc/boot/prep
+${INSTALL_DATA} *.o ${KLIB}/obj/prep
+rm -f ${KLIB}/obj/prep/image*.o
+
+mkdir -p ${KLIB}/obj/simple
+cd ${KSRC}/arch/ppc/boot/simple
+${INSTALL_DATA} *.o ${KLIB}/obj/simple
+rm -f ${KLIB}/obj/simple/image*.o
+
+mkdir -p ${KLIB}/utils
+cd ${KSRC}/arch/ppc/boot/utils
+${INSTALL_EXEC} addnote hack-coff mknote mkprep ${KLIB}/utils
+# not used in the debian builds.
+# ${INSTALL_EXEC} mkbugboot mktree ${KLIB}/utils

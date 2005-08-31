@@ -1,0 +1,4 @@
+ It is intended to be run on PowerPC machines with two or more Power4
+ processors.  This setup can be found in Apple's dual G5 PowerMacs, as
+ well as in a number of IBM RS/6000 boxen, such as the iSeries and
+ pSeries machines.

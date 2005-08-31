@@ -1,0 +1,66 @@
+# origin: marcel (BitKeeper)
+# cset: 1.2199.13.4 (2.6) key=42434cb6P-Rg7wMdQU1Avi76lj14Zg
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@42434cb6P-Rg7wMdQU1Avi76lj14Zg
+# inclusion: upstream
+# descrition: [Bluetooth] Fix signedness problem at socket creation
+# revision date: Mon, 28 Mar 2005 18:31:41 +0900
+#
+# S rset: ChangeSet|1.2199.13.3..1.2199.13.4
+# I rset: net/bluetooth/af_bluetooth.c|1.40..1.41
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/25 00:26:46+01:00 marcel@holtmann.org 
+#   [Bluetooth] Fix signedness problem at socket creation
+#   
+#   This patch fixes a small signedness problem when creating the
+#   socket.
+#   
+#   Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+# 
+# net/bluetooth/af_bluetooth.c
+#   2005/03/25 00:23:06+01:00 marcel@holtmann.org +3 -3
+#   Fix signedness problem at socket creation
+# 
+#
+===== net/bluetooth/af_bluetooth.c 1.40 vs 1.41 =====
+--- 1.40/net/bluetooth/af_bluetooth.c	2005-03-18 23:07:22 +09:00
++++ 1.41/net/bluetooth/af_bluetooth.c	2005-03-25 08:23:06 +09:00
+@@ -62,7 +62,7 @@ static struct net_proto_family *bt_proto
+ 
+ int bt_sock_register(int proto, struct net_proto_family *ops)
+ {
+-	if (proto >= BT_MAX_PROTO)
++	if (proto < 0 || proto >= BT_MAX_PROTO)
+ 		return -EINVAL;
+ 
+ 	if (bt_proto[proto])
+@@ -75,7 +75,7 @@ EXPORT_SYMBOL(bt_sock_register);
+ 
+ int bt_sock_unregister(int proto)
+ {
+-	if (proto >= BT_MAX_PROTO)
++	if (proto < 0 || proto >= BT_MAX_PROTO)
+ 		return -EINVAL;
+ 
+ 	if (!bt_proto[proto])
+@@ -90,7 +90,7 @@ static int bt_sock_create(struct socket 
+ {
+ 	int err = 0;
+ 
+-	if (proto >= BT_MAX_PROTO)
++	if (proto < 0 || proto >= BT_MAX_PROTO)
+ 		return -EINVAL;
+ 
+ #if defined(CONFIG_KMOD)

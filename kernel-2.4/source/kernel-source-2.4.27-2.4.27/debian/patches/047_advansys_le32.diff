@@ -1,0 +1,22 @@
+# origin: Debian, #128080
+# cset: n/a
+# inclusion: not submitted
+# description: unbreak wide cards on big-endian archs
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/scsi/advansys.c kernel-source-2.4.26-1/drivers/scsi/advansys.c
+--- kernel-source-2.4.26/drivers/scsi/advansys.c	2004-04-14 23:05:31.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/scsi/advansys.c	2004-04-17 14:23:54.000000000 +1000
+@@ -3333,10 +3333,10 @@
+ #define AdvWriteDWordLramNoSwap(iop_base, addr, dword) \
+     ((ADV_MEM_WRITEW((iop_base) + IOPW_RAM_ADDR, (addr)), \
+       ADV_MEM_WRITEW((iop_base) + IOPW_RAM_DATA, \
+-                     cpu_to_le16((ushort) ((dword) & 0xFFFF)))), \
++                     ((le32_to_cpu(dword)) & 0xFFFF))), \
+      (ADV_MEM_WRITEW((iop_base) + IOPW_RAM_ADDR, (addr) + 2), \
+       ADV_MEM_WRITEW((iop_base) + IOPW_RAM_DATA, \
+-                     cpu_to_le16((ushort) ((dword >> 16) & 0xFFFF)))))
++                     ((le32_to_cpu(dword) >> 16) & 0xFFFF))))
+ 
+ /* Read word (2 bytes) from LRAM assuming that the address is already set. */
+ #define AdvReadWordAutoIncLram(iop_base) \

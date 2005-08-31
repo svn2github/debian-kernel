@@ -1,0 +1,118 @@
+#!/usr/bin/make -f
+#
+# debian/rules for kernel-image-*
+#
+# GNU copyright 1997 to 1999 by Joey Hess.
+# Copyright (c) 1999-2002 Herbert Xu <herbert@debian.org>
+#
+# $Id: rules,v 1.8 2004/04/27 11:42:48 herbert Exp $
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=2
+
+SHELL := sh -e
+
+khsed := s/^Package: kernel-headers-\(.*\)\(-[[:digit:]]*\)$$/\1 \2/
+debver := $(shell sed -n '$(khsed); t e; b; :e; p; q' debian/control)
+export version := $(firstword $(debver))
+export debnum := $(word 2,$(debver))
+debver := $(version)$(debnum)
+appvan :=
+
+ifneq ($(debnum),)
+appvan := --append_to_version $(debnum)
+endif
+
+flavours := $(shell \
+	find config -maxdepth 1 -type f ! -name default -printf '%f\n' \
+)
+
+ktver := $(shell \
+	sed -n 's/.*kernel-tree-\([^,]*\).*/\1/p; t e; b; :e q' \
+		debian/control \
+)
+
+kbsed := s/^Depends: .*\(kernel-kbuild-[^ ,]*\).*/\1/p
+kbpkg := $(shell sed -n '$(kbsed); t e; b; :e q' debian/control)
+
+export DEBIAN_SRCTOP := $(CURDIR)/kernel-source-$(version)
+export DEBIAN_UPSTREAM_VERSION := $(version)
+
+unpack: unpack-stamp
+unpack-stamp:
+	dh_testdir
+	tar jxf /usr/src/kernel-source-$(version).tar.bz2
+	cd kernel-source-$(version); \
+		/usr/src/kernel-patches/all/$(version)/apply/debian $(ktver)
+	mkdir -p kernel-source-$(version)/debian
+	cp debian/changelog kernel-source-$(version)/debian
+	cp debian/control kernel-source-$(version)/debian
+	cp debian/copyright kernel-source-$(version)/debian
+	> kernel-source-$(version)/debian/official
+	install post-install kernel-source-$(version)/debian
+	for i in $(flavours); do \
+		cp -al kernel-source-$(version) build-$$i; \
+		cp config/$$i build-$$i/.config; \
+	done
+	cp config/default kernel-source-$(version)/.config
+	ln -s `command -v touch` bin/touch.orig
+	sed 's/@kbpkg@/$(kbpkg)/g' header-install > header-install.out
+	chmod u+x header-install.out
+
+	touch unpack-stamp
+
+build: build-stamp
+build-stamp: unpack-stamp
+	dh_testdir
+	PATH=$$PWD/bin:$$PATH; \
+	for i in $(flavours); do \
+		cd build-$$i; \
+		make-kpkg --append_to_version $(debnum)-$$i build; \
+		cd ..; \
+	done
+
+	touch build-stamp
+
+debnum:
+	@echo $(debnum)
+
+clean:
+	dh_testdir
+	rm -f unpack-stamp build-stamp
+	rm -rf kernel-source-$(version) build-* install-*
+	rm -f bin/touch.orig
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_clean -k
+	dh_installdirs
+
+# Build architecture-independent files here.
+binary-indep:
+
+# Build architecture-dependent files here.
+binary-arch: install
+	dh_testdir
+
+	cd kernel-source-$(version); \
+		 HEADER_CLEAN_HOOK=$(CURDIR)/header-install.out \
+			 make-kpkg $(appvan) kernel-headers
+	mv kernel-source-$(version)/debian/files debian
+
+	for i in $(flavours); do \
+		cp -al build-$$i install-$$i; \
+		cd install-$$i; \
+		make-kpkg --append_to_version $(debnum)-$$i \
+			--initrd kernel-image; \
+		cd ..; \
+		cat install-$$i/debian/files >> debian/files; \
+		rm -rf install-$$i; \
+	done
+	mv *.deb ..
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install unpack

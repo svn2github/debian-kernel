@@ -1,0 +1,156 @@
+#! /usr/bin/make -f
+
+# User configurable piece.
+epoch := 0
+
+arch := $(shell dpkg --print-architecture)
+
+CC = gcc-3.3
+
+# The package version should be UPSTREAM-MINOR
+# For instance:
+#  2.4.27-5.040815-1
+# where UPSTREAM is 2.4.27-5.040815 and MINOR is 1
+realver := $(shell dpkg-parsechangelog |grep '^Version: ' |sed -e 's/^Version: //' -e 's/-[^-]*$$//')
+minorver := $(shell dpkg-parsechangelog |grep '^Version: ' |sed -e 's/^Version: //' -e 's/.*-//g')
+
+# The hypothetical kernel version - the unpatched source tree in use.
+# The changelog should refer to kernel-patch-$(basever)-mips
+basever := $(shell dpkg-parsechangelog | awk -F- '/^Source:/ { if (match($$4,"^pre") || match($$4,"^rc")) print $$3"-"$$4; else print $$3}')
+
+# The debian revision of the image packages.
+debver := $(realver)-$(minorver)
+
+ifneq ($(epoch),0)
+  packver := $(epoch):$(debver)
+else
+  packver := $(debver)
+endif
+
+p_tools := mips-tools
+
+kdir := build-tmp/kernel-source-$(basever)
+
+ifeq ($(arch),mips)
+  subarches := sb1-swarm-bn r4k-ip22 r5k-ip22
+endif
+ifeq ($(arch),mipsel)
+  subarches := r5k-cobalt sb1-swarm-bn r3k-kn02 r4k-kn04 r5k-lasat xxs1500
+endif
+
+# handle DEB_BUILD_OPTIONS for mips-tools package
+MT_CFLAGS = -W -Wall -g -pipe
+MT_INSTALL = install
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+  MT_CFLAGS += -O0
+else
+  MT_CFLAGS += -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+  MT_INSTALL += -s
+endif
+
+NUM_CPUS := $(shell grep '^processor[:space:]*' /proc/cpuinfo | wc -l)
+
+source-unpack-stamp:
+	rm -rf build-tmp
+	mkdir build-tmp
+	tar -C build-tmp --bzip2 -xf /usr/src/kernel-source-$(basever).tar.bz2
+	ln -sf asm-mips $(kdir)/include/asm
+	touch $@
+
+patch: source-patch-stamp
+source-patch-stamp: source-unpack-stamp
+	dpatch -d $(kdir) apply-all
+	dpatch cat-all > $@
+
+unpatch:
+ifneq (,$(wildcard source-patch-stamp))
+	dpatch -d $(kdir) deapply-all
+	rm -f source-patch-stamp
+endif
+
+clean:
+	dh_testdir
+	rm -f source-unpack-stamp
+	rm -f source-patch-stamp
+	rm -rf build-tmp
+	dh_clean
+
+build: source-patch-stamp
+	dh_testdir
+
+	# build the mips-tools
+	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cd $(kdir)/arch/mips/boot \
+		&& $(CC) $(MT_CFLAGS) -o elf2ecoff elf2ecoff.c
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs -p$(p_tools)
+
+	# install files for mips-tools package
+	$(MT_INSTALL) $(kdir)/arch/mips/boot/elf2ecoff debian/$(p_tools)/usr/bin
+
+binary-headers: source-patch-stamp
+	dh_testdir
+	dh_testroot
+ifneq ($(subarches),)
+	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cp debian/changelog debian/control $(kdir)/debian/
+	echo official > $(kdir)/debian/official
+	cd $(kdir) && MAKEFLAGS="CC=$(CC)" make-kpkg kernel_headers
+	cp build-tmp/kernel-headers-$(basever)_$(debver)_$(arch).deb ..
+endif
+
+binary-images: install
+	dh_testdir
+	dh_testroot
+ifneq ($(subarches),)
+	chmod a+x ./scripts/copy-modules
+
+	# Messes up version detection with kernel-package - but that's good
+	$(foreach sub,$(subarches), \
+		echo "Building subarch $(sub)" && \
+		( cd $(kdir) && make-kpkg clean && make-kpkg debian ) && \
+		cp debian/changelog debian/control $(kdir)/debian/ && \
+		echo official > $(kdir)/debian/official && \
+		cp config/$(arch)/$(sub) $(kdir)/.config && \
+		( cd $(kdir) && CONCURRENCY_LEVEL=$(NUM_CPUS) MAKEFLAGS="CC=$(CC)" make-kpkg \
+		  --subarch $(sub) --append-to-version=-$(sub) kernel_image ) && \
+		cp build-tmp/kernel-image-$(basever)-$(sub)_$(debver)_$(arch).deb .. && ) :
+endif
+
+binary-arch: binary-images binary-headers
+	dh_testdir
+	dh_testroot
+	dh_installdocs -p$(p_tools)
+	dh_installchangelogs -p$(p_tools)
+	dh_installman -p$(p_tools)
+
+	dh_compress -p$(p_tools)
+	dh_installdeb -p$(p_tools)
+	dh_fixperms -p$(p_tools)
+	dh_shlibdeps -p$(p_tools)
+	dh_gencontrol -p$(p_tools)
+	dh_md5sums -p$(p_tools)
+	dh_builddeb -p$(p_tools)
+ifneq ($(subarches),)
+	# finally add the kernel images and headers
+	$(foreach sub,$(subarches), \
+		dpkg-distaddfile kernel-image-$(basever)-$(sub)_$(debver)_$(arch).deb base optional && ) :
+	dpkg-distaddfile kernel-headers-$(basever)_$(debver)_$(arch).deb devel optional
+endif
+
+binary-indep:
+
+binary: binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep binary-images binary-headers build \
+	clean install patch unpatch
+
+# Local Variables:
+# mode:Makefile
+# End:

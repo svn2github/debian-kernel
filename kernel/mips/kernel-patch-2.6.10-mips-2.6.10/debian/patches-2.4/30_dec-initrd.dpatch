@@ -1,0 +1,51 @@
+#! /bin/sh -e
+## 30_dec-initrd.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Remove broken DECstation initrd initialization.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+diff -Nur linux-mips-cvs-20040326/arch/mips/dec/setup.c linux-mips-cvs-20040326.patched/arch/mips/dec/setup.c
+--- linux-mips-cvs-20040326/arch/mips/dec/setup.c	2003-12-11 16:06:48.000000000 +0000
++++ linux-mips-cvs-20040326.patched/arch/mips/dec/setup.c	2004-04-01 21:19:44.000000000 +0000
+@@ -48,11 +48,6 @@
+ 
+ extern asmlinkage void decstation_handle_int(void);
+ 
+-#ifdef CONFIG_BLK_DEV_INITRD
+-extern unsigned long initrd_start, initrd_end;
+-extern void * __rd_start, * __rd_end;
+-#endif
+-
+ spinlock_t ioasic_ssr_lock;
+ 
+ volatile u32 *ioasic_base;
+@@ -136,11 +131,6 @@
+ 
+ void __init decstation_setup(void)
+ {
+-#ifdef CONFIG_BLK_DEV_INITRD
+-	ROOT_DEV = MKDEV(RAMDISK_MAJOR, 0);
+-	initrd_start = (unsigned long)&__rd_start;
+-	initrd_end = (unsigned long)&__rd_end;
+-#endif
+ 	board_be_init = dec_be_init;
+ 	board_time_init = dec_time_init;
+ 	board_timer_setup = dec_timer_setup;

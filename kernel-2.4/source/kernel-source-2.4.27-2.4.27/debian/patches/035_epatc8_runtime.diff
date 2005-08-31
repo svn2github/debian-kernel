@@ -1,0 +1,70 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: make epatc8 a runtime option
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/block/paride/epat.c kernel-source-2.4.26-1/drivers/block/paride/epat.c
+--- kernel-source-2.4.26/drivers/block/paride/epat.c	2002-11-29 10:53:12.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/block/paride/epat.c	2002-11-30 16:25:11.000000000 +1100
+@@ -30,6 +30,14 @@
+ #define j44(a,b)		(((a>>4)&0x0f)+(b&0xf0))
+ #define j53(a,b)		(((a>>3)&0x1f)+((b<<4)&0xe0))
+ 
++#ifdef CONFIG_PARIDE_EPATC8
++static int epatc8 = 1;
++#else
++static int epatc8;
++#endif
++
++MODULE_PARM(epatc8,"i");
++
+ /* cont =  0   IDE register file
+    cont =  1   IDE control registers
+    cont =  2   internal EPAT registers
+@@ -208,15 +216,18 @@
+ {       pi->saved_r0 = r0();
+         pi->saved_r2 = r2();
+ 
+-#ifdef CONFIG_PARIDE_EPATC8
+  	/* Initialize the chip */
+-        CPP(0);CPP(0x40);CPP(0xe0);              
+-        w0(0);w2(1);w2(4);
+-        WR(0x8,0x12);WR(0xc,0x14);WR(0x12,0x10);
+-        WR(0xe,0xf);WR(0xf,4);
+-     /* WR(0xe,0xa);WR(0xf,4); */
+-        WR(0xe,0xd);WR(0xf,0);
+-     /* CPP(0x30); */
++	CPP(0);
++
++	if (epatc8) {
++		CPP(0x40);CPP(0xe0);              
++		w0(0);w2(1);w2(4);
++		WR(0x8,0x12);WR(0xc,0x14);WR(0x12,0x10);
++		WR(0xe,0xf);WR(0xf,4);
++		/* WR(0xe,0xa);WR(0xf,4); */
++		WR(0xe,0xd);WR(0xf,0);
++		/* CPP(0x30); */
++	}
+ 
+         /* Connect to the chip */
+ 	CPP(0xe0);
+@@ -226,15 +237,10 @@
+           /* Request EPP */
+           w0(0x40);w2(6);w2(7);w2(4);w2(0xc);w2(4);
+         }
+-#else
+- 	CPP(0); CPP(0xe0);
+-	w0(0); w2(1); w2(4);
+-	if (pi->mode >= 3) {
+-		w0(0); w2(1); w2(4); w2(0xc);
+-		w0(0x40); w2(6); w2(7); w2(4); w2(0xc); w2(4);
++
++	if (!epatc8) {
++		WR(8,0x10); WR(0xc,0x14); WR(0xa,0x38); WR(0x12,0x10);
+ 	}
+-	WR(8,0x10); WR(0xc,0x14); WR(0xa,0x38); WR(0x12,0x10);
+-#endif
+ }
+ 
+ static void epat_disconnect (PIA *pi)

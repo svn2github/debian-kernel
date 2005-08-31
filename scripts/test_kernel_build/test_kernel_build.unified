@@ -1,0 +1,129 @@
+#!/bin/bash
+######################################################################
+# Horms                                                    August 2005
+######################################################################
+
+set -e
+
+TKB_BASE_DIR="$HOME/work/debian-kernel/test_kernel_build"
+TKB_LIB_DIR="$TKB_BASE_DIR/lib"
+TKB_ETC_DIR="$TKB_BASE_DIR/etc"
+
+. "$TKB_LIB_DIR/libtkb.framework"
+. "$TKB_LIB_DIR/libtkb.source"
+
+pre_conf_setup_generic 2.6 $@
+
+. "$TKB_ETC_DIR/test_kernel_build.conf.unified"
+
+post_conf_setup_source
+S_PKG_DIR="$S_DST_DIR/linux-2.6-$S_UPSTREAM_VERSION"
+
+LOG="$S_LOG"
+purgelog
+DST_DIR="$S_DST_DIR"
+STAGE_NAME="Creating linux-2.6 directory"
+stage_begin "$STAGE_NAME" || {
+	{
+		rm -rf "$S_DST_DIR" "$S_PKG_DIR" "$S_TMP_DIR" "$S_LOG_DIR"
+		mkdir -p "$S_DST_DIR" "$S_TMP_DIR" "$S_LOG_DIR"
+	}
+	stage_end $?
+}
+openlog
+log "Logs in $LOG.blah"
+
+STAGE_NAME="Fetching kernel-source tarball from debian archive"
+stage_begin "$STAGE_NAME" || {
+	(
+		cd "$DST_DIR" && \
+		apt-get source -d -q=1 "linux-2.6" && \
+		tar -zxf "linux-2.6_${S_UPSTREAM_VERSION}.orig.tar.gz" && \
+		test ! -d "linux-2.6-${S_UPSTREAM_VERSION}.orig" || \
+		mv "linux-2.6-${S_UPSTREAM_VERSION}.orig" \
+			"linux-2.6-${S_UPSTREAM_VERSION}"
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Copying linux-2.6 debian directory"
+stage_begin "$STAGE_NAME" || {
+	{
+		( cd "$S_SRC_DIR/" && svn status; ) > "$LOG.$STAGE.svn" && \
+		rsync -av --exclude .svn --exclude ".*.sw[a-z]" \
+			"$S_SRC_DIR/" "$S_PKG_DIR/"  && \
+		chmod u+x "$S_PKG_DIR/debian/rules" && \
+		( cd "$S_PKG_DIR" && debian/rules debian/control || \
+		  debian/rules debian/control; ) && \
+		echo "Do not remove this line. " > "$S_PKG_DIR/debian/official"
+	} >& "$LOG.$STAGE"
+	stage_end $?
+	if [ -s "$LOG.$STAGE.svn" ]; then
+		echo "=== SVN file stauts ==="
+		cat "$LOG.$STAGE.svn"
+	fi | tee -a "$LOG.$STAGE"
+}
+
+STAGE_NAME="Mangling linux-2.6 debian/{control,patches/series/}"
+stage_begin "$STAGE_NAME" || {
+	{
+	if [ -n "$RELEASE" ]; then
+		echo skip
+	else
+		sed -e "s/^\(kernel-source-$VERSION\) ($S_DEB_VERSION) /\1 ($S_TAG_VERSION) /" \
+			< "$S_PKG_DIR/debian/changelog" \
+			> "$S_PKG_DIR/debian/changelog.2" && \
+		mv "$S_PKG_DIR/debian/changelog.2" \
+			"$S_PKG_DIR/debian/changelog" && \
+		[ ! -f "$S_PKG_DIR/debian/patches-debian/series/$S_DEB_VERSION" ] || \
+		mv "$S_PKG_DIR/debian/patches-debian/series/$S_DEB_VERSION" \
+			"$S_PKG_DIR/debian/patches-debian/series/$S_TAG_VERSION"
+	fi
+	} >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+
+STAGE_NAME="Patching linux-2.6 tree"
+stage_begin "$STAGE_NAME" || {
+	(
+		echo "skip, as it does nothing"
+		#cd "$S_PKG_DIR" && \
+		#./debian/rules patch
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Build linux-2.6 package"
+stage_begin "$STAGE_NAME" || {
+	(
+		cd "$S_PKG_DIR" && \
+		dpkg-buildpackage -us -uc -rfakeroot
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_NAME="Uploading Kernel Source"
+stage_begin "$STAGE_NAME" || {
+	(
+		mkdir -p "$S_UPLOAD_DIR"
+		cp -vp "$S_DST_DIR"/kernel-*_"${S_TAG_VERSION}"*.{deb,dsc,changes,diff.gz} \
+			"$S_DST_DIR/linux-2.6_${S_UPSTREAM_VERSION}.orig.tar.gz" \
+			"$S_UPLOAD_DIR"
+		UP_LOG_DIR="$S_UPLOAD_DIR/linux-2.6_${S_UPSTREAM_VERSION}-${S_TAG_VERSION}_$KERNEL_ARCH.log"
+		mkdir -p "$UP_LOG_DIR"
+		rm -f "$UP_LOG_DIR/"*.bz2
+		cp -p "$S_DST_DIR/log/"* "$UP_LOG_DIR"
+		bzip2 --best "$UP_LOG_DIR/"*
+		(cd "$S_UPLOAD_DIR" && dpkg-scansources . /dev/null | \
+			gzip --best > Sources.gz ; )
+		(cd "$S_UPLOAD_DIR" && dpkg-scanpackages . /dev/null | \
+			gzip --best > Packages.gz; )
+		print_readme_html "$S_UPLOAD_URL" > "$S_UPLOAD_DIR/README.html"
+		chmod -R a+rX "$S_UPLOAD_DIR"
+	) >& "$LOG.$STAGE"
+	stage_end $?
+}
+
+STAGE_STATUS="ok"
+exit

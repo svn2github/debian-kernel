@@ -1,0 +1,21 @@
+kernel-image-2.4.27-hppa (2.4.27-3) unstable; urgency=high
+
+  * Fix FTBFS (#289590), build against modified -pa4 and kernel-tree -8.
+  * Has sym53c8xx_26_compat patch (to allow 2.6-like device enumeration).
+
+ -- Thibaut VARENE <varenet@debian.org>  Sun, 23 Jan 2005 02:04:59 +0100
+
+kernel-image-2.4.27-hppa (2.4.27-2) unstable; urgency=high
+
+  * SMP stability fixes.
+  * Built against -pa4.
+
+ -- Thibaut VARENE <varenet@debian.org>  Sun, 29 Aug 2004 23:26:10 +0200
+
+kernel-image-2.4.27-hppa (2.4.27-1) unstable; urgency=low
+
+  * New upstream release.
+  * Built against -pa1.
+
+ -- Thibaut VARENE <varenet@debian.org>  Tue, 17 Aug 2004 01:02:46 +0200
+

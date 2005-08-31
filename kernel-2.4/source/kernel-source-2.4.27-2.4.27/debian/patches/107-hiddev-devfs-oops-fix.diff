@@ -1,0 +1,46 @@
+# origin: herbert (BitKeeper)
+# cset: 1.1449.50.2 (2.4) key=416d1319_ND7oLGXGU_W7bj8fS4_DA
+# inclusion: upstream
+# description: [PATCH] Fix hiddev devfs oops
+# revision date: Fri, 26 Nov 2004 14:59:39 +0900
+#
+# S rset: ChangeSet|1.1449.50.1..1.1449.50.2
+# I rset: drivers/usb/hid-core.c|1.30..1.31
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/10/13 08:35:53-03:00 herbert@gondor.apana.org.au 
+#   [PATCH] Fix hiddev devfs oops
+#   
+#   There is a long-standing devfs_unregister oops in hid/hiddev.  It's
+#   caused by hid calling hiddev_exit before unregistering itself which
+#   in turn calls hiddev_disconnect.
+#   
+#   hiddev_exit removes the directory which contains the hiddev devices.
+#   Therefore it needs to be called after the hiddev devices have been
+#   disconnected.
+#   
+#   This patch fixes that.
+#   
+#   
+#   ===== drivers/usb/hid-core.c 1.30 vs edited =====
+# 
+# drivers/usb/hid-core.c
+#   2004/10/05 09:33:52-03:00 herbert@gondor.apana.org.au +1 -1
+#   Re: [HID] Fix hiddev devfs oops
+# 
+#
+===== drivers/usb/hid-core.c 1.30 vs 1.31 =====
+--- 1.30/drivers/usb/hid-core.c	2004-08-08 17:59:53 +09:00
++++ 1.31/drivers/usb/hid-core.c	2004-10-05 21:33:52 +09:00
+@@ -1459,8 +1459,8 @@
+ 
+ static void __exit hid_exit(void)
+ {
+-	hiddev_exit();
+ 	usb_deregister(&hid_driver);
++	hiddev_exit();
+ }
+ 
+ module_init(hid_init);

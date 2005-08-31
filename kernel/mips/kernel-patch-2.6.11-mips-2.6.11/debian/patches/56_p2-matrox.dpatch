@@ -1,0 +1,83 @@
+#! /bin/sh -e
+## 56_p2-matrox.dpatch by Peter 'p2' De Schrijver <p2@mind.be>
+##
+## DP: Matrox BE fix
+## DP: 
+## DP: Signed-off-by: Peter 'p2' De Schrijver <p2@mind.be>
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+diff -ur -x Entries linux-2.6.12-rc1/drivers/video/matrox/matroxfb_accel.c linux/drivers/video/matrox/matroxfb_accel.c
+--- linux-2.6.12-rc1/drivers/video/matrox/matroxfb_accel.c	2004-10-25 22:44:40.000000000 +0200
++++ linux/drivers/video/matrox/matroxfb_accel.c	2005-03-24 00:39:35.000000000 +0100
+@@ -438,13 +438,21 @@
+ 		} else if (step == 1) {
+ 			/* Special case for 1..8bit widths */
+ 			while (height--) {
+-				mga_writel(mmio, 0, *chardata);
++#if defined(__BIG_ENDIAN)
++				fb_writel((*chardata) << 24, mmio.vaddr);
++#else
++				fb_writel(*chardata, mmio.vaddr);
++#endif
+ 				chardata++;
+ 			}
+ 		} else if (step == 2) {
+ 			/* Special case for 9..15bit widths */
+ 			while (height--) {
+-				mga_writel(mmio, 0, *(u_int16_t*)chardata);
++#if defined(__BIG_ENDIAN)
++				fb_writel((*(u_int16_t*)chardata) << 16, mmio.vaddr);
++#else
++				fb_writel(*(u_int16_t*)chardata, mmio.vaddr);
++#endif
+ 				chardata += 2;
+ 			}
+ 		} else {
+@@ -454,7 +462,7 @@
+ 			=09
+ 				for (i = 0; i < step; i += 4) {
+ 					/* Hope that there are at least three readable bytes beyond the end of bitmap */
+-					mga_writel(mmio, 0, get_unaligned((u_int32_t*)(chardata + i)));
++					fb_writel(get_unaligned((u_int32_t*)(chardata + i)),mmio.vaddr);
+ 				}
+ 				chardata += step;
+ 			}
+diff -ur -x Entries linux-2.6.12-rc1/drivers/video/matrox/matroxfb_base.h linux/drivers/video/matrox/matroxfb_base.h
+--- linux-2.6.12-rc1/drivers/video/matrox/matroxfb_base.h	2005-03-18 18:37:57.000000000 +0100
++++ linux/drivers/video/matrox/matroxfb_base.h	2005-03-22 00:18:50.000000000 +0100
+@@ -170,14 +170,14 @@
+ 
+ 	if ((unsigned long)src & 3) {
+ 		while (len >= 4) {
+-			writel(get_unaligned((u32 *)src), addr);
++			fb_writel(get_unaligned((u32 *)src), addr);
+ 			addr++;
+ 			len -= 4;
+ 			src += 4;
+ 		}
+ 	} else {
+ 		while (len >= 4) {
+-			writel(*(u32 *)src, addr);
++			fb_writel(*(u32 *)src, addr);
+ 			addr++;
+ 			len -= 4;
+ 			src += 4;
+
+

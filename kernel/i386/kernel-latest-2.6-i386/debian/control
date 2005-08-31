@@ -1,0 +1,101 @@
+Source: kernel-latest-2.6-i386
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: William Lee Irwin III <wli@debian.org>, Andres Salomon <dilinger@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 4)
+
+Package: kernel-headers-2.6-386
+Architecture: i386
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-386
+Description: Linux kernel headers 2.6 on 386
+ This package will always depend on the latest 2.6 kernel headers available
+ for 386.
+
+Package: kernel-image-2.6-386
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-386
+Description: Linux kernel image for version 2.6 on 386.
+ This package will always depend on the latest 2.6 kernel image available
+ for 386.
+
+Package: kernel-headers-2.6-686
+Architecture: i386
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-686
+Description: Linux kernel headers 2.6 on PPro/Celeron/PII/PIII/P4
+ This package will always depend on the latest 2.6 kernel headers available
+ for Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4.
+
+Package: kernel-image-2.6-686
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-686
+Description: Linux kernel image for version 2.6 on PPro/Celeron/PII/PIII/P4.
+ This package will always depend on the latest 2.6 kernel image available
+ for Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4.
+
+Package: kernel-headers-2.6-686-smp
+Architecture: i386
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-686-smp
+Description: Linux kernel headers 2.6 on PPro/Celeron/PII/PIII/P4 SMP
+ This package will always depend on the latest 2.6 kernel headers available
+ for Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4 with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-image-2.6-686-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-686-smp
+Description: Linux kernel image for version 2.6 on PPro/Celeron/PII/PIII/P4 SMP.
+ This package will always depend on the latest 2.6 kernel image available
+ for Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4 with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-headers-2.6-k7
+Architecture: i386
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-k7
+Description: Linux kernel headers 2.6 on AMD K7
+ This package will always depend on the latest 2.6 kernel headers available
+ for 32bit AMD Duron/Athlon/AthlonXP.
+
+Package: kernel-image-2.6-k7
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-k7
+Description: Linux kernel image for version 2.6 on AMD K7.
+ This package will always depend on the latest 2.6 kernel image available
+ for 32bit AMD Duron/Athlon/AthlonXP.
+
+Package: kernel-headers-2.6-k7-smp
+Architecture: i386
+Section: devel
+Priority: optional
+Depends: kernel-headers-2.6.8-2-k7-smp
+Description: Linux kernel headers 2.6 on AMD K7 SMP
+ This package will always depend on the latest 2.6 kernel headers available
+ for 32bit AMD Duron/Athlon/AthlonXP with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-image-2.6-k7-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.6.8-2-k7-smp
+Description: Linux kernel image for version 2.6 on AMD K7 SMP.
+ This package will always depend on the latest 2.6 kernel image available
+ for 32bit AMD Duron/Athlon/AthlonXP with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.

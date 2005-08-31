@@ -1,0 +1,80 @@
+Source: kernel-patch-2.6.10-mips
+Section: devel
+Priority: optional
+Build-Depends: kernel-source-2.6.10 (>=2.6.10-4), kernel-package, debhelper (>=4.1.0), module-init-tools, dpatch, bzip2
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Thiemo Seufer <ths@debian.org>
+Standards-Version: 3.6.1
+
+Package: kernel-headers-2.6.10-1
+Architecture: mips mipsel
+Section: devel
+Priority: optional
+Depends: coreutils, kernel-kbuild-2.6-3
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files related to Linux kernel version 2.6.10
+ This package provides kernel header files for version 2.6.10, for
+ sites that want the latest kernel headers. Please read
+ /usr/share/doc/kernel-headers-2.6.10-1/debian.README.gz
+ for details.
+
+Package: mips-tools
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: MIPS specific kernel tools
+ This package provides tools used on the MIPS architecture to convert
+ the kernel into an ECOFF image.
+
+Package: kernel-image-2.6.10-1-r4k-ip22
+Section: base
+Architecture: mips
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.76), coreutils, module-init-tools
+Suggests: kernel-doc-2.6.10, arcboot (>=0.3.1)
+Description: Linux kernel image for 2.6.10-r4k-ip22
+ This package contains the Linux/MIPS kernel image, the System.map
+ file, and the modules built by the package.
+ .
+ This version is for the SGI Indy and Indigo2.
+
+Package: kernel-image-2.6.10-1-r10k-ip27
+Section: base
+Architecture: mips
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.76), coreutils, module-init-tools
+Suggests: kernel-doc-2.6.10
+Description: Linux kernel image for 2.6.10-r10k-ip27
+ This package contains the Linux/MIPS kernel image, the System.map
+ file, and the modules built by the package.
+ .
+ This version is for the SGI Origin with R1X000 processors.
+
+Package: kernel-image-2.6.10-1-r5k-ip32
+Section: base
+Architecture: mips
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.76), coreutils, module-init-tools
+Suggests: kernel-doc-2.6.10, arcboot (>=0.3.8)
+Description: Linux kernel image for 2.6.10-r5k-ip32
+ This package contains the Linux/MIPS kernel image, the System.map
+ file, and the modules built by the package.
+ .
+ This version is for the SGI O2 with R5000/R5200/RM7000 processors.
+
+Package: kernel-image-2.6.10-1-sb1-swarm-bn
+Section: base
+Architecture: mips mipsel
+Priority: optional
+Provides: kernel-image, kernel-image-2.6
+Depends: initrd-tools (>= 0.1.76), coreutils, module-init-tools
+Suggests: kernel-doc-2.6.10, sibyl
+Description: Linux kernel image for 2.6.10-sb1-swarm-bn
+ This package contains the Linux/MIPS kernel image, the System.map
+ file, and the modules built by the package.
+ .
+ This version is for the Broadcom BCM91250A (aka SWARM), pass 2.2 and
+ later.
+

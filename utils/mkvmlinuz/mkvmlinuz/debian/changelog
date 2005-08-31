@@ -1,0 +1,97 @@
+mkvmlinuz (13) unstable; urgency=high
+
+  * Added debconf magic to kernel-image postinst/postrm hooks.
+
+ -- Sven Luther <luther@debian.org>  Fri, 25 Feb 2005 14:47:52 +0100
+
+mkvmlinuz (12) unstable; urgency=high
+
+  * Fixed PReP support for recent kernel versions (including vanilla
+    2.6.9-rc2 and Debian revision 2.6.8-7).
+
+ -- Jens Schmalzing <jensen@debian.org>  Mon,  4 Oct 2004 22:37:02 +0200
+
+mkvmlinuz (11) unstable; urgency=high
+
+  * Fixed NewWorld PowerMac support.
+
+ -- Jens Schmalzing <jensen@debian.org>  Sun,  3 Oct 2004 09:59:41 +0200
+
+mkvmlinuz (10) unstable; urgency=low
+
+  * Fixed miBoot support.
+
+  * Changed the internal name for NewWorld PowerMacs from newworld to the
+    slightly inaccurate pmac, since this is what the kernel Makefiles use.
+
+  * Documented the possible subarchitectures in the manpage.
+
+ -- Jens Schmalzing <jensen@debian.org>  Sat, 11 Sep 2004 21:09:55 +0200
+
+mkvmlinuz (9) unstable; urgency=low
+
+  * Added PPCBug support (closes: #269146).
+
+  * Added miBoot support.
+
+  * Made quiet operation the default, previous default is now activated by
+    asking for verbose operation.
+
+  * Added an option to prevent guessing the name of an initrd.
+
+ -- Jens Schmalzing <jensen@debian.org>  Tue, 31 Aug 2004 13:51:15 +0200
+
+mkvmlinuz (8) unstable; urgency=low
+
+  * Fixed spurious output when not using an initrd.
+
+  * Discard command output if verbose flag is not set (closes: Bug#263452).
+
+ -- Jens Schmalzing <jensen@debian.org>  Wed,  4 Aug 2004 17:33:19 +0200
+
+mkvmlinuz (7) unstable; urgency=low
+
+  * Set a default output file location in /etc/mkvmlinuz/output.
+
+  * Added PReP support (closes: #252427, #256074).
+
+ -- Jens Schmalzing <jensen@debian.org>  Thu,  8 Jul 2004 09:23:38 +0200
+
+mkvmlinuz (6) unstable; urgency=low
+
+  * Added an option to prevent compressing an already compressed ramdisk
+    image (closes: Bug#252489).
+
+ -- Jens Schmalzing <jensen@debian.org>  Tue, 15 Jun 2004 20:01:23 +0200
+
+mkvmlinuz (5) unstable; urgency=low
+
+  * Fixed a typo (closes: Bug#252036).
+
+ -- Jens Schmalzing <jensen@debian.org>  Tue,  1 Jun 2004 10:38:00 +0200
+
+mkvmlinuz (4) unstable; urgency=low
+
+  * Fixed CHRP support by adding the directory to the addnote call
+    (closes: Bug#251043).
+
+ -- Jens Schmalzing <jensen@debian.org>  Wed, 26 May 2004 21:36:39 +0200
+
+mkvmlinuz (3) unstable; urgency=low
+
+  * Added Pegasos support.
+
+ -- Jens Schmalzing <jensen@debian.org>  Fri, 21 May 2004 08:42:45 +0200
+
+mkvmlinuz (2) unstable; urgency=low
+
+  * Added a missing option to the getopts call.
+
+ -- Jens Schmalzing <jensen@debian.org>  Thu, 13 May 2004 21:55:37 +0200
+
+mkvmlinuz (1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Jens Schmalzing <jensen@debian.org>  Fri, 23 Apr 2004 10:19:35 +0200
+

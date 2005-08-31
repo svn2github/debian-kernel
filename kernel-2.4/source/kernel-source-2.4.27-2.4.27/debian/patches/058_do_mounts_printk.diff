@@ -1,0 +1,33 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: Fix printk warnings in do_mounts.c
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/init/do_mounts.c kernel-source-2.4.26-1/init/do_mounts.c
+--- kernel-source-2.4.26/init/do_mounts.c	2003-11-29 05:26:21.000000000 +1100
++++ kernel-source-2.4.26-1/init/do_mounts.c	2003-11-29 20:53:51.000000000 +1100
+@@ -648,11 +648,11 @@
+ 		goto done;
+ 	}
+ 
+-	printk(KERN_NOTICE "RAMDISK: Loading %d blocks [%ld disk%s] into ram disk... ", 
++	printk(KERN_NOTICE "RAMDISK: Loading %d blocks [%lu disk%s] into ram disk... ", 
+ 		nblocks, ((nblocks-1)/devblocks)+1, nblocks>devblocks ? "s" : "");
+ 	for (i=0; i < nblocks; i++) {
+ 		if (i && (i % devblocks == 0)) {
+-			printk("done disk #%ld.\n", i/devblocks);
++			printk("done disk #%lu.\n", i/devblocks);
+ 			rotate = 0;
+ 			if (close(in_fd)) {
+ 				printk("Error closing the disk.\n");
+@@ -664,7 +664,7 @@
+ 				printk("Error opening disk.\n");
+ 				goto noclose_input;
+ 			}
+-			printk("Loading disk #%ld... ", i/devblocks+1);
++			printk("Loading disk #%lu... ", i/devblocks+1);
+ 		}
+ 		read(in_fd, buf, BLOCK_SIZE);
+ 		write(out_fd, buf, BLOCK_SIZE);
+

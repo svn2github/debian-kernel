@@ -1,0 +1,16 @@
+# origin: Horms <horms@debian.org>
+# description: fix for ipfras queue's for ip_fw_compat.c
+# inclusion: This code does not seem to be upstream any more
+# revision date: 2005-02-23
+--- a/net/ipv4/netfilter/ip_fw_compat.c.unedited	2005-02-23 11:56:51.000000000 +0900
++++ b/net/ipv4/netfilter/ip_fw_compat.c	2005-02-23 11:56:53.000000000 +0900
+@@ -80,7 +80,8 @@ fw_in(unsigned int hooknum,
+ 					  &redirpt, pskb);
+ 
+ 		if ((*pskb)->nh.iph->frag_off & htons(IP_MF|IP_OFFSET)) {
+-			*pskb = ip_ct_gather_frags(*pskb);
++			*pskb = ip_ct_gather_frags(*pskb, 
++					IP_DEFRAG_CONNTRACK_IN);
+ 
+ 			if (!*pskb)
+ 				return NF_STOLEN;

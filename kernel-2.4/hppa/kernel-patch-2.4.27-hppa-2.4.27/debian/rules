@@ -1,0 +1,48 @@
+#! /usr/bin/make -f
+
+PATCH=hppa
+PATCHVER=2.4.27
+PACKAGE=kernel-patch-${PATCHVER}-${PATCH}
+
+####################
+
+arch=$(shell dpkg --print-architecture)
+
+topdir=$(shell pwd)
+destdir=${topdir}/debian/tmp
+docdir=${destdir}/usr/share/doc/${PACKAGE}
+patches=patch-2.4.27-pa4.1 patch-makefile sym53c8xx_26_compat
+
+build:
+	dh_testdir
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	rm -f hppa-${PATCHVER}.patch
+	dh_clean
+
+binary-arch:	build
+
+binary-indep:	build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+
+	cat $(patches) > hppa-${PATCHVER}.patch
+	mkdir $(destdir)
+	dh_installkpatches
+	dh_installchangelogs
+	dh_installdocs
+
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep clean checkroot

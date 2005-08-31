@@ -1,0 +1,119 @@
+Source: kernel-patch-2.4.27-mips
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Guido Guenther <agx@debian.org>, Karsten Merker <merker@debian.org>, Thiemo Seufer <ths@debian.org>
+Build-Depends: kernel-source-2.4.27 (=2.4.27-11), kernel-package, debhelper (>=4.1.0), modutils, console-tools, dpatch, bzip2, gcc-3.3
+Standards-Version: 3.6.1
+
+Package: kernel-headers-2.4.27
+Architecture: mips mipsel
+Provides: kernel-headers, kernel-headers-2.4
+Description: Header files related to a specific Linux kernel
+ This package provides kernel header files, for sites that want the latest
+ kernel headers.  Read /usr/share/doc/kernel-headers-2.4.27/debian.README.gz
+ for details.
+
+Package: mips-tools
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: mips specific kernel tools
+ This package provides tools used on the mips architecture to convert the
+ kernel into an ECOFF image.
+
+Package: kernel-image-2.4.27-r4k-ip22
+Section: base
+Architecture: mips
+Suggests: kernel-doc-2.4.27, arcboot (>=0.3.1)
+Conflicts: arcboot (<<0.3.1)
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for R4XX0 processors and the SGI IP22 subarchitecture
+ like the Indy and Indigo2.
+
+Package: kernel-image-2.4.27-r5k-ip22
+Section: base
+Architecture: mips
+Suggests: kernel-doc-2.4.27, arcboot (>=0.3.1)
+Conflicts: arcboot (<<0.3.1)
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for R5000 processors and the SGI IP22 subarchitecture
+ like the Indy and Indigo2.
+
+Package: kernel-image-2.4.27-sb1-swarm-bn
+Section: base
+Architecture: mips mipsel
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for the Broadcom BCM91250A (aka SWARM) pass 2.2.
+
+Package: kernel-image-2.4.27-r4k-kn04
+Section: base
+Architecture: mipsel
+Suggests: kernel-doc-2.4.27, delo
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This is the kernel required for R4X00 based DECstations with KN04
+ (or compatible) mainboard, such as the DECstation 5000/150, the
+ Personal DECstation 5000/50 and the DECstation 5000/260.
+
+Package: kernel-image-2.4.27-r3k-kn02
+Section: base
+Architecture: mipsel
+Suggests: kernel-doc-2.4.27, delo
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This is the kernel required for R3000 based DECstations with KN02
+ (or compatible) mainboard, such as the DECstation 5000/1xx series
+ with xx=20,25,33 and the DECstation 5000/240.
+
+Package: kernel-image-2.4.27-r5k-lasat
+Section: base
+Architecture: mipsel
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for R5000 processors on the Lasat Masquerade Pro.
+
+Package: kernel-image-2.4.27-r5k-cobalt
+Section: base
+Architecture: mipsel
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for MIPS based Cobalt machines (such as the Qube,
+ RaQ, Qube2 and RaQ2).
+
+Package: kernel-image-2.4.27-xxs1500
+Section: base
+Architecture: mipsel
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image, kernel-image-2.4
+Description: Linux kernel binary image
+ This package contains the Linux/MIPS kernel image, the
+ System.map file, and the modules built by the package.
+ .
+ This version is for the Au1500 based XXS1500 board.

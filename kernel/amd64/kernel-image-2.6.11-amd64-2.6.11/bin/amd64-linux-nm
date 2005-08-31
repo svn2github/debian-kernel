@@ -1,0 +1,3 @@
+#!/bin/sh
+
+nm --target=elf64-x86-64 "$@"

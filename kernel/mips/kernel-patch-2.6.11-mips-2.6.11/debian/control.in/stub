@@ -1,0 +1,26 @@
+Source: kernel-patch-@@KERNVER@@-mips
+Section: devel
+Priority: optional
+Build-Depends: kernel-source-@@KERNVER@@ (>=@@KERNVER@@-2), kernel-package, debhelper (>=4.1.0), module-init-tools, dpatch, bzip2
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Thiemo Seufer <ths@debian.org>
+Standards-Version: 3.6.1
+
+Package: kernel-headers-@@KERNVER@@-@@ABIVER@@
+Architecture: mips mipsel
+Section: devel
+Priority: optional
+Depends: coreutils, kernel-kbuild-2.6-3
+Provides: kernel-headers, kernel-headers-2.6
+Description: Header files related to Linux kernel version @@KERNVER@@
+ This package provides kernel header files for version @@KERNVER@@, for
+ sites that want the latest kernel headers. Please read
+ /usr/share/doc/kernel-headers-@@KERNVER@@-@@ABIVER@@/debian.README.gz
+ for details.
+
+Package: mips-tools
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: MIPS specific kernel tools
+ This package provides tools used on the MIPS architecture to convert
+ the kernel into an ECOFF image.

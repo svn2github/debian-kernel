@@ -1,0 +1,7 @@
+Template: mkvmlinuz/bootloaders
+Type: select
+Choices: ${choices}
+Default: ${default}
+Description: select your bootloader.
+ Your PowerPC arch supports more than one bootloader, 
+ please chose the one you want to use.

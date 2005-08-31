@@ -1,0 +1,20 @@
+#!/bin/sh
+
+upstream=$1
+
+ktdepends="kt-depends="
+ktprovides="kt-provides="
+
+for series in debian/patches/series/*; do
+	base=$(basename $series)
+	ktdepends="${ktdepends}kernel-source-$upstream (= $base) | "
+	ktprovides="${ktprovides}kernel-tree-$base, "
+done
+
+ktprovides=${ktprovides%, }
+ktdepends=${ktdepends%| }
+
+echo $ktdepends
+echo $ktprovides
+
+# vim:ts=4:noet:ai

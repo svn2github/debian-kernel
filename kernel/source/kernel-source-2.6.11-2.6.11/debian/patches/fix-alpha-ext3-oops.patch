@@ -1,0 +1,13 @@
+--- kernel-source-2.6.11-2.6.11-orig/fs/ext3/super.c	2005-03-02 08:38:38.000000000 +0100
++++ kernel-source-2.6.11-2.6.11/fs/ext3/super.c	2005-03-05 10:41:47.530090904 +0100
+@@ -2487,6 +2487,10 @@
+ static int __init init_ext3_fs(void)
+ {
+ 	int err = init_ext3_xattr();
++	/* ugly hack to work around compiler bug */
++#ifdef __alpha__
++	printk(KERN_DEBUG "[%d] init_ext3_fs(), err = %d\n", __LINE__, err);
++#endif
+ 	if (err)
+ 		return err;
+ 	err = init_inodecache();

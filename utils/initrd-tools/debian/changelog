@@ -1,0 +1,806 @@
+initrd-tools (0.1.83) UNRELEASED; urgency=low
+
+  [Simon Horman]
+  * Clarify naming of scripts that will be run.
+    Thanks to Simon Schoar. (Closes: #324351)
+
+ -- Simon Horman <horms@debian.org>  Wed, 24 Aug 2005 12:34:33 +0900
+
+initrd-tools (0.1.82) unstable; urgency=low
+
+  * Simon Horman
+    - Fix typo in mkinitrd.conf.5 managment->management
+      from A Costa <agcosta@gis.net>. (closes: #311034)
+  * Maximilian Attems
+    - Mention the team in the mkinitrd header.
+    - Fix module_exists function closes: #312213
+    - don't include drbd module closes: #312207
+      both thanks to patch from Andreas Schultz <aschultz@warp10.net>
+  * Dann Frazier
+    - Specify options before arguments to find to avoid some annoying
+      warnings.  Patch from Knut Auvor Grythe closes: #315715
+  * Sven Luther
+    - Let's load ehci before uhci and ohci, since it seems passing control
+      from ohci or uhci to ehci brings some unstabilities.
+
+ -- Sven Luther <luther@debian.org>  Mon, 15 Aug 2005 17:49:33 +0200
+
+initrd-tools (0.1.81) unstable; urgency=high
+
+  * Revert changes to root device handling in 0.1.80 (bugs #307471 and
+    #283919), as these were incorrect, did not fix RC bugs (and therefore
+    are not appropriate for the freeze), and introduced a new RC bug.
+    Closes: #310316.
+
+ -- Steve Langasek <vorlon@debian.org>  Mon, 23 May 2005 01:22:48 -0700
+
+initrd-tools (0.1.80) unstable; urgency=high
+
+  * Sven Luther
+    - Let's add the keyboard input modules on powerpc. (Closes: #264839)
+  * Maximilian Attems
+    - Be less noisy when unloading modules. The errors are harmless,
+      beside initrd shouldn't load that bunch of modules.
+      Fix makes bootup less "scary" for kernels > 2.6.8.
+    - Fix boot when using raid root with non devfs kernels.
+      Closes: #284763, #269726, #305145, #299103
+    - Warn if root device is not found. Thanks horms@debian.org for the patch.
+      Closes: #283919
+    - Don't try mount a block device for nfs root. thanks Alex Owen
+      <rao3@leicester.ac.uk> for the patch. Closes: #307471
+    - Resynchronise with Ubuntu:
+      Integrate bits needed for RESUME support. thanks to jbailey@debian.org.
+
+ -- Sven Luther <luther@debian.org>  Sun, 22 May 2005 18:57:04 +0200
+
+initrd-tools (0.1.79) unstable; urgency=high
+
+  * Steve Langasek
+    - Don't be so hasty to use lvm10: only use it if lvmiopversion
+      says we're lvm10-only, *or* there's no dm-mod for the kernel;
+      this avoids breaking lvm2 volumes in 2.4 when the lvm10 package
+      is installed.  Closes: #291386.
+    - Add myself to uploaders.
+  * GOTO Masanori
+    - Make mkinitrd work with new ldd format which change is introduced
+      in glibc 2.3.4.  (Closes: #301455, #303281)
+      This change also fixes amd64 mkinitrd breakage.
+      (Closes: #279382, #292080, #295412, #295422, #297724)
+  * Maximilian Attems
+    - Resynchronise with Ubuntu:
+      * Error message should refer to mdadm, not raidtools2.
+      * Take /etc/mkinitrd/DSDT and put it in the initrd if it exists.
+      * Use mktemp, not $$ for creating temporary directories.
+    - Function module_exist recognizes modules in subdirs. Closes: #296894
+    - Fix upgrade path from woody for sparc arch. thanks to
+      Jurij Smakov <jurij@wooyd.org> Closes: #306219
+    - Use libdevmapper1.01 Closes: #266591, #298727, #303401
+    - Fix permissions of the initrd files. thanks to patch for debian/rules
+      from Horms <horms@debian.org> Closes: #285767
+  * Sven Luther
+    - Powerpc now defaults to MODULES=dep. (Closes: #290329)
+
+ -- Steve Langasek <vorlon@debian.org>  Fri, 13 May 2005 21:25:52 -0700
+
+initrd-tools (0.1.78) unstable; urgency=high
+
+  * Bastian Blank
+    - Always map sym53c8xx to sym53c8xx_2 for 2.4 kernels. (closes: #284961)
+    - Map between qlogicisp and qla1280 on alpha. (closes: #289995)
+
+ -- Bastian Blank <waldi@debian.org>  Sun, 10 Apr 2005 14:03:43 +0200
+
+initrd-tools (0.1.77) unstable; urgency=high
+
+  * Martin Michlmayr
+    - The last upload adding support for encrypted root unintentionally
+      introduced a dependency on dmsetup which breaks installations with
+      root on LVM.  Explicitly check if dmsetup is available.  Thanks,
+      Joey Hess (Closes: #291362).
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Sun, 23 Jan 2005 18:34:15 +0000
+
+initrd-tools (0.1.76) unstable; urgency=low
+
+  * Joshua Kwan
+    - Fix typo in Harald's workaround for drivers not listing SCSI
+      modules in /proc/scsi. (Closes: #285301)
+    - Also fix in that same workaround a possible problem with module names
+      with hyphens that get flattened to underscores in 2.6.
+  * Martin Michlmayr
+    - Add support for encrypted root filesystems using dm-crypt and
+      cryptsetup.  Patch provided by Wesley W. Terpstra, with modifications
+      and testing by Loic Minier and me (Closes: #247054).
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Thu, 30 Dec 2004 17:29:20 +0000
+
+initrd-tools (0.1.75) experimental; urgency=low
+
+  * Jeff Bailey
+    - Turn error into a warning on modprobe failure.  Add extra text
+      explaining that sometimes this warning might be erroneous.
+      (Closes: #263216)
+    - new kernels don't list scsi modules in /proc/scsi (Closes: #271038)
+      Patch from Harald Dunkel <harald.dunkel@t-online.de>
+  * Simon Horman
+    - Create ida devices (Closes: Bug#276591)
+  * Martin Michlmayr
+    - Deal with block name manging in 2.6, thanks Colin Watson.
+      (Closes: #272139)
+  * Simon Horman
+    - Only activate the VG that contain the root device to avoid
+      tyring to activate VGs that include partitions on devices
+      whose device drivers are not yet available. (Closes: #280571)
+
+ -- Jeff Bailey <jbailey@raspberryginger.com>  Tue,  7 Dec 2004 21:12:02 -0500
+
+initrd-tools (0.1.74) unstable; urgency=high
+
+  * Joshua Kwan
+    - Educate mkinitrd about different arches, allowing us to internally
+      disambiguate all the different esp drivers.
+  * Martin Michlmayr
+    - Apply a patch from Colin Watson to deal with . (old) and ! (new)
+      as the mangling character for / in /sys names.  Test for the new
+      behaviour first rather than for the old one since it will
+      otherwise break once people start putting dots in the names.
+      Thanks, Herbert Xu (closes: #272139, #271899).
+
+ -- Joshua Kwan <joshk@triplehelix.org>  Fri, 27 Aug 2004 11:42:14 -0700
+
+initrd-tools (0.1.73) unstable; urgency=low
+
+  * Martin Michlmayr
+    - Really ignore sbp2 for now (see 0.1.66) (closes: #254352).
+    - As of module-init-tools 3.1-pre2-1, /lib/modules/modprobe.conf
+      doesn't exist anymore; handle both situations.  Thanks to Herbert
+      Xu (closes: #255390).
+    - Handle changes to sysfs PCI IDE driver names which might come with
+      2.6.9.  Thanks to Herbert Xu (closes: #265011).
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Wed, 11 Aug 2004 13:17:52 +0100
+
+initrd-tools (0.1.72) unstable; urgency=low
+
+  * Martin Michlmayr
+    - Add support for user mode linux (UML) ubd devices, thanks to Matt
+      Zimmerman (closes: #257373).
+    - Don't fail if root is on LVM and "command_names = 1" is set in
+      /etc/lvm/lvm.conf.  Thanks to Herbert Xu (closes: #250696).
+    - Recognize more QLogic adapters.  Thanks to Herbert Xu (closes:
+      #249564).
+  * Joshua Kwan
+    - Clean up rules a little bit.
+    - Apply my own patch to fall back on /proc/self/fd if /dev/fd is not
+      available, thus tiding us over on sparc initrd kernels.
+      (Closes: #260369)
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Tue, 27 Jul 2004 15:17:22 +0100
+
+initrd-tools (0.1.71) unstable; urgency=low
+
+  * Look at the root file system type in /etc/fstab, patch by Herbert Xu
+    (closes: #252464).
+  * Don't exclude cramfs and ext2 to be included on the initrd, patch by
+    Herbert Xu.
+  * Include IDE modules even when CONFIG_IDE_GENERIC is not set, patch by
+    Herbert Xu (closes: #252466).
+  * Add Jeff Bailey and myself as uploaders.
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Thu, 01 Jul 2004 11:02:13 -0400
+
+initrd-tools (0.1.70) unstable; urgency=medium
+
+  * Change maintainer to the Debian kernel team.
+  * Apply patch from Herbert Xu to mount /devfs before running vgchange.
+    This is required so that LVM2 volumes are actually activated (closes:
+    #249641).
+  * Use urgency medium since the fix above is needed for people using
+    LVM2 for their root partition.
+
+ -- Martin Michlmayr <tbm@cyrius.com>  Sun, 30 May 2004 13:28:50 -0300
+
+initrd-tools (0.1.69) unstable; urgency=low
+
+  * Fixed setting of ROOT in mkinitrd (closes: #249458).
+  * Fixed use of local to work with bash/pdksh.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 18 May 2004 20:50:02 +1000
+
+initrd-tools (0.1.68) unstable; urgency=low
+
+  * Removed leading space in ide_options.
+  * Use LVM2 if LVM1 userspace is not installed (closes: #247426).
+  * Fixed clobbering of root= setting (closes: #246562, #247936).
+  * Do not put labels/UUIDs into ROOT.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 15 May 2004 11:50:48 +1000
+
+initrd-tools (0.1.67) unstable; urgency=low
+
+  * Moved load_swsusp call before scripts.
+  * Redirect mount probing errors to /dev/null (closes: #245901).
+  * Restored support for tmpfs (closes: #245953).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 28 Apr 2004 21:57:21 +1000
+
+initrd-tools (0.1.66) unstable; urgency=low
+
+  * Handle the absence of lvm.conf (closes: #243704).
+  * Allow ide-disk to be built-in even if ide-generic is not (closes: #243882).
+  * Ignore usb-storage/sbp2 for now (closes: #239663, #245509).
+  * Fixed vesafb support when modules_dep is unavailable (closes: #244479).
+  * Added support for swsusp.
+  * Added init code to recognise atiixp.
+  * Allow lvm to be called repeatedly.
+  * Ignore unknown devices from /proc/partitions (closes: #245140).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 25 Apr 2004 22:07:30 +1000
+
+initrd-tools (0.1.65) unstable; urgency=low
+
+  * Always load ide-disk if it exists (closes: #242857).
+  * Fixed use of circumflex in shell pattern (closes: #243098).
+  * Made busybox symlink point to /bin2.
+  * Do not symlink busybox to init (closes: #243224).
+  * Removed sole umount call from linuxrc.
+  * Skip null devices in mdadm output (closes: #243287).
+  * Updated package description (Eduard Bloch, closes: #243316).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 13 Apr 2004 19:25:29 +1000
+
+initrd-tools (0.1.64) unstable; urgency=low
+
+  * Fixed probe script inclusion.
+  * Check EVMS by looking at /etc/mkinitrd/scripts (closes: #242650).
+  * Handle built-in IDE drivers (closes: #242653).
+  * Check existence of SATA modules.
+  * Fixed ide-generic support (closes: #242078).
+  * Replaced moduledir argument by version string (closes: #239706).
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  8 Apr 2004 21:20:20 +1000
+
+initrd-tools (0.1.63) unstable; urgency=low
+
+  * Fixed typo that breaks DM under 2.4 (Dennis Vshivkov, closes: #236404).
+  * Added support for DASD (Bastian Blank, closes: #236523).
+  * Include reference to Debian kernel in short description.
+  * Fixed path to unix in add_modules_most.
+  * Removed note about CRAMFS support in vanilla kernels (closes: #238721).
+  * Add inactive MD constituent devices as well (closes: #238514).
+  * Removed /dev/evms check as it is wrong and obsolete.
+  * Include lvm.conf for LVM2 (closes: #238205).
+  * Fixed hard-coded ide-mod in init script (closes: #240734).
+  * Added support for ide-generic (closes: #241365).
+  * Replaced all occurrences of tmpfs with ramfs.
+  * Fixed misspelling in mkinitrd.conf(5).
+  * Make /bin invisible to kernel (closes: #241051).
+  * Chdir into $dir instead of using $dir everywhere.
+  * Create empty mtab to shut umount up.
+  * Default to LVM1 instead of LVM2.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  3 Apr 2004 15:01:38 +1000
+
+initrd-tools (0.1.62) unstable; urgency=high
+
+  * Ignore existence of file system modules.
+  * Do not redirect stdout when checking module dependency (closes: #235503).
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  1 Mar 2004 14:15:37 +1100
+
+initrd-tools (0.1.61) unstable; urgency=high
+
+  * Fixed modprobe check when FSTYPES is null (closes: #234981).
+  * Consider redirections when checking module existence (closes: #235004).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 27 Feb 2004 21:09:01 +1100
+
+initrd-tools (0.1.60) unstable; urgency=high
+
+  * Fixed inclusion of /sbin/rmmod under module-init-tools.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 26 Feb 2004 20:42:03 +1100
+
+initrd-tools (0.1.59) unstable; urgency=high
+
+  * Fixed processing of probe.d scripts (closes: #234143).
+  * Included /etc/modprobe.devfs for new module-init-tools.
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 24 Feb 2004 20:12:19 +1100
+
+initrd-tools (0.1.58) unstable; urgency=low
+
+  * Create cciss symlink if it does not exist (closes: #224378).
+  * Added support for external probe functions (closes: #225931).
+  * Fixed script ordering for RAID (closes: #229848).
+  * Removed dependency on ash.
+  * Fixed recognition of IDE options (closes: #224397, #231247).
+  * Fixed name of initio driver (Herbert Kaminski, closes: #231798).
+  * Never load ide-scsi in initrd (closes: #232577).
+  * Fixed lvmiopversion test to handle version 10 (Dimitar Ivanov,
+    closes: #232392).
+  * Use rmmod instead of modprobe -r (Andre Tomt, closes: #224650).
+  * Fixed sysfs typo that broke BusyBox (closes: #224318).
+  * Added module existence check for 2.5 and above (closes: #227736).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 21 Feb 2004 13:23:17 +1100
+
+initrd-tools (0.1.57) unstable; urgency=low
+
+  * Added new option INITRD_LD_LIBRARY_PATH (closes: #227172).
+  * Do not call lvm if /dev/evms exists (closes: #223991).
+  * Load ata_piix for IDE in 2.6 (closes: #224145).
+  * Improved LVM version detection (closes: #226095).
+  * Do not call umount with -n if using BusyBox (closes: #224318).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 21 Jan 2004 21:01:26 +1100
+
+initrd-tools (0.1.56) unstable; urgency=low
+
+  * Depend on cramfs >= 1.1-4 for ia64 (closes: #222678).
+  * Redirect oldstyle IDE rmmod stdout/stderr to /dev/null.
+  * Allow LVM2 initrd to be built from LVM1 host and vice versa.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 14 Dec 2003 07:57:04 +1100
+
+initrd-tools (0.1.55) unstable; urgency=low
+
+  * Converted dependency on modu* into runtime checks (closes: #217392).
+  * Parse ro/rw flags in /proc/cmdline.
+  * Implemented removal of unused IDE modules (closes: #219628).
+  * Call ldd with LD_ASSUME_KERNEL=2.4 for oldstyle (closes: #220664).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 15 Nov 2003 16:08:02 +1100
+
+initrd-tools (0.1.54) unstable; urgency=low
+
+  * Restored fb/unix for MODULES=most (closes: #211295).
+  * Fixed duplicate device symlinks (closes: #211880).
+  * Create /dev/lvm for devfs (Jö Fahlke, closes: #213408).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 11 Oct 2003 21:52:45 +1000
+
+initrd-tools (0.1.53) unstable; urgency=low
+
+  * Load sym53c8xx instead of ncr53c8xx (closes: #206952).
+  * Handle new sysfs dev format (closes: #209193).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 10 Sep 2003 18:25:19 +1000
+
+initrd-tools (0.1.52) unstable; urgency=low
+
+  * Fixed typos in mkinitrd.conf (Santiago Vila).
+  * Load fbcon when fb initrd modules are present (closes: #203996).
+  * Display DELAY prompt after loadmodules.
+  * Check for /dev/fd when starting up.
+  * Fixed raidtools bug where /dev/md? was not created.
+  * Do not dereference MODULEDIR (closes: #205439).
+  * Fixed sysfs partition calculation (closes: #206922).
+  * Display error when vgdisplay fails.
+  * Fixed device/ROOT typo in init (closes: #203621, #206140).
+  * Handle insmod_opt in modules.conf (closes: #206376).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 26 Aug 2003 21:39:18 +1000
+
+initrd-tools (0.1.51) unstable; urgency=low
+
+  * Fixed init when sysfs does not exist.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  4 Aug 2003 18:45:50 +1000
+
+initrd-tools (0.1.50) unstable; urgency=low
+
+  * Removed dependency on DEVFS (closes: #200421).
+  * Allow add_modules_dep_2_5 to run under 2.4.
+  * Strip off insmod and not /sbin/insmod when using module-init-tools.
+  * Added support for /usr/share/initrd-tools/scripts for packaged scripts
+    (closes: #202861).
+  * Handle old aacraid modules that use the name aac (closes: #202852).
+  * Removed duplicate devfs mount.
+  * Depend on both modutils and module-init-tools (closes: #203261).
+  * Fixed handling of labels with slashes (closes: #203111).
+  * Added sysfs probing (closes: #203621).
+  * Adapted to lvm2 2.0.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  2 Aug 2003 10:30:29 +1000
+
+initrd-tools (0.1.49) unstable; urgency=low
+
+  * Fixed infinite recursion when RAID constituent device does not exist.
+  * Only print raid-disk devices in raidtab.
+  * Use decimal numbers when probing labels/UUIDs.
+  * Use major/minor instead of name from LVM1 PVs directory (closes: #199002).
+  * Fixed symbolic root handling.
+  * Fixed .o reference in add_modules_most (Jonathan Guthrie).
+  * Updated add_modules_dep for module-init-tools 0.9.13 (closes: #200283).
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  7 Jul 2003 19:36:45 +1000
+
+initrd-tools (0.1.48) unstable; urgency=low
+
+  * Handle ide module names from ac tree.
+  * Load IDE PCI drivers if present.
+  * Documented moduledir/initrd in manual page.
+  * Translate builtin IDE options to module parameters (closes: #197524).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 14 Jun 2003 09:47:28 +1000
+
+initrd-tools (0.1.47) unstable; urgency=low
+
+  * Try mount -t auto as a last resort.
+  * Fixed path to fusion modules.
+  * Added optional dependency on module-init-tools.
+  * Enabled MODULES=dep on 2.5.
+  * Fixed probing of member devices with raidtools.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 30 May 2003 18:52:26 +1000
+
+initrd-tools (0.1.46) unstable; urgency=high
+
+  * Fixed RAID setup for raidtools2 and non-DEVFS (closes: #194343).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 23 May 2003 07:50:06 +1000
+
+initrd-tools (0.1.45) unstable; urgency=high
+
+  * Use /dev/root2 to avoid name conflict with /dev/root.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 19 May 2003 22:56:26 +1000
+
+initrd-tools (0.1.44) unstable; urgency=low
+
+  * Load SCSI drivers in the correct order.
+  * Automatically use most if MODULES=dep fails.
+  * Include Fusion drivers when MODULES=most.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 17 May 2003 12:20:27 +1000
+
+initrd-tools (0.1.43) unstable; urgency=low
+
+  * Do not call dep for MODULES=most for 2.5.
+  * Use major/minor in RAID detection to support UUID (closes: #189218).
+  * Load RAID modules explicitly for dependency calculations.
+  * Added LVM1 and LVM2 support (closes: #121122).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 20 Apr 2003 22:13:02 +1000
+
+initrd-tools (0.1.42) unstable; urgency=low
+
+  * Fixed dependency calculation when options are present (closes: #186370).
+  * Added banner to init script.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  7 Apr 2003 22:40:47 +1000
+
+initrd-tools (0.1.41) unstable; urgency=low
+
+  * Bail if MODULEDIR does not exist and MODULES != none (closes: #184228).
+  * Recursive getroot probing now looks at all drives (closes: #185383).
+  * Added note about degraded arrays and mdadm in mkinitrd manual.
+  * Canonicalise MODULEDIR.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 24 Mar 2003 20:38:47 +1100
+
+initrd-tools (0.1.40) unstable; urgency=low
+
+  * Added support for mdadm (closes: #150424).
+  * Moved INITRD modules to initrd from boot.
+  * Fixed loading of FS modules when MODULES=dep (closes: #183951).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  9 Mar 2003 07:47:20 +1100
+
+initrd-tools (0.1.39) unstable; urgency=low
+
+  * Look at FSTYPES when doing module dependencies (closes: #182498).
+  * Set default MODULES back to most.
+  * Include existing modules.conf for resolving aliases.
+  * Complete MODULES=most using dependencies.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 27 Feb 2003 20:26:38 +1100
+
+initrd-tools (0.1.38) unstable; urgency=low
+
+  * Fixed module selection with MODULES=dep option (closes: #182108).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 23 Feb 2003 13:21:44 +1100
+
+initrd-tools (0.1.37) unstable; urgency=low
+
+  * Include isa-pnp.o on MODULES=most for ISA SCSI cards.
+  * Process options in /etc/mkinitrd/modules (closes: #181543).
+  * Use built-in echo as /bin/echo.
+  * Added MODULES=dep option (Ben Low, closes: #105689).
+  * Added BUSYBOX option (closes: #144517).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Feb 2003 16:14:33 +1100
+
+initrd-tools (0.1.36) unstable; urgency=low
+
+  * Use init= setting if it is there (closes: #177437).
+  * Fixed infinite loop with labesl/UUID (closes: #179354).
+  * Do not play tricks with FSTYPES if it is specified (closes: #178649).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  2 Feb 2003 10:45:26 +1100
+
+initrd-tools (0.1.35) unstable; urgency=low
+
+  * Use major number instead of device name when probing (Ingemar Fällman).
+  * Depend on debhelper >= 3.
+  * Added support for module-init-tools (closes: #172810).
+  * Added support for labels/UUID (closes: #174654).
+  * Always load modules explicitly.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  3 Jan 2003 15:46:01 +1100
+
+initrd-tools (0.1.34) unstable; urgency=low
+
+  * Always load the unix module if it exists.
+  * Added rule for dasd devices (Jochen Röhrig, closes: #164878).
+  * Include fb modules when boot is present.
+  * Added ldd wrapper for static or non-binary executables (closes: #165367).
+  * Documented INITRDDIR and MODULEDIR (Tomas Pospisek, closes: #165371).
+  * Removed another instance of a comma in mount command.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  4 Nov 2002 20:20:48 +1100
+
+initrd-tools (0.1.33) unstable; urgency=low
+
+  * Create /initrd since nobody else does.
+  * Mount root in the right place (closes: #164498).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 13 Oct 2002 22:03:52 +1000
+
+initrd-tools (0.1.32) unstable; urgency=low
+
+  * Load boot modules in initrd.
+  * Removed dependency on mounting comma separated fstypes (closes: #164158).
+  * Use /proc/filesystems for rootfstype instead of fstab.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 11 Oct 2002 20:17:44 +1000
+
+initrd-tools (0.1.31) unstable; urgency=low
+
+  * Ignore errors from unset (closes: 163444).  This allows mkinitrd to work
+    with woody's bash.
+  * Process null arguments to -r correctly.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  6 Oct 2002 21:16:51 +1000
+
+initrd-tools (0.1.30) unstable; urgency=low
+
+  * Do not use options from fstab (closes: 163271).
+  * Allow rootflags even when rootfstype is unset.
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  5 Oct 2002 21:26:34 +1000
+
+initrd-tools (0.1.29) unstable; urgency=low
+
+  * Allow moduledir to be omitted (Groucho, closes: #160449).
+  * Made -o mandatory.
+  * Added MKIMAGE example to mkinitrd.conf(5).
+  * Fixed typo that broke -r (Andreas Mahling, closes: #160651).
+  * Dot files in functions to preserve arguments in /sbin/init.
+  * Added NOTES section about CRAMFS in mkinitrd(8).
+  * Use dash if available (closes: #162746).
+  * Fixed typo in rootfstype code (M. Dietrich).
+  * Deal with an empty /proc/filesystems.
+  * Use the correct separator to parse /proc/filesystems (closes: #161694).
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  1 Oct 2002 18:44:44 +1000
+
+initrd-tools (0.1.28) unstable; urgency=low
+
+  * Load {hpt,pdc}raid and ide modules for ataraid (closes: #158088).
+  * Use file system types and options from fstab.
+  * Read rootfstype and rootflags from /proc/cmdline.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  6 Sep 2002 20:36:22 +1000
+
+initrd-tools (0.1.27) unstable; urgency=low
+
+  * Use ramfs if tmpfs is not available.
+  * Clarified description about the lack of support for non-Debian kernels.
+  * Added code to mount devfs in init if necessary (closes: #156960, #157092).
+  * Call readlink inside getroot (closes: #157096).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 18 Aug 2002 10:12:37 +1000
+
+initrd-tools (0.1.26) unstable; urgency=low
+
+  * Added recursive probing for RAID.
+  * Handle errors within cpio pipeline (closes: #148061).
+  * Allow initrd image with no modules (closes: #151386).
+  * Only mount /proc if mounts is not there (closes: #151318).
+  * Improved error message for unknown root devices (closes: #154712).
+  * Use pivot_root (closes: #135537).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Aug 2002 11:16:31 +1000
+
+initrd-tools (0.1.25) unstable; urgency=high
+
+  * Added support for ataraid (closes: #144088).
+  * Set default delay to 0.
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  1 May 2002 06:56:15 +1000
+
+initrd-tools (0.1.24) unstable; urgency=low
+
+  * Reduced installed modules in "most" mode.  This is required for MILO users.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 17 Apr 2002 21:33:09 +1000
+
+initrd-tools (0.1.23) unstable; urgency=low
+
+  * Use TMPDIR if it is set.
+  * Fixed initrd freeing on devfs (Jonas Smedegaard, closes: #141138).
+  * Removed obsolete references to rdev and /proc/mounts.
+  * Added SCSI module translations (closes: #142399).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 12 Apr 2002 08:29:51 +1000
+
+initrd-tools (0.1.22) unstable; urgency=low
+
+  * Added rcS script that frees the INITRD on boot.
+  * Removed ineffective boot path from modutils.
+  * Removed pcmcia from modutils.
+  * Removed modutils file altogether since it is now empty.
+  * Added -m option to set MKIMAGE (closes: #138248).
+  * Fixed existence check of kernel/fs (closes: #138886).
+  * Added support for auto as the root file system type (closes: #139462).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 23 Mar 2002 08:34:00 +1100
+
+initrd-tools (0.1.21) unstable; urgency=low
+
+  * Fixed syntax error in modutils file.
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  1 Mar 2002 07:53:19 +1100
+
+initrd-tools (0.1.20) unstable; urgency=low
+
+  * Fixed usage output (closes: #133370).
+  * Added check for Compaq Smart Arra devices (Dirk Lipinski, closes: #134234).
+  * Added check for SCSI CDROM devices.
+  * Depend on cramfsprogs for portability.
+  * Added pcmcia and boot paths to modutils.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 28 Feb 2002 21:49:23 +1100
+
+initrd-tools (0.1.19) unstable; urgency=low
+
+  * Include ext3 as well as ext2 when fstab says ext2.
+  * Handle file system lists in fstab correctly (closes: #133303).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 11 Feb 2002 19:10:52 +1100
+
+initrd-tools (0.1.18) unstable; urgency=low
+
+  * Abort if root file system type is set to auto.
+  * Prune NLS files (Mark van Walraven).
+  * Handle zero delay correctly (Mark van Walraven).
+  * Canonicalise root device before interpreting it.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 25 Jan 2002 23:50:33 +1100
+
+initrd-tools (0.1.17) unstable; urgency=low
+
+  * Added pointer to mkinitrd(8) in sample modules file (closes: #126929).
+  * Added cramfsprogs to dependency in anticipation to name change.
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  1 Jan 2002 20:33:36 +1100
+
+initrd-tools (0.1.16) unstable; urgency=low
+
+  * Ignore comments in fstab (closes: #125853).
+  * Fixed hard coded references to /etc/mkinitrd (Peter Mottram,
+    closes: #125684).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 21 Dec 2001 20:54:48 +1100
+
+initrd-tools (0.1.15) unstable; urgency=low
+
+  * Load the eata module correctly (closes: #124003).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 15 Dec 2001 09:33:12 +1100
+
+initrd-tools (0.1.14) unstable; urgency=low
+
+  * Added support for file system type in ROOT.
+  * Find root device/type from fstab instead of /proc/mounts.
+  * Allow ROOT to be specified on the command line as -r (closes: #117388).
+
+ -- Herbert Xu <herbert@debian.org>  Fri,  7 Dec 2001 22:23:51 +1100
+
+initrd-tools (0.1.13) unstable; urgency=low
+
+  * Added probe test for ext3 (Eduard Bloch).
+  * Added support for other image types through MKIMAGE (closes: #115724).
+  * Bumped dependency on mkcramfs due to tmpfs bug in 2.4.12.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 28 Oct 2001 12:20:51 +1100
+
+initrd-tools (0.1.12) unstable; urgency=low
+
+  * Use devfs names for RAID if the old one doesn't exist at boot time.
+
+ -- Herbert Xu <herbert@debian.org>  Mon,  3 Sep 2001 21:40:10 +1000
+
+initrd-tools (0.1.11) unstable; urgency=low
+
+  * Added -k option to keep the working directory (closes: #107543).
+  * Added rule for Compaq Smart Array (der.hans, closes: #107537).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  5 Aug 2001 09:52:32 +1000
+
+initrd-tools (0.1.10) unstable; urgency=low
+
+  * Added support for adding extra files and executables (closes: #102386).
+  * Added hack to inhibit the error message about ext2 on the 386 flavour
+    (closes: #103908).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 15 Jul 2001 20:10:18 +1000
+
+initrd-tools (0.1.9) unstable; urgency=low
+
+  * Fixed typo in mkinitrd(8) (laurent bonnaud, closes: #100626).
+  * Added code to recognise /dev/scsi/* (Byeong-Jun Park, closes: #100701).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 14 Jun 2001 19:11:17 +1000
+
+initrd-tools (0.1.8) unstable; urgency=low
+
+  * Always include /dev/md0 or /dev/md/0 if RAID is found.
+  * Fixed typo in man page (closes: #98936).
+  * Fall back on /proc/mounts if rdev is not available.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 28 May 2001 07:41:47 +1000
+
+initrd-tools (0.1.7) unstable; urgency=low
+
+  * Fixed syntax error introduced in 0.1.6.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 15 Apr 2001 20:04:10 +1000
+
+initrd-tools (0.1.6) unstable; urgency=low
+
+  * Don't call find for module directories that don't exist (closes: #91331).
+  * Changed Architecture to all.
+  * Added versioned dependency on modutils for 2.4 support (closes: #90906).
+
+ -- Herbert Xu <herbert@debian.org>  Sat,  7 Apr 2001 16:30:56 +1000
+
+initrd-tools (0.1.5) unstable; urgency=low
+
+  * Changed sh to ash since bash doesn't handle signals correctly.
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 22 Mar 2001 21:09:07 +1100
+
+initrd-tools (0.1.4) unstable; urgency=low
+
+  * Use rdev(8) to determine the root device (Sam Quigley, closes: #90330).
+
+ -- Herbert Xu <herbert@debian.org>  Tue, 20 Mar 2001 07:49:18 +1100
+
+initrd-tools (0.1.3) unstable; urgency=low
+
+  * Replaced PROBE by ROOT which allow the root device to be manually set.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 19 Mar 2001 23:08:25 +1100
+
+initrd-tools (0.1.2) unstable; urgency=low
+
+  * Recognise /dev/ide/* as IDE devices (closes: #89888).
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 17 Mar 2001 08:23:30 +1100
+
+initrd-tools (0.1.1) unstable; urgency=low
+
+  * Added versioned dependency on mkcramfs since we need the size field.
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 11 Mar 2001 10:38:33 +1100
+
+initrd-tools (0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  4 Mar 2001 20:02:15 +1100
+

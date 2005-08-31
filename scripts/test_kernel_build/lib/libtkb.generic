@@ -1,0 +1,58 @@
+#!/bin/bash
+######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+if [ "$LIBTKB_GENERIC" != "YES" ]; then
+LIBTKB_GENERIC="YES"
+
+declare VERSION START_STAGE END_STAGE STAGE MAJOR_MINOR SVN_SUBDIR
+pre_conf_setup_generic ()
+{
+	if ! which fakeroot >& /dev/null; then
+		echo "Error: fakeroot is not installed" 1>&2
+		exit 1
+	fi
+
+	if [ $# -lt 1 -o $# -gt 3 ]; then
+		usage
+	fi
+	VERSION="$1"
+	
+	if [ $# -gt 1 ]; then
+		START_STAGE=$2
+	else
+		START_STAGE=0
+	fi
+	if [ $# -gt 2 ]; then
+		END_STAGE=$3
+	else
+		END_STAGE=1000
+	fi
+	STAGE=0
+
+	case $VERSION in
+		2.6|2.6.[0-9]*)
+			MAJOR_MINOR="2.6"
+			SVN_SUBDIR="kernel"
+		;;
+		2.4.[0-9]*)
+			MAJOR_MINOR="2.4"
+			SVN_SUBDIR="kernel-2.4"
+		;;
+		*)
+			echo "Unknown Version" 1>&2
+			usage
+		;;
+	esac
+}
+
+post_conf_setup_generic ()
+{
+	trap pm_quit EXIT
+	trap pm_quit SIGHUP
+	trap pm_quit SIGTERM
+	trap pm_quit SIGQUIT
+}
+
+fi # LIBTKB_GENERIC

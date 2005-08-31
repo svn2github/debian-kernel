@@ -1,0 +1,7 @@
+Source: kernel-latest-mips
+Section: devel
+Priority: optional
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 4)

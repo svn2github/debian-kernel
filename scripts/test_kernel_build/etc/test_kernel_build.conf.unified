@@ -1,0 +1,25 @@
+#!/bin/bash
+######################################################################
+# Horms                                                    August 2005
+######################################################################
+
+if [ "$TKB_CONF_UNIFIED" != "YES" ]; then
+TKB_CONF_UNIFIED="YES"
+
+. "$TKB_ETC_DIR/test_kernel_build.conf"
+
+BUILD_TYPE="unified"
+
+S_SRC_BASE="$SVN_BASE/$SVN_SUBDIR/source"
+S_DST_BASE="$BUILD_BASE"
+
+S_SRC_DIR="$S_SRC_BASE/linux-2.6"
+S_DST_DIR="$S_DST_BASE/linux-2.6"
+#S_PKG_DIR="$S_DST_DIR/linux-2.6-$VERSION"
+S_UPLOAD_DIR="$UPLOAD_BASE/linux-2.5"
+S_UPLOAD_URL="$UPLOAD_URL_BASE/linux-2.6"
+S_TMP_DIR="$S_DST_DIR/tmp"
+S_LOG_DIR="$S_DST_DIR/log"
+S_LOG="$S_LOG_DIR/linux-2.6-$STAMP.log"
+
+fi # TKB_CONF_UNIFIED

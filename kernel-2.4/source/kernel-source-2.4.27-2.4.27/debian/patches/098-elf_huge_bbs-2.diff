@@ -1,0 +1,78 @@
+# origin: Barry K. Nathan <barryn@pobox.com>
+# cset: 1.1497 key=4193bbfertbISRQVPFzTMySXo4T7IA
+# inclusion: uptream
+# revision date: Wed, 24 Nov 2004 16:55:40 +0900
+# description: [PATCH] binfmt_elf.c fix for 32-bit apps with large bss
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/23 08:01:10-02:00 barryn@pobox.com 
+#   [PATCH] binfmt_elf.c fix for 32-bit apps with large bss
+#   
+#   This is a 2.4.27-2.4.28 port of this patch:
+#   
+#   > [PATCH] binfmt_elf.c fix for 32-bit apps with large bss
+#   >
+#   > From: Julie DeWandel <jdewand@redhat.com>
+#   >
+#   > A problem exists where a 32-bit application can have a huge bss, one that
+#   > is so large that an overflow of the TASK_SIZE happens.  But in this case,
+#   > the overflow is not detected in load_elf_binary().  Instead, because
+#   > arithmetic is being done using 32-bit containers, a truncation occurs and
+#   > the program gets loaded when it shouldn't have been.  Subsequent execution
+#   > yields unpredictable results.
+#   >
+#   > The attached patch fixes this problem by checking for the overflow
+#   > condition and sending a SIGKILL to the application if the overflow is
+#   > detected.  This problem can in theory exist when loading the elf
+#   > interpreter as well, so a similar check was added there.
+#   
+#   Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+# 
+# fs/binfmt_elf.c
+#   2004/10/16 08:16:38-03:00 barryn@pobox.com +25 -0
+#   binfmt_elf.c fix for 32-bit apps with large bss
+# 
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	2004-11-24 16:39:48 +09:00
++++ b/fs/binfmt_elf.c	2004-11-24 16:39:48 +09:00
+@@ -335,6 +335,18 @@
+ 	    }
+ 
+ 	    /*
++	     * Check to see if the section's size will overflow the
++	     * allowed task size. Note that p_filesz must always be
++	     * <= p_memsize so it is only necessary to check p_memsz.
++	     */
++	    k = load_addr + eppnt->p_vaddr;
++	    if (k > TASK_SIZE || eppnt->p_filesz > eppnt->p_memsz ||
++		eppnt->p_memsz > TASK_SIZE || TASK_SIZE - eppnt->p_memsz < k) {
++	        error = -ENOMEM;
++		goto out_close;
++	    }
++
++	    /*
+ 	     * Find the end of the file mapping for this phdr, and keep
+ 	     * track of the largest address we see for this.
+ 	     */
+@@ -727,6 +739,19 @@
+ 		k = elf_ppnt->p_vaddr;
+ 		if (k < start_code) start_code = k;
+ 		if (start_data < k) start_data = k;
++
++		/*
++		 * Check to see if the section's size will overflow the
++		 * allowed task size. Note that p_filesz must always be
++		 * <= p_memsz so it is only necessary to check p_memsz.
++		 */
++		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
++		    elf_ppnt->p_memsz > TASK_SIZE ||
++		    TASK_SIZE - elf_ppnt->p_memsz < k) {
++			/* set_brk can never work.  Avoid overflows.  */
++			send_sig(SIGKILL, current, 0);
++			goto out_free_dentry;
++		}
+ 
+ 		k = elf_ppnt->p_vaddr + elf_ppnt->p_filesz;
+ 

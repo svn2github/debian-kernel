@@ -1,0 +1,54 @@
+#! /bin/sh -e
+## 32_dec-loadkeys.dpatch by Karsten Merker <karsten@excalibur.cologne.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Don't regenerate keymap, it breaks on keyboardless machines.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+diff -Nur linux-mips-cvs-20040326/Makefile linux-mips-cvs-20040326-with-loadkeys-patch/Makefile
+--- linux-mips-cvs-20040326/Makefile	2004-02-20 01:22:10.000000000 +0000
++++ linux-mips-cvs-20040326-with-loadkeys-patch/Makefile	2004-03-27 07:15:50.000000000 +0000
+@@ -220,7 +220,6 @@
+ 	drivers/scsi/aic7xxx/aicasm/aicdb.h \
+ 	drivers/scsi/aic7xxx/aicasm/y.tab.h \
+ 	drivers/scsi/53c700_d.h \
+-	drivers/tc/lk201-map.c \
+ 	net/khttpd/make_times_h \
+ 	net/khttpd/times.h \
+ 	submenu*
+diff -Nur linux-mips-cvs-20040326/drivers/tc/Makefile linux-mips-cvs-20040326-with-loadkeys-patch/drivers/tc/Makefile
+--- linux-mips-cvs-20040326/drivers/tc/Makefile	2001-01-12 20:44:17.000000000 +0000
++++ linux-mips-cvs-20040326-with-loadkeys-patch/drivers/tc/Makefile	2004-03-27 07:27:13.000000000 +0000
+@@ -38,5 +38,13 @@
+ 
+ include $(TOPDIR)/Rules.make
+ 
+-lk201-map.c: lk201-map.map
+-	loadkeys --mktable lk201-map.map > lk201-map.c
++# FIXME
++# Commented out generation of lk201-map.c as current loadkeys is built
++# using kernel 2.5/2.6 headers which causes the resulting file being 
++# incompatible with kernel 2.4.
++# Added lk201-map.c generated with old, kernel 2.4-compatible loadkeys
++# Karsten Merker <merker@debian.org>, 2004/03/26
++#
++# lk201-map.c: lk201-map.map
++#	loadkeys --mktable lk201-map.map > lk201-map.c
++

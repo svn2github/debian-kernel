@@ -1,0 +1,18 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: prevent potential command line overflows with xargs
+# revision date: 2004-09-05
+
+diff -urN kernel-source-2.4.26/Makefile kernel-source-2.4.26-1/Makefile
+--- kernel-source-2.4.26/Makefile	2004-04-14 23:05:41.000000000 +1000
++++ kernel-source-2.4.26-1/Makefile	2004-04-17 14:23:30.000000000 +1000
+@@ -500,7 +505,7 @@
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+ endif
+-	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
++	find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print | xargs scripts/mkdep -- > .hdepend
+ 	scripts/mkdep -- init/*.c > .depend
+ 
+ ifdef CONFIG_MODVERSIONS

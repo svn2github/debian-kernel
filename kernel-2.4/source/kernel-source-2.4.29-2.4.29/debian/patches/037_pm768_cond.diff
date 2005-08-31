@@ -1,0 +1,26 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: AMD_PM768 is only relevant for x86_64 arch
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/char/Config.in kernel-source-2.4.26-1/drivers/char/Config.in
+--- kernel-source-2.4.26/drivers/char/Config.in	2004-02-19 00:36:31.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/char/Config.in	2004-02-22 20:28:14.000000000 +1100
+@@ -297,6 +297,7 @@
+ 
+ if [ "$CONFIG_X86" = "y" -o "$CONFIG_X86_64" = "y" ]; then
+    dep_tristate 'AMD 768/8111 Random Number Generator support' CONFIG_AMD_RNG $CONFIG_PCI
++   dep_tristate 'AMD 76x native power management (Experimental)' CONFIG_AMD_PM768 $CONFIG_PCI
+ fi
+ if [ "$CONFIG_X86" = "y" -o "$CONFIG_IA64" = "y" ]; then
+    dep_tristate 'Intel i8x0 Random Number Generator support' CONFIG_INTEL_RNG $CONFIG_PCI
+@@ -305,7 +306,6 @@
+      "$CONFIG_X86_64" = "y" ]; then
+    dep_tristate 'Intel/AMD/VIA HW Random Number Generator support' CONFIG_HW_RANDOM $CONFIG_PCI
+ fi
+-dep_tristate 'AMD 76x native power management (Experimental)' CONFIG_AMD_PM768 $CONFIG_PCI
+ tristate '/dev/nvram support' CONFIG_NVRAM
+ tristate 'Enhanced Real Time Clock Support' CONFIG_RTC
+ if [ "$CONFIG_IA64" = "y" ]; then
+ 

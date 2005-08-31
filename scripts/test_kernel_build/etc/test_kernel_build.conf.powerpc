@@ -1,0 +1,32 @@
+#!/bin/bash
+######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+if [ "$TKB_CONF_PPC" != "YES" ]; then
+TKB_CONF_PPC="YES"
+
+. "$TKB_ETC_DIR/test_kernel_build.conf"
+
+BUILD_TYPE="powerpc"
+KERNEL_ARCH="powerpc"
+KERNEL_PKG_NAME="kernel-patch"
+
+B_SRC_BASE="$SVN_BASE/$SVN_SUBDIR/$KERNEL_ARCH"
+B_DST_BASE="$BUILD_BASE"
+
+if [ -d "$B_SRC_BASE/$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION" ]; then
+        B_SRC_DIR="$B_SRC_BASE/$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION"
+else
+	B_SRC_DIR="$B_SRC_BASE/$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION-$VERSION"
+fi
+B_DST_DIR="$B_DST_BASE/$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION"
+B_TMP_DIR="$B_DST_DIR/tmp"
+B_PKG_DIR="$B_DST_DIR/$KERNEL_PKG_NAME-$KERNEL_ARCH-$VERSION-$VERSION"
+B_UPLOAD_DIR="$UPLOAD_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH"
+B_UPLOAD_URL="$UPLOAD_URL_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH"
+B_OLD_DIR="$B_DST_DIR/old"
+B_LOG_DIR="$B_DST_DIR/log"
+B_LOG="$B_LOG_DIR/$KERNEL_PKG_NAME-$STAMP.log"
+
+fi # TKB_CONF_PPC

@@ -1,0 +1,7 @@
+- sparc-sunsab-serial-lockup.patch
++ sunsab-uart-update-timeout.patch
++ sparc64-compat-nanoseconds.patch
++ sparc64-sunsu-init-2.6.11.patch
++ alpha-read-trylock.patch
+- patch-2.6.11.7.patch
++ patch-2.6.11.9.patch

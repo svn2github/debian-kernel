@@ -1,0 +1,48 @@
+# origin: bk
+# key: 41c99a1b0Mgp_RcIoFWHphM-9yAoxg (linux-2.4)
+# description: fix the int 0x80 local root hole
+# inclusion: 2.4.29 (backport)
+# revision date: 2005-02-17
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/22 14:00:27-02:00 ak@suse.de 
+#   [PATCH] [CAN-2004-1144] Fix int 0x80 hole in 2.4 x86-64 linux kernels
+#   
+#   Petr Vandrovec discovered an exploitable root hole on all 2.4 x86-64 kernels.
+#   The problem occurs because the eax register on the 32bit int 0x80 syscall
+#   handler is not properly 64bit zero extended, which can be used to overflow the
+#   system call table.
+#   
+#   The problem only occurs on 2.4 x86-64 kernels, 2.6 doesn't have this
+#   hole because some unrelated changes in 2.5 fixed it as a side effect.
+#   
+#   Marcelo should be releasing a new pre* kernel with this fix
+#   shortly, there should be also update kernel from the various
+#   linux distributions.
+#   
+#   It is recommended that everybody who runs a 2.4 x86-64 kernel with
+#   shell user access updates to a kernel which has this patch applied.
+#   
+#   Patch is for 2.4.29pre2, but should apply to pretty much any
+#   2.4.x x86-64 kernel.
+#   
+#   -Andi
+#   TAG: v2.4.29-pre3
+# 
+# arch/x86_64/ia32/ia32entry.S
+#   2004/12/22 15:49:05-02:00 ak@suse.de +1 -0
+#   [CAN-2004-1144] Fix int 0x80 hole in 2.4 x86-64 linux kernels
+# 
+diff -Nru a/arch/x86_64/ia32/ia32entry.S b/arch/x86_64/ia32/ia32entry.S
+--- a/arch/x86_64/ia32/ia32entry.S	2005-02-17 13:46:20 -08:00
++++ b/arch/x86_64/ia32/ia32entry.S	2005-02-17 13:46:20 -08:00
+@@ -52,6 +52,7 @@
+ ENTRY(ia32_syscall)
+ 	swapgs	
+ 	sti
++	movl %eax,%eax	
+ 	pushq %rax
+ 	cld
+ 	SAVE_ARGS

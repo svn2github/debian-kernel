@@ -1,0 +1,17 @@
+# origin: Debian (joshk)
+# cset: n/a
+# inclusion: submitted upstream (2004-10-02)
+# description: change sym53c8xx_2's proc_name to sym53c8xx_2 to fix initrds
+# revision date: 2004-10-02
+
+--- kernel-source-2.4.27-2.4.27/drivers/scsi/sym53c8xx_2/sym_glue.c~	2004-10-02 17:35:22.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/drivers/scsi/sym53c8xx_2/sym_glue.c	2004-10-02 17:35:38.000000000 -0700
+@@ -55,7 +55,7 @@
+ #include "sym_glue.h"
+ 
+ #define NAME53C		"sym53c"
+-#define NAME53C8XX	"sym53c8xx"
++#define NAME53C8XX	"sym53c8xx_2"
+ 
+ /*
+  *  Simple Wrapper to kernel PCI bus interface.

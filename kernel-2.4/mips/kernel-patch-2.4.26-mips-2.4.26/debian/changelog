@@ -1,0 +1,457 @@
+kernel-patch-2.4.26-mips (2.4.26-4.040505) unstable; urgency=low
+
+  * Build against kernel-source-2.4.26 version 2.4.26-4, fixes stack
+    allocation in crypt().
+  * Update control file descriptions.
+
+ -- Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>  Thu, 29 Jul 2004 00:30:02 +0200
+
+kernel-patch-2.4.26-mips (2.4.26-3.040505) unstable; urgency=low
+
+  * Build against kernel-source-2.4.26 version 2.4.26-3 in order to
+    get some security fixes.
+  * Use dpatch for patch handling.
+  * Don't create a kernel-patch-mips package any more.
+
+ -- Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>  Wed, 14 Jul 2004 16:05:27 +0200
+
+kernel-patch-2.4.26-mips (2.4.26-0.040505.1) unstable; urgency=low
+
+  * Improve compiler optimization options.
+  * Add some more ide, usb and nic modules (Closes: #238428).
+  * Remove forcedeth module, it's not useful for SWARM.
+  * Enable Framebuffer support, makes USB HID useful (Closes: #244443).
+  * Build mips-tools for any arch.
+  * Don't build the kernel headers for non-MIPS arch (Closes: #249821).
+
+ -- Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>  Sun, 30 May 2004 23:59:37 +0200
+
+kernel-patch-2.4.26-mips (2.4.26-0.040505) unstable; urgency=low
+
+  * Switched to kernel version 2.4.26, mips CVS 2004-05-05.
+  * Don't create separate ppp module packages for r3k-kn02, r4k-kn04,
+    r4k-ip22 anymore.
+  * Add xxs1500 images, thanks to Goswin Brederlow.
+  * Split the mips-patch in several items, keep them uncompressed,
+    adjust debian/rules accordingly.
+  * simplify debian/rules a bit.
+  * enable some more modules for sb1-swarm, especially scsi and usb,
+    and add highmem support. Export some symbols for this.
+  * Fix basic PCMCIA operations for sb1-swarm, thanks to
+    Peter 'p2' de Schrijver.
+
+ -- Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>  Sun, 16 May 2004 22:36:13 +0200
+
+kernel-patch-2.4.25-mips (2.4.25-0.040415.1) unstable; urgency=low
+
+  * switched kernel version to 2.4.25, thanks to Thiemo Seufer.
+  * modified 2.4.19 PMAD-AA patch to work with 2.4.25 and applied it
+  * applied Cobalt patch from
+    http://www.colonel-panic.org/cobalt-mips/
+  * do not build drivers/tc/lk201-map.c on the fly anymore but instead
+    provide a pregenerated source file as current loadkeys produces code
+    which aims at kernel 2.5/2.6 and is incompatible with kernel 2.4
+  * used new initrd patch written by
+    Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>, and a fix for it
+    by Martin Michlmayr.
+  * added patch implementing TIOCGSERIAL for the SWARM, thanks to
+    Peter 'p2' De Schrijver.
+  * add Cobalt images, thanks Martin Michlmayr (Closes: #243626).
+  * enable sb1-swarm-bn images on little-endian mips.
+  * enable CONFIG_UNIX on sb1-swarm-bn (Closes: #243630).
+  * enable OSS mixer on ip22.
+  * built against kernel-source-2.4.25 version 2.4.25-3 in order to
+    get some security fixes.
+
+ -- Karsten Merker <merker@debian.org>  Thu, 15 Apr 2004 15:05:58 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928.5) unstable; urgency=low
+
+  * don't build udebs, they're handeld by d-i's build process now
+  * move mips and mipsel configs into separate subdirs since some
+    boards can run in both endianesses but need different configs
+  * compile in mips_rtc for swarm
+  * build more modules for swarm (Closes: #238428)
+  * enable initrd for swarm (Closes: #238447)
+  * add a little endian swarm config, will be autobuild once we reenable mipsel
+  * remove extra mips/ subdir in kernel-patch package 
+
+ -- Guido Guenther <agx@debian.org>  Mon, 22 Mar 2004 23:35:27 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928.4) unstable; urgency=low
+
+  * remove all mipsel builds. The DECStations were broken since ages, Karsten
+    and Thiemo are working on a fix. Until mipsel can switch to 2.4.22 they
+    use 2.4.19, this somewhat eases security update maintenance.
+  * some minor -march vs. -mtune updates to fix sb1250 build
+  * export __cpu_{logical,nr}_map to modules to make iptables/ipchains work on
+    SMP systems
+  * add build of sb1-swarm-bn images (BCM91250A)
+  * properly clean the build dir so we don't run into problems with SMP builds
+  * adjust build-dependency to (>= 2.4.22-5) to make sure we build with
+    a kernel-source that has the do_brk fix
+  * remove /u/s/d/kernel-patch-2.4.X from debian/dirs since this is handeld by
+    dh_installdocs
+  * slightly update README.Debian
+
+ -- Guido Guenther <agx@debian.org>  Tue,  2 Mar 2004 14:35:22 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928.3) unstable; urgency=high
+
+  * Applied patch extracted from Solar Designer's Owl patched kernel to
+    fix local privilege escalation discovered by Paul Starzetz
+    (CAN-2004-0077)
+  * remove Conflict libc6 (<=2.3.2-7) to ease upgrades.
+  * remove do_brk security fix, it's in the 2.4.22 kernel-source package
+    now
+
+ -- Guido Guenther <agx@debian.org>  Mon,  9 Feb 2004 20:15:19 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928.2) unstable; urgency=low
+
+  * apply do_mremap security fix (CAN-2003-0985)
+
+ -- Guido Guenther <agx@debian.org>  Wed,  7 Jan 2004 14:10:14 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928.1) unstable; urgency=low
+
+  * apply do_brk security fix, thanks Herbert Xu
+  * store the uncompressed linux-mips CVS patch in the source package
+
+ -- Guido Guenther <agx@debian.org>  Mon,  1 Dec 2003 14:17:56 +0100
+
+kernel-patch-2.4.22-mips (2.4.22-0.030928) unstable; urgency=low
+
+  * update include/asm-mips/msgbuf.h to CVS version 1.1.4.3 to fix msqs. Add a
+    conflict on glibc <= 2.3.2-7 for mips, since this breaks binary
+    compatibility. Thanks to Ryan Murray for sorting this out.
+    (Closes: #215273)
+
+ -- Guido Guenther <agx@debian.org>  Mon, 13 Oct 2003 10:49:17 +0200
+
+kernel-patch-2.4.22-mips (2.4.22-0.030927) unstable; urgency=low
+
+  * new upstream version
+  * use PHYSADDR in sgiwd93 (patch by Ladislav Michel)
+  * fix addinitrd on mipsel (patch by Thiemo Seufer)
+  * disable second level cache on IP22 (Thiemo Seufer), but only on R5Ks (me),
+    this finally allows R5k SC Indys to work
+  * remove mips kmap_types.h patch, it's fixed upstream now...
+  * ... but add kmap_types.h for mips64
+  * pull pmadaa until someone fixes the build
+  * DECStations serial driver options changed completely, updated configs
+
+ -- Guido Guenther <agx@debian.org>  Mon, 29 Sep 2003 21:19:09 +0200
+
+kernel-patch-2.4.21-mips (2.4.21-0.030705) unstable; urgency=low
+
+  * new upstream version
+  * readd serial console support for IP22 which got accidentally disabled due
+    to changes in the CONFIG_IP22_* naming, thanks to Julian Blache for
+    spotting this.
+  * most of our patches are now in linux-mips.org's cvs
+  * add config for the Lasat subarch and build kernel images for it
+  * echo 4 > debian/compat
+  * bump Standars-Version to 3.6.1
+  * teach debian/rules about -preX and -rcX prereleases
+  * enable modversions (Closes: #211774)
+  * fixup kmap_softirq.h to make the crypto modules buildable
+
+ -- Guido Guenther <agx@debian.org>  Sun, 21 Sep 2003 22:24:58 +0200
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.8) unstable; urgency=low
+
+  * CONFIG_TMPFS=y (Closes: #189114)
+  * fix arch/mips/Makefile to work with gcc-3.3/binutils-2.14.90.0.5 and
+    gcc-2.95/binutils-2.13.X
+  * remove the ptrace fix, it's in kernel-source-2.4.19 now
+  * bump Standars-Version to 3.6.1
+
+ -- Guido Guenther <agx@debian.org>  Thu, 18 Sep 2003 23:57:24 +0200
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.7) unstable; urgency=low
+
+  * emulate ll/sc for R3000A CPUs too (Closes: #180619).
+  * remove dots at end of Description: in debian/rules
+  * Thiemo Seufer's dec_system_strings rework was already included in in the
+    last upload.
+
+ -- Guido Guenther <agx@debian.org>  Mon,  7 Apr 2003 13:20:16 +0200
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.6) unstable; urgency=low
+
+  * fix ptrace vulnerability
+  * fix crash on IP22 when eaddr is unset in the PROM
+  * first round of getting R3K to work with glibc 2.3.1
+  * enable devfs for debian-installer
+  * rediff against 2.4.19-5
+  * remove explicit gcc-3.2 dependency since it's the default for sarge
+  * Karsten:
+    - added fix/modified driver for the PMAD-AA TurboChannel ethernet
+      board and the DECstation 5000/200 onboard ethernet interface
+      (fixes non-working ethernet on DECstation 5000/200 and
+      on systems that have both onboard ethernet and a PMAD-AA card)
+    - enabled PMAD-AA support in config/r3k-kn02 and config/r4k-kn04
+    - enabled DZ serial support in config/r3k-kn02
+
+ -- Guido Guenther <agx@debian.org>  Tue, 18 Mar 2003 18:22:38 +0100
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.5) unstable; urgency=low
+
+  * readd modules/ directory - damnit. (Closes: #172766)
+  * 'set -e' when building the images
+
+ -- Guido Guenther <agx@debian.org>  Thu, 12 Dec 2002 20:28:03 +0100
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.4) unstable; urgency=low
+
+  * add dh_shlibdeps call. (Closes: #172623)
+  * rm copy-modules.old
+  * CVSify
+
+ -- Guido Guenther <agx@debian.org>  Thu, 12 Dec 2002 02:52:27 +0100
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.3) unstable; urgency=low
+
+  * add support for building per subarch udebs (skeleton stolen from ppc)
+  * modify copy-modules to cope with subarchitectures
+  * honor DEB_BUILD_OPTIONS for mips-tools package
+  * debian/rules cleanup, unpack the source tree only once
+  * work around problem for kernel's distclean removing all empty files
+    including APPLIED_* files which makes unpatching in the clean target
+    fail silently
+  * bump standards version to 3.5.8
+  * rediff against 2.4.19-4
+
+ -- Guido Guenther <agx@debian.org>  Tue,  3 Dec 2002 22:41:42 +0100
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.2) unstable; urgency=low
+
+  * allow sgiseeq to receive multicast frames, patch by Jochen Friedrich
+  * use gcc-3.2 
+  * the cvs repository moved from oss.sgi.com to ftp.linux-mips.org so
+    rename the patch and correct the descriptions.
+
+ -- Guido Guenther <agx@debian.org>  Sat, 12 Oct 2002 02:23:02 +0200
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911.1) unstable; urgency=low
+
+  * diff against kernel-source 2.4.19-3
+  * Karsten: apply patch from Florian Lohoff to fix dec_esp
+  * Add Karsten as uploader to the control file
+
+ -- Guido Guenther <agx@debian.org>  Wed,  9 Oct 2002 15:35:40 +0200
+
+kernel-patch-2.4.19-mips (2.4.19-0.020911) unstable; urgency=low
+
+  * new upstream version
+  * move /proc/gio to /proc/bus/gio and make it better parseable
+  * add patch by William Jhun to fix console selection on IP22
+  * disable I2 EISA support for now
+  * updated cvs location in the copyright file
+
+ -- Guido Guenther <agx@debian.org>  Sat,  5 Oct 2002 00:53:43 +0200
+
+kernel-patch-2.4.18-mips (2.4.18-0.020622.1) unstable; urgency=low
+
+  * use fixed head.S
+  * remove addinitrd manpage
+  * cleanup README.Debian
+
+ -- Guido Guenther <agx@debian.org>  Sun, 23 Jun 2002 21:00:16 +0200
+
+kernel-patch-2.4.18-mips (2.4.18-0.020622) unstable; urgency=low
+
+  * resync with oss cvs - most of the changes are merged upstream which
+    brings us down to a minimal patch only - horray.
+  * fix pgtable.h to make the assembler happy
+  * kernel-headers package provides kernel-headers-2.4
+
+ -- Guido Guenther <agx@debian.org>  Sun, 23 Jun 2002 14:47:03 +0200
+
+kernel-patch-2.4.17-mips (2.4.17-0.020226.3) unstable; urgency=low
+
+  * add parsing for rd_start && rd_size commandline options. These
+    are used by the tip22 bootloader to pass the address and size
+    of an initrd to the kernel.
+  * don't include addinitrd in mips-tools anymore, we handle this
+    cleaner with tip22 now.
+
+ -- Guido Guenther <agx@debian.org>  Thu,  9 May 2002 22:33:40 +0200
+
+kernel-patch-2.4.17-mips (2.4.17-0.020226.2) unstable; urgency=low
+
+  * On IP22 link in scsi-cdrom and iso9660 statically (Closes: #144412)
+  * this bloats the kernel so much that it will overwrite arcboot (<<0.3.1)
+    during boot, so I added a versioned conflict
+  * Corrupted pixmaps in X are now a thing of the past - fixed by a cache
+    aliasing patch from Steve Longerbeam & Jun Sun posted to linux-mips
+
+ -- Guido Guenther <agx@debian.org>  Sun, 28 Apr 2002 15:55:35 +0200
+
+kernel-patch-2.4.17-mips (2.4.17-0.020226.1) unstable; urgency=low
+
+  * addinitrd fixups: open the source image O_RDONLY and make sure we don't
+    overwrite the kernel's data segment unintentionally.
+  * remove BKL and fix potential race on SMP systems in IP22 watchdog driver
+    (patch by Dave Hansen)
+  * Karsten: backport of the DECstation keyboard driver fixes from the current
+    cvs kernel, needed to make the kernel work on machines without keyboard
+    (previous version hung infinitely when no keyboard was attached)
+
+ -- Guido Guenther <agx@debian.org>  Wed,  3 Apr 2002 15:25:03 +0200
+
+kernel-patch-2.4.17-mips (2.4.17-0.020226) unstable; urgency=low
+
+  * update to CVS 2002-02-26
+  * include r3k-swap-patch from linux-mips list (this should finally
+    make r3k decstations work)
+  * IP22 watchdog driver included upstream
+  * use make-kpkg --append-to-version instead of --arch_in_name to
+    make sure we can install kernel images of different subarches
+    at the same time.
+  * add updated decstation configs from Karsten Merker
+  * fix apply/0mips mipsel vs mips breakage (patch by Karsten Merker)
+
+ -- Guido Guenther <agx@debian.org>  Mon, 11 Mar 2002 10:28:37 +0100
+
+kernel-patch-2.4.17-mips (2.4.17-0.020130.1) unstable; urgency=medium
+
+  * *** Important: ***
+    We now ship an ELF instead of an ECOFF image on mips since this is 
+    what arcboot expects. Old I2 proms will not boot this kernel unless 
+    you either use arcboot(recommended) or use elf2ecoff before putting 
+    the kernel into the vh.
+  * incorporate proper mipsel support so we can build mips and mipsel
+    images from this source packages(thanks to Karsten Merker
+    <merker@debian.org> for .configs and descriptions)
+  * mips images now suggest arcboot instead of dvhtool
+  * README.Debian and debian/control cleanup
+  * elf2ecoff/addinitrd changes applied upstream
+  * add IP22 watchdog driver
+  * fix depmod tumbling over non ELF files in toplevel makefile
+  * urgency=medium so this package makes it into the archive before
+    arcboot
+
+ -- Guido Guenther <agx@debian.org>  Sat,  2 Feb 2002 16:32:36 +0100
+
+kernel-patch-2.4.17-mips (2.4.17-0.020130) unstable; urgency=low
+
+  * new upstream version
+  * build mips-tools package for mipsel too.
+  * machtype in /proc/cpuinfo is fixed upstream again, so remove
+    our patch.
+  * cleanup our "don't crash the I2 on boot" patch
+  * enable the HAL2 driver
+
+ -- Guido Guenther <agx@debian.org>  Wed, 30 Jan 2002 23:35:28 +0100
+
+kernel-patch-2.4.16-mips (2.4.16-0.011212.1) unstable; urgency=low
+
+  * fix /proc/cpuinfo to make autoconf, XFree86 and boot-floppies
+    happy
+
+ -- Guido Guenther <agx@debian.org>  Sun, 16 Dec 2001 14:50:26 +0100
+
+kernel-patch-2.4.16-mips (2.4.16-0.011212) unstable; urgency=low
+
+  * New upstream version
+  * rework newport_dont_crash patch since ip22 specific files
+    moved to arch/mips/sgi-ip22
+  * remove unnecessary kernel-{patch,images} targets from debian/rules
+  * small addinitrd/elf2ecoff cleanups
+  * build mips-tools package containing addinitrd and elf2ecoff
+
+ -- Guido Guenther <agx@debian.org>  Mon,  3 Dec 2001 00:57:47 +0100
+
+kernel-patch-2.4.14-mips (2.4.14-0.011112.1) unstable; urgency=low
+
+  * add build-dependency on modutils(depmod) & console-tools(loadkeys)
+    since those are needed to build the kernel-images
+  * cleanup debian/rules a bit
+
+ -- Guido Guenther <agx@debian.org>  Mon, 19 Nov 2001 20:25:50 +0100
+
+kernel-patch-2.4.14-mips (2.4.14-0.011112) unstable; urgency=medium
+
+  * New upstream version
+  * urgency=medium due to general kernel security fixes
+  * arch/mips/kernel/setup.c now includes the initrd updates but
+    arch/mips/kernel/boot/addinitrd.c doesn't, so keep that part for now
+
+ -- Guido Guenther <agx@debian.org>  Mon, 12 Nov 2001 22:00:06 +0100
+
+kernel-patch-2.4.9-mips (2.4.9-0.010928.3) unstable; urgency=low
+
+  * pull in more fixes from oss cvs, mostly:
+     - copy_{to,from}_user
+     - lots of math-emu stuff
+     - sys_sysmips
+  * remove fast_sysmips patch, since this is fixed in cvs now
+  * don't include .#* cvs leftovers
+  * enable more modules on ip22
+
+ -- Guido Guenther <agx@debian.org>  Thu, 11 Oct 2001 20:58:13 +0200
+
+kernel-patch-2.4.9-mips (2.4.9-0.010928.2) unstable; urgency=low
+
+  * make-kpkg now properly handles the mkcramfs/cramfsck nonsense, 
+    so rebuild the diff
+
+ -- Guido Guenther <agx@debian.org>  Mon,  8 Oct 2001 23:56:35 +0200
+
+kernel-patch-2.4.9-mips (2.4.9-0.010928.1) unstable; urgency=low
+
+  * add addinitrd patch and enable initrd by default
+
+ -- Guido Guenther <agx@debian.org>  Tue,  2 Oct 2001 20:30:04 +0200
+
+kernel-patch-2.4.9-mips (2.4.9-0.010927) unstable; urgency=low
+
+  * New upstream version
+  * build sound module for ip22 (no - sound still doesn't work)
+  * Added Flo's MIPS_ATOMIC_SET implementation (ll/sc CPUs only)
+  * Changed dependency on kernel-source-2.4.X to recommends
+    kernel-source-2.4.X
+
+ -- Guido Guenther <agx@debian.org>  Fri, 28 Sep 2001 03:41:37 +0200
+
+kernel-patch-2.4.5-mips (2.4.5-0.20010728.2) unstable; urgency=low
+
+  * add 'provides kernel-image-2.4' to debian/control
+  * ip22 kernel-images recommend dvhtool
+  * compile in the loopdevice statically (needed for bootdisks)
+
+ -- Guido Guenther <agx@debian.org>  Tue, 31 Jul 2001 21:20:39 +0200
+
+kernel-patch-2.4.5-mips (2.4.5-0.20010728.1) unstable; urgency=low
+
+  * update to latest cvs head
+  * add some comments about crosscompiling
+
+ -- Guido Guenther <agx@debian.org>  Thu, 26 Jul 2001 21:51:20 +0200
+
+kernel-patch-2.4.5-mips (2.4.5-0.20010721.2) unstable; urgency=low
+
+  * build at least some modules for ip22
+  * add r4k-decstation config by Karsten Merker
+
+ -- Guido Guenther <agx@debian.org>  Mon, 23 Jul 2001 02:24:08 +0200
+
+kernel-patch-2.4.5-mips (2.4.5-0.20010721.1) unstable; urgency=low
+
+  * fix wrong 2.4.4 reference in dirs
+  * weed out last powerpc references
+  * add build dependency on debhelper
+
+ -- Guido Guenther <agx@debian.org>  Sun, 22 Jul 2001 21:42:22 +0200
+
+kernel-patch-2.4.5-mips (2.4.5-0.20010721) unstable; urgency=low
+
+  * first shot at a kernel package for mips based on the powerpc
+    kernel-patch package
+  * added patch to stop i2 from crashing with newport driver
+  * added Flo's first sysmips patch
+
+ -- Guido Guenther <agx@debian.org>  Sat, 21 Jul 2001 19:36:40 +0200
+

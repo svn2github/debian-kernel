@@ -1,0 +1,130 @@
+commit 1e483bdd0ac8852a53e32e09059df9788619b3e8
+tree 29e6ef82f987734d97da57af63a5f0410c21996c
+parent bb6c40830e2f66b33c22275829a730ed078e430a
+author Andi Kleen <ak@suse.de> 1119964612 +0200
+committer Marcelo Tosatti <marcelo.tosatti@cyclades.com> 1120052986 -0300
+
+[PATCH] Fix buffer overflow in x86-64/ia64 32bit execve
+
+Fix buffer overflow in x86-64/ia64 32bit execve
+
+Originally noted by Ilja van Sprundel
+
+I fixed it for both x86-64 and IA64. Other architectures
+are not affected.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+I:100644 100644 d398d537c16b1a744e4bf76136d19d1d80c25099 acfa7e6bb6307923a3c6738b0c498d99c8ce890a M	arch/ia64/ia32/sys_ia32.c
+R:100644 100644 0c43987ce7ab3032b96036c7d9d22b81a22a151f 3692043ab57ab273234a2af15dc2d01560f3297a M	arch/x86_64/ia32/sys_ia32.c
+
+arch/x86_64/ia32/sys_ia32.c manually applied and rediffed for 2.4.27
+for Debian - Horms 25th July 2005
+
+Key:
+S: Skipped
+I: Included Included verbatim
+D: Deleted  Manually deleted by subsequent user edit
+R: Revised  Manually revised by subsequent user edit
+
+diff --git a/arch/ia64/ia32/sys_ia32.c b/arch/ia64/ia32/sys_ia32.c
+--- a/arch/ia64/ia32/sys_ia32.c
++++ b/arch/ia64/ia32/sys_ia32.c
+@@ -94,7 +94,7 @@ asmlinkage unsigned long sys_brk(unsigne
+ static DECLARE_MUTEX(ia32_mmap_sem);
+ 
+ static int
+-nargs (unsigned int arg, char **ap)
++nargs (unsigned int arg, char **ap, int max)
+ {
+ 	unsigned int addr;
+ 	int n, err;
+@@ -107,6 +107,8 @@ nargs (unsigned int arg, char **ap)
+ 		err = get_user(addr, (unsigned int *)A(arg));
+ 		if (err)
+ 			return err;
++		if (n > max)
++			return -E2BIG;
+ 		if (ap)
+ 			*ap++ = (char *) A(addr);
+ 		arg += sizeof(unsigned int);
+@@ -128,10 +130,11 @@ sys32_execve (char *filename, unsigned i
+ 	int na, ne, len;
+ 	long r;
+ 
+-	na = nargs(argv, NULL);
++	/* Allocates upto 2x MAX_ARG_PAGES */
++	na = nargs(argv, NULL, (MAX_ARG_PAGES*PAGE_SIZE) / sizeof(char *) - 1);
+ 	if (na < 0)
+ 		return na;
+-	ne = nargs(envp, NULL);
++	ne = nargs(envp, NULL, (MAX_ARG_PAGES*PAGE_SIZE) / sizeof(char *) - 1 );
+ 	if (ne < 0)
+ 		return ne;
+ 	len = (na + ne + 2) * sizeof(*av);
+@@ -143,10 +146,10 @@ sys32_execve (char *filename, unsigned i
+ 	av[na] = NULL;
+ 	ae[ne] = NULL;
+ 
+-	r = nargs(argv, av);
++	r = nargs(argv, av, na);
+ 	if (r < 0)
+ 		goto out;
+-	r = nargs(envp, ae);
++	r = nargs(envp, ae, ne);
+ 	if (r < 0)
+ 		goto out;
+ 
+--- a/arch/x86_64/ia32/sys_ia32.c	2004-04-14 22:05:28.000000000 +0900
++++ b/arch/x86_64/ia32/sys_ia32.c	2005-07-25 17:29:16.000000000 +0900
+@@ -2193,7 +2193,7 @@
+ 	return ret;
+ } 
+ 
+-static int nargs(u32 src, char **dst) 
++static int nargs(u32 src, char **dst, int max) 
+ { 
+ 	int cnt;
+ 	u32 val; 
+@@ -2207,7 +2207,7 @@
+ 			dst[cnt] = (char *)(u64)val; 
+ 		cnt++;
+ 		src += 4;
+-		if (cnt >= (MAX_ARG_PAGES*PAGE_SIZE)/sizeof(void*))
++		if (cnt > max)
+ 			return -E2BIG; 
+ 	} while(val); 
+ 	if (dst)
+@@ -2223,13 +2223,14 @@
+ 	int ret;
+ 	unsigned sz = 0; 
+ 	
++	/* Can actually allocate 2*MAX_ARG_PAGES */
+ 	if (argv) {
+-	na = nargs(argv, NULL); 
++	na = nargs(argv, NULL, (MAX_ARG_PAGES * PAGE_SIZE)/sizeof(char*) - 1); 
+ 	if (na < 0) 
+ 		return -EFAULT; 
+ 	} 	
+ 	if (envp) { 
+-	ne = nargs(envp, NULL); 
++	ne = nargs(envp, NULL, (MAX_ARG_PAGES * PAGE_SIZE)/sizeof(char*) - 1); 
+ 	if (ne < 0) 
+ 		return -EFAULT; 
+ 	}
+@@ -2245,13 +2246,13 @@
+ 	} 
+ 	
+ 	if (argv) { 
+-	ret = nargs(argv, buf);
++	ret = nargs(argv, buf, na);
+ 	if (ret < 0)
+ 		goto free;
+ 	}
+ 
+ 	if (envp) { 
+-	ret = nargs(envp, buf + na); 
++	ret = nargs(envp, buf + na, ne); 
+ 	if (ret < 0)
+ 		goto free; 
+ 	}

@@ -1,0 +1,34 @@
+#!/bin/bash
+######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+if [ "$TKB_CONF_I386" != "YES" ]; then
+TKB_CONF_I386="YES"
+
+. "$TKB_ETC_DIR/test_kernel_build.conf"
+
+BUILD_TYPE="i386"
+KERNEL_ARCH="i386"
+KERNEL_PKG_NAME="kernel-image"
+
+B_SRC_BASE="$SVN_BASE/$SVN_SUBDIR/$KERNEL_ARCH"
+B_DST_BASE="$BUILD_BASE"
+
+B_SRC_DIR="$B_SRC_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH-$VERSION"
+B_DST_DIR="$B_DST_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH"
+B_PKG_DIR="$B_DST_DIR/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH-$VERSION"
+B_UPLOAD_DIR="$UPLOAD_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH"
+B_UPLOAD_URL="$UPLOAD_URL_BASE/$KERNEL_PKG_NAME-$VERSION-$KERNEL_ARCH"
+B_TMP_DIR="$B_DST_DIR/tmp"
+B_OLD_DIR="$B_DST_DIR/old"
+B_LOG_DIR="$B_DST_DIR/log"
+B_LOG="$B_LOG_DIR/$KERNEL_PKG_NAME-$STAMP.log"
+
+## Override Make options
+#export DISTCC_HOSTS='172.16.2.44 172.17.91.14 172.17.60.194 172.17.90.1
+#172.17.91.3 172.17.91.4'
+#export MAKE="make CC=\"ccache distcc gcc\""
+#export CONCURRENCY_LEVEL=16
+
+fi # TKB_CONF_I386

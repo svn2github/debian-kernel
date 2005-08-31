@@ -1,0 +1,307 @@
+linux-2.6 (2.6.13-1) UNRELEASED; urgency=low
+
+  [ Bastian Blank ]
+  *
+
+ -- Simon Horman <horms@debian.org>  Tue, 30 Aug 2005 19:27:52 +0900
+
+linux-2.6 (2.6.12-6) UNRELEASED; urgency=low
+
+  [ Bastian Blank ]
+  * Change ATM and Classical-IP-over-ATM to be modular, instead of being
+    statically included.
+    (closes: #323143) (Andres Salomon, Bastian Blank)
+
+  [ Sven Luther ]
+  * [powerpc]
+    - Added pmac-sound sanity check patch.
+    - Added preliminary apus patch, not applied though.
+
+  [ Simon Horman ]
+  * Unset CC_OPTIMIZE_FOR_SIZE in i386 config,
+    it breaks iproute's (and other netlink users) ability
+    to set routes. (closes: #322723) (Simon Horman)
+
+  * zlib deflateBound() patch added as part of the 2.6.12.5 patch in
+    2.6.12-3 now has a CAN number.
+    See CAN-2005-2457
+
+  * Added 2.6.12.6 
+    - [Security] Restrict socket policy loading to CAP_NET_ADMIN.
+      See CAN-2005-2555.
+    - [Maybe-Security: Can remote traffic trigger this]
+      Fix DST leak in icmp_push_reply()
+    - [Maybe-Security: Seems like a local DoS]
+      NPTL signal delivery deadlock fix
+    - fix gl_skb/skb type error in genelink driver in usbnet
+    - [Maybe-Security: Seems like a local DoS]
+      fix a memory leak in devices seq_file implementation
+    - [Maybe-Security: Seems like a local DoS]
+      Fix SKB leak in ip6_input_finish()
+
+ -- Bastian Blank <waldi@debian.org>  Fri, 19 Aug 2005 14:39:16 +0200
+
+linux-2.6 (2.6.12-5) unstable; urgency=low
+
+  * Change ARM to use GCC 3.3 to avoid FTBFS errors with GCC 4
+   (dann frazier)
+
+  * Remove spurious double quote character from ia64 package descriptions.
+    (dann frazier)
+
+  * Add transitional meta packages (kernel-image-2.6-*) for ia64.
+    (dann frazier)
+
+  * Change fuzz factor to 1, stricter patch appliance. (Maximilian Attems)
+
+  * Enabled CONFIG_THERM_PM72 on powerpc64 flavour. (Sven Luther)
+
+ -- Bastian Blank <waldi@debian.org>  Tue, 16 Aug 2005 21:43:31 +0200
+
+linux-2.6 (2.6.12-4) unstable; urgency=low
+
+  * Supply correct subarch values for the powerpc images.
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 15 Aug 2005 21:06:18 +0200
+
+linux-2.6 (2.6.12-3) unstable; urgency=low
+
+  * Added reference to old kernel-* package names to make
+    transition a little more obvious to end users.
+    A Dan Jacobson special. (Simon Horman) Closes: #321167
+
+  * By the time this makes it into the archive, it will
+    be handling kernel-image-2.6-* packages. (Simon Horman)
+    Closes: #321867
+
+  * Link palinfo statically on ia64. (dann frazier) (Closes: #321885)
+
+  * [hppa] :
+    - Add hppa arch specific patch.
+    - Build-Depend on binutils-hppa64 and gcc-4.0-hppa64.
+    (Kyle McMartin)
+
+  * Fix permissions in source tarball. (Bastian Blank) (Closes: #322409)
+
+  * Enable the CONFIG_IP_ADVANCED_ROUTER and related options on
+    sparc64 to sync with other architectures. (Jurij Smakov)
+    Closes: #321236
+
+  * Include all executables as well as *.sh and *.pl files found in
+    scripts directory in the headers package. (Bastian Blank)
+    Closes: #322612, #322680, #322765
+
+  * Include m68k headers into the arch-common headers package on
+    powerpc and make sure that all the directories are linked to
+    properly from the flavour-specific headers packages. (Jurij Smakov)
+    Closes: #322610
+
+  * [powerpc] Enabled the powerpc64 flavour, now that we have a real biarch
+    toolchain in sid. Many thanks go to GOTO Masanori and Matthias Klose as
+    well as any other who worked on the biarch toolchain to make this happen.
+
+  * Added 2.6.12.5 (Simon Horman)
+    - Fix BUG() is triggered by a call to set_mempolicy() with a negativ
+      first argument.
+    - [amd64] Fix a SRAT handling on systems with dual cores.
+    - [amd64] SMP timing problem
+    - [security] Zlib fixes See CAN-2005-2458, CAN-2005-2459
+      http://sources.redhat.com/ml/bug-gnu-utils/1999-06/msg00183.html
+      http://bugs.gentoo.org/show_bug.cgi
+    - Add zlib deflateBound()
+    - [security] Fix error during session join. See CAN-2005-2098
+    - [security] Fix keyring destructor. See CAN-2005-2099
+    - Module per-cpu alignment cannot always be met
+      http://www.ussg.iu.edu/hypermail/linux/kernel/0409.0/0768.html
+    Closes: #323039
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 15 Aug 2005 16:42:05 +0200
+
+linux-2.6 (2.6.12-2) unstable; urgency=low
+
+  * The Kernel Team offers its condolences to the family of Jens Schmalzing
+    (jensen@debian), who died Saturday, July 30, 2005 in a tragic accident in
+    Munich.  Jens was a member of the Kernel Team, and was instrumental in
+    taking the powerpc kernel package to 2.6, as well as maintaining MOL
+    and its kernel modules.
+
+  * Add @longclass@ variable to control file autogeneration. (Andres Salomon)
+
+  * Bump build-depends on kernel-package to a fixed version (>= 9.005).
+    (Jurij Smakov, Sven Luther) (closes: #319657, #320422, #321625)
+
+  * Change default ramdisk size for sparc to 16,384K to accomodate a fatter
+    d-i initrd for netboot installs.
+    (Joshua Kwan)
+
+  * Don't build-depend on console-tools on s390. (Bastian Blank)
+
+  * Add ARM support. (Vincent Sanders)
+
+  * Add ia64 descriptions. (dann frazier)
+
+  * Strip down the scripts dir in the headers packages. (Bastian Blank)
+
+  * Add m68k support. (Christian T. Steigies)
+
+  * Added 2.6.12.4 (Frederik Schüler)
+    - Fix powernow oops on dual-core athlon
+    - Fix early vlan adding leads to not functional device
+    - sys_get_thread_area does not clear the returned argument
+    - bio_clone fix
+    - Fix possible overflow of sock->sk_policy (CAN-2005-2456)
+      (closes: #321401)
+    - Wait until all references to ip_conntrack_untracked are dropped on
+      unload
+    - Fix potential memory corruption in NAT code (aka memory NAT)
+    - Fix deadlock in ip6_queue
+    - Fix signedness issues in net/core/filter.c
+    - x86_64 memleak from malicious 32bit elf program
+    - rocket.c: Fix ldisc ref count handling
+    - kbuild: build TAGS problem with O=
+
+  * Enable CONFIG_6PACK=m for all archs (Andres Salomon)
+    (closes: #319646)
+
+  * Overhaul the generation of the control file. Now it is handled
+    by debian/bin/gencontrol.py. The debian/control target in rules
+    also fails now, since we don't want the control file generated
+    during build. Arch-specific Depends and suggests are now generated
+    correctly. (Bastian Blank) (Closes: #319896)
+
+  * [powerpc] Fixed typo which made asm-ppc and asm-ppc64 not being included
+    in the header package. (Sven Luther) (Closes: #320817)
+
+  * Added list of flavours built to common header package. (Sven Luther)
+
+ -- Bastian Blank <waldi@debian.org>  Tue, 09 Aug 2005 11:12:40 +0200
+ 
+linux-2.6 (2.6.12-1) unstable; urgency=low
+
+  * New upstream release:
+    - "git rocks"
+    - address space randomization
+    - conversion of ide driver code to the device model
+    - restored Philips webcam driver
+    - new Broadcom bcm5706 gigabit driver
+    - new resource limits for the audio community
+    - Multipath device mapper
+    - Intel HD Audio alsa driver
+    - fixes + arch updates..
+    - readdition of tg3 driver, as firmware license has been fixed
+
+  * Dropped the following patches:
+    - patch-2.6.11.*.patch (merged)
+    - powerpc-ppc64-ibmvscsi.patch (Christoph didn't like it, and it failed
+      to build anyways) (Sven Luther)
+    - doc-post_halloween.patch (unless someone can come up w/ a valid
+      reason for carrying around rapidly bitrotting documentation...)
+      (Andres Salomon)
+    - sparc32-hypersparc-srmmu.patch (dropped until sparc32 is working
+      again, and we can figure out whether it's necessary)
+    - fix-alpha-ext3-oops.patch (no longer needed, fixed by compiler)
+    - x86-i486_emu.patch (buggy and insecure 80486 instruction emulation
+      for 80386; we're no longer supporting this) (closes: #250468)
+    - amd64-outs.patch (according to
+      http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/1095.html, this
+      is unnecessary for us) (Andres Salomon)
+    - sparc64-rtc-mostek.patch (merged)
+    - sparc64-compat-nanoseconds.patch (merged) 
+    - sparc64-sunsu-init-2.6.11.patch (merged)
+    - sunsab-uart-update-timeout.patch (merged)
+    - alpha-read-trylock.patch (different version got merged)
+    - powerpc-prep-motorola-irq-fix.patch (merged)
+    - drivers-media-video-saa7134-update.patch (merged)
+    - drivers-media-video-saa7134-update-2.patch (merged)
+    - drivers-media-video-pll-lib.patch (merged)
+    - drivers-media-video-pll-lib-2.patch (merged)
+    - drivers-media-video-tuner-update-1.patch (merged)
+    - drivers-media-video-tuner-update-2.patch (merged)
+    - drivers-media-video-v4l-mpeg-support.patch (merged)
+    - drivers-media-video-mt352-update.patch (merged)
+    - arch-ppc64-hugepage-aio-panic.patch (merged)
+    - drivers-input-serio-nmouse.patch (merged)
+    - sparc64-sb1500-clock-2.6.patch (merged)
+    - docbook-allow-preprocessor-directives-... (merged)
+    - docbook-fix-function-parameter-descriptin-in-fbmem.patch (merged)
+    - docbook-move-kernel-doc-comment-next-to-function.patch (merged)
+    - powerpc-therm-adt746x-new-i2c-fix.patch (merged)
+    - powerpc-mv643xx-enet.patch (merged)
+    - powerpc-mv643xx-eth-pegasos.patch (merged)
+    - powerpc-pmac-agp-sleep.patch (merged)
+    - drivers-input-serio-8042-resume.patch (merged)
+  
+  * Premiere of the common-source kernel package
+    (Jurij Smakov, Andres Salomon)
+    - build all architectures out of kernel source package
+    - rename source and binary packages
+    - create a common config for different architectures, and management
+      tools to allow for easier modification of config options
+    - drop default configs, autogenerate them instead; requires
+      kernel-package >= 9.002.
+
+  * Add 2.6.12.1 (Maximilian Attems)
+    - Clean up subthread exec (CAN-2005-1913)
+    - ia64 ptrace + sigrestore_context (CAN-2005-1761)
+
+  * Add 2.6.12.2 (Frederik Schüler)
+    - Fix two socket hashing bugs.
+    -  ACPI: Make sure we call acpi_register_gsi() even for default PCI
+       interrupt assignment
+    - Add "memory" clobbers to the x86 inline asm of strncmp and friends
+    - e1000: fix spinlock bug
+    - fix remap_pte_range BUG
+    - Fix typo in drivers/pci/pci-driver.c
+
+  * Add 2.6.12.3 (Joshua Kwan)
+    - Fix semaphore handling in __unregister_chrdev
+    - Fix TT mode in UML.
+    - Check for a null return in tty_ldisc_ref.
+    - v4l: cx88 hue offset fix
+    - Fix 8139cp breakage that occurs with tpm driver.
+    - Fix the 6pack driver in SMP environments.
+    - Switch to spinlocks in the shaper driver.
+    - ppc32: stop misusing NTP's time_offset value
+    - netfilter: go back to dropping conntrack references manually
+    - ACPI: don't accept 0 as a PCI IRQ.
+
+  * Enable CONFIG_SCSI_INITIO. (Maximilian Attems) (closes: #318121)
+
+  * [powerpc] :
+    - Added powerpc-mkvmlinuz-support patch which allows, together with
+      kernel-package 9.0002 to add mkvmlinuz support to hand built packages.
+    - Removed powerpc-ppc64-ibmvscsi.patch, FTBFS, and Christoph doesn't like
+      it and thinks it is not needed.
+    - Disabled swim3 on powerpc-smp, FTBFS.
+    - Disabled software-suspend on powerpc-smp, FTBFS, amd64/i386 only smp code.
+    - Rediffed and readded the G4 L2 hardware flush assist patch from Jacob Pan.
+    (Sven Luther)
+    
+  * [sparc]
+    - Drop sparc32 flavour for now. sparc32 kernel is currently in the
+      category "too buggy for us to support". In spite of numerous efforts
+      I still see occasional random filesystem corruptions in my tests.
+      That does NOT mean that we are dropping sparc32 support, we will
+      work with upstream trying to solve these problems for the next
+      kernel release. Those interested in helping/testing are encouraged
+      to subscribe to debian-sparc mailing list.
+      (Jurij Smakov)
+
+  * [alpha]
+    - Renamed resulting binary packages for alpha, kernel-image-x.y.z-generic
+      wasn't a generic kernel, it was a generic kernel for alpha machines, so
+      we're now using linux-image-x.y.z-alpha-generic (and of course, the same
+      change for the smp kernel-image). This change was postponed after the
+      sarge release. (closes: #260003)
+    (Norbert Tretkowski)
+
+  * [amd64]
+    - Now using the default compiler (gcc-4.0), thus we get rid of the 
+      annoying MAKEFLAGS="CC=gcc-3.4" make-kpkg... invocation for third-party 
+      modules.
+      This release lacks 64bit kernels for i386 userland; support will be
+      added in a later release as soon as the toolchain has stabilized again.
+      (Frederik Schüler)
+
+ -- Andres Salomon <dilinger@debian.org>  Wed, 20 Jul 2005 17:16:04 -0400
+

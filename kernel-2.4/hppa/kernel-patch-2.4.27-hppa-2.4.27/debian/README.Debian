@@ -1,0 +1,11 @@
+NOTES TO PACKAGE USERS
+======================
+
+  To use this patch with make-kpkg, use a command like:
+
+$ env PATCH_THE_KERNEL=YES make-kpkg --added_patches=hppa --config=menuconfig
+
+  Then go to the "Kernel hacking" section of the configuration, and
+select the features you want to compile your kernel with.
+
+  Please read README-kernelpatch.Debian for more details.

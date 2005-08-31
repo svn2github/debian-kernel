@@ -1,0 +1,36 @@
+Source: linux-patch-@kernver@-mips
+Section: devel
+Priority: optional
+Build-Depends: linux-source-@kernver@ (= @sourcever@), kernel-package (>= 9.006), debhelper (>= 4.1.0), module-init-tools, dpatch, bzip2
+Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
+Uploaders: Thiemo Seufer <ths@debian.org>
+Standards-Version: 3.6.1
+
+Package: linux-headers-@kernver@-@abiver@
+Architecture: @arch@
+Section: devel
+Priority: optional
+Depends: coreutils
+Description: Common header files for @arch@ Linux kernel @kernver@
+ This package provides the @arch@-specific kernel header files for
+ Linux kernel @kernver@ common to all kernel flavours. It is only
+ useful in combination with at least one flavour-specific headers
+ package.
+
+Package: linux-headers-@kernver@-@abiver@-@arch@
+Architecture: @arch@
+Section: devel
+Priority: optional
+Depends: @flavour-headers@
+Description: All header files for @arch@ Linux kernel @kernver@
+ This package installs the @arch@-specific kernel header files for
+ Linux kernel @kernver@ for all flavours. It is mainly useful as a
+ build dependency to build module for all flavors of an architecture,
+ without having to maintain a list with each flavor.
+
+Package: mips-tools
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: MIPS specific kernel tools
+ This package provides tools used on the MIPS architecture to convert
+ the kernel into an ECOFF image.

@@ -1,0 +1,30 @@
+
+From: Martin Waitz <tali@admingilde.org>
+
+Fix function parameter descriptin in fbmem
+
+Signed-off-by: Martin Waitz <tali@admingilde.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/drivers/video/fbmem.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff -puN drivers/video/fbmem.c~docbook-fix-function-parameter-descriptin-in-fbmem drivers/video/fbmem.c
+--- 25/drivers/video/fbmem.c~docbook-fix-function-parameter-descriptin-in-fbmem	Thu Mar  3 16:55:25 2005
++++ 25-akpm/drivers/video/fbmem.c	Thu Mar  3 16:55:25 2005
+@@ -1211,9 +1211,10 @@ static int ofonly;
+ 
+ /**
+  * fb_get_options - get kernel boot parameters
+- * @name - framebuffer name as it would appear in
+- *         the boot parameter line
+- *         (video=<name>:<options>)
++ * @name:   framebuffer name as it would appear in
++ *          the boot parameter line
++ *          (video=<name>:<options>)
++ * @option: the option will be stored here
+  *
+  * NOTE: Needed to maintain backwards compatibility
+  */
+_

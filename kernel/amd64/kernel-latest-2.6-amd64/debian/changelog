@@ -1,0 +1,25 @@
+kernel-latest-2.6-amd64 (103) unstable; urgency=low
+
+  * Depend on new 2.6.8-11-* kernel images.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed,  6 Apr 2005 23:54:09 +0200
+
+kernel-latest-2.6-amd64 (102) unstable; urgency=low
+
+  * Updated kernel images descriptions. Closes: #276988
+
+ -- Frederik Schüler <fschueler@gmx.net>  Tue, 15 Mar 2005 15:32:30 +0100
+
+kernel-latest-2.6-amd64 (101) unstable; urgency=high
+
+  * Depend on new 2.6.8-10-* kernels.
+  * Urgency: high because the referenced kernel packages fix security issues.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Wed, 29 Dec 2004 23:19:27 +0100
+
+kernel-latest-2.6-amd64 (100) unstable; urgency=high
+
+  * Initial release.
+
+ -- Frederik Schüler <fschueler@gmx.net>  Fri,  3 Dec 2004 18:28:10 +0100
+

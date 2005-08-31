@@ -1,0 +1,8 @@
+#!/bin/bash
+BASE="/home/horms/work/debian-kernel/test_kernel_build"
+
+TAG_VERSION="SOURCE"
+
+for i in 2.6.8 2.4.27 2.6.11; do
+	cd $BASE && TAG_VERSION=SOURCE ./test_kernel_build.powerpc $i
+done

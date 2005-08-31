@@ -1,0 +1,33 @@
+# origin: bk
+# key: 42122dc1OjDDmJElUeNmQd6-UNV_eA (linux-2.4)
+# description: fix FPU context switch on sparc32 SMP
+# inclusion: 2.4.30?
+# revision date: 2005-02-17
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/15 09:13:37-08:00 krzysztof.h1@wp.pl 
+#   [SPARC32]: Need to clear PSR_EF in psr of childregs on fork() on SMP.
+#   
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# arch/sparc/kernel/process.c
+#   2005/02/15 09:13:27-08:00 krzysztof.h1@wp.pl +5 -0
+#   [SPARC32]: Need to clear PSR_EF in psr of childregs on fork() on SMP.
+# 
+diff -Nru a/arch/sparc/kernel/process.c b/arch/sparc/kernel/process.c
+--- a/arch/sparc/kernel/process.c	2005-02-17 22:44:21 -08:00
++++ b/arch/sparc/kernel/process.c	2005-02-17 22:44:21 -08:00
+@@ -512,6 +512,11 @@
+ 		}
+ 	}
+ 
++#ifdef CONFIG_SMP
++	/* FPU must be disabled on SMP. */
++	childregs->psr &= ~PSR_EF;
++#endif
++
+ 	/* Set the return value for the child. */
+ 	childregs->u_regs[UREG_I0] = current->pid;
+ 	childregs->u_regs[UREG_I1] = 1;

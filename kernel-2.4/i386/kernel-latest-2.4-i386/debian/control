@@ -1,0 +1,212 @@
+Source: kernel-latest-2.4-i386
+Section: devel
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: William Irwin <wli@debian.org>, Sven Luther <luther@debian.org>, Jens Schmalzing <jensen@debian.org>, Jeff Bailey <jbailey@debian.org>, Dann Frazier <dannf@debian.org>, Simon Horman <horms@debian.org>, Joshua Kwan <joshk@triplehelix.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 4)
+
+Package: kernel-image-2.4-386
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-386
+Description: Linux kernel image for version 2.4 on 386
+ This package will always depend on the latest 2.4 kernel image available for
+ 386.
+
+Package: kernel-pcmcia-modules-2.4-386
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-386
+Description: Mainstream PCMCIA modules for version 2.4 on 386
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for
+ 386.
+
+Package: kernel-headers-2.4-386
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-386
+Description: Linux kernel headers for version 2.4 on 386
+ This package will always depend on the latest 2.4 kernel headers available for
+ 386, used to build out-of-tree kernel modules and the like.
+
+Package: kernel-image-2.4-586tsc
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-586tsc
+Description: Linux kernel image for version 2.4 on Pentium-Classic
+ This package will always depend on the latest 2.4 kernel image available for
+ Pentium-Classic.
+
+Package: kernel-pcmcia-modules-2.4-586tsc
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-586tsc
+Description: Mainstream PCMCIA modules for version 2.4 on Pentium-Classic
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for
+ Pentium-Classic.
+
+Package: kernel-headers-2.4-586tsc
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-586tsc
+Description: Linux kernel headers for version 2.4 on Pentium-Classic
+ This package will always depend on the latest 2.4 kernel headers available for
+ Pentium-Classic, used to build out-of-tree kernel modules and the like.
+
+Package: kernel-image-2.4-686
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-686
+Description: Linux kernel image for version 2.4 on PPro/Celeron/PII/PIII/P4
+ This package will always depend on the latest 2.4 kernel image available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4.
+
+Package: kernel-pcmcia-modules-2.4-686
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-686
+Description: Mainstream PCMCIA modules for version 2.4 on PPro/Celeron/PII/PIII/P4
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4.
+
+Package: kernel-headers-2.4-686
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-686
+Description: Linux kernel headers for version 2.4 on PPro/Celeron/PII/PIII/P4
+ This package will always depend on the latest 2.4 kernel headers available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4, used to build
+ out-of-tree kernel modules and the like.
+
+Package: kernel-image-2.4-686-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-686-smp
+Description: Linux kernel image for version 2.4 on PPro/Celeron/PII/PIII/P4 SMP
+ This package will always depend on the latest 2.4 kernel image available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4 with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-pcmcia-modules-2.4-686-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-686-smp
+Description: Mainstream PCMCIA modules for version 2.4 on PPro/Celeron/PII/PIII/P4 SMP
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4 with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-headers-2.4-686-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-686-smp
+Description: Linux kernel headers for version 2.4 on PPro/Celeron/PII/PIII/P4 SMP
+ This package will always depend on the latest 2.4 kernel headers available for
+ Pentium Pro/Celeron/Pentium II/Pentium III/Pentium 4 with SMP support, used
+ to build out-of-tree kernel modules and the like.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-image-2.4-k6
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-k6
+Description: Linux kernel image for version 2.4 on AMD K6/K6-II/K6-III
+ This package will always depend on the latest 2.4 kernel image available for
+ AMD K6/K6-II/K6-III.
+
+Package: kernel-pcmcia-modules-2.4-k6
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-k6
+Description: Mainstream PCMCIA modules for version 2.4 on AMD K6/K6-II/K6-III
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for
+ AMD K6/K6-II/K6-III.
+
+Package: kernel-headers-2.4-k6
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-k6
+Description: Linux kernel headers for version 2.4 on  K6/K6-II/K6-III
+ This package will always depend on the latest 2.4 kernel headers available for
+ Pentium-Classic, used to build out-of-tree kernel modules and the like.
+ AMD K6/K6-II/K6-III.
+
+Package: kernel-image-2.4-k7
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-k7
+Description: Linux kernel image for version 2.4 on AMD K7
+ This package will always depend on the latest 2.4 kernel image available for
+ 32bit AMD Duron/Athlon/AthlonXP.
+
+Package: kernel-pcmcia-modules-2.4-k7
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-k7
+Description: Mainstream PCMCIA modules for version 2.4 on AMD K7
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for 32bit AMD Duron/Athlon/AthlonXP.
+
+Package: kernel-headers-2.4-k7
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-k7
+Description: Linux kernel headers for version 2.4 on AMD K7
+ This package will always depend on the latest 2.4 kernel headers available for
+ 32bit AMD Duron/Athlon/AthlonXP, used to build out-of-tree kernel modules and 
+ the like.
+
+Package: kernel-image-2.4-k7-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-image-2.4.27-2-k7-smp
+Description: Linux kernel image for version 2.4 on AMD K7 SMP
+ This package will always depend on the latest 2.4 kernel image available for
+ 32bit AMD Duron/Athlon/AthlonXP with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-pcmcia-modules-2.4-k7-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-pcmcia-modules-2.4.27-2-k7-smp
+Description: Mainstream PCMCIA modules for version 2.4 on AMD K7 SMP
+ This package will always depend on the latest 2.4 mainstream PCMCIA modules
+ available for 32bit AMD Duron/Athlon/AthlonXP with SMP support.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.
+
+Package: kernel-headers-2.4-k7-smp
+Architecture: i386
+Section: base
+Priority: optional
+Depends: kernel-headers-2.4.27-2-k7-smp
+Description: Linux kernel headers for version 2.4 on AMD K7 SMP
+ This package will always depend on the latest 2.4 kernel headers available for
+ 32bit AMD Duron/Athlon/AthlonXP, used to build out-of-tree kernel modules 
+ and the like.
+ SMP (symmetric multi-processing) is needed if you have multiple processors.

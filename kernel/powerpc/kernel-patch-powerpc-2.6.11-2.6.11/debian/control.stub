@@ -1,0 +1,13 @@
+Source: kernel-patch-powerpc-M4KERNEL
+Section: devel
+Priority: optional
+Build-Depends: debhelper (>=4 ), bzip2, kernel-package (>> 8.119), kernel-tree-M4KERNEL, m4
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Sven Luther <luther@debian.org>
+Standards-Version: 3.6.1
+
+Package: kernel-headers-M4KERNEL-powerpc
+Architecture: powerpc
+Description: header files for the Linux kernel version M4KERNEL
+ .
+ This package provides kernel headers files for M4KERNEL.

@@ -1,0 +1,109 @@
+# origin: marcelo (BitKeeper)
+# cset: 1.1482 (2.4) key=4244930dPN44h62CZtM0P-qXoOI-7A
+# URL: http://linux.bkbits.net:8080/linux-2.4/cset@4244930dPN44h62CZtM0P-qXoOI-7A
+# inclusion: upstream
+# descrition: CAN-2005-0794: Potential DOS in load_elf_library
+# revision date: Mon, 04 Apr 2005 10:14:26 +0900
+#
+# S rset: ChangeSet|1.1481..1.1482
+# R rset: fs/binfmt_elf.c|1.40..1.41
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# fs/binfmt_elf.c
+#   2005/03/26 00:02:40-03:00 herbert@gondor.apana.org.au +16 -13
+#   CAN-2005-0794: Potential DOS in load_elf_library
+# 
+# ChangeSet
+#   2005/03/25 19:39:09-03:00 marcelo@logos.cnet 
+#   CAN-2005-0794: Potential DOS in load_elf_library
+#   
+#   From: Herbert Xu <herbert@gondor.apana.org.au>
+#   
+#   Yichen Xie <yxie@cs.stanford.edu> points out that load_elf_library can
+#   modify `elf_phdata' before freeing it.
+#   
+#   CAN-2005-0749 is assigned to this issue.
+#   
+#   Signed-off-by: Andrew Morton <akpm@osdl.org>
+#   Signed-off-by: Chris Wright <chrisw@osdl.org>
+#   
+# 
+#
+--- a/fs/binfmt_elf.c	2005-03-30 18:28:49.000000000 +0900
++++ b/fs/binfmt_elf.c	2005-03-30 18:31:46.000000000 +0900
+@@ -926,6 +926,7 @@ out_free_ph:
+ static int load_elf_library(struct file *file)
+ {
+ 	struct elf_phdr *elf_phdata;
++	struct elf_phdr *eppnt;
+ 	unsigned long elf_bss, bss, len;
+ 	int retval, error, i, j;
+ 	struct elfhdr elf_ex;
+@@ -939,41 +939,43 @@ static int load_elf_library(struct file 
+ 	/* j < ELF_MIN_ALIGN because elf_ex.e_phnum <= 2 */
+ 
+ 	error = -ENOMEM;
+-	elf_phdata = (struct elf_phdr *) kmalloc(j, GFP_KERNEL);
++	elf_phdata = kmalloc(j, GFP_KERNEL);
+ 	if (!elf_phdata)
+ 		goto out;
+ 
++	eppnt = elf_phdata;
+ 	error = -ENOEXEC;
+-	retval = kernel_read(file, elf_ex.e_phoff, (char *) elf_phdata, j);
++	retval = kernel_read(file, elf_ex.e_phoff, (char *) eppnt, j);
+ 	if (retval != j)
+ 		goto out_free_ph;
+ 
+ 	for (j = 0, i = 0; i<elf_ex.e_phnum; i++)
+-		if ((elf_phdata + i)->p_type == PT_LOAD) j++;
++		if ((eppnt + i)->p_type == PT_LOAD) j++;
+ 	if (j != 1)
+ 		goto out_free_ph;
+ 
+-	while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
++	while (eppnt->p_type != PT_LOAD)
++		eppnt++;
+ 
+ 	/* Now use mmap to map the library into memory. */
+ 	down_write(&current->mm->mmap_sem);
+ 	error = do_mmap(file,
+-			ELF_PAGESTART(elf_phdata->p_vaddr),
+-			(elf_phdata->p_filesz +
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)),
++			ELF_PAGESTART(eppnt->p_vaddr),
++			(eppnt->p_filesz +
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)),
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+-			(elf_phdata->p_offset -
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)));
++			(eppnt->p_offset -
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)));
+ 	up_write(&current->mm->mmap_sem);
+-	if (error != ELF_PAGESTART(elf_phdata->p_vaddr))
++	if (error != ELF_PAGESTART(eppnt->p_vaddr))
+ 		goto out_free_ph;
+ 
+-	elf_bss = elf_phdata->p_vaddr + elf_phdata->p_filesz;
++	elf_bss = eppnt->p_vaddr + eppnt->p_filesz;
+ 	padzero(elf_bss);
+ 
+-	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+-	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
++	len = ELF_PAGESTART(eppnt->p_filesz + eppnt->p_vaddr + ELF_MIN_ALIGN - 1);
++	bss = eppnt->p_memsz + eppnt->p_vaddr;
+ 	if (bss > len)
+ 		do_brk_locked(len, bss - len);
+ 	error = 0;

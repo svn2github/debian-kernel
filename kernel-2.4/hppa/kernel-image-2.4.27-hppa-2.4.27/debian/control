@@ -1,0 +1,76 @@
+Source: kernel-image-2.4.27-hppa
+Section: devel
+Priority: optional
+Maintainer: Thibaut VARENE <varenet@debian.org>
+Uploaders: LaMont Jones <lamont@debian.org>, Bdale Garbee <bdale@gag.com>
+Build-Depends: kernel-tree-2.4.27-8, kernel-package, kernel-patch-2.4.27-hppa (>= 2.4.27-pa4.2), debianutils (>= 1.6), debhelper (>= 2), bzip2, modutils (>=2.4.21-3)
+Standards-Version: 3.6.1
+
+Package: kernel-image-2.4.27-32
+Section: base
+Architecture: hppa
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image
+Description: Linux kernel image for version 2.4.27 on 32-bit PA-RISC.
+ This package contains the Linux kernel image for version 2.4.27 on
+ 32-bit PA-RISC, the corresponding System.map file, and the modules 
+ built by the packager.  It also contains scripts that try to ensure that 
+ the system is not left in a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel.
+
+Package: kernel-image-2.4.27-32-smp
+Section: base
+Architecture: hppa
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image
+Description: Linux kernel image for version 2.4.27 on 32-bit PA-RISC SMP.
+ This package contains the Linux kernel image for version 2.4.27 on
+ 32-bit PA-RISC SMP, the corresponding System.map file, and the modules 
+ built by the packager.  It also contains scripts that try to ensure that 
+ the system is not left in a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel.
+
+Package: kernel-image-2.4.27-64
+Section: base
+Architecture: hppa
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image
+Description: Linux kernel image for version 2.4.27 on 64-bit PA-RISC.
+ This package contains the Linux kernel image for version 2.4.27 on 
+ 64-bit PA-RISC, the corresponding System.map file, and the modules 
+ built by the packager.  It also contains scripts that try to ensure that
+ the system is not left in a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel.
+
+Package: kernel-image-2.4.27-64-smp
+Section: base
+Architecture: hppa
+Suggests: kernel-doc-2.4.27
+Provides: kernel-image
+Description: Linux kernel image for version 2.4.27 on 64-bit PA-RISC SMP.
+ This package contains the Linux kernel image for version 2.4.27 on
+ 64-bit PA-RISC SMP, the corresponding System.map file, and the modules
+ built by the packager.  It also contains scripts that try to ensure that
+ the system is not left in a unbootable state after an update.
+ .
+ Kernel image packages are generally produced using kernel-package,
+ and it is suggested that you install that package if you wish to
+ create a custom kernel.
+
+Package: kernel-headers-2.4.27
+Architecture: all
+Provides: kernel-headers, kernel-headers-2.4
+Description: Header files related to Linux kernel version 2.4.27 on PA-RISC.
+ This package provides kernel header files for version 2.4.27 on PA-RISC, 
+ for sites that want the latest kernel headers.  Please read
+ /usr/share/doc/kernel-headers-2.4.27-hppa/debian.README.gz for details
+

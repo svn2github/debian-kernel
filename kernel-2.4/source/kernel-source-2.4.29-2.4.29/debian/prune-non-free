@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Scrubs known non-DFSG-compliant stuff out of the source tree so that a
+# DFSG-free .orig.tar.gz for the source package can be created.
+
+PROGNAME=${0##*/}
+
+if [ ! -d kernel ]; then
+    echo "$PROGNAME: no unpacked source tree in current working directory" >&2
+    exit 1
+fi
+
+for blobfile in $(grep -h ^X debian/patches/series/* | cut -d' ' -f2); do
+    rm -f $blobfile
+done

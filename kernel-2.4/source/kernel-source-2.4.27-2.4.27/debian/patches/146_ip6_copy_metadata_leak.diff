@@ -1,0 +1,52 @@
+# origin: yoshfuji (BitKeeper)
+# cset: 1.1982.1.5 (2.6) key=41fdb84aBJklcjU85o1N1_dsch6HBw
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@41fdb84aBJklcjU85o1N1_dsch6HBw
+# inclusion: upstream
+# descrition: [IPV6]: Fix ip6_copy_metadata potential dst leak too.
+# revision date: Tue, 22 Mar 2005 16:44:08 +0900
+#
+# S rset: ChangeSet|1.1982.1.4..1.1982.1.5
+# I rset: net/ipv6/ip6_output.c|1.82..1.83
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/30 20:47:06-08:00 yoshfuji@linux-ipv6.org 
+#   [IPV6]: Fix ip6_copy_metadata potential dst leak too.
+#   
+#   Same fix as per ipv4 ip_copy_metadata().
+#   
+#   Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/ipv6/ip6_output.c
+#   2005/01/30 20:46:45-08:00 yoshfuji@linux-ipv6.org +1 -0
+#   [IPV6]: Fix ip6_copy_metadata potential dst leak too.
+#   
+#   Same fix as per ipv4 ip_copy_metadata().
+#   
+#   Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+#
+===== net/ipv6/ip6_output.c 1.82 vs 1.83 =====
+--- 1.82/net/ipv6/ip6_output.c	2005-01-25 09:40:10 +09:00
++++ 1.83/net/ipv6/ip6_output.c	2005-01-31 13:46:45 +09:00
+@@ -463,6 +463,7 @@ static void ip6_copy_metadata(struct sk_
+ 	to->priority = from->priority;
+ 	to->protocol = from->protocol;
+ 	to->security = from->security;
++	dst_release(to->dst);
+ 	to->dst = dst_clone(from->dst);
+ 	to->dev = from->dev;
+ 

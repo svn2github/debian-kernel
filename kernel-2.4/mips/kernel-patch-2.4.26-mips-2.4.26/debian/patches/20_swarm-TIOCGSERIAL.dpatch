@@ -1,0 +1,80 @@
+#! /bin/sh -e
+## 20_swarm-TIOCGSERIAL.dpatch by Peter de Schrijver <p2@mind.be>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: TIOCGSERIAL implementation for SWARM.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- linux-2.4.24/drivers/char/sb1250_duart.c	2003-08-25 13:44:41.000000000 +0200
++++ linux-qube/linux-2.4.24/linux/drivers/char/sb1250_duart.c	2004-04-03 20:40:05.000000000 +0200
+@@ -498,9 +498,31 @@
+ 	duart_set_cflag(us->line, tty->termios->c_cflag);
+ }
+ 
++static int get_serial_info(uart_state_t *us, struct serial_struct * retinfo) {
++
++	struct serial_struct tmp;
++
++	memset(&tmp, 0, sizeof(tmp));
++
++	tmp.type=PORT_SB1250;
++	tmp.line=us->line;
++	tmp.port=A_DUART_CHANREG(tmp.line,0);
++	tmp.irq=K_INT_UART_0 + tmp.line;
++	tmp.xmit_fifo_size=16; /* fixed by hw */
++	tmp.baud_base=5000000;
++	tmp.io_type=SERIAL_IO_MEM;
++
++	if (copy_to_user(retinfo,&tmp,sizeof(*retinfo)))
++		return -EFAULT;
++
++	return 0;
++}
++
+ static int duart_ioctl(struct tty_struct *tty, struct file * file,
+ 		       unsigned int cmd, unsigned long arg)
+ {
++	uart_state_t *us = (uart_state_t *) tty->driver_data;
++
+ /*	if (serial_paranoia_check(info, tty->device, "rs_ioctl"))
+ 	return -ENODEV;*/
+ 	switch (cmd) {
+@@ -517,7 +539,7 @@
+ 		printk("Ignoring TIOCMSET\n");
+ 		break;
+ 	case TIOCGSERIAL:
+-		printk("Ignoring TIOCGSERIAL\n");
++		return get_serial_info(us,(struct serial_struct *) arg);
+ 		break;
+ 	case TIOCSSERIAL:
+ 		printk("Ignoring TIOCSSERIAL\n");
+--- linux-2.4.24/include/linux/serial.h	2002-08-03 02:39:45.000000000 +0200
++++ linux-qube/linux-2.4.24/linux/include/linux/serial.h	2004-04-03 20:14:37.000000000 +0200
+@@ -75,7 +75,8 @@
+ #define PORT_16654	11
+ #define PORT_16850	12
+ #define PORT_RSA	13	/* RSA-DV II/S card */
+-#define PORT_MAX	13
++#define PORT_SB1250	14
++#define PORT_MAX	14
+ 
+ #define SERIAL_IO_PORT	0
+ #define SERIAL_IO_HUB6	1
+

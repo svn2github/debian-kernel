@@ -1,0 +1,653 @@
+#! /bin/sh -e 
+## <PATCHNAME>.dpatch by <PATCH_AUTHOR@EMAI>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: remove non-free bits
+## DP: Patch author: unknown
+## DP: Upstream status: not submitted
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+diff -urN kernel-source-2.6.6/arch/alpha/defconfig kernel-source-2.6.6-1/arch/alpha/defconfig
+--- kernel-source-2.6.6/arch/alpha/defconfig	2004-04-05 19:49:22.000000000 +1000
++++ kernel-source-2.6.6-1/arch/alpha/defconfig	2004-04-05 20:54:15.000000000 +1000
+@@ -492,7 +492,6 @@
+ # CONFIG_B44 is not set
+ # CONFIG_FORCEDETH is not set
+ # CONFIG_CS89x0 is not set
+-# CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+ # CONFIG_E100 is not set
+ # CONFIG_LNE390 is not set
+diff -urN kernel-source-2.6.6/arch/i386/defconfig kernel-source-2.6.6-1/arch/i386/defconfig
+--- kernel-source-2.6.6/arch/i386/defconfig	2004-04-05 19:49:22.000000000 +1000
++++ kernel-source-2.6.6-1/arch/i386/defconfig	2004-04-05 20:54:17.000000000 +1000
+@@ -624,7 +624,6 @@
+ # CONFIG_B44 is not set
+ # CONFIG_FORCEDETH is not set
+ # CONFIG_CS89x0 is not set
+-# CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+ # CONFIG_E100 is not set
+ # CONFIG_FEALNX is not set
+@@ -646,7 +645,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-# CONFIG_ACENIC is not set
+ # CONFIG_DL2K is not set
+ # CONFIG_E1000 is not set
+ # CONFIG_NS83820 is not set
+@@ -1027,7 +1025,6 @@
+ #
+ # USB Multimedia devices
+ #
+-# CONFIG_USB_DABUSB is not set
+ 
+ #
+ # Video4Linux support is needed for USB Multimedia device support
+diff -urN kernel-source-2.6.6/arch/ia64/defconfig kernel-source-2.6.6-1/arch/ia64/defconfig
+--- kernel-source-2.6.6/arch/ia64/defconfig	2004-05-10 19:47:46.000000000 +1000
++++ kernel-source-2.6.6-1/arch/ia64/defconfig	2004-05-10 22:21:10.000000000 +1000
+@@ -439,7 +439,6 @@
+ # CONFIG_ADAPTEC_STARFIRE is not set
+ # CONFIG_B44 is not set
+ # CONFIG_FORCEDETH is not set
+-# CONFIG_DGRS is not set
+ CONFIG_EEPRO100=m
+ # CONFIG_EEPRO100_PIO is not set
+ CONFIG_E100=m
+@@ -456,7 +455,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-# CONFIG_ACENIC is not set
+ # CONFIG_DL2K is not set
+ CONFIG_E1000=y
+ # CONFIG_E1000_NAPI is not set
+@@ -865,7 +863,6 @@
+ #
+ # USB Multimedia devices
+ #
+-# CONFIG_USB_DABUSB is not set
+ 
+ #
+ # Video4Linux support is needed for USB Multimedia device support
+diff -urN kernel-source-2.6.6/arch/parisc/defconfig kernel-source-2.6.6-1/arch/parisc/defconfig
+--- kernel-source-2.6.6/arch/parisc/defconfig	2004-05-10 19:47:49.000000000 +1000
++++ kernel-source-2.6.6-1/arch/parisc/defconfig	2004-05-10 22:21:17.000000000 +1000
+@@ -366,7 +366,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-# CONFIG_ACENIC is not set
+ CONFIG_DL2K=y
+ # CONFIG_E1000 is not set
+ # CONFIG_NS83820 is not set
+@@ -703,7 +702,6 @@
+ #
+ # USB Multimedia devices
+ #
+-# CONFIG_USB_DABUSB is not set
+ 
+ #
+ # Video4Linux support is needed for USB Multimedia device support
+diff -urN kernel-source-2.6.6/arch/ppc/defconfig kernel-source-2.6.6-1/arch/ppc/defconfig
+--- kernel-source-2.6.6/arch/ppc/defconfig	2004-05-10 19:47:49.000000000 +1000
++++ kernel-source-2.6.6-1/arch/ppc/defconfig	2004-05-10 22:21:17.000000000 +1000
+@@ -559,7 +558,6 @@
+ # CONFIG_B44 is not set
+ # CONFIG_FORCEDETH is not set
+ # CONFIG_CS89x0 is not set
+-# CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+ # CONFIG_E100 is not set
+ # CONFIG_FEALNX is not set
+@@ -577,7 +576,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-# CONFIG_ACENIC is not set
+ # CONFIG_DL2K is not set
+ # CONFIG_E1000 is not set
+ # CONFIG_NS83820 is not set
+@@ -1080,7 +1078,6 @@
+ #
+ # USB Multimedia devices
+ #
+-# CONFIG_USB_DABUSB is not set
+ 
+ #
+ # Video4Linux support is needed for USB Multimedia device support
+diff -urN kernel-source-2.6.6/arch/ppc64/defconfig kernel-source-2.6.6-1/arch/ppc64/defconfig
+--- kernel-source-2.6.6/arch/ppc64/defconfig	2004-05-10 19:47:49.000000000 +1000
++++ kernel-source-2.6.6-1/arch/ppc64/defconfig	2004-05-10 22:21:18.000000000 +1000
+@@ -459,7 +459,6 @@
+ # CONFIG_ADAPTEC_STARFIRE is not set
+ # CONFIG_B44 is not set
+ # CONFIG_FORCEDETH is not set
+-# CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+ CONFIG_E100=y
+ # CONFIG_E100_NAPI is not set
+@@ -476,8 +475,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-CONFIG_ACENIC=y
+-CONFIG_ACENIC_OMIT_TIGON_I=y
+ # CONFIG_DL2K is not set
+ CONFIG_E1000=y
+ # CONFIG_E1000_NAPI is not set
+diff -urN kernel-source-2.6.6/arch/sparc64/defconfig kernel-source-2.6.6-1/arch/sparc64/defconfig
+--- kernel-source-2.6.6/arch/sparc64/defconfig	2004-05-10 19:47:50.000000000 +1000
++++ kernel-source-2.6.6-1/arch/sparc64/defconfig	2004-05-10 22:21:21.000000000 +1000
+@@ -840,7 +840,6 @@
+ CONFIG_ADAPTEC_STARFIRE_NAPI=y
+ CONFIG_B44=m
+ CONFIG_FORCEDETH=m
+-CONFIG_DGRS=m
+ CONFIG_EEPRO100=m
+ # CONFIG_EEPRO100_PIO is not set
+ CONFIG_E100=m
+@@ -864,8 +863,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-CONFIG_ACENIC=m
+-# CONFIG_ACENIC_OMIT_TIGON_I is not set
+ CONFIG_DL2K=m
+ CONFIG_E1000=m
+ CONFIG_E1000_NAPI=y
+@@ -1579,7 +1576,6 @@
+ #
+ # USB Multimedia devices
+ #
+-# CONFIG_USB_DABUSB is not set
+ # CONFIG_USB_VICAM is not set
+ # CONFIG_USB_DSBR is not set
+ # CONFIG_USB_IBMCAM is not set
+diff -urN kernel-source-2.6.6/arch/x86_64/defconfig kernel-source-2.6.6-1/arch/x86_64/defconfig
+--- kernel-source-2.6.6/arch/x86_64/defconfig	2004-05-10 19:47:50.000000000 +1000
++++ kernel-source-2.6.6-1/arch/x86_64/defconfig	2004-05-10 22:21:22.000000000 +1000
+@@ -437,7 +436,6 @@
+ # CONFIG_ADAPTEC_STARFIRE is not set
+ # CONFIG_B44 is not set
+ CONFIG_FORCEDETH=y
+-# CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+ # CONFIG_E100 is not set
+ # CONFIG_FEALNX is not set
+@@ -457,7 +456,6 @@
+ #
+ # Ethernet (1000 Mbit)
+ #
+-# CONFIG_ACENIC is not set
+ # CONFIG_DL2K is not set
+ CONFIG_E1000=y
+ # CONFIG_E1000_NAPI is not set
+diff -urN kernel-source-2.6.6/drivers/net/tokenring/Kconfig kernel-source-2.6.6-1/drivers/net/tokenring/Kconfig
+--- kernel-source-2.6.6/drivers/net/tokenring/Kconfig	2004-03-11 13:55:24.000000000 +1100
++++ kernel-source-2.6.6-1/drivers/net/tokenring/Kconfig	2004-01-14 20:00:15.000000000 +1100
+@@ -165,21 +165,5 @@
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called madgemc.
+ 
+-config SMCTR
+-	tristate "SMC ISA/MCA adapter support"
+-	depends on TR && (ISA || MCA_LEGACY) && (BROKEN || !64BIT)
+-	---help---
+-	  This is support for the ISA and MCA SMC Token Ring cards,
+-	  specifically SMC TokenCard Elite (8115T) and SMC TokenCard Elite/A
+-	  (8115T/A) adapters.
+-
+-	  If you have such an adapter and would like to use it, say Y or M and
+-	  read the Token-Ring mini-HOWTO, available from
+-	  <http://www.tldp.org/docs.html#howto> and the file
+-	  <file:Documentation/networking/smctr.txt>.
+-
+-	  To compile this driver as a module, choose M here: the module will be
+-	  called smctr.
+-
+ endmenu
+ 
+diff -urN kernel-source-2.6.6/drivers/scsi/Kconfig kernel-source-2.6.6-1/drivers/scsi/Kconfig
+--- kernel-source-2.6.6/drivers/scsi/Kconfig	2004-05-10 19:47:58.000000000 +1000
++++ kernel-source-2.6.6-1/drivers/scsi/Kconfig	2004-05-10 22:21:38.000000000 +1000
+@@ -1259,8 +1277,6 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called qlogicpti.
+ 
+-source "drivers/scsi/qla2xxx/Kconfig"
+-
+ config SCSI_SEAGATE
+ 	tristate "Seagate ST-02 and Future Domain TMC-8xx SCSI support"
+ 	depends on X86 && ISA && SCSI && BROKEN
+diff -urN kernel-source-2.6.6/drivers/scsi/Makefile kernel-source-2.6.6-1/drivers/scsi/Makefile
+--- kernel-source-2.6.6/drivers/scsi/Makefile	2004-05-10 19:47:58.000000000 +1000
++++ kernel-source-2.6.6-1/drivers/scsi/Makefile	2004-05-10 22:21:38.000000000 +1000
+@@ -80,7 +80,6 @@
+ obj-$(CONFIG_SCSI_QLOGIC_ISP)	+= qlogicisp.o 
+ obj-$(CONFIG_SCSI_QLOGIC_FC)	+= qlogicfc.o 
+ obj-$(CONFIG_SCSI_QLOGIC_1280)	+= qla1280.o 
+-obj-$(CONFIG_SCSI_QLA2XXX)	+= qla2xxx/
+ obj-$(CONFIG_SCSI_PAS16)	+= pas16.o
+ obj-$(CONFIG_SCSI_SEAGATE)	+= seagate.o
+ obj-$(CONFIG_SCSI_FD_8xx)	+= seagate.o
+diff -urN kernel-source-2.6.6/drivers/usb/media/Kconfig kernel-source-2.6.6-1/drivers/usb/media/Kconfig
+--- kernel-source-2.6.6/drivers/usb/media/Kconfig	2004-05-10 19:48:01.000000000 +1000
++++ kernel-source-2.6.6-1/drivers/usb/media/Kconfig	2004-05-10 22:21:43.000000000 +1000
+@@ -4,20 +4,6 @@
+ comment "USB Multimedia devices"
+ 	depends on USB
+ 
+-config USB_DABUSB
+-	tristate "DABUSB driver"
+-	depends on USB
+-	---help---
+-	  A Digital Audio Broadcasting (DAB) Receiver for USB and Linux
+-	  brought to you by the DAB-Team
+-	  <http://wwwbode.cs.tum.edu/Par/arch/dab/>.  This driver can be taken
+-	  as an example for URB-based bulk, control, and isochronous
+-	  transactions. URB's are explained in
+-	  <file:Documentation/usb/URB.txt>.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called dabusb.
+-
+ comment "Video4Linux support is needed for USB Multimedia device support"
+ 	depends on USB && VIDEO_DEV=n
+ 
+diff -urN kernel-source-2.6.6/drivers/usb/serial/Kconfig kernel-source-2.6.6-1/drivers/usb/serial/Kconfig
+--- kernel-source-2.6.6/drivers/usb/serial/Kconfig	2004-03-11 13:55:37.000000000 +1100
++++ kernel-source-2.6.6-1/drivers/usb/serial/Kconfig	2003-11-24 20:51:58.000000000 +1100
+@@ -219,84 +219,6 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called keyspan.
+ 
+-config USB_SERIAL_KEYSPAN_MPR
+-	bool "USB Keyspan MPR Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the Keyspan MPR converter.
+-
+-config USB_SERIAL_KEYSPAN_USA28
+-	bool "USB Keyspan USA-28 Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28 converter.
+-
+-config USB_SERIAL_KEYSPAN_USA28X
+-	bool "USB Keyspan USA-28X Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28X converter.
+-	  Be sure you have a USA-28X, there are also 28XA and 28XB
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA28XA
+-	bool "USB Keyspan USA-28XA Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28XA converter.
+-	  Be sure you have a USA-28XA, there are also 28X and 28XB
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA28XB
+-	bool "USB Keyspan USA-28XB Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28XB converter.
+-	  Be sure you have a USA-28XB, there are also 28X and 28XA
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA19
+-	bool "USB Keyspan USA-19 Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19 converter.
+-
+-config USB_SERIAL_KEYSPAN_USA18X
+-	bool "USB Keyspan USA-18X Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-18X converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19W
+-	bool "USB Keyspan USA-19W Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19W converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19QW
+-	bool "USB Keyspan USA-19QW Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19QW converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19QI
+-	bool "USB Keyspan USA-19QI Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19QI converter.
+-
+-config USB_SERIAL_KEYSPAN_USA49W
+-	bool "USB Keyspan USA-49W Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-49W converter.
+-
+-config USB_SERIAL_KEYSPAN_USA49WLC
+-	bool "USB Keyspan USA-49WLC Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-49WLC converter.
+-
+ config USB_SERIAL_KLSI
+ 	tristate "USB KL5KUSB105 (Palmconnect) Driver (EXPERIMENTAL)"
+ 	depends on USB_SERIAL && EXPERIMENTAL
+--- kernel-source-2.6.6/drivers/net/Kconfig	2004-05-10 19:47:54.000000000 +1000
++++ kernel-source-2.6.6-1/drivers/net/Kconfig	2004-05-11 22:25:31.000000000 +1000
+@@ -1383,21 +1383,6 @@
+ 	tristate "TOSHIBA TC35815 Ethernet support"
+ 	depends on NET_PCI && PCI && TOSHIBA_JMR3927
+ 
+-config DGRS
+-	tristate "Digi Intl. RightSwitch SE-X support"
+-	depends on NET_PCI && (PCI || EISA)
+-	---help---
+-	  This is support for the Digi International RightSwitch series of
+-	  PCI/EISA Ethernet switch cards. These include the SE-4 and the SE-6
+-	  models.  If you have a network card of this type, say Y and read the
+-	  Ethernet-HOWTO, available from
+-	  <http://www.tldp.org/docs.html#howto>.  More specific
+-	  information is contained in <file:Documentation/networking/dgrs.txt>.
+-
+-	  To compile this driver as a module, choose M here and read
+-	  <file:Documentation/networking/net-modules.txt>.  The module
+-	  will be called dgrs.
+-
+ config EEPRO100
+ 	tristate "EtherExpressPro/100 support (eepro100, original Becker driver)"
+ 	depends on NET_PCI && PCI
+@@ -1877,33 +1862,6 @@
+ menu "Ethernet (1000 Mbit)"
+ 	depends on NETDEVICES
+ 
+-config ACENIC
+-	tristate "Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support"
+-	depends on PCI
+-	---help---
+-	  Say Y here if you have an Alteon AceNIC, 3Com 3C985(B), NetGear
+-	  GA620, SGI Gigabit or Farallon PN9000-SX PCI Gigabit Ethernet
+-	  adapter. The driver allows for using the Jumbo Frame option (9000
+-	  bytes/frame) however it requires that your switches can handle this
+-	  as well. To enable Jumbo Frames, add `mtu 9000' to your ifconfig
+-	  line.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called acenic.
+-
+-config ACENIC_OMIT_TIGON_I
+-	bool "Omit support for old Tigon I based AceNICs"
+-	depends on ACENIC
+-	help
+-	  Say Y here if you only have Tigon II based AceNICs and want to leave
+-	  out support for the older Tigon I based cards which are no longer
+-	  being sold (ie. the original Alteon AceNIC and 3Com 3C985 (non B
+-	  version)).  This will reduce the size of the driver object by
+-	  app. 100KB.  If you are not sure whether your card is a Tigon I or a
+-	  Tigon II, say N here.
+-
+-	  The safe and default value for this is N.
+-
+ config DL2K
+ 	tristate "D-Link DL2000-based Gigabit Ethernet support"
+ 	depends on PCI
+--- kernel-source-2.6.7-2.6.7/arch/i386/defconfig	2004-06-21 14:41:04.955084080 +0200
++++ kernel-source-2.6.7-2.6.7/arch/i386/defconfig.pruned	2004-06-21 14:47:18.767076968 +0200
+@@ -1055,8 +1055,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/sparc64/defconfig	2004-06-21 14:41:04.992082099 +0200
++++ kernel-source-2.6.7-2.6.7/arch/sparc64/defconfig.pruned	2004-06-21 14:47:21.073953542 +0200
+@@ -1668,8 +1668,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-CONFIG_USB_EMI62=m
+-CONFIG_USB_EMI26=m
+ # CONFIG_USB_TIGL is not set
+ CONFIG_USB_AUERSWALD=m
+ CONFIG_USB_RIO500=m
+--- kernel-source-2.6.7-2.6.7/arch/ppc/configs/common_defconfig	2004-06-16 07:19:03.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc/configs/common_defconfig.pruned	2004-06-21 14:47:22.053901111 +0200
+@@ -1138,8 +1138,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc/configs/sandpoint_defconfig	2004-06-16 07:19:22.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc/configs/sandpoint_defconfig.pruned	2004-06-21 14:47:22.672867994 +0200
+@@ -601,8 +601,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc/configs/lopec_defconfig	2004-06-16 07:19:37.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc/configs/lopec_defconfig.pruned	2004-06-21 14:47:23.263836374 +0200
+@@ -682,8 +682,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc/configs/pmac_defconfig	2004-06-16 07:20:03.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc/configs/pmac_defconfig.pruned	2004-06-21 14:47:23.837805665 +0200
+@@ -1170,8 +1170,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc/defconfig	2004-06-21 14:41:04.976082956 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc/defconfig.pruned	2004-06-21 14:47:24.352778112 +0200
+@@ -1141,8 +1141,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/mips/configs/rm200_defconfig	2004-06-16 07:19:03.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/mips/configs/rm200_defconfig.pruned	2004-06-21 14:47:24.842751896 +0200
+@@ -1007,8 +1007,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ CONFIG_USB_TIGL=m
+ CONFIG_USB_AUERSWALD=m
+ CONFIG_USB_RIO500=m
+--- kernel-source-2.6.7-2.6.7/arch/ia64/configs/zx1_defconfig	2004-06-16 07:19:37.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ia64/configs/zx1_defconfig.pruned	2004-06-21 14:47:25.322726216 +0200
+@@ -1022,8 +1022,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ia64/defconfig	2004-06-21 14:41:04.966083491 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ia64/defconfig.pruned	2004-06-21 14:47:25.802700535 +0200
+@@ -892,8 +892,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc64/configs/g5_defconfig	2004-06-16 07:18:56.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc64/configs/g5_defconfig.pruned	2004-06-21 14:47:26.301673838 +0200
+@@ -951,8 +951,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc64/configs/pSeries_defconfig	2004-06-16 07:20:03.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc64/configs/pSeries_defconfig.pruned	2004-06-21 14:47:26.805646874 +0200
+@@ -874,8 +874,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/ppc64/defconfig	2004-06-21 14:41:04.983082581 +0200
++++ kernel-source-2.6.7-2.6.7/arch/ppc64/defconfig.pruned	2004-06-21 14:47:27.271621943 +0200
+@@ -874,8 +874,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/arm/configs/lpd7a404_defconfig	2004-06-16 07:18:57.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/arm/configs/lpd7a404_defconfig.pruned	2004-06-21 14:47:27.781594657 +0200
+@@ -817,8 +817,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/parisc/configs/c3000_defconfig	2004-06-16 07:19:36.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/arch/parisc/configs/c3000_defconfig.pruned	2004-06-21 14:47:28.271568442 +0200
+@@ -874,8 +874,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/parisc/defconfig	2004-06-21 14:41:04.968083384 +0200
++++ kernel-source-2.6.7-2.6.7/arch/parisc/defconfig.pruned	2004-06-21 14:47:28.753542654 +0200
+@@ -731,8 +731,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/arch/x86_64/defconfig	2004-06-21 14:41:04.993082046 +0200
++++ kernel-source-2.6.7-2.6.7/arch/x86_64/defconfig.pruned	2004-06-21 14:47:29.261515476 +0200
+@@ -769,8 +769,6 @@
+ #
+ # USB Miscellaneous drivers
+ #
+-# CONFIG_USB_EMI62 is not set
+-# CONFIG_USB_EMI26 is not set
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+--- kernel-source-2.6.7-2.6.7/drivers/usb/misc/Kconfig~	2004-06-16 07:20:04.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/drivers/usb/misc/Kconfig	2004-06-21 14:42:39.229036608 +0200
+@@ -4,34 +4,6 @@
+ comment "USB Miscellaneous drivers"
+ 	depends on USB
+ 
+-config USB_EMI62
+-	tristate "EMI 6|2m USB Audio interface support"
+-	depends on USB
+-	---help---
+-	  This driver loads firmware to Emagic EMI 6|2m low latency USB
+-	  Audio and Midi interface.
+-
+-	  After firmware load the device is handled with standard linux
+-	  USB Audio driver.
+-
+-	  This code is also available as a module ( = code which can be
+-	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called audio. If you want to compile it as a
+-	  module, say M here and read <file:Documentation/kbuild/modules.txt>.
+-
+-config USB_EMI26
+-	tristate "EMI 2|6 USB Audio interface support"
+-	depends on USB
+-	---help---
+-	  This driver loads firmware to Emagic EMI 2|6 low latency USB
+-	  Audio interface.
+-
+-	  After firmware load the device is handled with standard linux
+-	  USB Audio driver.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called emi26.
+-
+ config USB_TIGL
+ 	tristate "Texas Instruments Graph Link USB (aka SilverLink) cable support"
+ 	depends on USB
+--- kernel-source-2.6.7-2.6.7/drivers/usb/misc/Makefile	2004-06-16 07:19:35.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/drivers/usb/misc/Makefile.pruned	2004-06-21 14:47:29.790487173 +0200
+@@ -5,8 +5,6 @@
+ 
+ obj-$(CONFIG_USB_AUERSWALD)	+= auerswald.o
+ obj-$(CONFIG_USB_CYTHERM)	+= cytherm.o
+-obj-$(CONFIG_USB_EMI26)		+= emi26.o
+-obj-$(CONFIG_USB_EMI62)		+= emi62.o
+ obj-$(CONFIG_USB_LCD)		+= usblcd.o
+ obj-$(CONFIG_USB_LED)		+= usbled.o
+ obj-$(CONFIG_USB_LEGOTOWER)	+= legousbtower.o
+--- kernel-source-2.6.7-2.6.7/drivers/usb/Makefile	2004-06-16 07:20:04.000000000 +0200
++++ kernel-source-2.6.7-2.6.7/drivers/usb/Makefile.pruned	2004-06-21 14:47:30.625442500 +0200
+@@ -56,8 +56,6 @@
+ 
+ obj-$(CONFIG_USB_AUERSWALD)	+= misc/
+ obj-$(CONFIG_USB_CYTHERM)	+= misc/
+-obj-$(CONFIG_USB_EMI26)		+= misc/
+-obj-$(CONFIG_USB_EMI62)		+= misc/
+ obj-$(CONFIG_USB_LCD)		+= misc/
+ obj-$(CONFIG_USB_LED)		+= misc/
+ obj-$(CONFIG_USB_LEGOTOWER)	+= misc/
