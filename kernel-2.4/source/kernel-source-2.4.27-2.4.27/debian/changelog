@@ -14,10 +14,6 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
   * control
     Add build dependancy on gcc-3.3 (closes: #324591)
 
-  * zisofs.dpatch (actually 183_zisofs.dpatch) from the previous release
-    now has a CAN number.
-    See CAN-2005-2457.
-
   * There was a bit of a screw up in 2.4.27-11 (by me)
     as 183_zisofs.diff was actually a copy of 182_linux-zlib-fixes.diff,
     and due to a quirk in the apply scripts, basically caused
