@@ -5,17 +5,47 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     [Security, x86_64] 32 bit ltrace oops when tracing 64 bit executable
     http://lkml.org/lkml/2005/1/5/245
     http://linux.bkbits.net:8080/linux-2.4/cset@41dd3455GwQPufrGvBJjcUOXQa3WXA
+
   * 185_net-sockglue-cap.diff
     [Security] Restrict socket policy loading to CAP_NET_ADMIN.
     From 2.6.12.6
     See CAN-2005-2555.
+
   * control
     Add build dependancy on gcc-3.3 (closes: #324591)
+
   * zisofs.dpatch (actually 183_zisofs.dpatch) from the previous release
     now has a CAN number.
     See CAN-2005-2457.
 
- -- Simon Horman <horms@debian.org>  Wed, 31 Aug 2005 19:07:22 +0900
+  * There was a bit of a screw up in 2.4.27-11 (by me)
+    as 183_zisofs.diff was actually a copy of 182_linux-zlib-fixes.diff,
+    and due to a quirk in the apply scripts, basically caused
+    the zlib 182_linux-zlib-fixes.diff fixes to be reversed,
+    and thus neither patch was applied. 186_linux-zlib-fixes-2.diff
+    and 187_zisofs-2.diff resolve this problem. More information below.
+    (closes: #325871)
+
+  * 186_linux-zlib-fixes-2.diff
+    [Security] Fix security bugs in the Linux zlib implementations.
+    See CAN-2005-2458, CAN-2005-2459
+    From 2.6.12.5 and 2.6.12.6
+    http://sources.redhat.com/ml/bug-gnu-utils/1999-06/msg00183.html
+    http://bugs.gentoo.org/show_bug.cgi?id=94584
+
+  * 187_zisofs-2.diff
+    [Security] Check input buffer size in zisofs
+    From 2.6.12.5
+    See CAN-2005-2457.
+    What 183_zisofs.diff (incorectly annotated as zisofs.dpatch)
+    should have been.
+
+  * 188_fix-dst-leak-in-icmp_push_reply.diff
+    [Maybe-Security: Can remote traffic trigger this]
+    Fix DST leak in icmp_push_reply()
+    From 2.6.12.6
+
+ -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 12:27:12 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
