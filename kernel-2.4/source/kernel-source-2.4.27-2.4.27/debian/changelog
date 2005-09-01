@@ -45,7 +45,12 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     Fix DST leak in icmp_push_reply()
     From 2.6.12.6
 
- -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 12:27:12 +0900
+  * 189_ipv6-skb-leak.diff
+     [Maybe-Security: Seems like a local DoS]
+     Fix SKB leak in ip6_input_finish()
+     From 2.6.12.6
+
+ -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 15:06:15 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
