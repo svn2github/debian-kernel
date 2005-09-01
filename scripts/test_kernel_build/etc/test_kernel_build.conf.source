@@ -6,7 +6,7 @@
 if [ "$TKB_CONF_SOURCE" != "YES" ]; then
 TKB_CONF_SOURCE="YES"
 
-. "$TKB_ETC_DIR/test_kernel_build.conf"
+. "$TKB_ETC_DIR/test_kernel_build.conf.post"
 
 BUILD_TYPE="source"
 

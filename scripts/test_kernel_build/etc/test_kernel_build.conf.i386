@@ -6,7 +6,7 @@
 if [ "$TKB_CONF_I386" != "YES" ]; then
 TKB_CONF_I386="YES"
 
-. "$TKB_ETC_DIR/test_kernel_build.conf"
+. "$TKB_ETC_DIR/test_kernel_build.conf.post"
 
 BUILD_TYPE="i386"
 KERNEL_ARCH="i386"

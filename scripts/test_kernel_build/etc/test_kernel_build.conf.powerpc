@@ -6,7 +6,7 @@
 if [ "$TKB_CONF_PPC" != "YES" ]; then
 TKB_CONF_PPC="YES"
 
-. "$TKB_ETC_DIR/test_kernel_build.conf"
+. "$TKB_ETC_DIR/test_kernel_build.conf.post"
 
 BUILD_TYPE="powerpc"
 KERNEL_ARCH="powerpc"

@@ -1,0 +1,13 @@
+#!/bin/bash
+######################################################################
+# Horms                                                   October 2004
+######################################################################
+
+if [ "$TKB_CONF_POST" != "YES" ]; then
+TKB_CONF_POST="YES"
+ 
+S_DOWNDLOAD_URL="http://tabatha.lab.ultramonkey.org/~horms/linux/packages/testing/kernel-source-$VERSION/"
+ 
+STAMP="${VERSION}"
+
+fi # TKB_CONF_POST

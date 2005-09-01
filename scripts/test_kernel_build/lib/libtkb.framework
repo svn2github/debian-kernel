@@ -8,8 +8,24 @@ LIBTKB_FRAMEWORK="YES"
 
 usage () 
 {
-	echo "Usage: linux-2.6: $0 [START_STAGE] [END_STAGE]" 1>&2
-	echo "       otherwise: $0 VERSION [START_STAGE] [END_STAGE]" 1>&2
+	local NAME="$(basename $0)"
+
+	cat 1>&2 << __EOF__
+Usage: 
+ linux-2.6: $NAME BRANCH [START_STAGE] [END_STAGE]
+ otherwise: $NAME VERSION BRANCH [START_STAGE] [END_STAGE]
+
+Where: 
+ BRANCH is one of: sarge, stable, sarge-security, stable-security, etch, 
+        testing, sid, unstable, experimental
+ VERSION is one of: 2.6, 2.6.8, and 2.4.27
+         2.6 is the new single source packaging
+         2.6.8 and 2.4.27 is the old sarge-style packaging
+ START_STAGE is a number >= 0 (default 0)
+ END_STAGE   is a number >= START_STAGE (default 1000)
+
+__EOF__
+
 	exit 1
 }
 
@@ -31,15 +47,13 @@ tag_version ()
 		return
 	fi
 	local DISTRIBUTION=$(deb_distribution $1)
-	local UPSTREAM=${PRISTINE_RELEASE%%-*}
-	local PRISTINE_DEBVERSION=${PRISTINE_RELEASE#$UPSTREAM-}
+	local TAIL=${PRISTINE_RELEASE##*[a-z-]}
+	local HEAD=${PRISTINE_RELEASE%%$TAIL}
 
-	if [ "$DISTRIBUTION" != "UNRELEASED" ] ||
-			echo $PRISTINE_DEBVERSION | grep "[^0-9]" > /dev/null
-	then
-		echo "$UPSTREAM-$PRISTINE_DEBVERSION.$TAG_VERSION"
+	if [ "$DISTRIBUTION" != "UNRELEASED" -a -n "$TAIL" ]; then
+		echo "${HEAD}${TAIL}.$TAG_VERSION"
 	else
-		echo "$UPSTREAM-$(($PRISTINE_DEBVERSION - 1)).$TAG_VERSION"
+		echo "${HEAD}$(($TAIL - 1)).$TAG_VERSION"
 	fi
 }
 

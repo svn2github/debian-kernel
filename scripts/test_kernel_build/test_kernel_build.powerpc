@@ -9,6 +9,7 @@ TKB_BASE_DIR="$HOME/work/debian-kernel/test_kernel_build"
 TKB_LIB_DIR="$TKB_BASE_DIR/lib"
 TKB_ETC_DIR="$TKB_BASE_DIR/etc"
 		                  
+. "$TKB_ETC_DIR/test_kernel_build.conf"
 . "$TKB_LIB_DIR/libtkb.framework"
 . "$TKB_LIB_DIR/libtkb.powerpc"
 				                  
