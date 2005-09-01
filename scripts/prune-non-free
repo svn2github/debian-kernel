@@ -300,6 +300,8 @@ dont_nuke_debian_dir(free_dir)
 
 # Tar up the kernel source trees
 pack("linux-#{tree}_#{version}.orig.tar.gz", free_dir)
+#FileUtils.rm_rf(free_dir)
 pack("linux-nonfree-#{tree}_#{version}.orig.tar.gz", nonfree_dir)
+#FileUtils.rm_rf(nonfree_dir)
 
 exit(0)
