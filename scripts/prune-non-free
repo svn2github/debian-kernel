@@ -134,6 +134,14 @@ def tmpdir
 	tf.path
 end
 
+def kversion(file)
+	tarball = File.basename(file)
+	unless tarball =~ /^linux-([0-9\.]+)\.tar.*$/
+		raise "cannot determine kernel version from '#{tarball}'!"
+	end
+	$1
+end
+
 def zip_type(tarball)
 	if tarball =~ /\.gz$/
 		'z'
@@ -256,10 +264,10 @@ def dont_nuke_debian_dir(free_dir)
 	FileUtils.mv(name + '.new', name)
 end
 
-raise "Usage: #{$0} <kernel tarball> <debian version>" unless ARGV.length == 2
+raise "Usage: #{$0} <kernel tarball>" unless ARGV.length == 1
 
 # Create source directories
-version = ARGV[1]
+version = kversion(ARGV[0])
 raise "Error: unable to determine tree from version string #{version}!" unless version =~ /^(\d+\.\d+)\./
 tree = $1
 free_dir = "linux-#{tree}-#{version}"
