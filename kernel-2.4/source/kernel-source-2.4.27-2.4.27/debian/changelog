@@ -46,7 +46,11 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
      Fix SKB leak in ip6_input_finish()
      From 2.6.12.6
 
- -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 15:06:15 +0900
+  * 180_fs-isofs-ignored-parameters.diff
+    isofs ignores any mount parameters after iocharset, map or session.
+    http://lists.debian.org/debian-kernel/2005/08/msg00581.html
+
+ -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 17:54:24 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
