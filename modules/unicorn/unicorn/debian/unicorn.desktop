@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Unicorn status
+Comment=Bewan ADSL modem status monitor
+Exec=bewan_adsl_status
+Icon=bewan.xpm
+Terminal=false
+Type=Application
+Categories=GNOME;Application;System
+
