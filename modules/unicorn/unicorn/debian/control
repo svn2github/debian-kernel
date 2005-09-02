@@ -14,7 +14,7 @@ Description: Monitoring applications for the Bewan ADSL PCI st and USB modems
 
 Package: unicorn-source
 Architecture: all
-Depends: make, debhelper, kernel-package
+Depends: make, debhelper, kernel-package, libc6-dev
 Description: Source for the Bewan ADSL PCI st and USB unicorn driver
  This package provides the source code for the unicorn kernel modules.
  The unicorn package contains applications that can be useful to monitor the

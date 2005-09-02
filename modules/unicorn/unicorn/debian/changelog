@@ -1,8 +1,20 @@
 unicorn (0.9.2-1) unstable; urgency=low
 
-  * New upstream release
+  * New upstream release (Closes: #301215)
+    - New modem software (0.1.0.10) for PCI with bug fix for Globespan
+      DSLAM and other interoperability fixes.
+    - Fixed a bug where changing USB bandwidth dynamically prevented the
+      adapters with AFE 20174 to work on kernel 2.6.
+    - Compile problem on kernel 2.6.9 fixed. (Closes: #279971)
+    - Fix compile problem for kernel 2.6.11.
+    - Include an option to change the modem SW library for PCI in case of
+      interoperability problems. To change the modem SW library to the old
+      1.9.6.1 version, comment out the line NEW_MSW=1 in the PCI Makefile
+      (in the unicorn_pci directory).
 
- -- Philippe Coval <Philippe.COVAL@laposte.net>  Mon, 29 Aug 2005 01:29:33 +0200
+  * Added libc6-dev as dependency to unicorn-source. (Closes: #267389)
+
+ -- Sven Luther <luther@debian.org>  Fri,  2 Sep 2005 19:10:49 +0200
 
 unicorn (0.8.7-1.1) unstable; urgency=high
 
