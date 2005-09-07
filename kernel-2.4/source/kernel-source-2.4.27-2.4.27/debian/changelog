@@ -50,7 +50,13 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     isofs ignores any mount parameters after iocharset, map or session.
     http://lists.debian.org/debian-kernel/2005/08/msg00581.html
 
- -- Simon Horman <horms@debian.org>  Thu,  1 Sep 2005 17:54:24 +0900
+  * 178_fs_ext2_ext3_xattr-sharing.diff
+    Included in 2.4.27-11 is CAN-2005-2801
+
+  * 179_net-ipv4-netfilter-ip_recent-last_pkts.diff
+    Included in 2.4.27-11 is CAN-2005-2802
+
+ -- Simon Horman <horms@debian.org>  Wed,  7 Sep 2005 17:34:38 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
