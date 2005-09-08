@@ -25,6 +25,8 @@ def parse_config(file, kconf)
 	File.open(file).each { |line|
 		if line =~ /^(CONFIG_\w+)=(.+)$/
 			kconf[$1] = $2
+		elsif line =~ /^\s*#\s*(CONFIG_\w+) is removed\s*$/
+			kconf[$1] = 'XXX'
 		elsif line =~ /^\s*#\s*(CONFIG_\w+) is not set\s*$/
 			kconf[$1] = 'n'
 		end
@@ -35,6 +37,8 @@ end
 def configline(key, val)
 	if val == 'n'
 		"# #{key} is not set\n"
+	elsif val == 'XXX'
+		"# #{key} is removed\n"
 	else
 		"#{key}=#{val}\n"
 	end
@@ -190,11 +194,16 @@ def add_option(key, val)
 end
 
 def remove_option(key, val)
+	return if val == 'XXX'
 	puts "\n#{key}=#{val} has been removed."
 	answer = prompt_user()
 	files = affected_files(answer)
 	files.each { |f|
 		strip_key(f, key)
+	}
+	return if answer == 'g'
+	File.open(files[0], 'a') { |f|
+			f << configline(key, 'XXX')
 	}
 end
 
