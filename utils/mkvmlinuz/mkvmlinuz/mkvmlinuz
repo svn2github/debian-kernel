@@ -213,9 +213,9 @@ do_cmd gzip $work/vmlinux
 # create the compressed initrd image file
 if test -n "$initrd"; then
     test -z "$verbose" || echo === Creating compressed initrd image initrd.gz...
-    if test -n "$compressed"; then
+    if test -z "$compressed"; then
         # Detect if the file was already compressed by gzip.
-    	if test "`od -A n -c -N 2 $1`" = " 037 213"; then 
+    	if test "`od -A n -c -N 2 $initrd`" = " 037 213"; then 
 	    compressed="Yes"
 	else
 	    compressed="No"
