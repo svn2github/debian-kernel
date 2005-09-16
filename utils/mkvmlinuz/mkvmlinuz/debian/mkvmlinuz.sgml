@@ -52,6 +52,7 @@
       <arg><option>-r <replaceable>release</replaceable></option></arg>
       <arg><option>-n</option></arg>
       <arg><option>-z</option></arg>
+      <arg><option>-u</option></arg>
       <arg><option>-v</option></arg>
       <arg><replaceable>release</replaceable> <arg><replaceable>kernel</replaceable></arg></arg>
     </cmdsynopsis>
@@ -220,7 +221,17 @@
       <varlistentry>
 	<term><option>-z</option></term>
 	<listitem>
-	  <para>Assume the initrd image file is already compressed.</para>
+	  <para>Assume the initrd image file is already compressed. The
+	  default is to autodetect if the initrd is compressed or not.
+	  </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-u</option></term>
+	<listitem>
+	  <para>Assume the initrd image file is not already compressed. The
+	  default is to autodetect if the initrd is compressed or not.
+	  </para>
         </listitem>
       </varlistentry>
       <varlistentry>

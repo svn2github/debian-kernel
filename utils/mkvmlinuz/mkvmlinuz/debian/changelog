@@ -1,3 +1,12 @@
+mkvmlinuz (14) unstable; urgency=low
+
+  * Now autodetects if the initrd is gzip compressed. This will allow to do
+    the right thing for initrds (not compressed by default) and initramfs
+    (compressed by default), since the kernel was none too happy with doubly
+    compressed initramfs initrds :)
+
+ -- Sven Luther <luther@debian.org>  Fri, 16 Sep 2005 10:22:09 +0200
+
 mkvmlinuz (13) unstable; urgency=high
 
   * Added debconf magic to kernel-image postinst/postrm hooks.

@@ -12,6 +12,7 @@ usage() {
     echo ' -r <release> - kernel release number'
     echo ' -n           - do not use an initrd'
     echo ' -z           - assume the initrd image file is already compressed'
+    echo ' -u           - assume the initrd image file is not compressed'
     echo ' -v           - verbose operation (print commands)'
 
     exit 0
@@ -40,6 +41,7 @@ while getopts o:k:s:i:d:r:a:nzv option; do
 	a) arch=$OPTARG ;;
 	n) noinitrd="Yes" ;;
 	z) compressed="Yes" ;;
+	u) compressed="No" ;;
 	v) verbose="Yes" ;;
 	*) usage; exit 0 ;;
     esac
@@ -212,11 +214,22 @@ do_cmd gzip $work/vmlinux
 if test -n "$initrd"; then
     test -z "$verbose" || echo === Creating compressed initrd image initrd.gz...
     if test -n "$compressed"; then
-	do_cmd cp -p $initrd $work/initrd.gz
-    else
-	do_cmd cp -p $initrd $work/initrd
-	do_cmd gzip $work/initrd
+        # Detect if the file was already compressed by gzip.
+    	if test "`od -A n -c -N 2 $1`" = " 037 213"; then 
+	    compressed="Yes"
+	else
+	    compressed="No"
+	fi
     fi
+    case "$compressed" in
+    	Yes)
+	    do_cmd cp -p $initrd $work/initrd.gz
+	    ;;
+    	No)
+	    do_cmd cp -p $initrd $work/initrd
+	    do_cmd gzip $work/initrd
+	    ;;
+    esac
 fi
 
 # create the raw ELF image file; this is not needed for the miBoot image
