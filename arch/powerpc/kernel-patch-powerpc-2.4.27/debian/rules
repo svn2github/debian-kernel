@@ -26,8 +26,10 @@ kernel	:= $(shell head -1 debian/changelog | sed 's/^.*(\(.*\)-.*).*$$/\1/')
 debian	:= $(shell head -1 debian/changelog | sed 's/^.*(.*-\(.*\)).*$$/\1/')
 version	:= $(shell head -1 debian/changelog | sed 's/^.*(\(.*\)).*$$/\1/')
 
+kernel-tree := $(kernel)-11
+
 # some files in debian/ get version numbers and stuff updated on the fly
-M4 = m4 -DM4VERSION="$(version)" -DM4KERNEL="$(kernel)" -DM4ARCH="$(arch)" -DM4SUBARCH="$(subarch)" -DM4FLAVOUR="$(flavour)"
+M4 = m4 -DM4VERSION="$(version)" -DM4KERNEL="$(kernel)" -DM4ARCH="$(arch)" -DM4SUBARCH="$(subarch)" -DM4FLAVOUR="$(flavour)" -DM4KTREE="$(kernel-tree)"
 debian/%: debian/%.m4
 	$(M4) $< > $@
 
