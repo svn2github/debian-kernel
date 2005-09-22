@@ -1,11 +1,11 @@
-kernel-patch-powerpc-2.4.27 (2.4.27-11) UNRELEASED; urgency=low
+kernel-patch-powerpc-2.4.27 (2.4.27-11) unstable; urgency=low
 
   * Added build debpends on gcc-3.3 as the default gcc
     is being changed from 3.3 to 4.0. (Simon Horman)
   * Dropped the powerpc subarch, as it is covered by 2.6 kernels only, keeping
     only nubus and apus, which don't have 2.6 kernels yet. (Sven Luther)
 
- -- Sven Luther <luther@debian.org>  Thu, 22 Sep 2005 10:24:27 +0200
+ -- Sven Luther <luther@debian.org>  Thu, 22 Sep 2005 20:44:16 +0200
 
 kernel-patch-powerpc-2.4.27 (2.4.27-10) unstable; urgency=low
 

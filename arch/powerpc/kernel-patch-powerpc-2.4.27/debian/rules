@@ -353,7 +353,7 @@ binary: stamp-configure stamp-build stamp-install
 	dh_strip -a
 	dh_fixperms -a
 	dh_installdeb -a
-	for p in apus nubus powerpc powerpc-smp powerpc-small; do \
+	for p in apus nubus; do \
 		cp $(TMP)/scripts/$$p/DEBIAN/p* $(CURDIR)/debian/kernel-image-$(kernel)-$$p/DEBIAN; \
 	done
 	for p in $(subarchs); do \
