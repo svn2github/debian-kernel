@@ -1,0 +1,36 @@
+# origin: Debian, #178874
+# cset: n/a
+# inclusion: not submitted
+# description: duplicate detection fix for ibmtr
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/net/tokenring/ibmtr.c kernel-source-2.4.26-1/drivers/net/tokenring/ibmtr.c
+--- kernel-source-2.4.26/drivers/net/tokenring/ibmtr.c	2001-11-10 09:02:24.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/net/tokenring/ibmtr.c	2003-03-22 12:13:25.000000000 +1100
+@@ -330,7 +330,10 @@
+ 	for (i = 0; ibmtr_portlist[i]; i++) {
+ 		int ioaddr = ibmtr_portlist[i];
+ 
++		if (!request_region(ioaddr, IBMTR_IO_EXTENT, "ibmtr"))
++			continue;
+ 		if (!ibmtr_probe1(dev, ioaddr)) return 0;
++		release_region(ioaddr, IBMTR_IO_EXTENT);
+ 	}
+ 	return -ENODEV;
+ }
+@@ -669,15 +672,6 @@
+ 		kfree(ti);
+ 		return -ENODEV;
+ 	}
+-	/*?? Now, allocate some of the PIO PORTs for this driver.. */
+-	/* record PIOaddr range as busy */
+-	if (!request_region(PIOaddr, IBMTR_IO_EXTENT, "ibmtr")) {
+-		DPRINTK("Could not grab PIO range. Halting driver.\n");
+-		free_irq(dev->irq, dev);
+-		iounmap(t_mmio);
+-		kfree(ti);
+-		return -EBUSY;
+-	}
+ 
+ 	if (!version_printed++) {
+ 		printk(version);

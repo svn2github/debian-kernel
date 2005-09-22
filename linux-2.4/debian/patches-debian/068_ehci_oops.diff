@@ -1,0 +1,47 @@
+# origin: bk
+# cset: 1.1483
+# inclusion: kernel 2.4.28-pre2
+# description: fix ehci-hcd oops
+# revision date: 2004-09-03
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet@1.1483
+#   2004/08/14 13:50:37-03:00 zaitcev@redhat.com 
+#   [PATCH] David Brownell: Fix uhci-hcd oops
+#   
+#   The attached ought to fix Nick up (no way to tell about Kai because his
+#   report had no data). It consists of two things. First, it fixes the
+#   oops in the scan_async. Second, it prevents the oops from happening by
+#   ignoring the handoff failure (as the old code did, in effect). Either
+#   one should be sufficient, but this is why I use both. The if around
+#   scan_async is the right fix, so it's there on merit. However, it yields
+#   a non-working EHCI if your BIOS is buggy.
+# 
+# drivers/usb/host/ehci-hcd.c
+#   2004/07/30 20:21:12-03:00 zaitcev@redhat.com +4 -2
+#   David Brownell: Fix uhci-hcd oops
+# 
+diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+--- a/drivers/usb/host/ehci-hcd.c	2004-08-19 09:34:20 -07:00
++++ b/drivers/usb/host/ehci-hcd.c	2004-08-19 09:34:20 -07:00
+@@ -303,7 +303,8 @@
+ 		if (cap & (1 << 16)) {
+ 			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
+ 				where, cap);
+-			return 1;
++			pci_write_config_dword (ehci->hcd.pdev, where, 0);
++			return 0;
+ 		} 
+ 		ehci_dbg (ehci, "BIOS handoff succeeded\n");
+ 	}
+@@ -547,7 +548,8 @@
+ 
+ 	/* root hub is shut down separately (first, when possible) */
+ 	spin_lock_irq (&ehci->lock);
+-	ehci_work (ehci, NULL);
++	if (ehci->async)
++		ehci_work (ehci, NULL);
+ 	spin_unlock_irq (&ehci->lock);
+ 	ehci_mem_cleanup (ehci);
+ 

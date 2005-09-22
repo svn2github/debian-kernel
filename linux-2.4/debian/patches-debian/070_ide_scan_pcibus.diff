@@ -1,0 +1,28 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not suitable for mainline
+# description: missing ide-probe.c patch that killed initrds
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/ide/ide-probe.c kernel-source-2.4.26-1/drivers/ide/ide-probe.c
+--- kernel-source-2.4.26/drivers/ide/ide-probe.c	2004-04-14 23:05:29.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/ide/ide-probe.c	2004-04-17 14:23:47.000000000 +1000
+@@ -1425,12 +1425,16 @@
+ 
+ 	if (ideprobe_done)
+     		return -EBUSY;
+-	
++
++	ide_xlate_1024_hook = ide_xlate_1024;
++#ifdef CONFIG_BLK_DEV_IDEPCI
++	ide_scan_pcibus();
++#endif /* CONFIG_BLK_DEV_IDEPCI */
+ 	for (index = 0; index < MAX_HWIFS; ++index)
+ 		ide_unregister(index);
+ 	ideprobe_init();
+ 	create_proc_ide_interfaces();
+-	ide_xlate_1024_hook = ide_xlate_1024;
++	ide_driver_module(1);
+ 	ideprobe_done++;
+ 	return 0;
+ }

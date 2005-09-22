@@ -1,0 +1,50 @@
+# origin: Chris Wright <chrisw@osdl.org>
+# cset: 1.1530 key=41a30a51VLBj8ZBgAu4Aww3xFS8ZxA
+# inclusion: uptream
+# revision date: Wed, 24 Nov 2004 16:53:16 +0900
+# description: [PATCH] binfmt_elf: handle p_filesz == 0 on PT_INTERP section
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# fs/binfmt_elf.c
+#   2004/11/16 20:16:15-02:00 chrisw@osdl.org +5 -2
+#   binfmt_elf: handle p_filesz == 0 on PT_INTERP section
+# 
+# ChangeSet
+#   2004/11/16 17:55:02-02:00 chrisw@osdl.org 
+#   [PATCH] binfmt_elf: handle p_filesz == 0 on PT_INTERP section
+#   
+#   Jakub Jelinek points out that current fix has an underflow problem
+#   if elf_ppnt->p_filesz == 0.  Fix that up, and also stop overwriting
+#   interpreter buffer, simply check that it's NULL-terminated.
+#   
+#   From: Jakub Jelinek <jakub@redhat.com>
+#   Signed-off-by: Chris Wright <chrisw@osdl.org>
+#   
+#   ===== fs/binfmt_elf.c 1.32 vs edited =====
+#   TAG: v2.4.28-rc4
+# 
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	2004-11-24 16:39:27 +09:00
++++ b/fs/binfmt_elf.c	2004-11-24 16:39:27 +09:00
+@@ -516,7 +516,8 @@
+ 			 */
+ 
+ 			retval = -ENOMEM;
+-			if (elf_ppnt->p_filesz > PATH_MAX)
++			if (elf_ppnt->p_filesz > PATH_MAX || 
++			    elf_ppnt->p_filesz == 0)
+ 				goto out_free_file;
+ 			elf_interpreter = (char *) kmalloc(elf_ppnt->p_filesz,
+ 							   GFP_KERNEL);
+@@ -532,7 +533,9 @@
+ 				goto out_free_interp;
+ 			}
+ 			/* make sure path is NULL terminated */
+-			elf_interpreter[elf_ppnt->p_filesz - 1] = '\0';
++			retval = -EINVAL;
++			if (elf_interpreter[elf_ppnt->p_filesz - 1] != '\0')
++				goto out_free_interp;
+ 
+ 			/* If the program interpreter is one of these two,
+ 			 * then assume an iBCS2 image. Otherwise assume

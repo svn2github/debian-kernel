@@ -1,0 +1,141 @@
+# origin: Barry K. Nathan <barryn@pobox.com>
+# cset: 1.1499.1.10 key=419a5b16V-2XzvsRfpc91BcdKnienQ
+# inclusion: uptream
+# revision date: Wed, 24 Nov 2004 16:54:22 +0900
+# description: [PATCH] fix ELF exec with huge bss
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/23 08:00:49-02:00 barryn@pobox.com 
+#   [PATCH] Fix ELF exec with huge bss
+#   
+#   This is a 2.4.27-2.4.28 port of the following patch:
+#   
+#   http://linux.bkbits.net:8080/linux-2.5/cset@3ff112802L-9-rs0BbkozDnTnpch9w
+#   
+#   > [PATCH] fix ELF exec with huge bss
+#   >
+#   > From: Roland McGrath <roland@redhat.com>
+#   >
+#   > The following test program will crash every time if dynamically linked.
+#   > I think this bites all 32-bit platforms, including 32-bit executables on
+#   > 64-bit platforms that support them (and could in theory bite 64-bit
+#   > platforms with bss sizes beyond the bounds of comprehension).
+#   >
+#   >         volatile char hugebss[1080000000];
+#   >         main() { printf("%p..%p\n", &hugebss[0], &hugebss[sizeof hugebss]);
+#   >          system("cat /proc/$PPID/maps");
+#   >          hugebss[sizeof hugebss - 1] = 1;
+#   >          return 23;
+#   >         }
+#   >
+#   > The problem is that the kernel maps ld.so at 0x40000000 or some such place,
+#   > before it maps the bss.  Here the bss is so large that it overlaps and
+#   > clobbers that mapping.  I've changed it to map the bss before it loads the
+#   > interpreter, so that part of the address space is reserved before ld.so's
+#   > mapping (which doesn't really care where it goes) is done.
+#   >
+#   > This patch also adds error checking to the bss setup (and interpreter's bss
+#   > setup).  With the aforementioned change but no error checking, "ulimit -v
+#   > 65536; ./hugebss" will crash in the store after the `system' call, because
+#   > the kernel will have failed to allocate the bss and ignored the error, so
+#   > the program runs without those pages being mapped at all.  With this change
+#   > it dies with a SIGKILL as for a failure to set up stack pages.  It might be
+#   > even better to try to detect the case earlier so that execve can return an
+#   > error before it has wiped out the address space.  But that seems like it
+#   > would always be fragile and miss some corner cases, so I did not try to add
+#   > such complexity.
+#   
+#   Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+# 
+# fs/binfmt_elf.c
+#   2004/10/16 07:44:41-03:00 barryn@pobox.com +31 -14
+#   Fix ELF exec with huge bss
+# 
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	2004-11-24 16:39:40 +09:00
++++ b/fs/binfmt_elf.c	2004-11-24 16:39:40 +09:00
+@@ -79,13 +79,17 @@
+ 
+ #define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+ 
+-static void set_brk(unsigned long start, unsigned long end)
++static int set_brk(unsigned long start, unsigned long end)
+ {
+ 	start = ELF_PAGEALIGN(start);
+ 	end = ELF_PAGEALIGN(end);
+-	if (end <= start)
+-		return;
+-	do_brk(start, end - start);
++	if (end > start) {
++		unsigned long addr = do_brk(start, end - start);
++		if (BAD_ADDR(addr))
++			return addr;
++	}
++	current->mm->start_brk = current->mm->brk = end;
++	return 0;
+ }
+ 
+ 
+@@ -360,8 +364,11 @@
+ 	elf_bss = ELF_PAGESTART(elf_bss + ELF_MIN_ALIGN - 1);	/* What we have mapped so far */
+ 
+ 	/* Map the last of the bss segment */
+-	if (last_bss > elf_bss)
+-		do_brk(elf_bss, last_bss - elf_bss);
++	if (last_bss > elf_bss) {
++		error = do_brk(elf_bss, last_bss - elf_bss);
++		if (BAD_ADDR(error))
++			goto out_close;
++	}
+ 
+ 	*interp_load_addr = load_addr;
+ 	error = ((unsigned long) interp_elf_ex->e_entry) + load_addr;
+@@ -670,7 +677,12 @@
+ 			/* There was a PT_LOAD segment with p_memsz > p_filesz
+ 			   before this one. Map anonymous pages, if needed,
+ 			   and clear the area.  */
+-			set_brk (elf_bss + load_bias, elf_brk + load_bias);
++			retval = set_brk (elf_bss + load_bias,
++					  elf_brk + load_bias);
++			if (retval) {
++				send_sig(SIGKILL, current, 0);
++				goto out_free_dentry;
++			}
+ 			nbyte = ELF_PAGEOFFSET(elf_bss);
+ 			if (nbyte) {
+ 				nbyte = ELF_MIN_ALIGN - nbyte;
+@@ -737,6 +749,18 @@
+ 	start_data += load_bias;
+ 	end_data += load_bias;
+ 
++	/* Calling set_brk effectively mmaps the pages that we need
++	 * for the bss and break sections.  We must do this before
++	 * mapping in the interpreter, to make sure it doesn't wind
++	 * up getting placed where the bss needs to go.
++	 */
++	retval = set_brk(elf_bss, elf_brk);
++	if (retval) {
++		send_sig(SIGKILL, current, 0);
++		goto out_free_dentry;
++	}
++	padzero(elf_bss);
++
+ 	if (elf_interpreter) {
+ 		if (interpreter_type == INTERPRETER_AOUT)
+ 			elf_entry = load_aout_interp(&interp_ex,
+@@ -784,13 +808,6 @@
+ 	current->mm->start_data = start_data;
+ 	current->mm->end_data = end_data;
+ 	current->mm->start_stack = bprm->p;
+-
+-	/* Calling set_brk effectively mmaps the pages that we need
+-	 * for the bss and break sections
+-	 */
+-	set_brk(elf_bss, elf_brk);
+-
+-	padzero(elf_bss);
+ 
+ #if 0
+ 	printk("(start_brk) %lx\n" , (long) current->mm->start_brk);

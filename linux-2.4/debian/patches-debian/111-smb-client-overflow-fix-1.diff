@@ -1,0 +1,97 @@
+# origin: marcelo.tosatti (BitKeeper)
+# cset: 1.1482.2.8 (2.4) key=418e1b09MoAGAjd5ZLQzkiFiOkEfUw
+# inclusion: upstream
+# description: [PATCH] Urban Widmark: Fix smbfs client overflow
+# revision date: Fri, 26 Nov 2004 14:59:39 +0900
+#
+# S rset: ChangeSet|1.1482.2.7..1.1482.2.8
+# I rset: fs/smbfs/proc.c|1.16..1.17
+# I rset: fs/smbfs/sock.c|1.5..1.6
+# I rset: MAINTAINERS|1.149..1.150
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/07 10:54:33-02:00 marcelo.tosatti@cyclades.com 
+#   [PATCH] Urban Widmark: Fix smbfs client overflow
+#   
+#   Description by Stefan Esser:
+#   
+#   There exist two bugs in the handling of SMB responses that result
+#   in remote kernel overflows. Due to the nature of the bugs both seem
+#   to be very hard to exploit (in the sense of remote code execution
+#   or local privilege escalation) but are trivial remote kernel crashes.
+# 
+# fs/smbfs/sock.c
+#   2004/09/26 15:42:36-03:00 marcelo.tosatti@cyclades.com +3 -0
+#   Fix smbfs client overflow
+# 
+# fs/smbfs/proc.c
+#   2004/09/26 16:04:22-03:00 marcelo.tosatti@cyclades.com +8 -4
+#   Fix smbfs client overflow
+# 
+# MAINTAINERS
+#   2004/09/26 15:48:59-03:00 marcelo.tosatti@cyclades.com +2 -4
+#   Fix smbfs client overflow
+# 
+#
+===== fs/smbfs/proc.c 1.16 vs 1.17 =====
+--- 1.16/fs/smbfs/proc.c	2004-04-05 01:34:36 +09:00
++++ 1.17/fs/smbfs/proc.c	2004-09-27 04:04:22 +09:00
+@@ -1289,9 +1289,11 @@
+ 	data_len = WVAL(buf, 1);
+ 
+ 	/* we can NOT simply trust the data_len given by the server ... */
+-	if (data_len > server->packet_size - (buf+3 - server->packet)) {
++	if (data_len > count ||
++	    data_len > server->packet_size - (buf+3 - server->packet)) {
+ 		printk(KERN_ERR "smb_proc_read: invalid data length!! "
+-		       "%d > %d - (%p - %p)\n",
++		       "%d > %d || %d > %d - (%p - %p)\n",
++		       data_len, count,
+ 		       data_len, server->packet_size, buf+3, server->packet);
+ 		result = -EIO;
+ 		goto out;
+@@ -1378,9 +1380,11 @@
+ 	buf = smb_base(server->packet) + data_off;
+ 
+ 	/* we can NOT simply trust the info given by the server ... */
+-	if (data_len > server->packet_size - (buf - server->packet)) {
++	if (data_len > count ||
++	    data_len > server->packet_size - (buf - server->packet)) {
+ 		printk(KERN_ERR "smb_proc_read: invalid data length!! "
+-		       "%d > %d - (%p - %p)\n",
++		       "%d > %d || %d > %d - (%p - %p)\n",
++		       data_len, count,
+ 		       data_len, server->packet_size, buf, server->packet);
+ 		result = -EIO;
+ 		goto out;
+===== fs/smbfs/sock.c 1.5 vs 1.6 =====
+--- 1.5/fs/smbfs/sock.c	2002-08-16 07:32:43 +09:00
++++ 1.6/fs/smbfs/sock.c	2004-09-27 03:42:36 +09:00
+@@ -625,6 +625,9 @@
+ 		server->packet = rcv_buf;
+ 		rcv_buf = inbuf;
+ 	} else {
++		if (parm_len + data_len > buf_len)
++			goto out_data_grew;
++
+ 		PARANOIA("copying data, old size=%d, new size=%u\n",
+ 			 server->packet_size, buf_len);
+ 		memcpy(inbuf, rcv_buf, parm_len + data_len);
+===== MAINTAINERS 1.149 vs 1.150 =====
+--- 1.149/MAINTAINERS	2004-10-27 01:56:56 +09:00
++++ 1.150/MAINTAINERS	2004-09-27 03:48:59 +09:00
+@@ -1707,10 +1707,8 @@
+ 
+ SMB FILESYSTEM
+ P:	Urban Widmark
+-M:	urban@teststation.com
+-W:	http://samba.org/
+-L:	samba@samba.org
+-S:	Maintained
++M:	Urban.Widmark@enlight.net
++S:	Odd Fixes
+ 
+ SNA NETWORK LAYER
+ P:	Jay Schulist

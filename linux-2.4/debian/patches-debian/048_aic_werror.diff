@@ -1,0 +1,19 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not suitable for mainline
+# description: disable -Werror
+# revision date: 2004-09-03
+
+diff -urN kernel-source-2.4.26/drivers/scsi/aic7xxx/Makefile kernel-source-2.4.26-1/drivers/scsi/aic7xxx/Makefile
+--- kernel-source-2.4.26/drivers/scsi/aic7xxx/Makefile	2003-08-25 21:44:42.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/scsi/aic7xxx/Makefile	2003-09-06 07:10:34.000000000 +1000
+@@ -13,7 +13,7 @@
+ obj-$(CONFIG_SCSI_AIC79XX)	+= aic79xx.o
+ endif
+ 
+-EXTRA_CFLAGS += -I$(TOPDIR)/drivers/scsi -Werror
++EXTRA_CFLAGS += -I$(TOPDIR)/drivers/scsi
+ #EXTRA_CFLAGS += -g
+ 
+ # Platform Specific Files
+

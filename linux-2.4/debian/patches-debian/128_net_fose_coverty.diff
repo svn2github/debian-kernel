@@ -1,0 +1,23 @@
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/10 16:54:09-02:00 marcelo@logos.cnet 
+#   Alan Cox: rose_rt_ioctl lack of bounds checking, reported by Coverity (from 2.6.10-ac)
+# 
+# net/rose/rose_route.c
+#   2005/01/10 16:53:19-02:00 marcelo@logos.cnet +3 -0
+#   Alan Cox: Fix Coverity reported lack of bounds checking
+# 
+diff -Nru a/net/rose/rose_route.c b/net/rose/rose_route.c
+--- a/net/rose/rose_route.c	2005-01-13 08:39:30 -08:00
++++ b/net/rose/rose_route.c	2005-01-13 08:39:30 -08:00
+@@ -655,6 +655,9 @@
+ 			if (rose_route.mask > 10) /* Mask can't be more than 10 digits */
+ 				return -EINVAL;
+ 
++			if(rose_route.ndigis > 8) /* No more than 8 digipeats */
++				return -EINVAL;
++
+ 			err = rose_add_node(&rose_route, dev);
+ 			dev_put(dev);
+ 			return err;

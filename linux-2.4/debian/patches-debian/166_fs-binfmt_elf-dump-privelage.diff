@@ -1,0 +1,44 @@
+# origin: Horms <horms@debian.org>, 
+# cset: Backport of: .2139 (2.6) key=4282874aplNy__uGtYtIace0iYmemQ
+# URL: http://linux.bkbits.net:8080/linux-2.6/cset@4282874aplNy__uGtYtIace0iYmemQ
+# inclusion: backport from 2.6
+# descrition: [PATCH] fix Linux kernel ELF core dump privilege elevation
+# revision date: Thu, 12 May 2005 16:14:03 +0900
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/05/11 15:29:30-07:00 gregkh@suse.de 
+#   [PATCH] fix Linux kernel ELF core dump privilege elevation
+#   
+#   As reported by Paul Starzetz <ihaquer@isec.pl>
+#   
+#   Reference: CAN-2005-1263
+#   
+#   Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+# 
+# fs/binfmt_elf.c
+#   2005/05/11 11:15:50-07:00 gregkh@suse.de +2 -2
+#   fix Linux kernel ELF core dump privilege elevation
+# 
+#
+--- a/fs/binfmt_elf.c	2005-05-12 16:43:07.000000000 +0900
++++ b/fs/binfmt_elf.c	2005-05-12 16:47:09.000000000 +0900
+@@ -219,7 +219,7 @@
+ 	}
+ 
+ 	__put_user((elf_addr_t)argc,--sp);
+-	current->mm->arg_start = (unsigned long) p;
++	p = current->mm->arg_end = current->mm->arg_start = (unsigned long) p;
+ 	while (argc-->0) {
+ 		__put_user((elf_caddr_t)(unsigned long)p,argv++);
+ 		len = strnlen_user(p, PAGE_SIZE*MAX_ARG_PAGES);
+@@ -1145,7 +1145,7 @@
+ 	/* first copy the parameters from user space */
+ 	memset(&psinfo, 0, sizeof(psinfo));
+ 	{
+-		int i, len;
++		unsigned i, len;
+ 
+ 		len = current->mm->arg_end - current->mm->arg_start;
+ 		if (len >= ELF_PRARGSZ)

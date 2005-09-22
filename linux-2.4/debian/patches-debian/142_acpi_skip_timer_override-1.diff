@@ -1,0 +1,256 @@
+# origin: zwane (BitKeeper)
+# cset: 1.1554 (2.4) key=421f96736OO2In7XZESKGGPJrPuhqA
+# URL: http://linux.bkbits.net:8080/linux-2.4/cset@421f96736OO2In7XZESKGGPJrPuhqA
+# inclusion: upstream
+# descrition: [PATCH] Fix timer override on nforce
+# revision date: Wed, 23 Mar 2005 18:06:16 +0900
+#
+# S rset: ChangeSet|1.1553..1.1554
+# I rset: include/asm-i386/acpi.h|1.17..1.18
+# I rset: arch/i386/kernel/Makefile|1.9..1.10
+# I rset: include/asm-x86_64/acpi.h|1.14..1.15
+# I rset: arch/i386/kernel/acpi.c|1.33..1.34
+# I rset: arch/x86_64/kernel/io_apic.c|1.12..1.13
+# I rset: arch/x86_64/kernel/acpi.c|1.20..1.21
+# I rset: include/asm-i386/pci-direct.h|1.0..1.1
+# I rset: arch/i386/kernel/earlyquirk.c|1.0..1.1
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/25 18:19:47-03:00 zwane@arm.linux.org.uk 
+#   [PATCH] Fix timer override on nforce
+#   
+#   Per our discussion, i've ported the 2.6 nforce skip timer override (and
+#   early PCI access) code to 2.4. This fixes an issue whereupon nforce
+#   systems have incorrect override values for irq0. Architectures affected
+#   are i386 and x86_64
+#   
+#   Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+# 
+# include/asm-i386/pci-direct.h
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +1 -0
+#   Fix timer override on nforce
+# 
+# arch/i386/kernel/earlyquirk.c
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +53 -0
+#   Fix timer override on nforce
+# 
+# include/asm-x86_64/acpi.h
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +1 -0
+#   Fix timer override on nforce
+# 
+# include/asm-i386/pci-direct.h
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +0 -0
+#   BitKeeper file /home/marcelo/bk/linux-2.4/include/asm-i386/pci-direct.h
+# 
+# include/asm-i386/acpi.h
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +2 -0
+#   Fix timer override on nforce
+# 
+# arch/x86_64/kernel/io_apic.c
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +7 -3
+#   Fix timer override on nforce
+# 
+# arch/x86_64/kernel/acpi.c
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +7 -0
+#   Fix timer override on nforce
+# 
+# arch/i386/kernel/earlyquirk.c
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +0 -0
+#   BitKeeper file /home/marcelo/bk/linux-2.4/arch/i386/kernel/earlyquirk.c
+# 
+# arch/i386/kernel/acpi.c
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +9 -0
+#   Fix timer override on nforce
+# 
+# arch/i386/kernel/Makefile
+#   2005/02/18 11:53:58-03:00 zwane@arm.linux.org.uk +1 -1
+#   Fix timer override on nforce
+# 
+#
+===== include/asm-i386/acpi.h 1.17 vs 1.18 =====
+--- 1.17/include/asm-i386/acpi.h	2004-05-07 05:59:18 +09:00
++++ 1.18/include/asm-i386/acpi.h	2005-02-18 23:53:58 +09:00
+@@ -121,6 +121,8 @@ extern int acpi_ioapic;
+ extern int acpi_strict;
+ extern int acpi_disabled;
+ extern int acpi_ht;
++extern int acpi_skip_timer_override;
++void __init check_acpi_pci(void);
+ static inline void disable_acpi(void) 
+ { 
+ 	acpi_disabled = 1;
+===== arch/i386/kernel/Makefile 1.9 vs 1.10 =====
+--- 1.9/arch/i386/kernel/Makefile	2003-09-13 18:13:04 +09:00
++++ 1.10/arch/i386/kernel/Makefile	2005-02-18 23:53:58 +09:00
+@@ -40,7 +40,7 @@ obj-$(CONFIG_ACPI_BOOT)		+= acpi.o
+ obj-$(CONFIG_ACPI_SLEEP)	+= acpi_wakeup.o
+ obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
+-obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
++obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o earlyquirk.o
+ obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
+ obj-$(CONFIG_EDD)             	+= edd.o
+ 
+===== include/asm-x86_64/acpi.h 1.14 vs 1.15 =====
+--- 1.14/include/asm-x86_64/acpi.h	2004-05-07 05:59:18 +09:00
++++ 1.15/include/asm-x86_64/acpi.h	2005-02-18 23:53:58 +09:00
+@@ -118,6 +118,7 @@ extern int acpi_ioapic;
+ extern int acpi_strict;
+ extern int acpi_disabled;
+ extern int acpi_ht;
++extern int acpi_skip_timer_override;
+ static inline void disable_acpi(void) 
+ { 
+ 	acpi_disabled = 1;
+===== arch/i386/kernel/acpi.c 1.33 vs 1.34 =====
+--- 1.33/arch/i386/kernel/acpi.c	2004-09-15 05:27:58 +09:00
++++ 1.34/arch/i386/kernel/acpi.c	2005-02-18 23:53:58 +09:00
+@@ -55,6 +55,7 @@ int acpi_strict;
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ /* --------------------------------------------------------------------------
+                               Boot-time Configuration
+    -------------------------------------------------------------------------- */
+@@ -320,6 +321,12 @@ acpi_parse_int_src_ovr (
+ 		return 0;
+ 	}
+ 
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++		printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
++		return 0;
++	}
++
+ 	mp_override_legacy_irq (
+ 		intsrc->bus_irq,
+ 		intsrc->flags.polarity,
+@@ -433,6 +440,8 @@ acpi_boot_init (void)
+ 		return result;
+ 	}
+ 
++	check_acpi_pci();
++	
+ 	result = acpi_blacklisted();
+ 	if (result) {
+ 		printk(KERN_NOTICE PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
+===== arch/x86_64/kernel/io_apic.c 1.12 vs 1.13 =====
+--- 1.12/arch/x86_64/kernel/io_apic.c	2004-05-15 12:08:07 +09:00
++++ 1.13/arch/x86_64/kernel/io_apic.c	2005-02-18 23:53:58 +09:00
+@@ -259,10 +259,14 @@ void __init check_ioapic(void) 
+ 				case PCI_VENDOR_ID_VIA:
+ 					return;
+ 				case PCI_VENDOR_ID_NVIDIA: 
++#ifdef CONFIG_ACPI
++				/* All timer overrides on Nvidia
++				   seem to be wrong. Skip them. */
++					acpi_skip_timer_override = 1;
+ 					printk(KERN_INFO 
+-     "PCI bridge %02x:%02x from %x found. Setting \"noapic\". Overwrite with \"apic\"\n",
+-					       num,slot,vendor); 
+-					skip_ioapic_setup = 1;
++			"Nvidia board detected. Ignoring ACPI timer override.\n");
++#endif
++					/* RED-PEN skip them on mptables too? */
+ 					return;
+ 				} 
+ 
+===== arch/x86_64/kernel/acpi.c 1.20 vs 1.21 =====
+--- 1.20/arch/x86_64/kernel/acpi.c	2004-05-07 06:30:26 +09:00
++++ 1.21/arch/x86_64/kernel/acpi.c	2005-02-18 23:53:58 +09:00
+@@ -53,6 +53,7 @@ int acpi_strict;
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ /* --------------------------------------------------------------------------
+                               Boot-time Configuration
+    -------------------------------------------------------------------------- */
+@@ -330,6 +331,12 @@ acpi_parse_int_src_ovr (
+ 	if (intsrc->bus_irq == acpi_fadt.sci_int) {
+ 		acpi_sci_ioapic_setup(intsrc->global_irq,
+ 			intsrc->flags.polarity, intsrc->flags.trigger);
++		return 0;
++	}
++
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++		printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
+ 		return 0;
+ 	}
+ 
+===== include/asm-i386/pci-direct.h 1.0 vs 1.1 =====
+--- /dev/null	2004-10-08 15:20:27 +09:00
++++ 1.1/include/asm-i386/pci-direct.h	2005-02-18 23:53:58 +09:00
+@@ -0,0 +1 @@
++#include "asm-x86_64/pci-direct.h"
+===== arch/i386/kernel/earlyquirk.c 1.0 vs 1.1 =====
+--- /dev/null	2004-10-08 15:20:27 +09:00
++++ 1.1/arch/i386/kernel/earlyquirk.c	2005-02-18 23:53:58 +09:00
+@@ -0,0 +1,53 @@
++/* 
++ * Do early PCI probing for bug detection when the main PCI subsystem is 
++ * not up yet.
++ */
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/pci.h>
++#include <asm/pci-direct.h>
++#include <asm/acpi.h>
++
++#ifdef CONFIG_ACPI
++static int __init check_bridge(int vendor, int device) 
++{
++	/* According to Nvidia all timer overrides are bogus. Just ignore
++	   them all. */
++	if (vendor == PCI_VENDOR_ID_NVIDIA) { 
++		acpi_skip_timer_override = 1; 		
++	}
++	return 0;
++}
++   
++void __init check_acpi_pci(void) 
++{ 
++	int num,slot,func; 
++
++	/* Assume the machine supports type 1. If not it will 
++	   always read ffffffff and should not have any side effect. */
++
++	/* Poor man's PCI discovery */
++	for (num = 0; num < 32; num++) { 
++		for (slot = 0; slot < 32; slot++) { 
++			for (func = 0; func < 8; func++) { 
++				u32 class;
++				u32 vendor;
++				class = read_pci_config(num,slot,func,
++							PCI_CLASS_REVISION);
++				if (class == 0xffffffff)
++					break; 
++
++				if ((class >> 16) != PCI_CLASS_BRIDGE_PCI)
++					continue; 
++				
++				vendor = read_pci_config(num, slot, func, 
++							 PCI_VENDOR_ID);
++				
++				if (check_bridge(vendor&0xffff, vendor >> 16))
++					return; 
++			} 
++			
++		}
++	}
++}
++#endif /* CONFIG_ACPI */

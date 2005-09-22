@@ -1,0 +1,252 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not suitable for mainline
+# description: superseded by 080-083
+# revision date: 2004-09-04
+
+--- linux-2.4.27/drivers/ide/Config.in	2004-08-08 01:26:04.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/Config.in	2004-08-12 00:35:30.519655788 +0200
+@@ -27,13 +27,13 @@
+ 
+    comment 'IDE chipset support/bugfixes'
+    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
+-      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
+-      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
+-      dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
++      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_BLK_DEV_IDE $CONFIG_X86
++      dep_mbool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
++      dep_tristate '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_BLK_DEV_IDE $CONFIG_ISAPNP
+       if [ "$CONFIG_PCI" = "y" ]; then
+ 	 bool '  PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
+ 	 if [ "$CONFIG_BLK_DEV_IDEPCI" = "y" ]; then
+-	    dep_bool '    Generic PCI IDE Chipset Support' CONFIG_BLK_DEV_GENERIC $CONFIG_BLK_DEV_IDEPCI
++	    dep_tristate '    Generic PCI IDE Chipset Support' CONFIG_BLK_DEV_GENERIC $CONFIG_BLK_DEV_IDE
+ 	    bool '    Sharing PCI IDE interrupts support' CONFIG_IDEPCI_SHARE_IRQ
+ 	    bool '    Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    bool '    Boot off-board chipsets first support' CONFIG_BLK_DEV_OFFBOARD
+@@ -43,43 +43,43 @@
+ 	    define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_bool '      ATA Work(s) In Progress (EXPERIMENTAL)' CONFIG_IDEDMA_PCI_WIP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
+ #	    dep_bool '      Good-Bad DMA Model-Firmware (WIP)' CONFIG_IDEDMA_NEW_DRIVE_LISTINGS $CONFIG_IDEDMA_PCI_WIP
+-            dep_tristate '    Pacific Digital ADMA-100 basic support' CONFIG_BLK_DEV_ADMA100 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    AEC62XX chipset support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 $CONFIG_BLK_DEV_IDEDMA_PCI
++            dep_tristate '    Pacific Digital ADMA-100 basic support' CONFIG_BLK_DEV_ADMA100 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    AEC62XX chipset support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_mbool    '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3
+-	    dep_tristate '    AMD and nVidia IDE support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    AMD and nVidia IDE support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_mbool    '      AMD Viper ATA-66 Override' CONFIG_AMD74XX_OVERRIDE $CONFIG_BLK_DEV_AMD74XX
+-	    dep_tristate '    ATI IXP chipset IDE support' CONFIG_BLK_DEV_ATIIXP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
+-	    dep_tristate '    CMD64{3|6|8|9} chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    Compaq Triflex IDE support' CONFIG_BLK_DEV_TRIFLEX $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    CY82C693 chipset support' CONFIG_BLK_DEV_CY82C693 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    Cyrix CS5530 MediaGX chipset support' CONFIG_BLK_DEV_CS5530 $CONFIG_BLK_DEV_IDEDMA_PCI
+-  	    dep_tristate '    HPT34X chipset support' CONFIG_BLK_DEV_HPT34X $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    ATI IXP chipset IDE support' CONFIG_BLK_DEV_ATIIXP $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
++	    dep_tristate '    CMD64{3|6|8|9} chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Compaq Triflex IDE support' CONFIG_BLK_DEV_TRIFLEX $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    CY82C693 chipset support' CONFIG_BLK_DEV_CY82C693 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Cyrix CS5530 MediaGX chipset support' CONFIG_BLK_DEV_CS5530 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++  	    dep_tristate '    HPT34X chipset support' CONFIG_BLK_DEV_HPT34X $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_mbool    '      HPT34X AUTODMA support (WIP)' CONFIG_HPT34X_AUTODMA $CONFIG_BLK_DEV_HPT34X $CONFIG_IDEDMA_PCI_WIP
+-	    dep_tristate '    HPT36X/37X chipset support' CONFIG_BLK_DEV_HPT366 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    Intel PIIXn chipsets support' CONFIG_BLK_DEV_PIIX $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    HPT36X/37X chipset support' CONFIG_BLK_DEV_HPT366 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Intel PIIXn chipsets support' CONFIG_BLK_DEV_PIIX $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    if [ "$CONFIG_MIPS_ITE8172" = "y" -o "$CONFIG_MIPS_IVR" = "y" ]; then
+ 	       dep_mbool '    IT8172 IDE support' CONFIG_BLK_DEV_IT8172 $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    fi
+-	    dep_tristate '    NS87415 chipset support' CONFIG_BLK_DEV_NS87415 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    OPTi 82C621 chipset enhanced support (EXPERIMENTAL)' CONFIG_BLK_DEV_OPTI621 $CONFIG_EXPERIMENTAL
+-	    dep_tristate '    Promise PDC202{46|62|65|67} support' CONFIG_BLK_DEV_PDC202XX_OLD $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    NS87415 chipset support' CONFIG_BLK_DEV_NS87415 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    OPTi 82C621 chipset enhanced support (EXPERIMENTAL)' CONFIG_BLK_DEV_OPTI621 $CONFIG_BLK_DEV_IDE $CONFIG_EXPERIMENTAL
++	    dep_tristate '    Promise PDC202{46|62|65|67} support' CONFIG_BLK_DEV_PDC202XX_OLD $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_mbool     '      Force (U)DMA burst transfers' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX_OLD
+-	    dep_tristate '    Promise PDC202{68|69|70|71|75|76|77} support' CONFIG_BLK_DEV_PDC202XX_NEW $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Promise PDC202{68|69|70|71|75|76|77} support' CONFIG_BLK_DEV_PDC202XX_NEW $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    if [ "$CONFIG_BLK_DEV_PDC202XX_OLD" = "y" -o "$CONFIG_BLK_DEV_PDC202XX_OLD" = "m" -o "$CONFIG_BLK_DEV_PDC202XX_NEW" = "y" -o "$CONFIG_BLK_DEV_PDC202XX_NEW" = "m" ]; then
+ 	        bool     '    Ignore BIOS port disabled setting on FastTrak' CONFIG_PDC202XX_FORCE
+ 	    fi
+-	    dep_tristate '    RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000 $CONFIG_X86
+-	    dep_tristate '    SCx200 chipset support' CONFIG_BLK_DEV_SC1200 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    ServerWorks OSB4/CSB5/CSB6 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000 $CONFIG_BLK_DEV_IDE $CONFIG_X86
++	    dep_tristate '    SCx200 chipset support' CONFIG_BLK_DEV_SC1200 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    ServerWorks OSB4/CSB5/CSB6 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    if [ "$CONFIG_IA64_GENERIC" = "y" -o "$CONFIG_IA64_SGI_SN2" = "y" ] ; then
+-		dep_tristate '    SGI IOC4 chipset support' CONFIG_BLK_DEV_SGIIOC4 $CONFIG_BLK_DEV_IDEDMA_PCI
++		dep_tristate '    SGI IOC4 chipset support' CONFIG_BLK_DEV_SGIIOC4 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    fi
+-	    dep_tristate '    Silicon Image chipset support' CONFIG_BLK_DEV_SIIMAGE $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
+-	    dep_tristate '    SLC90E66 chipset support' CONFIG_BLK_DEV_SLC90E66 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    Tekram TRM290 chipset support' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	    dep_tristate '    VIA82CXXX chipset support' CONFIG_BLK_DEV_VIA82CXXX $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Silicon Image chipset support' CONFIG_BLK_DEV_SIIMAGE $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
++	    dep_tristate '    SLC90E66 chipset support' CONFIG_BLK_DEV_SLC90E66 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    Tekram TRM290 chipset support' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
++	    dep_tristate '    VIA82CXXX chipset support' CONFIG_BLK_DEV_VIA82CXXX $CONFIG_BLK_DEV_IDE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    if [ "$CONFIG_PPC" = "y" -o "$CONFIG_ARM" = "y" ]; then
+ 	       dep_tristate '    Winbond SL82c105 support' CONFIG_BLK_DEV_SL82C105 $CONFIG_BLK_DEV_IDEPCI
+ 	    fi
+--- linux-2.4.27/drivers/ide/ide-proc.c	2004-04-14 15:05:29.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/ide-proc.c	2004-08-11 23:52:58.000000000 +0200
+@@ -895,6 +895,16 @@
+ EXPORT_SYMBOL(destroy_proc_ide_interfaces);
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
++static inline void create_pci_proc_entry(ide_pci_host_proc_t *p)
++{
++	if (p->name == NULL || p->set != 1 || p->get_info == NULL) 
++		return;
++
++	p->parent = proc_ide_root;
++	create_proc_info_entry(p->name, 0, p->parent, p->get_info);
++	p->set = 2;
++}
++
+ void ide_pci_register_host_proc (ide_pci_host_proc_t *p)
+ {
+ 	ide_pci_host_proc_t *tmp;
+@@ -908,6 +918,9 @@
+ 		tmp->next = p;
+ 	} else
+ 		ide_pci_host_proc_list = p;
++
++	if (proc_ide_root)
++		create_pci_proc_entry(p);
+ }
+ 
+ EXPORT_SYMBOL(ide_pci_register_host_proc);
+@@ -931,12 +944,7 @@
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+ 	while (p != NULL)
+ 	{
+-		if (p->name != NULL && p->set == 1 && p->get_info != NULL) 
+-		{
+-			p->parent = proc_ide_root;
+-			create_proc_info_entry(p->name, 0, p->parent, p->get_info);
+-			p->set = 2;
+-		}
++		create_pci_proc_entry(p);
+ 		p = p->next;
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEPCI */
+--- linux-2.4.27/drivers/ide/ide.c	2004-08-08 01:26:04.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/ide.c	2004-08-11 23:52:58.000000000 +0200
+@@ -172,7 +172,7 @@
+ static int system_bus_speed;	/* holds what we think is VESA/PCI bus speed */
+ static int initializing;	/* set while initializing built-in drivers */
+ 
+-static int ide_scan_direction;	/* THIS was formerly 2.2.x pci=reverse */
++int ide_scan_direction;		/* THIS was formerly 2.2.x pci=reverse */
+ 
+ #ifdef CONFIG_IDEDMA_AUTO
+ int noautodma = 0;
+@@ -2489,12 +2489,9 @@
+  */
+ static void __init probe_for_hwifs (void)
+ {
+-#ifdef CONFIG_BLK_DEV_IDEPCI
+-	if (pci_present())
+-	{
+-		ide_scan_pcibus(ide_scan_direction);
+-	}
+-#endif /* CONFIG_BLK_DEV_IDEPCI */
++#if defined(CONFIG_BLK_DEV_IDEPCI) && !defined(MODULE)
++	ide_scan_pcibus();
++#endif /* CONFIG_BLK_DEV_IDEPCI && !MODULE */
+ 	ide_scan_drivers();
+ 
+ 	/*
+--- linux-2.4.27/drivers/ide/pci/atiixp.c	2004-04-14 15:05:29.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/pci/atiixp.c	2004-08-11 23:52:58.000000000 +0200
+@@ -494,6 +494,7 @@
+ 	if (dev->device != d->device)
+ 		BUG();
+ 	ide_setup_pci_device(dev, d);
++	MOD_INC_USE_COUNT;
+ 	return 0;
+ }
+ 
+@@ -513,7 +514,13 @@
+ 	return ide_pci_register_driver(&driver);
+ }
+ 
++static void __exit atiixp_ide_exit(void)
++{
++	ide_pci_unregister_driver(&driver);
++}
++
+ module_init(atiixp_ide_init);
++module_exit(atiixp_ide_exit);
+ 
+ MODULE_AUTHOR("HUI YU");
+ MODULE_DESCRIPTION("PCI driver module for ATI IXP IDE");
+--- linux-2.4.27/drivers/ide/setup-pci.c	2003-08-25 13:44:41.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/setup-pci.c	2004-08-11 23:52:58.000000000 +0200
+@@ -793,21 +793,23 @@
+ 
+ /**
+  *	ide_scan_pcibus		-	perform the initial IDE driver scan
+- *	@scan_direction: set for reverse order scanning
+  *
+  *	Perform the initial bus rather than driver ordered scan of the
+  *	PCI drivers. After this all IDE pci handling becomes standard
+  *	module ordering not traditionally ordered.
+  */
+  	
+-void __init ide_scan_pcibus (int scan_direction)
++void __init ide_scan_pcibus(void)
+ {
+ 	struct pci_dev *dev;
+ 	struct pci_driver *d;
+ 	struct list_head *l, *n;
+ 
++	if (!pci_present() || !pre_init)
++		return;
++
+ 	pre_init = 0;
+-	if (!scan_direction) {
++	if (!ide_scan_direction) {
+ 		pci_for_each_dev(dev) {
+ 			ide_scan_pcidev(dev);
+ 		}
+@@ -829,3 +831,5 @@
+ 		pci_register_driver(d);
+ 	}
+ }
++
++EXPORT_SYMBOL_GPL(ide_scan_pcibus);
+--- linux-2.4.27/include/linux/ide.h	2004-04-14 15:05:40.000000000 +0200
++++ linux-2.4.27+debian/include/linux/ide.h	2004-08-11 23:52:58.000000000 +0200
+@@ -1254,6 +1255,7 @@
+ 
+ #endif
+ extern int noautodma;
++extern int ide_scan_direction;
+ 
+ /*
+  * We need blk.h, but we replace its end_request by our own version.
+@@ -1614,7 +1616,7 @@
+ extern int idescsi_attach(ide_drive_t *);
+ extern int idescsi_init(void);
+ 
+-extern void ide_scan_pcibus(int scan_direction) __init;
++extern void ide_scan_pcibus(void) __init;
+ extern int ide_pci_register_driver(struct pci_driver *driver);
+ extern void ide_pci_unregister_driver(struct pci_driver *driver);
+ 
+@@ -1749,6 +1751,8 @@
+ typedef void (*ide_driver_call)(void);
+ extern void __init ide_register_driver(ide_driver_call);
+ 
++extern void ide_driver_module(int revaldiate);
++
+ /* ide locks for 2.4 */
+ 
+ #define ide_lock		(io_request_lock)

@@ -1,0 +1,30 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: add exit function for atiixp for modular operation
+# revision date: 2004-09-04
+
+--- linux-2.4.27/drivers/ide/pci/atiixp.c	2004-04-14 15:05:29.000000000 +0200
++++ linux-2.4.27+debian/drivers/ide/pci/atiixp.c	2004-08-11 23:52:58.000000000 +0200
+@@ -494,6 +494,7 @@
+ 	if (dev->device != d->device)
+ 		BUG();
+ 	ide_setup_pci_device(dev, d);
++	MOD_INC_USE_COUNT;
+ 	return 0;
+ }
+ 
+@@ -513,7 +514,13 @@
+ 	return ide_pci_register_driver(&driver);
+ }
+ 
++static void __exit atiixp_ide_exit(void)
++{
++	ide_pci_unregister_driver(&driver);
++}
++
+ module_init(atiixp_ide_init);
++module_exit(atiixp_ide_exit);
+ 
+ MODULE_AUTHOR("HUI YU");
+ MODULE_DESCRIPTION("PCI driver module for ATI IXP IDE");

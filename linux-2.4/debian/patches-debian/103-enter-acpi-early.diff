@@ -1,0 +1,213 @@
+# origin: len.brown (BitKeeper)
+# cset: 1.1458.1.1 (2.4) key=412bff64m04mAwQ5oNVoKpGr6RxuFA
+# inclusion: upstream
+# description: [ACPI] Enter ACPI mode earlier
+# revision date: Fri, 26 Nov 2004 14:59:38 +0900
+#
+# S rset: ChangeSet|1.1458..1.1458.1.1
+# I rset: drivers/acpi/osl.c|1.30..1.31
+# I rset: init/main.c|1.30..1.31
+# I rset: arch/i386/kernel/dmi_scan.c|1.44..1.45
+# I rset: drivers/acpi/bus.c|1.30..1.31
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/24 22:54:28-04:00 len.brown@intel.com 
+#   [ACPI] Enter ACPI mode earlier
+#   Fixes two common boot failures due to buggy SMM BIOS code
+#   
+#   SMP boot crash if SMI_CMD=ACPI written from CPU1
+#   http://bugzilla.kernel.org/show_bug.cgi?id=2941
+#   
+#   laptop crash due to LAPIC timer before SMI_CMD=ACPI
+#   http://bugzilla.kernel.org/show_bug.cgi?id=1269
+# 
+# init/main.c
+#   2004/08/24 22:54:26-04:00 len.brown@intel.com +6 -0
+#   acpi_early_init()
+# 
+# drivers/acpi/osl.c
+#   2004/08/24 22:54:26-04:00 len.brown@intel.com +6 -0
+#   defer acpi_os_initialize() to acpi_os_initialize1()
+# 
+# drivers/acpi/bus.c
+#   2004/08/24 22:54:26-04:00 len.brown@intel.com +32 -6
+#   add acpi_early_init()
+# 
+# arch/i386/kernel/dmi_scan.c
+#   2004/08/24 22:54:26-04:00 len.brown@intel.com +0 -40
+#   delete local_apic_kills_bios()
+# 
+#
+===== drivers/acpi/osl.c 1.30 vs 1.31 =====
+--- 1.30/drivers/acpi/osl.c	2004-03-27 09:27:44 +09:00
++++ 1.31/drivers/acpi/osl.c	2004-08-25 11:54:26 +09:00
+@@ -72,6 +72,12 @@
+ acpi_status
+ acpi_os_initialize(void)
+ {
++	return AE_OK;
++}
++
++acpi_status
++acpi_os_initialize1(void)
++{
+ 	/*
+ 	 * Initialize PCI configuration space access, as we'll need to access
+ 	 * it while walking the namespace (bus 0 and root bridges w/ _BBNs).
+===== init/main.c 1.30 vs 1.31 =====
+--- 1.30/init/main.c	2003-08-31 01:50:15 +09:00
++++ 1.31/init/main.c	2004-08-25 11:54:26 +09:00
+@@ -101,6 +101,11 @@
+ extern int init_pcmcia_ds(void);
+ 
+ extern void free_initmem(void);
++#ifdef  CONFIG_ACPI_BOOT
++extern void acpi_early_init(void);
++#else
++static inline acpi_early_init() { }
++#endif
+ 
+ #ifdef CONFIG_TC
+ extern void tc_init(void);
+@@ -426,6 +431,7 @@
+ 	proc_root_init();
+ #endif
+ 	check_bugs();
++	acpi_early_init(); /* before LAPIC and SMP init */
+ 	printk("POSIX conformance testing by UNIFIX\n");
+ 
+ 	/* 
+===== arch/i386/kernel/dmi_scan.c 1.44 vs 1.45 =====
+--- 1.44/arch/i386/kernel/dmi_scan.c	2004-06-01 08:00:20 +09:00
++++ 1.45/arch/i386/kernel/dmi_scan.c	2004-08-25 11:54:26 +09:00
+@@ -328,26 +328,6 @@
+ }
+ 
+ /*
+- * Some machines, usually laptops, can't handle an enabled local APIC.
+- * The symptoms include hangs or reboots when suspending or resuming,
+- * attaching or detaching the power cord, or entering BIOS setup screens
+- * through magic key sequences.
+- */
+-static int __init local_apic_kills_bios(struct dmi_blacklist *d)
+-{
+-#ifdef CONFIG_X86_LOCAL_APIC
+-	extern int enable_local_apic;
+-	if (enable_local_apic == 0) {
+-		enable_local_apic = -1;
+-		printk(KERN_WARNING "%s with broken BIOS detected. "
+-		       "Refusing to enable the local APIC.\n",
+-		       d->ident);
+-	}
+-#endif
+-	return 0;
+-}
+-
+-/*
+  *  Check for clue free BIOS implementations who use
+  *  the following QA technique
+  *
+@@ -790,26 +770,6 @@
+ 			MATCH(DMI_BIOS_VERSION, "07.00T"),
+ 			MATCH(DMI_SYS_VENDOR, "Higraded"),
+ 			MATCH(DMI_PRODUCT_NAME, "P14H")
+-			} },
+-
+-	/* Machines which have problems handling enabled local APICs */
+-
+-	{ local_apic_kills_bios, "Dell Inspiron", {
+-			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+-			MATCH(DMI_PRODUCT_NAME, "Inspiron"),
+-			NO_MATCH, NO_MATCH
+-			} },
+-
+-	{ local_apic_kills_bios, "Dell Latitude", {
+-			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+-			MATCH(DMI_PRODUCT_NAME, "Latitude"),
+-			NO_MATCH, NO_MATCH
+-			} },
+-
+-	{ local_apic_kills_bios, "IBM Thinkpad T20", {
+-			MATCH(DMI_BOARD_VENDOR, "IBM"),
+-			MATCH(DMI_BOARD_NAME, "264741U"),
+-			NO_MATCH, NO_MATCH
+ 			} },
+ 
+ 	{ init_ints_after_s1, "Toshiba Satellite 4030cdt", { /* Reinitialization of 8259 is needed after S1 resume */
+===== drivers/acpi/bus.c 1.30 vs 1.31 =====
+--- 1.30/drivers/acpi/bus.c	2004-05-20 16:27:15 +09:00
++++ 1.31/drivers/acpi/bus.c	2004-08-25 11:54:26 +09:00
+@@ -1844,10 +1844,9 @@
+ }
+ 
+ 
+-static int __init
+-acpi_bus_init (void)
++void __init
++acpi_early_init (void)
+ {
+-	int			result = 0;
+ 	acpi_status		status = AE_OK;
+ 	struct acpi_buffer	buffer = {sizeof(acpi_fadt), &acpi_fadt};
+ 
+@@ -1871,7 +1870,7 @@
+ 	status = acpi_get_table(ACPI_TABLE_FADT, 1, &buffer);
+ 	if (ACPI_FAILURE(status)) {
+ 		printk(KERN_ERR PREFIX "Unable to get the FADT\n");
+-		goto error1;
++		goto error0;
+ 	}
+ 
+ #ifdef CONFIG_X86
+@@ -1894,12 +1893,40 @@
+ 	}
+ #endif
+ 
+-	status = acpi_enable_subsystem(ACPI_FULL_INITIALIZATION);
++	status = acpi_enable_subsystem(~(ACPI_NO_HARDWARE_INIT | ACPI_NO_ACPI_ENABLE));
++	if (ACPI_FAILURE(status)) {
++		printk(KERN_ERR PREFIX "Unable to enable ACPI\n");
++		goto error0;
++	}
++
++	return;
++
++error0:
++	disable_acpi();
++	return;
++}
++
++static int __init
++acpi_bus_init (void)
++{
++	int			result = 0;
++	acpi_status		status = AE_OK;
++	extern acpi_status	acpi_os_initialize1(void);
++
++	ACPI_FUNCTION_TRACE("acpi_bus_init");
++
++	status = acpi_os_initialize1();
++
++	status = acpi_enable_subsystem(ACPI_NO_HARDWARE_INIT | ACPI_NO_ACPI_ENABLE);
+ 	if (ACPI_FAILURE(status)) {
+ 		printk(KERN_ERR PREFIX "Unable to start the ACPI Interpreter\n");
+ 		goto error1;
+ 	}
+ 
++	if (ACPI_FAILURE(status)) {
++		printk(KERN_ERR PREFIX "Unable to initialize ACPI OS objects\n");
++		goto error1;
++	}
+ #ifdef CONFIG_ACPI_EC
+ 	/*
+ 	 * ACPI 2.0 requires the EC driver to be loaded and work before
+@@ -1992,7 +2019,6 @@
+ 		ACPI_SYSTEM_NOTIFY, &acpi_bus_notify);
+ error1:
+ 	acpi_terminate();
+-error0:
+ 	return_VALUE(-ENODEV);
+ }
+ 

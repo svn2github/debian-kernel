@@ -1,0 +1,101 @@
+# origin: len.brown (BitKeeper)
+# cset: 1.1359.6.16 (2.4) key=409aa728UHRpewvye143Qs7cY5xn2Q
+# URL: http://linux.bkbits.net:8080/linux-2.4/gnupatch@409aa728UHRpewvye143Qs7cY5xn2Q
+# inclusion: upstream
+# descrition: Enhanced PCI probe (David Shaohua Li)
+# revision date: Thu, 24 Feb 2005 13:54:46 +0900
+#
+# S rset: ChangeSet|1.1359.6.15..1.1359.6.16
+# I rset: drivers/acpi/pci_root.c|1.7..1.8
+# D rset: include/asm-i386/acpi.h|1.16..1.17
+# D rset: arch/x86_64/kernel/setup.c|1.12..1.13
+# D rset: arch/x86_64/kernel/e820.c|1.20..1.21
+# D rset: drivers/acpi/bus.c|1.27..1.28
+# D rset: arch/x86_64/kernel/pci-pc.c|1.8..1.9
+# D rset: include/asm-x86_64/acpi.h|1.13..1.14
+# D rset: arch/i386/kernel/acpi.c|1.29..1.30
+# D rset: arch/x86_64/kernel/acpi.c|1.17..1.19
+# D rset: Documentation/kernel-parameters.txt|1.15..1.16
+#
+# Key:
+# S: Skipped  ChangeSet file only
+# O: Original Followed by Updated
+# U: Updated  Included with updated range of versions
+# I: Included Included verbatim
+# E: Excluded Excluded on request from user
+# D: Deleted  Manually deleted by subsequent user edit
+# R: Revised  Manually revised by subsequent user edit
+#
+#
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/06 16:59:20-04:00 len.brown@intel.com 
+#   [ACPI] enhance "pci=noacpi" to skip PCI probe (David Shaohua Li)
+#   add "acpi=noirq" to just disable IRQ config
+#   http://bugzilla.kernel.org/show_bug.cgi?id=1662
+# 
+# include/asm-x86_64/acpi.h
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +25 -16
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# include/asm-i386/acpi.h
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +23 -13
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# drivers/acpi/pci_root.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +9 -0
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# drivers/acpi/bus.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +4 -2
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/x86_64/kernel/setup.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +2 -5
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/x86_64/kernel/pci-pc.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +1 -1
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/x86_64/kernel/e820.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +3 -3
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/x86_64/kernel/acpi.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +4 -1
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/i386/kernel/acpi.c
+#   2004/05/06 16:59:18-04:00 len.brown@intel.com +4 -1
+#   enhance pci=noacpi to skip PCI probe, use acpi=noirq to just disable IRQ config
+# 
+# arch/x86_64/kernel/acpi.c
+#   2004/05/05 02:20:28-04:00 len.brown@intel.com +4 -1
+#   CONFIG_HPET_TIMER for build warning
+# 
+# Documentation/kernel-parameters.txt
+#   2004/05/04 16:35:45-04:00 len.brown@intel.com +3 -2
+#   add acpi=noirq
+# 
+#
+===== drivers/acpi/pci_root.c =====
+diff -pruN ./drivers/acpi/pci_root.c.orig ./drivers/acpi/pci_root.c
+--- ./drivers/acpi/pci_root.c.orig	2004-08-08 08:26:04.000000000 +0900
++++ ./drivers/acpi/pci_root.c	2005-02-24 16:26:22.000000000 +0900
+@@ -223,6 +223,14 @@ acpi_pci_root_add (
+ 	/* Some systems have wrong _BBN */
+ 	list_for_each_entry(tmp, &acpi_pci_roots, node) {
+ 		if ((tmp->id.segment == root->id.segment)
++				&& (tmp->id.bus == root->id.bus))
++			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, 
++				"Wrong _BBN value, please reboot and using option 'pci=noacpi'\n"));
++	}
++
++	/* Some systems have wrong _BBN */
++	list_for_each_entry(tmp, &acpi_pci_roots, node) {
++		if ((tmp->id.segment == root->id.segment)
+ 				&& (tmp->id.bus == root->id.bus)) {
+ 			int bus = 0;
+ 			acpi_status status;

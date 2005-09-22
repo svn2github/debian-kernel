@@ -1,0 +1,29 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: not submitted
+# description: fix pegasus_set_multicast lockup
+# revision date: 2004-09-05
+
+diff -urN kernel-source-2.4.26/drivers/usb/pegasus.c kernel-source-2.4.26-1/drivers/usb/pegasus.c
+--- kernel-source-2.4.26/drivers/usb/pegasus.c	2004-02-19 00:36:31.000000000 +1100
++++ kernel-source-2.4.26-1/drivers/usb/pegasus.c	2004-02-22 20:28:27.000000000 +1100
+@@ -1005,8 +1005,6 @@
+ {
+ 	pegasus_t *pegasus = net->priv;
+ 
+-	netif_stop_queue(net);
+-
+ 	if (net->flags & IFF_PROMISC) {
+ 		pegasus->eth_regs[EthCtrl2] |= RX_PROMISCUOUS;
+ 		info("%s: Promiscuous mode enabled", net->name);
+@@ -1022,8 +1020,6 @@
+ 
+ 	pegasus->flags |= ETH_REGS_CHANGE;
+ 	ctrl_callback(pegasus->ctrl_urb);
+-
+-	netif_wake_queue(net);
+ }
+ 
+ static u8 mii_phy_probe(pegasus_t * pegasus)
+
+

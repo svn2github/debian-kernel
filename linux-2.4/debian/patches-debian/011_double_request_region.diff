@@ -1,0 +1,150 @@
+# origin: Debian, #210289
+# cset: n/a
+# inclusion: not submitted
+# description: fix double call of request_region in arcnet
+# revision date: 2004-09-04
+
+--- kernel-source-2.4.26/drivers/net/arcnet/com20020-isa.c	2002-08-03 10:39:44.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/arcnet/com20020-isa.c	2003-09-27 13:32:55.000000000 +1000
+@@ -53,6 +53,7 @@
+ 	int ioaddr;
+ 	unsigned long airqmask;
+ 	struct arcnet_local *lp = dev->priv;
++	int err;
+ 
+ #ifndef MODULE
+ 	arcnet_init();
+@@ -66,17 +67,20 @@
+ 		       "must specify the base address!\n");
+ 		return -ENODEV;
+ 	}
+-	if (check_region(ioaddr, ARCNET_TOTAL_SIZE)) {
++	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+ 		BUGMSG(D_NORMAL, "IO region %xh-%xh already allocated.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		return -ENXIO;
+ 	}
+ 	if (ASTATUS() == 0xFF) {
+ 		BUGMSG(D_NORMAL, "IO address %x empty\n", ioaddr);
+-		return -ENODEV;
++		err = -ENODEV;
++		goto out;
++	}
++	if (com20020_check(dev)) {
++		err = -ENODEV;
++		goto out;
+ 	}
+-	if (com20020_check(dev))
+-		return -ENODEV;
+ 
+ 	if (!dev->irq) {
+ 		/* if we do this, we're sure to get an IRQ since the
+@@ -100,13 +104,21 @@
+ 			dev->irq = probe_irq_off(airqmask);
+ 			if (dev->irq <= 0) {
+ 				BUGMSG(D_NORMAL, "Autoprobe IRQ failed.\n");
+-				return -ENODEV;
++				err = -ENODEV;
++				goto out;
+ 			}
+ 		}
+ 	}
+ 
+ 	lp->card_name = "ISA COM20020";
+-	return com20020_found(dev, 0);
++	if ((err = com20020_found(dev, SA_SHIRQ)) != 0)
++		goto out;
++
++	return 0;
++
++out:
++	release_region(ioaddr, ARCNET_TOTAL_SIZE);
++	return err;
+ }
+ 
+ 
+@@ -182,6 +194,7 @@
+ void cleanup_module(void)
+ {
+ 	com20020_remove(my_dev);
++	release_region(my_dev->base_addr, ARCNET_TOTAL_SIZE);
+ }
+ 
+ #else
+--- kernel-source-2.4.26/drivers/net/arcnet/com20020-pci.c	2003-06-14 00:51:34.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/arcnet/com20020-pci.c	2003-09-27 13:32:55.000000000 +1000
+@@ -113,7 +113,7 @@
+ 	lp->timeout = timeout;
+ 	lp->hw.open_close_ll = com20020pci_open_close;
+ 
+-	if (check_region(ioaddr, ARCNET_TOTAL_SIZE)) {
++	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+ 		BUGMSG(D_INIT, "IO region %xh-%xh already allocated.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		err = -EBUSY;
+@@ -123,18 +123,20 @@
+ 		BUGMSG(D_NORMAL, "IO address %Xh was reported by PCI BIOS, "
+ 		       "but seems empty!\n", ioaddr);
+ 		err = -EIO;
+-		goto out_priv;
++		goto out_port;
+ 	}
+ 	if (com20020_check(dev)) {
+ 		err = -EIO;
+-		goto out_priv;
++		goto out_port;
+ 	}
+ 
+ 	if ((err = com20020_found(dev, SA_SHIRQ)) != 0)
+-	        goto out_priv;
++	        goto out_port;
+ 
+ 	return 0;
+ 
++out_port:
++	release_region(ioaddr, ARCNET_TOTAL_SIZE);
+ out_priv:
+ 	kfree(dev->priv);
+ out_dev:
+@@ -144,7 +146,9 @@
+ 
+ static void __devexit com20020pci_remove(struct pci_dev *pdev)
+ {
+-	com20020_remove(pci_get_drvdata(pdev));
++	struct net_device *dev = pci_get_drvdata(pdev);
++	com20020_remove(dev);
++	release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
+ }
+ 
+ static struct pci_device_id com20020pci_id_table[] __devinitdata = {
+--- kernel-source-2.4.26/drivers/net/arcnet/com20020.c	2003-06-14 00:51:34.000000000 +1000
++++ kernel-source-2.4.26-1/drivers/net/arcnet/com20020.c	2003-09-27 13:32:55.000000000 +1000
+@@ -204,12 +204,6 @@
+ 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
+ 		return -ENODEV;
+ 	}
+-	/* reserve the I/O region */
+-	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+-		free_irq(dev->irq, dev);
+-		return -EBUSY;
+-	}
+-	dev->base_addr = ioaddr;
+ 
+ 	BUGMSG(D_NORMAL, "%s: station %02Xh found at %03lXh, IRQ %d.\n",
+ 	       lp->card_name, dev->dev_addr[0], dev->base_addr, dev->irq);
+@@ -226,7 +220,6 @@
+ 
+ 	if (!dev->init && register_netdev(dev)) {
+ 		free_irq(dev->irq, dev);
+-		release_region(ioaddr, ARCNET_TOTAL_SIZE);
+ 		return -EIO;
+ 	}
+ 	return 0;
+@@ -348,7 +341,6 @@
+ {
+ 	unregister_netdev(dev);
+ 	free_irq(dev->irq, dev);
+-	release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
+ 	kfree(dev->priv);
+ 	kfree(dev);
+ }

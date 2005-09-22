@@ -1,0 +1,15 @@
+# origin: debian-kernel@lists.debian.org, Norbert Tretkowski <tretkowski@inittab.de>
+# cset: n/a
+# inclusion: unknown, presumably will be included
+# revision date: 2004-11-29
+# description: Add missing variable for CAN-2004-0814 fix
+--- a/drivers/char/tty_ioctl.c	2004-11-26 09:01:12.000000000 +0100
++++ b/drivers/char/tty_ioctl.c	2004-11-27 01:28:37.000000000 +0100
+@@ -286,6 +286,7 @@
+ 	int retval;
+ 	struct sgttyb tmp;
+ 	struct termios termios;
++	unsigned long flags;
+ 
+ 	retval = tty_check_change(tty);
+ 	if (retval)

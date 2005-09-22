@@ -1,0 +1,24 @@
+--- a/net/ipv4/netfilter/ip_nat_proto_tcp.c	2005-08-02 16:27:09.000000000 +0900
++++ b/net/ipv4/netfilter/ip_nat_proto_tcp.c	2005-08-02 16:27:58.000000000 +0900
+@@ -31,7 +31,8 @@ tcp_unique_tuple(struct ip_conntrack_tup
+ 		 enum ip_nat_manip_type maniptype,
+ 		 const struct ip_conntrack *conntrack)
+ {
+-	static u_int16_t port = 0, *portptr;
++	static u_int16_t port = 0;
++	u_int16_t *portptr;
+ 	unsigned int range_size, min, i;
+ 
+ 	if (maniptype == IP_NAT_MANIP_SRC)
+--- a/net/ipv4/netfilter/ip_nat_proto_udp.c	2005-08-02 16:26:39.000000000 +0900
++++ b/net/ipv4/netfilter/ip_nat_proto_udp.c	2005-08-02 16:28:42.000000000 +0900
+@@ -32,7 +32,8 @@ udp_unique_tuple(struct ip_conntrack_tup
+ 		 enum ip_nat_manip_type maniptype,
+ 		 const struct ip_conntrack *conntrack)
+ {
+-	static u_int16_t port = 0, *portptr;
++	static u_int16_t port = 0;
++	u_int16_t *portptr;
+ 	unsigned int range_size, min, i;
+ 
+ 	if (maniptype == IP_NAT_MANIP_SRC)

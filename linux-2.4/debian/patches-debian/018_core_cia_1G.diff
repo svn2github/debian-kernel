@@ -1,0 +1,43 @@
+# origin: Debian (herbert)
+# cset: n/a
+# inclusion: incorrect patch, reverted in -3
+# description: uhh.. dunno
+# revision date: 2004-09-04
+
+diff -urN kernel-source-2.4.26/arch/alpha/kernel/core_cia.c kernel-source-2.4.26-1/arch/alpha/kernel/core_cia.c
+--- kernel-source-2.4.26/arch/alpha/kernel/core_cia.c	2003-08-25 21:44:39.000000000 +1000
++++ kernel-source-2.4.26-1/arch/alpha/kernel/core_cia.c	2003-09-03 20:26:49.000000000 +1000
+@@ -775,9 +775,22 @@
+ 	*(vip)CIA_IOC_PCI_W0_MASK = (hose->sg_isa->size - 1) & 0xfff00000;
+ 	*(vip)CIA_IOC_PCI_T0_BASE = virt_to_phys(hose->sg_isa->ptes) >> 2;
+ 
+-	*(vip)CIA_IOC_PCI_W2_BASE = __direct_map_base | 1;
+-	*(vip)CIA_IOC_PCI_W2_MASK = (__direct_map_size - 1) & 0xfff00000;
+-	*(vip)CIA_IOC_PCI_T2_BASE = 0 >> 2;
++	if (cia_rev == 1) {
++		__direct_map_base = 0x40000000;
++
++		*(vip)CIA_IOC_PCI_W1_BASE = 0x40000000 | 1;
++		*(vip)CIA_IOC_PCI_W1_MASK = (0x40000000 - 1) & 0xfff00000;
++		*(vip)CIA_IOC_PCI_T1_BASE = 0 >> 2;
++
++		*(vip)CIA_IOC_PCI_W2_BASE = 0x80000000 | 1;
++		*(vip)CIA_IOC_PCI_W2_MASK = (0x40000000 - 1) & 0xfff00000;
++		*(vip)CIA_IOC_PCI_T2_BASE = 0x40000000 >> 2;
++	} else {
++		*(vip)CIA_IOC_PCI_W2_BASE = __direct_map_base | 1;
++		*(vip)CIA_IOC_PCI_W2_MASK =
++			(__direct_map_size - 1) & 0xfff00000;
++		*(vip)CIA_IOC_PCI_T2_BASE = 0 >> 2;
++	}
+ 
+ 	/* On PYXIS we have the monster window, selected by bit 40, so
+ 	   there is no need for window3 to be enabled.
+@@ -797,7 +810,6 @@
+ 	if (is_pyxis) {
+ 		*(vip)CIA_IOC_PCI_W3_BASE = 0;
+ 	} else if (cia_rev == 1) {
+-		*(vip)CIA_IOC_PCI_W1_BASE = 0;
+ 		tbia_window = 3;
+ 	} else if (max_low_pfn > (0x100000000UL >> PAGE_SHIFT)) {
+ 		*(vip)CIA_IOC_PCI_W3_BASE = 0;
