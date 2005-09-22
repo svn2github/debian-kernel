@@ -1,0 +1,1 @@
+for i in `cat ../LIST`; do < ../$i | patch -p1; done
