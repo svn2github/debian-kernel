@@ -56,7 +56,19 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
   * 179_net-ipv4-netfilter-ip_recent-last_pkts.diff
     Included in 2.4.27-11 is CAN-2005-2872
 
- -- Simon Horman <horms@debian.org>  Mon, 12 Sep 2005 17:12:07 +0900
+  * 190_outs-2.diff (removed 143_outs.diff):
+    [SECURITY]: AMD64, allows local users to write to privileged
+    IO ports via OUTS instruction
+    See CAN-2005-0204
+    143_outs.diff, included in 2.4.27-11 breaks the
+    build as IO_BITMAP_BYTES is not defined. 190_outs-2.diff
+    should resolve this problem by defining IO_BITMAP_BYTES
+    (closes: #329354)
+  * 191_build_foo.diff
+    Fix build problems that appear to be caused by recent binutils changes
+    (closes: #328707)
+
+ -- Simon Horman <horms@debian.org>  Thu, 22 Sep 2005 18:55:18 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 

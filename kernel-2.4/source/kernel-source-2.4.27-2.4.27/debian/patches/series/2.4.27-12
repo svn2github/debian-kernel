@@ -5,3 +5,6 @@
 + 188_fix-dst-leak-in-icmp_push_reply.diff
 + 189_ipv6-skb-leak.diff
 + 180_fs-isofs-ignored-parameters.diff
+- 143_outs.diff
++ 190_outs-2.diff
++ 191_build_foo.diff
