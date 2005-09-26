@@ -88,9 +88,10 @@ stage_begin "$STAGE_NAME" || {
 STAGE_NAME="Patching linux-2.6 tree"
 stage_begin "$STAGE_NAME" || {
 	(
-		echo "skip, as it does nothing"
-		#cd "$S_PKG_DIR" && \
-		#./debian/rules patch
+		cd "$S_PKG_DIR" && \
+		home="$S_PKG_DIR/debian/patches-debian" \
+			override_version=$S_TAG_VERSION \
+			sh ./debian/bin/apply
 	) >& "$LOG.$STAGE"
 	stage_end $?
 }
@@ -98,7 +99,11 @@ stage_begin "$STAGE_NAME" || {
 STAGE_NAME="Build linux-2.6 package"
 stage_begin "$STAGE_NAME" || {
 	(
+		# have to unpatch first, else the build falls over
 		cd "$S_PKG_DIR" && \
+		home="$S_PKG_DIR/debian/patches-debian" \
+			override_version=$S_UPSTREAM_VERSION \
+			sh ./debian/bin/apply && \
 		dpkg-buildpackage -us -uc -rfakeroot
 	) >& "$LOG.$STAGE"
 	stage_end $?
