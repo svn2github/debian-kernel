@@ -1327,6 +1327,9 @@ while getopts "d:km:o:r:" flag; do
 		;;
 	o)
 		initrd_file="${OPTARG}"
+		if [ "$initrd_file" = "${initrd_file#/}" ]; then
+			initrd_file="${ORIGDIR}/$initrd_file"
+		fi
 		out=yes
 		;;
 	r)

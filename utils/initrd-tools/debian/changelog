@@ -3,8 +3,11 @@ initrd-tools (0.1.83) UNRELEASED; urgency=low
   [Simon Horman]
   * Clarify naming of scripts that will be run.
     Thanks to Simon Schoar. (Closes: #324351)
+  * Make sure that path to output image is always fully qualified,
+    else an image with a relative will not end up where requested
+    (closes: #329614)
 
- -- Simon Horman <horms@debian.org>  Wed, 24 Aug 2005 12:34:33 +0900
+ -- Simon Horman <horms@debian.org>  Mon, 26 Sep 2005 12:04:43 +0900
 
 initrd-tools (0.1.82) unstable; urgency=low
 
