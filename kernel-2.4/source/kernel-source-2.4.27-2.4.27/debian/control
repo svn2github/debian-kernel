@@ -5,6 +5,7 @@ Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Joshua Kwan <joshk@triplehelix.org>, Simon Horman <horms@debian.org>, Jens Schmalzing <jensen@debian.org>
 Standards-Version: 3.6.1
 Build-Depends-Indep: bzip2, debhelper (>= 3), docbook-utils, gs, kernel-package (>= 7.48), transfig, gcc-3.3
+
 Package: kernel-source-2.4.27
 Architecture: all
 Section: devel
