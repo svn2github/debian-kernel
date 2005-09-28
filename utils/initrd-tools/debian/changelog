@@ -1,5 +1,6 @@
 initrd-tools (0.1.83) UNRELEASED; urgency=low
 
+  [ Simon Horman ]
   [Simon Horman]
   * Clarify naming of scripts that will be run.
     Thanks to Simon Schoar. (Closes: #324351)
@@ -7,7 +8,10 @@ initrd-tools (0.1.83) UNRELEASED; urgency=low
     else an image with a relative will not end up where requested
     (closes: #329614)
 
- -- Simon Horman <horms@debian.org>  Mon, 26 Sep 2005 12:04:43 +0900
+  [ dann frazier ]
+  * Don't assume update-modules is available during postrm (closes: #330446)
+
+ -- dann frazier <dannf@debian.org>  Tue, 27 Sep 2005 22:25:43 -0600
 
 initrd-tools (0.1.82) unstable; urgency=low
 

@@ -4,7 +4,9 @@ set -e
 
 if [ "$1" = purge ]; then
 	rm -rf /etc/mkinitrd
-	update-modules
+	if [ -x /sbin/update-modules ]; then
+		/sbin/update-modules
+	fi
 	update-rc.d initrd-tools.sh remove > /dev/null
 fi
 
