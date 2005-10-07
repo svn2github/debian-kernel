@@ -64,6 +64,7 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     build as IO_BITMAP_BYTES is not defined. 190_outs-2.diff
     should resolve this problem by defining IO_BITMAP_BYTES
     (closes: #329354)
+
   * 191_build_foo.diff
     Fix build problems that appear to be caused by recent binutils changes
     (closes: #328707)
