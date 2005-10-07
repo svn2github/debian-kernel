@@ -5,6 +5,7 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     [Security, x86_64] 32 bit ltrace oops when tracing 64 bit executable
     http://lkml.org/lkml/2005/1/5/245
     http://linux.bkbits.net:8080/linux-2.4/cset@41dd3455GwQPufrGvBJjcUOXQa3WXA
+    See CAN-2005-2553
 
   * 185_net-sockglue-cap.diff
     [Security] Restrict socket policy loading to CAP_NET_ADMIN.
