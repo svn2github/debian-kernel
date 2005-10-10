@@ -50,7 +50,6 @@
       <arg><option>-i <replaceable>initrd</replaceable></option></arg>
       <arg><option>-d <replaceable>objdir</replaceable></option></arg>
       <arg><option>-r <replaceable>release</replaceable></option></arg>
-      <arg><option>-t</option></arg>
       <arg><option>-n</option></arg>
       <arg><option>-z</option></arg>
       <arg><option>-u</option></arg>
@@ -210,14 +209,6 @@
 	  <para>Specify the release of the kernel.  This option is
 	  only used for guessing path names that have not been specified
 	  explicitly.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-	<term><option>-t</option></term>
-	<listitem>
-	  <para>Use strip instead of objcopy -O binary to reduce the size
-	  of the kernel. Objcopy produce slightly smaller executables, but
-	  i suppose it also removes more stuff.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

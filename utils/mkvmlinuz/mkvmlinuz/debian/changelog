@@ -1,7 +1,6 @@
-mkvmlinuz (15) unstable; urgency=low
+mkvmlinuz (15) unstable; urgency=high
 
-  * Added support for generating a vmlinuz on apus.
-  * Fixed miboot floppy generation also.
+  * Generates a striped compressed vmlinuz on apus and miboot.
 
  -- Sven Luther <luther@dbeian.org>  Mon, 10 Oct 2005 10:01:33 +0200
 
