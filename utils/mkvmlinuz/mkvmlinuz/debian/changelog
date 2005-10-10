@@ -2,7 +2,7 @@ mkvmlinuz (15) unstable; urgency=high
 
   * Generates a striped compressed vmlinuz on apus and miboot.
 
- -- Sven Luther <luther@dbeian.org>  Mon, 10 Oct 2005 10:01:33 +0200
+ -- Sven Luther <luther@debian.org>  Mon, 10 Oct 2005 10:01:33 +0200
 
 mkvmlinuz (14) unstable; urgency=low
 
