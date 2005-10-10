@@ -1,3 +1,10 @@
+mkvmlinuz (15) unstable; urgency=low
+
+  * Added support for generating a vmlinuz on apus.
+  * Fixed miboot floppy generation also.
+
+ -- Sven Luther <luther@dbeian.org>  Mon, 10 Oct 2005 10:01:33 +0200
+
 mkvmlinuz (14) unstable; urgency=low
 
   * Now autodetects if the initrd is gzip compressed. This will allow to do

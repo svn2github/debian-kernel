@@ -10,6 +10,7 @@ usage() {
     echo ' -i <initrd>  - path to initrd image file'
     echo ' -d <objdir>  - path to directory with additional object files'
     echo ' -r <release> - kernel release number'
+    echo ' -t           - use strip instead of objcopy -O binary on the kernel'
     echo ' -n           - do not use an initrd'
     echo ' -z           - assume the initrd image file is already compressed'
     echo ' -u           - assume the initrd image file is not compressed'
@@ -39,6 +40,7 @@ while getopts o:k:s:i:d:r:a:nzv option; do
 	d) objdir=$OPTARG ;;
 	r) release=$OPTARG ;;
 	a) arch=$OPTARG ;;
+	t) strip="Yes" ;;
 	n) noinitrd="Yes" ;;
 	z) compressed="Yes" ;;
 	u) compressed="No" ;;
@@ -46,6 +48,19 @@ while getopts o:k:s:i:d:r:a:nzv option; do
 	*) usage; exit 0 ;;
     esac
 done
+
+# Let's provide some subarch dependent defaults
+case $arch in
+    apus)
+    	# Apus needs stripping and don't use builtin initrd.
+    	strip="Yes"
+    	noinitrd="Yes"
+    	;;
+    miboot)
+    	# miboot doesn't use builtin initrd. Maybe stripping would be nice too ?
+    	noinitrd="Yes"
+    	;;
+esac
 
 # use non-option arguments as release version and kernel image file if needed
 shift $((OPTIND-1))
@@ -62,6 +77,7 @@ if test -z "$arch"; then
 	*PReP*Blackhawk*) arch=ppcbug ;;
 	*PReP*) arch=prep ;;
 	*CHRP*) arch=chrp ;;
+	*Amiga*) arch=apus ;;
 	*)
 	    case $(grep ^pmac-generation /proc/cpuinfo) in
 		*NewWorld) arch=pmac ;;
@@ -168,6 +184,8 @@ MKPREP=$objdir/utils/mkprep
 MKBUGBOOT=$objdir/utils/mkbugboot
 LD=ld
 OBJCOPY=objcopy
+MV=mv
+STRIP=strip
 
 GZIP="--force --best"
 
@@ -175,6 +193,8 @@ GZIP="--force --best"
 libs=$objdir/lib
 objs=$objdir/obj
 case "$arch","$release" in
+    apus,*|miboot,*)
+	;;
     prep,2.6*|ppcbug,2.6*)
 	test -d $objs/simple && objs=$objs/simple
 	if test -r $objs/legacy.o; then prepmap=legacy; else prepmap=prepmap; fi
@@ -207,7 +227,11 @@ esac
 
 # create the compressed kernel image file
 test -z "$verbose" || echo === Creating compressed kernel image vmlinux.gz...
-do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
+if test -n "$strip"; then
+    do_cmd $STRIP $kernel -o $work/vmlinux
+else
+    do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
+fi
 do_cmd gzip $work/vmlinux
 
 # create the compressed initrd image file
@@ -277,13 +301,6 @@ case "$arch","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $HACKOFF $vmlinuz
 	;;
-    miboot,2.6*)
-	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
-	do_cmd $OBJCOPY $OBJCOPY_ARGS --add-section=image=$work/vmlinux.gz $objs/dummy.o $vmlinuz
-	if test -n "$initrd"; then
-	    do_cmd $OBJCOPY $OBJCOPY_ARGS --add-section=initrd=$work/initrd.gz $vmlinuz $vmlinuz
-	fi
-	;;
     pmac,2.6*)
 	LD_ARGS="$LD_ARGS -e _start -Ttext 0x01000000"
 	OBJCOPY_ARGS="--add-section=.note=$work/note $OBJCOPY_ARGS"
@@ -304,6 +321,12 @@ case "$arch","$release" in
 	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
 	do_cmd $MKPREP -pbp $vmlinuz.tmp $vmlinuz
+	;;
+    miboot,2.6*)
+        do_cmd $MV $vmlinuz.tmp $vmlinuz
+	;;
+    apus,2.6*)
+        do_cmd $MV $vmlinuz.tmp $vmlinuz
 	;;
     *)
 	echo Sorry, I do not know how to handle PowerPC sub-architecture $arch in version $release.
