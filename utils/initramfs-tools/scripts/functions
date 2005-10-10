@@ -1,0 +1,294 @@
+# -*- shell-script -*-
+
+_log_msg()
+{
+    if [ "$quiet" = "y" ]; then return; fi
+    echo "$@"
+}
+
+log_success_msg()
+{
+    _log_msg "Success: $@"
+}
+
+log_failure_msg()
+{
+    _log_msg "Failure: $@"
+}
+
+log_warning_msg()
+{
+    _log_msg "Warning: $@"
+}
+
+log_begin_msg()
+{
+	if [ -x /sbin/usplash_write ]; then
+		/sbin/usplash_write "TEXT $@"
+	fi
+	_log_msg "Begin: $@ ..."
+}
+
+log_end_msg()
+{
+	if [ -x /sbin/usplash_write ]; then
+		/sbin/usplash_write "SUCCESS ok"
+	fi
+	_log_msg "Done."
+}
+
+# update_progress() # ToDo: NOP placeholder... what else for usplash?
+# {
+#     :
+# }
+
+panic()
+{
+	if [ -x /sbin/usplash_write ]; then
+		/sbin/usplash_write "QUIT"
+	fi
+	echo $@
+	FS1='(initramfs) ' exec /bin/sh </dev/console >/dev/console 2>&1
+}
+
+render()
+{
+	eval "echo -n \${$@}"
+}
+
+set_initlist()
+{
+	unset initlist
+	for si_x in ${initdir}/*; do
+		if [ ! -x ${si_x} ]; then
+			continue
+		fi
+		initlist="${initlist} $(basename ${si_x})"
+	done
+}
+
+reduce_satisfied()
+{
+	deplist="$(render array_${1})"
+	for rs_x in ${runlist}; do
+		pop_list_item ${rs_x} ${deplist}
+		deplist=${tmppop}
+	done
+	eval array_${1}=\"${deplist}\"
+}
+
+get_prereqs()
+{
+	set_initlist
+	for gp_x in ${initlist}; do
+		tmp=$(${initdir}/${gp_x} prereqs)
+		eval array_${gp_x}=\"${tmp}\"
+	done
+}
+
+count_unsatisfied()
+{
+	set - ${@}
+	return ${#}
+}
+
+# Removes $1 from initlist
+pop_list_item()
+{
+	item=${1}
+	shift
+	set - ${@}
+	unset tmppop
+	# Iterate
+	for pop in ${@}; do
+		if [ ${pop} = ${item} ]; then
+			continue
+		fi
+		tmppop="${tmppop} ${pop}"
+	done
+
+}
+
+# This function generates the runlist, so we clear it first.
+reduce_prereqs()
+{
+	unset runlist
+	set_initlist
+	set - ${initlist}
+	i=$#
+	# Loop until there's no more in the queue to loop through
+	while [ ${i} -ne 0 ]; do
+		oldi=${i}
+		for rp_x in ${initlist}; do
+			reduce_satisfied ${rp_x}
+			count_unsatisfied $(render array_${rp_x})
+			cnt=${?}
+			if [ ${cnt} -eq 0 ]; then
+				runlist="${runlist} ${rp_x}"
+				pop_list_item ${rp_x} ${initlist}
+				initlist=${tmppop}
+				i=$((${i} - 1))
+			fi
+		done
+		if [ ${i} -eq ${oldi} ]; then
+			echo "PANIC: Circular dependancy.  Exiting." >&2
+			exit 1
+		fi
+	done
+}
+
+call_scripts()
+{
+	for cs_x in ${runlist}; do
+		${initdir}/${cs_x}
+	done
+}
+
+run_scripts()
+{
+	initdir=${1}
+	get_prereqs
+	reduce_prereqs
+	call_scripts
+}
+
+ide_boot_events() {
+
+	modprobe -q ide-generic
+
+	[ -e /proc/ide ] || return
+
+	for drive in /proc/ide/*; do
+		[ -e ${drive}/media ] || continue
+		# nothing to do if the device has already been took in charge
+		unit=${drive#/proc/ide/}
+		[ -d /sys/block/$unit ] && continue
+
+		read media < $drive/media
+		case "$media" in
+			disk)	MODULE=ide-disk ;;
+			cdrom)	MODULE=ide-cd ;;
+			tape)	MODULE=ide-tape ;;
+			floppy)	MODULE=ide-floppy ;;
+			*)	MODULE=ide-generic ;;
+		esac
+
+		modprobe -q ${MODULE}
+	done
+}
+
+scsi_boot_events()
+{
+	[ -e /sys/bus/scsi/devices/ ] || return
+
+	for device in /sys/bus/scsi/devices/*; do
+		[ -e "${device}"/type ] || continue
+		read media < ${device}/type
+		case "$media" in
+			0)	modprobe -q sd_mod;
+		esac	
+
+	done
+
+}
+
+i2o_boot_events()
+{
+	[ -e /sys/bus/i2o/devices/ ] || return
+
+	for device in /sys/bus/i2o/devices/*; do
+		[ -e ${device}/block ] && modprobe i2o_block
+	done
+}
+
+load_modules()
+{
+	depmod -a
+
+	# Load custom modules first
+	if [ -e /conf/modules ]; then
+		cat /conf/modules | while read m; do
+			if [ -z "$m" ] \
+			    || expr "$m" : "#" >/dev/null \
+			    || expr "$m" : "[ \t]+#?" > /dev/null
+			then
+				continue;
+			else
+				modprobe -q $m
+			fi
+		done
+	fi
+
+	for x in /sys/bus/pci/devices/*; do
+		if [ -e ${x}/class ]; then
+			case $(cat ${x}/class) in
+			0x0100*|0x0101*)
+				if [ -e ${x}/modalias ]; then
+					modprobe -q $(cat ${x}/modalias)
+				fi	
+			;;
+			esac
+		fi
+	done
+
+	ide_boot_events
+
+	scsi_boot_events
+
+	i2o_boot_events
+
+	# FIXME - need to start LVM here
+
+	udevstart
+
+	if [ -e /sys/power/resume ]; then
+		if [ -e "${resume}" ]; then
+			major=$((0x$(stat -c%t ${resume})))
+			minor=$((0x$(stat -c%T ${resume})))
+			echo ${major}:${minor} >/sys/power/resume
+		fi
+	fi
+
+	for x in /sys/bus/pci/devices/*; do
+		if [ -e ${x}/modalias ]; then
+			modprobe -q $(cat ${x}/modalias)
+		fi
+	done
+
+	# Give the USB bus a moment to catch up
+	sleep 2
+
+	for x in /sys/bus/usb/devices/*; do
+		if [ -e ${x}/modalias ]; then
+			modprobe -q $(cat ${x}/modalias)
+		fi
+	done
+
+	ide_boot_events
+
+	scsi_boot_events
+
+	i2o_boot_events
+}
+
+parse_numeric() {
+	case $1 in
+	"")
+		return
+		;;
+	/*)
+		return
+		;;
+	*:*)
+		minor=${1#*:}
+		major=${1%:*}
+		;;
+	*)
+		minor=$((0x${1#??}))
+		major=$((0x${1%??}))
+		;;
+	esac
+
+	mknod /dev/root b ${major} ${minor}
+	ROOT=/dev/root
+}

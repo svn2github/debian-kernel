@@ -1,0 +1,111 @@
+#!/bin/sh
+
+echo "Loading, please wait..."
+
+mkdir /sys
+mkdir /proc
+mkdir /tmp
+mkdir -p /var/lock
+mount -t sysfs sysfs /sys
+mount -t proc proc /proc
+mount -t ramfs none /dev
+touch /dev/.initramfs-tools
+mknod /dev/console c 5 1 
+mknod /dev/null c 1 3
+
+. /conf/initramfs.conf
+. /scripts/functions
+
+# Parse command line options
+export break=
+export init=/sbin/init
+export quiet=n
+export readonly=y
+export ROOT=
+export resume=${RESUME}
+export rootmnt=/root
+export debug=
+for x in $(cat /proc/cmdline); do
+	case $x in
+	init=*)
+		init=${x#init=}
+		;;
+	root=*)
+		ROOT=${x#root=}
+		;;
+	nfsroot=*)
+		NFSROOT=${x#nfsroot=}
+		;;
+	boot=*)
+		BOOT=${x#boot=}
+		;;
+	resume=*)
+		resume=${x#resume=}
+		;;
+	quiet)
+		quiet=y
+		;;
+	ro)
+		readonly=y
+		;;
+	rw)
+		readonly=n
+		;;
+	debug)
+		debug=y
+		exec >/tmp/initramfs.debug 2>&1
+		set -x
+		;;
+	break)
+		break=yes
+		;;
+	esac
+done
+
+# Don't do log messages here to avoid confusing usplash
+run_scripts /scripts/init-top
+
+. /scripts/${BOOT}
+
+log_begin_msg "Loading modules"
+load_modules
+log_end_msg
+
+# Populate /dev tree
+log_begin_msg "Initializing /dev"
+parse_numeric ${ROOT}
+udevstart
+log_end_msg
+
+if [ x${break} = xyes ]; then 
+	panic "Spawning shell within the initramfs"
+fi
+
+log_begin_msg "Running /scripts/init-premount"
+run_scripts /scripts/init-premount
+log_end_msg
+
+log_begin_msg "Mounting root file system"
+mountroot
+log_end_msg
+
+log_begin_msg "Running /scripts/init-bottom"
+run_scripts /scripts/init-bottom
+log_end_msg
+
+# Move our /dev to the real filesystem.  Do the setup that udev otherwise
+# would.
+mkdir -p /dev/.static/dev
+chmod 700 /dev/.static/
+mount -n -o bind ${rootmnt}/dev /dev/.static/dev
+mount -n -o move /dev ${rootmnt}/dev
+
+umount /sys
+umount /proc
+
+if [ ! -x ${rootmnt}${init} ]; then
+	panic "Target filesystem doesn't have ${init}"
+fi
+
+# Chain to real filesystem
+exec run-init ${rootmnt} ${init} "$@" </root/dev/console >/root/dev/console
