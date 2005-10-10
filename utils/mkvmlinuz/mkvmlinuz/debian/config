@@ -25,7 +25,7 @@ esac
 case $arch in
     chrp|pmac_newworld) bootloaders="yaboot, mkvmlinuz" ;;
     pmac_oldworld) bootloaders="quik, mkvmlinuz" ;;
-    ppcbug|prep|chrp_pegasos) bootloaders="mkvmlinuz" ;;
+    apus|ppcbug|prep|chrp_pegasos) bootloaders="mkvmlinuz" ;;
     *) bootloaders="unknown" ;;
 esac
 
