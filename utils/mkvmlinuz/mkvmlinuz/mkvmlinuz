@@ -252,7 +252,7 @@ if test -n "$initrd"; then
 fi
 
 # create the raw ELF image file; this is not needed for the miBoot image
-if test "$arch" != miboot; then
+if test -z "$elf"; then
     test -z "$verbose" || echo === Putting everything into ELF image file image.o...
     do_cmd $OBJCOPY -R .comment $dummy $work/image.o
     do_cmd $OBJCOPY $work/image.o $work/image.o \
@@ -268,6 +268,8 @@ if test "$arch" != miboot; then
 	    --add-section=.ramdisk=$work/initrd.gz \
 	    --set-section-flags=.ramdisk=contents,alloc,load,readonly,data
     fi
+else
+	do_cmd $MV $work/vmlinux.gz $work/vmlinuz.$arch.tmp
 fi
 
 # link everything into the final image file and make it bootable
