@@ -70,7 +70,13 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     Fix build problems that appear to be caused by recent binutils changes
     (closes: #328707)
 
- -- Simon Horman <horms@debian.org>  Thu, 22 Sep 2005 18:55:18 +0900
+  * 192_orinoco-info-leak.diff
+    [SECURITY] orinoco: Information leakage due to incorrect padding
+
+  * 193_plug-names_cache-memleak.diff
+    Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+
+ -- Simon Horman <horms@debian.org>  Tue, 11 Oct 2005 19:32:30 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
