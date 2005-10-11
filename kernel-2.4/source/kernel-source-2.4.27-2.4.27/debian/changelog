@@ -74,9 +74,9 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     [SECURITY] orinoco: Information leakage due to incorrect padding
 
   * 193_plug-names_cache-memleak.diff
-    Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+    [SECURITY] Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
 
- -- Simon Horman <horms@debian.org>  Tue, 11 Oct 2005 19:32:30 +0900
+ -- Simon Horman <horms@debian.org>  Tue, 11 Oct 2005 19:46:58 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
