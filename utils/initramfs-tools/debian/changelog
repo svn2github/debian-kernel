@@ -1,3 +1,11 @@
+initramfs-tools (0.31) UNRELEASED; urgency=low
+
+  [ Bastian Blank ]
+  * Use new busybox.
+  * Use mklibs-small.
+
+ -- Bastian Blank <waldi@debian.org>  Mon, 10 Oct 2005 18:27:12 +0000
+
 initramfs-tools (0.30) unstable; urgency=low
 
   Apparition Octobre Rouge
