@@ -11,7 +11,12 @@ initrd-tools (0.1.83) UNRELEASED; urgency=low
   [ dann frazier ]
   * Don't assume update-modules is available during postrm (closes: #330446)
 
- -- dann frazier <dannf@debian.org>  Tue, 27 Sep 2005 22:25:43 -0600
+  [ Sven Luther ]
+  * Added --supported-(host|target)-version support for the new post-2.6.13
+    ramdisk-tool policy. Added linux-ramdisk-tool virtual package too.
+    (Closes: #333857)
+
+ -- Sven Luther <luther@debian.org>  Fri, 14 Oct 2005 07:50:57 +0000
 
 initrd-tools (0.1.82) unstable; urgency=low
 

@@ -1309,7 +1309,7 @@ PROG="$0"
 CONFDIR=/etc/mkinitrd
 unset keep croot cmkimage out || :
 
-while getopts "d:km:o:r:" flag; do
+while getopts "d:km:o:r:-:" flag; do
 	case $flag in
 	d)
 		CONFDIR="$OPTARG"
@@ -1335,12 +1335,35 @@ while getopts "d:km:o:r:" flag; do
 	r)
 		croot=$OPTARG
 		;;
+	-)
+		case ${OPTARG%=*} in
+			supported-host-version)
+				supported_host_version=${OPTARG#*=}
+				;;
+			supported-target-version)
+				supported_target_version=${OPTARG#*=}
+				;;
+		esac
+		;;
 	*)
 		usage
 		;;
 	esac
 done
 shift $(($OPTIND - 1))
+
+if [ "$supported_host_version" ] || [ "$supported_target_version" ]; then
+	if [ "$supported_host_version" ]; then
+		host_upstream_version=${supported_host_version%%-*}
+	fi
+	if [ "$supported_target_version" ]; then
+		target_upstream_version=${supported_target_version%%-*}
+		if dpkg --compare-versions "$target_upstream_version" ge "2.6.13"; then
+			exit 1
+		fi
+	fi
+	exit 0
+fi
 
 if ! [ $out ] || [ $# -gt 1 ]; then
 	usage

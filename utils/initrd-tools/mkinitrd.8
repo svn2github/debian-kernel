@@ -36,6 +36,12 @@ mkinitrd \- make an initrd image
 .IR root ]
 .RI [ version ]
 
+.B mkinitrd
+.RB [ \-\-supported-host-version=
+.IR hversion ]
+.RB [ \-\-supported-target-version=
+.IR tversion ] 
+
 .SH DESCRIPTION
 
 The
@@ -52,6 +58,15 @@ placed in the directory structure.
 If
 .I version
 is omitted, it defaults to the version of the kernel that is currently running.
+
+.PP
+
+The second syntax returns 0 if mkinitrd can create an initrd running on a kernel
+of the given host version (
+.IR hversion
+) and for a kernel of the given target version (
+.IR tversions
+), and 1 otherwise.
 
 .PP
 
@@ -137,6 +152,16 @@ This option overrides the setting of
 .B ROOT
 in
 .IR mkinitrd.conf .
+
+.TP
+\fB\-\-supported-host-version=\fIhversion
+This option queries if the mkinitrd can create ramdisks on a running kernel of version
+.IR hversion .
+
+.TP
+\fB\-\-supported-target-version=\fItversion
+This option queries if the mkinitrd can create ramdisks for kernel version
+.IR tversion .
 
 .SH FILES
 
