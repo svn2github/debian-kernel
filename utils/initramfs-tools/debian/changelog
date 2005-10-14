@@ -2,7 +2,7 @@ initramfs-tools (0.31) UNRELEASED; urgency=low
 
   [ Bastian Blank ]
   * Use new busybox. (closes: #333755)
-  * Use mklibs-small.
+  * Use mklibs-copy.
 
   [ Sven Luther ]
   * Added --supported-(host|target)-version support for the new post-2.6.13
