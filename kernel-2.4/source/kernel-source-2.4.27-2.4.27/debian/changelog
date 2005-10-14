@@ -79,7 +79,12 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     [SECURITY] Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
     From 2.6.13.4
 
- -- Simon Horman <horms@debian.org>  Tue, 11 Oct 2005 19:46:58 +0900
+  * 194_xfs-inode-race.diff
+    [SECURITY] XFS: Handle inode creation race
+    CAN-NOMATCH
+    Links in Patch file
+
+ -- Simon Horman <horms@debian.org>  Fri, 14 Oct 2005 16:23:08 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 

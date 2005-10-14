@@ -10,3 +10,4 @@
 + 191_build_foo.diff
 + 192_orinoco-info-leak.diff
 + 193_plug-names_cache-memleak.diff
++ 194_xfs-inode-race.diff
