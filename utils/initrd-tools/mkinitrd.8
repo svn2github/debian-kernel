@@ -61,7 +61,7 @@ is omitted, it defaults to the version of the kernel that is currently running.
 
 .PP
 
-The second syntax returns 0 if mkinitrd can create an initrd running on a kernel
+The second syntax returns 0 if mkinitrd can create a ramdisk running on a kernel
 of the given host version (
 .IR hversion
 ) and for a kernel of the given target version (
@@ -155,12 +155,12 @@ in
 
 .TP
 \fB\-\-supported-host-version=\fIhversion
-This option queries if the mkinitrd can create ramdisks on a running kernel of version
+This option queries if mkinitrd can create ramdisks on a running kernel of version
 .IR hversion .
 
 .TP
 \fB\-\-supported-target-version=\fItversion
-This option queries if the mkinitrd can create ramdisks for kernel version
+This option queries if mkinitrd can create ramdisks for kernel version
 .IR tversion .
 
 .SH FILES
