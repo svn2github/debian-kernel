@@ -10,7 +10,7 @@ errors_to="2>/dev/null"
 # BUSYBOXDIR="/usr/lib/initramfs-tools/bin/"
 BUSYBOXDIR="/bin" 
 
-while getopts "d:ko:r:" flag; do
+while getopts "d:ko:r:-:" flag; do
 	case $flag in
 	d)
 		CONFDIR="${OPTAGS}"
@@ -26,10 +26,33 @@ while getopts "d:ko:r:" flag; do
 	k)
 		keep="y"
 		;;
+	-)
+		case ${OPTARG%=*} in
+			supported-host-version)
+				supported_host_version=${OPTARG#*=}
+				;;
+			supported-target-version)
+				supported_target_version=${OPTARG#*=}
+				;;
+		esac
+		;;
 	esac
 done
 
 shift $((${OPTIND} - 1))
+
+if [ "$supported_host_version" ] || [ "$supported_target_version" ]; then
+	if [ "$supported_host_version" ]; then
+		host_upstream_version=${supported_host_version%%-*}
+	fi
+	if [ "$supported_target_version" ]; then
+		target_upstream_version=${supported_target_version%%-*}
+		if dpkg --compare-versions "$target_upstream_version" lt "2.6.12"; then
+			exit 1
+		fi
+	fi
+	exit 0
+fi
 
 # For dependency ordered mkinitramfs hook scripts.
 . /usr/share/initramfs-tools/scripts/functions

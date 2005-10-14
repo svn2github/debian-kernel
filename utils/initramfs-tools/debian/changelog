@@ -4,7 +4,12 @@ initramfs-tools (0.31) UNRELEASED; urgency=low
   * Use new busybox. (closes: #333755)
   * Use mklibs-small.
 
- -- Bastian Blank <waldi@debian.org>  Mon, 10 Oct 2005 18:27:12 +0000
+  [ Sven Luther ]
+  * Added --supported-(host|target)-version support for the new post-2.6.13
+    ramdisk-tool policy. Added linux-ramdisk-tool virtual package too.
+    (Closes: #333856)
+
+ -- Sven Luther <luther@debian.org>  Fri, 14 Oct 2005 08:03:44 +0000
 
 initramfs-tools (0.30) unstable; urgency=low
 
