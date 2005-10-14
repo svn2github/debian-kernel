@@ -1343,6 +1343,9 @@ while getopts "d:km:o:r:-:" flag; do
 			supported-target-version)
 				supported_target_version=${OPTARG#*=}
 				;;
+			*)
+				usage
+				;;
 		esac
 		;;
 	*)
