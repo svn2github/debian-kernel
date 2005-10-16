@@ -1,3 +1,11 @@
+kernel-package (9.008.1) UNRELEASED; urgency=low
+
+  * NMU with maitnainers permission.
+  * Implement the new ramdisk generation tool finding plan. Thanks go to
+    Mattia Dongili for helping me out with the needed perl code.
+
+ -- Sven Luther <luther@debian.org>  Sun, 16 Oct 2005 08:59:47 +0200
+
 kernel-package (9.008) unstable; urgency=low
 
   * Bug fix: "xen.postinst contains illegal sed command", thanks to

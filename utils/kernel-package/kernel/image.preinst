@@ -52,6 +52,9 @@ my $official_image    = "=OF"; # only true for official images
 my $arch              = "=A";  #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
 my $ramdisk           = '/usr/sbin/mkinitrd';  # Tool to create initial ram fs.
+chomp (my $unamedashr = `uname -r`);
+$ramdisk	      = '/usr/sbin/mkinitrd.yaird' if (system ("dpkg --compare-versions $unamedashr ge 2.6.13 1>/dev/null 2>&1") == 0);
+
 
 
 my $Loader          = "NoLOADER"; #
@@ -182,13 +185,25 @@ my $pattern = "=" . "I";
 $initrd=~ s/^$pattern$//;
 
 if ($initrd) {
+  my @ramdisklist =
+    grep {
+      -x and
+      system ("$_ --supported-host-version=$unamedashr 1>/dev/null 2>&1") == 0
+    }
+    (split (/ /, $ramdisk));
+
+  my $msgramdisk = $ramdisk;
+  $ramdisk = shift @ramdisklist;
+
   if (! -e $ramdisk) {
     print STDERR <<EOERROR;
 
 You are attempting to install an initrd kernel image (version
-$version) but you do not seem to have a $ramdisk 
-command. This will break the installation, unless initrd-tools are
-also being installed right now.
+$version) while running a kernel of version $unamedashr, but
+you have no suitable ramdisk generation tool installed among 
+$msgramdisk.  This will break the installation, unless a
+suitable ramdisk generation tool is also being installed right
+now.
 
 EOERROR
   ;

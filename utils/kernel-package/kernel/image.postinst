@@ -54,6 +54,9 @@ my $official_image    = "=OF";  # only true for official images
 my $arch              = "=A"; #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
 my $ramdisk           = '/usr/sbin/mkinitrd';  # Tool to create initial ram fs.
+chomp (my $unamedashr = `uname -r`);
+$ramdisk              = '/usr/sbin/mkinitrd.yaird' if (system ("dpkg --compare-versions $unamedashr ge 2.6.13 1>/dev/null 2>&1") == 0);
+
 
 my $package_name    = "=ST-image-$version";
 
@@ -972,6 +975,16 @@ if ( -d "$modules_base/$version" ) {
 # The initrd symlink should probably be in the same dir that the
 # symlinks are in
 if ($initrd) {
+  my @ramdisklist =
+    grep {
+      -x and
+      system ("$_ --supported-host-version=$unamedashr 1>/dev/null 2>&1") == 0
+    }
+    (split (/ /, $ramdisk));
+
+  defined ($ramdisk = shift @ramdisklist)
+    or die ("Failed to find suitable ramdisk generation tool for kernel version $version in $ramdisk\n");
+
   my $initrd_path = $realimageloc . "initrd.img-$version";
   my $ret = system("$ramdisk " .
                    ($mkimage ? "-m '$mkimage' " : "") .

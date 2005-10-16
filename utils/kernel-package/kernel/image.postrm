@@ -52,6 +52,8 @@ my $official_image    = "=OF";      # only true for official images
 my $arch              = "=A";  #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
 my $ramdisk           = '/usr/sbin/mkinitrd';  # Tool to create initial ram fs.
+chomp (my $unamedashr = `uname -r`);
+$ramdisk	      = '/usr/sbin/mkinitrd.yaird' if (system ("dpkg --compare-versions $unamedashr ge 2.6.13 1>/dev/null 2>&1") == 0);
 
 my $Loader          = "NoLOADER"; # 
 $Loader             = "LILO"     if $loader =~ /^lilo/io;
