@@ -1,0 +1,22 @@
+[base]
+flavours:
+ apus
+ powerpc
+ powerpc-smp
+ powerpc-miboot
+ powerpc64
+kernel-arch: ppc
+kpkg-subarch: powerpc
+
+[apus]
+depends: mkvmlinuz (>= 15)
+
+[powerpc]
+depends: mkvmlinuz (>= 13)
+
+[powerpc-smp]
+depends: mkvmlinuz (>= 13)
+
+[powerpc64]
+kernel-arch: ppc64
+kpkg-subarch: powerpc64
