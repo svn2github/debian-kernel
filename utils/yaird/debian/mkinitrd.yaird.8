@@ -5,6 +5,14 @@ mkinitrd.yaird \- mkinitrd for initramfs
 .B mkinitrd.yaird
 .BI -o destination
 .RI [ version ]
+
+
+.B mkinitrd.yaird
+.RB [ \-\-supported-host-version=
+.IR hversion ]
+.RB [ \-\-supported-target-version=
+.IR tversion ] 
+
 .SH DESCRIPTION
 .I Mkinitrd.yaird
 is a wrapper around
@@ -27,19 +35,43 @@ ramdisk = /usr/sbin/mkinitrd.yaird
 
 Support for the ramdisk variable is built into the kernel package;
 it is available in Debian kernels packaged since june 2005.
+
+.PP
+
+The second syntax returns 0 if mkinitrd can create a ramdisk running on a kernel
+of the given host version (
+.IR hversion
+) and for a kernel of the given target version (
+.IR tversions
+), and 1 otherwise.
+
 .SH OPTIONS
+
 .TP
 .BI "-o" destination
 Place result here.
 The destination must not exist yet.
 There is no default for this option.
+
 .TP
 .BI "-m" command
 This option is ignored.
+
+.TP
+\fB\-\-supported-host-version=\fIhversion
+This option queries if mkinitrd can create ramdisks on a running kernel of version
+.IR hversion .
+
+.TP
+\fB\-\-supported-target-version=\fItversion
+This option queries if mkinitrd can create ramdisks for kernel version
+.IR tversion .
+
 .TP
 version
 The kernel version for which the initial boot image
 is to be generated.
+
 .SH AUTHOR
 Erik van Konijnenburg <ekonijn@xs4all.nl>
 .SH SEE ALSO

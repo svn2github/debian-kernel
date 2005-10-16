@@ -1,3 +1,11 @@
+yaird (0.0.11-5) UNRELEASED; urgency=low
+
+  * Added --supported-(host|target)-version support for the new post-2.6.13
+    ramdisk-tool policy. Added linux-ramdisk-tool virtual package too.
+    (Sven Luther) (Closes: #333858)
+
+ -- Sven Luther <luther@debian.org>  Sun, 16 Oct 2005 11:46:07 +0200
+
 yaird (0.0.11-4) unstable; urgency=low
 
   * Patch perl/Parser.pm to allow identifiers with leading digit or

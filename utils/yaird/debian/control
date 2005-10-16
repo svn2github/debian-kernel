@@ -8,6 +8,7 @@ Standards-Version: 3.6.2.0
 Package: yaird
 Architecture: any
 Depends: ${shlibs:Depends}, ${perl:Depends}, libhtml-template-perl, dash, libparse-recdescent-perl
+Provides: linux-ramdisk-tool
 Suggests: doc-base
 Description: Yet Another mkInitRD
  Yaird generates initial boot images in initramfs format.

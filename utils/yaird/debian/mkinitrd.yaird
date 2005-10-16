@@ -24,40 +24,78 @@
 PROG=mkinitrd.yaird
 outfile=''
 
-while getopts "d:km:o:r:" flag; do
-	case $flag in
-	d)
-		echo "$PROG: $flag unsupported"
+TEMP=`getopt -o d:km:o:r: --long supported-host-version:,supported-target-version: -n "$prg" -- "$@"`
+
+# Check for non-GNU getopt
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+while true ; do
+	case "$1" in
+	-d)
+		echo "$PROG: $1 unsupported" >&2
 		exit 1
 		;;
-	k)
-		echo "$PROG: $flag unsupported"
+	-k)
+		echo "$PROG: $1 unsupported" >&2
 		exit 1
 		;;
-	m)
-		# ignore 
+	-m)
+		# ignore
+		shift 2
 		;;
-	o)
-		outfile="$OPTARG"
+	-o)
+		outfile="$2"
+		shift 2
 		;;
-	r)
-		echo "$PROG: $flag unsupported"
+	-r)
+		echo "$PROG: $1 unsupported" >&2
 		exit 1
+		;;
+	--supported-host-version)
+		supported_host_version="$2"
+		shift 2
+		;;
+	--supported-target-version)
+		supported_target_version="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
 		;;
 	*)
-		echo "$PROG: unknown option $flag"
+		echo "Internal error!" >&2
 		exit 1
 		;;
 	esac
 done
-shift $(($OPTIND - 1))
+
+if [ -n "$supported_host_version" ] || [ -n "$supported_target_version" ]; then
+	if [ -n "$supported_host_version" ]; then
+		host_upstream_version=${supported_host_version%%-*}
+		if dpkg --compare-versions "$host_upstream_version" lt "2.6.8"; then
+			echo "$PROG: host version too old" >&2
+			exit 1
+		fi
+	fi
+	if [ -n "$supported_target_version" ]; then
+		target_upstream_version=${supported_target_version%%-*}
+		if dpkg --compare-versions "$target_upstream_version" lt "2.6.8"; then
+			echo "$PROG: target version too old" >&2
+			exit 1
+		fi
+	fi
+	exit 0
+fi
 
 if [ "$outfile" = "" ]; then
-	echo "$PROG: no output file specified"
+	echo "$PROG: no output file specified" >&2
 	exit 1
 fi
 if [ $# -gt 1 ]; then
-	echo "$PROG: extra arguments found"
+	echo "$PROG: extra arguments found" >&2
 	exit 1
 fi
 
@@ -76,7 +114,7 @@ esac
 
 case $VERSION in
 */*)
-	echo $PROG: $VERSION is not a valid kernel version >&2
+	echo "$PROG: $VERSION is not a valid kernel version" >&2
 	exit 1
 	;;
 esac
