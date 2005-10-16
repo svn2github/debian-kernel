@@ -1,0 +1,290 @@
+.TH YAIRD 8
+.SH NAME
+yaird \- generate initial boot image as initramfs or initrd
+.SH SYNOPSIS
+.B yaird
+.BI --output= dest
+.RI [ options... ]
+.RI [ version ]
+.br
+.B yaird
+.B --test
+.RI [ options... ]
+.RI [ version ]
+.SH DESCRIPTION
+.I Yaird
+(Yet Another MkInitRD)
+generates initial boot images in initrd or initramfs format.
+This is an intermediate step
+between the boot loader and the init scripts on the root file system;
+it loads modules and enables devices to a level
+where the kernel can access the real root file system,
+and then hands over control to the init scripts.
+You need a new boot image every time you install a new kernel,
+and when you switch to a different root device.
+If you are using distribution provided kernels,
+building the boot image is likely to be done automatically by the
+installation software.
+.P
+Most distributions include a distribution-specific tool called
+.IR mkinitrd (8)
+for the same task.
+The
+.I yaird
+alternative differs in that it only supports 2.6 kernels:
+that means it can use the information provided by newer kernels
+to build smaller images and if necessary produce better error messages.
+.P
+Another difference is that there is a clear separation between the
+code that analyses the system and the templates that determine how
+these actions are handled by the boot image; this separation makes it
+relatively simple to customise the generated images.
+.P
+The following configurations are supported: SATA, IDE, LVM2, mdadm,
+cryptsetup, cryptsetup-luks, USB keyboards, NFS root.
+.P
+The following are untested: USB storage, SCSI storage.
+.P
+Not yet supported: EVMS, swsusp, firewire, DASD, loopback, loopaes, dmraid.
+.\"
+.SH OPTIONS
+.TP
+.BI "-f, --format=" format
+Produce the image in this format.
+Valid formats are: directory, cramfs, cpio.
+Use the cpio format to get an image for use with the 'initramfs'
+model of booting; this is the preferred model for 2.6 kernels.
+Use 'directory' to leave the image as a directory instead of packing it,
+either for debugging purposes or to pack it in a file system format
+of your preference.
+Use 'cramfs' to get an image in the cramfs file system format
+for use with the older 'initrd' model of booting.
+The default is determined by the main configuration file.
+.TP
+.BI "-o, --output=" destination
+Place result here.
+The destination must not exist yet.
+There is no default for this option.
+.TP
+.BI "-c, --config=" config-file
+The configuration file that specifies what the
+initial boot image should do.
+The default is .../lib/yaird/conf/Default.conf
+.TP
+.B "-h, -?, --help"
+Print help text and exit.
+.TP
+.B "-V, --version"
+Print version and exit.
+.TP
+.B "-v, --verbose"
+Print progress messages.
+.TP
+.B "-d, --debug"
+Print debugging information.
+.TP
+.B "-q, --quiet"
+Suppress warning messages.
+.TP
+.B "-t, --test"
+Print overview of system data and exit;
+used as basis for debugging.
+.SH USAGE
+Root privileges are required to use
+.IR yaird .
+.P
+When booting a yaird generated image,
+the presence of a kernel command line parameter 'ydebug'
+will trigger debugging options in the image:
+showing commands as they are executed, an interactive
+shell before control is handed over to the init scripts.
+.P
+If you're using
+.IR mdadm (8),
+you may find that not all md devices are created when booting with 
+.IR yaird.
+The solution is to add an "auto=md" option to all devices in
+.IR /etc/mdadm/mdadm.conf .
+.P
+If you're using
+.IR cryptsetup (8)
+for your root device, you need a configuration file
+.I /etc/crypttab
+in order to determine which hash function is used
+and to verify that the passphrase will be supplied by the controlling
+terminal.
+This file is a Debian invention; if your distribution does not document it,
+consult your favourite search engine.
+For an encrypted device
+.IR /dev/mapper/crypted ,
+the configuration file should look more or less as follows:
+
+.RS
+# <target device> <source device> <key file> <options>
+.br
+crypted /dev/sda3 none cipher=aes-cbc-plain
+.RE
+
+For cryptsetup-luks, the same configuration file is used.
+.P
+If you want the generated initial image to boot into a file system
+other than the root in the current
+.IR /etc/fstab ,
+or to do booting over NFS, modify the main configuration file.
+.P
+If you're using an NFS root, note that your systems init scripts
+may need changes to work properly.  As an example, resetting a
+network interface card to get it in a known state may be a good idea in
+general, but not if your root file system is accessed via that interface.
+.SH EXAMPLES
+Assuming the main configuration file holds something like:
+
+.RS
+CONFIG
+.br
+	FORMAT	cpio
+.br
+	TEMPLATE FILE "/usr/local/lib/yaird/conf/Templates.cfg"
+.br
+	GOALS
+.br
+		TEMPLATE	prologue
+.br
+		INPUT
+.br
+		MODULE		mousedev
+.br
+		MODULE		evdev
+.br
+		MOUNTDIR	"/" "/mnt"
+.br
+		TEMPLATE	postlude
+.br
+	END GOALS
+.br
+END CONFIG
+.RE
+
+To generate an image in initramfs format for the current kernel
+and current root disk:
+
+.RS
+yaird --output=/boot/initrd.img
+.RE
+
+To generate, with progress report, an image for kernel version 2.6.11:
+
+.RS
+yaird --verbose --output=/boot/initrd.img-2.6.11 2.6.11
+.RE
+
+To generate an image that will boot into /dev/vg0/root
+rather than the default root, edit the configuration file
+to replace MOUNTDIR with MOUNTDEV:
+
+.RS
+MOUNTDEV "/dev/vg0/root" "/mnt"
+.RE
+
+To generate an image that will boot over NFS using an ethernetcard found
+on the current machine, edit the configuration file to replace MOUNTDIR 
+with the following:
+
+.RS
+NETWORK
+.br
+MODULE nfs
+.br
+MODULE af_packet
+.br
+TEMPLATE nfsstart
+.RE
+
+To let grub load an initial boot image from local disk
+in combination with an NFS root file system on a server
+that can only handle NFS over UDP:
+
+.RS
+title	Linux 2.6.11 network boot
+.br
+root	(hd0,1)
+.br
+kernel	/vmlinuz-2.6.11 ip=eth0 nfsroot=10.1.1.1:/dat/root,udp
+.br
+initrd	/initrd.img-2.6.11
+.br
+boot
+.RE
+
+.SH FILES
+There is a main configuration file .../lib/yaird/conf/Default.cfg,
+that determines
+.IP \(em
+The default format of the generated image;
+.IP \(em
+A list of goals the image should achieve, such as loading a module
+or mounting a device;
+.IP \(em
+The location of a secondary configuration file containing templates.
+.P
+This secondary configuration file, normally .../lib/yaird/conf/Templates.cfg,
+that determines what needs to be placed on the boot image in order to
+achieve results such as mounting a device.
+These templates are at a lower level than the goals specified in the main
+configuration file: as an example the main configuration file can specify
+that a module must be loaded, without specifying pathname, extensions,
+dependencies or options, but the template file need only be able to do
+a single
+.I insmod
+with all details spelled out.
+See the HTML documentation
+for the format of these configuration files.
+.P
+Additionally, a number of other files are used to determine what should
+go on the boot image.
+.TP
+.I /sys
+Kernel-provided overview of hardware that needs to be supported.
+.TP
+.I "/etc/hotplug/blacklist, /etc/hotplug/blacklist.d"
+Modules listed here will not be considered as possible drivers for
+detected hardware.
+.TP
+.I /etc/crypttab
+Determines source of passphrase and which cryptographic algorithms
+to use for
+.I cryptsetup
+or
+.IR cryptsetup-luks .
+.TP
+.I /etc/fstab
+Which device to use as root, file system modules, mount options.
+.TP
+.I /proc/bus/input/devices
+Whether support for USB keyboards is needed.
+.TP
+.I /boot/config-2.6.11
+Which drivers are compiled into the kernel,
+so that no additional modules need to be loaded.
+.TP
+.I "/etc/modprobe.conf, /etc/modprobe.d"
+used indirectly via
+.IR modprobe (8);
+determines which options to use when loading a module into the kernel.
+.SH BUGS
+Report bugs to the author;
+adding the output of
+.I yaird
+with the --test and --verbose options helps.
+.SH AUTHOR
+Erik van Konijnenburg <ekonijn@xs4all.nl>
+.SH SEE ALSO
+.IR boot (7),
+.IR cryptsetup (8),
+.IR grub (8),
+.IR lilo (8),
+.IR mdadm (8),
+.IR mkinitrd (8),
+.IR modprobe (8).
+.P
+http://www.xs4all.nl/~ekonijn/yaird/yaird.html

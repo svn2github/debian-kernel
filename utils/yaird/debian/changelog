@@ -1,0 +1,181 @@
+yaird (0.0.11-4) unstable; urgency=low
+
+  * Patch perl/Parser.pm to allow identifiers with leading digit or
+    containing dash (like loading the modules 3c509 and ne2k-pci).
+  * Suggest doc-base.
+  * Drop ugly workaround for bug#327659 now fixed.
+  * Move configuration files below /etc, and alternatives out as
+    examples.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Thu, 13 Oct 2005 02:56:49 +0200
+
+yaird (0.0.11-3) unstable; urgency=low
+
+  * Release officially for Debian.
+    + Hotplug blacklist is now optional. Fixes bug#325768.
+  * Patch perl/Blacklist.pm to fix typo in above change (thanks to Peter
+    Samuelson <peter@p12n.org>).
+  * Patch perl/KConfig.pm to also accept "= " in values, to work with
+    default Debian powerpc images.
+  * This release also truly closes: bug#324774 (mdadm fixed in unreleased
+    0.0.11-2).
+  * Add ugly workarund in debian/rules for bug#327659.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Mon, 12 Sep 2005 06:03:48 +0200
+
+yaird (0.0.11-2) unstable; urgency=low
+
+  * Bugfix: mdadm.patch, based on upstream revision patch-64.
+    Mdadm 1.9.0 has devices= in normal scan output,
+    in 1.12.0 this info is only produced if --verbose option
+    is given.  With 1.9.0, the -v option produces completely
+    different output, that 1.12.0 only produces if -v is given
+    twice.  We first try to retrieve devices= without -v,
+    if that doesn't work, retry with -v.
+    Closes: #324774.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Thu, 25 Aug 2005 21:11:45 +0200
+
+yaird (0.0.11-1) unstable; urgency=low
+
+  * New upstream version.
+  * depends on libparse-recdescent-perl.
+  * mkinitrd.yaird no longer needs --format option
+  * rules: configure no longer knows --enable-template option
+  * rules: install default templates for debian with simple copy
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sun,  7 Aug 2005 22:10:02 +0200
+
+yaird (0.0.10-5) unstable; urgency=low
+
+  * Release officially for Debian.
+  * Manually strip build-essential from build-dependencies. Closes:
+    bug#317504 (thanks to Jeroen van Wolffelaar <jeroen@wolffelaar.nl>).
+
+ -- Jonas Smedegaard <dr@jones.dk>  Wed, 20 Jul 2005 13:24:32 +0200
+
+yaird (0.0.10-4) unstable; urgency=low
+
+  * add quilt infrastructure
+  * patch: survive missing ide-generic in kernel
+  * patch: allow uppercase and minus in kernel config vars
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sat,  2 Jul 2005 02:16:44 +0200
+
+yaird (0.0.10-3) unstable; urgency=low
+
+  * release officially for Debian.
+  * This truly closes: bug#315298 (improved long description was added
+    in 0.0.9-5).
+
+ -- Jonas Smedegaard <dr@jones.dk>  Wed, 29 Jun 2005 23:27:24 +0200
+
+yaird (0.0.10-2) unstable; urgency=low
+
+  * Avoid tla junk in generated diff.gz.
+    (no change to the package itself, just generated with different
+    dpkg-buildpackage options)
+  * Update of control file in build restored but optional:
+    set DEB_BUILD_OPTIONS=update in environment to make it happen.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Wed, 29 Jun 2005 21:44:14 +0200
+
+yaird (0.0.10-1) unstable; urgency=low
+
+  * Fix bug introduced in 0.0.9-1:
+    nfs runtime support was included, but necessary template missing.
+  * New upstream:
+     - Support legacy keyboard compiled as module.
+  * Claim compliance to policy 3.6.2.0:
+     - yes, we do docbase
+     - yes, support programs live under /usr/lib
+     - n/a, we're not a web server.
+  * Don't do automatic update of control file in build;
+    this goes against http://release.debian.org/etch_rc_policy.txt
+    (plus it's way too error prone)
+
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Tue, 28 Jun 2005 23:37:31 +0200
+
+yaird (0.0.9-5) unstable; urgency=low
+
+  * More to the point description.  Closes: #315298.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sun, 26 Jun 2005 22:25:30 +0200
+
+yaird (0.0.9-4) unstable; urgency=low
+
+  * Packaged officially for Debian, using the excellent packaging files
+    from upstream.
+  * Leaving bug#315298 open, to allow upstream to do the rewording of
+    long description.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sun, 26 Jun 2005 14:27:23 +0200
+
+yaird (0.0.9-3) unstable; urgency=low
+
+  * Sigh.  Really adapt architecture.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sat, 25 Jun 2005 19:20:35 +0200
+
+yaird (0.0.9-2) unstable; urgency=low
+
+  * really adapt maintainer name this time.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sat, 25 Jun 2005 18:36:40 +0200
+
+yaird (0.0.9-1) unstable; urgency=low
+
+  * new upstream:
+  * FSF change of address
+  * yaird html doc is GPL now, not GFDL.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sat, 25 Jun 2005 16:19:04 +0200
+
+yaird (0.0.8-4) unstable; urgency=low
+
+  * mkinitrd.yaird no longer verbose.
+  * adapt FSF address in GPL notices;
+    debian part only, address in tarball waits for 0.0.9.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Sat, 25 Jun 2005 15:32:07 +0200
+
+yaird (0.0.8-3) unstable; urgency=low
+
+  * Prepare for inclusion in official debian archive:
+  * Set new maintainer: Jonas Smedegaard <dr@jones.dk>
+  * Architecture: any.
+  * support buildinfo.
+  * add watch file.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Fri, 24 Jun 2005 21:20:41 +0200
+
+yaird (0.0.8-2) unstable; urgency=low
+
+  * Note the use of ramdisk= in /etc/kernel-img.conf.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Fri, 17 Jun 2005 12:31:59 +0200
+
+yaird (0.0.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * Change maintainer.
+  * Install html doc.
+    Some tla crap left, unavoidable given dh_installdocs interface.
+  * builddepend on xmlto
+  * mkinitrd wrapper to debian subdir to minimize changes to orig tarball
+  * mkinitrd wrapper format hardcoded to cpio format and /usr/sbin/ as
+    directory
+  * added doc-base file
+  * added mkinitrd.yaird.8 manual page.
+  * build-depends still to be done.
+  * copyright closer to example from new-maint guide.
+
+ -- Erik van Konijnenburg <ekonijn@xs4all.nl>  Thu,  9 Jun 2005 23:09:30 +0200
+
+yaird (0.0.6-1) unstable; urgency=low
+
+  * Initial Debian package.
+
+ -- Steven Ihde <sihde@hamachi.us>  Fri,  6 May 2005 21:23:22 -0700
+

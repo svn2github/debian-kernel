@@ -1,0 +1,207 @@
+<section id="shlibs">
+  <title>Supporting Shared Libraries</title>
+
+  <para>
+    When an executable is added to the image, we want any required shared
+    libraries to be added automatically.  The <code>SharedLibraries</code>
+    module determines which files are required.  This section discusses
+    the features of kernel and compiler we need to be aware of in order
+    to do this reliably.
+  </para>
+
+  <para>
+    Linux executables today are in ELF format; it is defined in
+    <ulink url="http://www.linuxbase.org/spec/book/ELF-generic/ELF-generic.html">
+      <citetitle>
+	Generic ELF Specification ELFVERSION</citetitle></ulink>,
+    part of the Linux Standard Base.  This is based on part of the System
+    V ABI: Tool Interface Standard (TIS), Executable and Linking Format
+    (ELF) Sepcification
+  </para>
+
+  <para>
+    ELF has consequences in different parts of the system: in
+    the link-editor, that needs to merge ELF object files into ELF
+    executables; in the kernel (<filename>fs/binfmt_elf.c</filename>),
+    that has to place the executable in RAM and transfer control to it,
+    and in the runtime loader, that is invoked when starting the
+    application to load the necessary shared libraries into RAM.
+    The idea is as follows.
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+	Executables are in ELF format, with a type of either
+	<code>ET_EXEC</code> (executable) or <code>ET_DYN</code> (shared
+	library; yes, you can execute those.)  There are other types of
+	ELF file (core files for example) but you can't execute them.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	These files contain two kind of headers: program headers and
+	section headers.  Program headers define segments of the file that
+	the kernel should store consequetively in RAM; section headers define
+	parts of the file that should be treated by the link editor
+	as a single unit.  Program headers normally point to a group
+	of adjacent sections.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The program may be statically linked or dynamically (with shared
+	libraries).
+	If it's statically linked, the kernel loads relevant segments,
+	then transfers control to main() in userland.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	If it's dynamically linked, one of the program headers has type
+	<code>PT_INTERP</code>.  It points to a segment that contains
+	the name of a (static) executable; this executable is loaded in
+	RAM together with the segments of the dynamic executable.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The kernel then transfers control to the userland
+	interpreter, passing program headers and related info in a
+	fourth argument to <code>main()</code>, after <code>envp</code>.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	There's one interesting twist: one of the segments loaded
+	into RAM (<filename>linux-gate.so</filename>) does not
+	come from the executable, but is a piece of kernel mapped
+	into user space.  It contains a subroutine that the kernel
+	provides to do a system call; the idea is that this way,
+	the C library does not have to know which calling convention
+	for system calls is supported by the kernel and optimal for
+	the current hardware.  The link editor knows nothing about
+	this, only the interpreter knows that the kernel can pass the
+	address of this subroutine together with the program headers.
+	<footnote>
+	  <para>
+	    For more info on the kernel-supplied shared library for
+	    system calls, see
+	
+	    <ulink url="http://lwn.net/Articles/18411/">
+	      <citetitle>LWN: How to speed up system calls</citetitle></ulink>,
+	    <ulink url="http://lwn.net/Articles/30258/">
+	      <citetitle>LWN: Patch: i386 vsyscall DSO implementation</citetitle></ulink>,
+	    <ulink url="http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/0674.html">
+	      <citetitle>LKML: common name for the kernel DSO</citetitle></ulink>.
+	  </para>
+	</footnote>
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The interpreter interprets the <code>.dynamic</code> section of
+	the dynamic executable.  This is a table containing various types
+	of info; if the type is <code>DT_NEEDED</code>, the info is the
+	name of a shared library that is needed to run the executable.
+	Normally, it's the basename.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	The interpreter searches <code>LD_LIBARY_PATH</code> for the
+	library and loads the first working version it finds, using a
+	breath-first search.  Once everything is loaded, the interpreter
+	hands over control to main in the executable.
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+	Except that that's not how it really works: the path that glibc
+	uses depends on whether threads are supported, and klibc can
+	function as a <code>PT_INTERP</code> but will not load additional
+	libraries.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    The <application>ldd</application> command finds the pathnames
+    of shared libraries used by an executable.  This works
+    only for glibc: it invokes the interpreter
+    with the executable as argument plus an environment variable that
+    tells it to print the pathnames rather than load them.  For other
+    C libraries, there's no guaranteed correct way to find the path of
+    shared libraries.
+  </para>
+
+  <para>
+    Update: <application>ldd</application> also works for another 
+    C library, uclibc, unless you disable that support while building
+    the library by unsetting <code>LDSO_LDD_SUPPORT</code>.
+  </para>
+
+  <para>
+    Thus, to figure out what goes on the initial ram image, first try
+    <application>ldd</application>.  If that gives an answer, good.
+    Otherwise, use a helper program to find <code>PT_INTERP</code> and
+    <code>DT_NEEDED</code>.  If there's only <code>PT_INTERP</code>, good,
+    add it to the image.  If there are <code>DT_NEEDED</code> libraries
+    as well, and they have relative rather than absolute pathnames,
+    we can't determine the full path, so don't generate an image.
+  </para>
+
+  <para>
+    There are a number of options to build a helper to extract the relevant
+    information from the executable:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Build it in perl.  The problem here is that unpacking 64-bit
+	  integers is an optional part of the language.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Build a wrapper around <application>objdump</application> or
+	  <application>readelf</application>.  The drawback is that
+	  there programs are not part of a minimal Linux distribution:
+	  depending on them in <application>yaird</application> would
+	  increase the footprint.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Building a C program using libbdf.  This is a library
+	  intended to simplify working with object files.  Drawbacks
+	  are that it adds complexity that is not necessary in our
+	  context since it supports multiple executable formats;
+	  furthermore, at least in Debian it is treated as internal
+	  to the gcc tool chain, complicating packaging the tool.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Building a C program based on <filename>elf.h</filename>.
+	  This turns out to be easy to do.
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    <application>Yaird</application> uses the last approach listed.
+  </para>
+</section>

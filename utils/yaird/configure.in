@@ -1,0 +1,82 @@
+# 
+# configure.in -- what to configure before building the package
+#   Copyright (C) 2005  Erik van Konijnenburg
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+#
+# Process this file with autoconf to produce a configure script.
+#
+
+# autoconf claims that this should be package name;
+# but it seems that the name of a randomly choosen but
+# existing file is required.
+AC_INIT(perl/main.pl)
+
+YAIRD_VERSION=0.0.11
+AM_INIT_AUTOMAKE(yaird,${YAIRD_VERSION})
+
+#
+# Optional feature
+#
+AC_ARG_ENABLE(nuke,
+	AC_HELP_STRING([--enable-nuke],
+		[Nuke initramfs before moving to real root]),
+	[
+		case "${enableval}" in
+		yes) enable_nuke=true ;;
+		no)  enable_nuke=false ;;
+		*) AC_MSG_ERROR(bad value ${enableval} for --enable-nuke) ;;
+		esac
+	],[
+		enable_nuke=false
+		])
+if test "$enable_nuke" = true; then
+	AC_DEFINE(ENABLE_NUKE,1,
+		[Define to nuke initramfs before moving to real root])
+fi
+
+# Checks for programs.
+AC_PATH_PROG(PERL,perl)
+AC_PROG_CC
+AC_PROG_RANLIB
+
+#
+# XML formatting; unclear what processor is most widely available.
+#
+AC_PATH_PROG(XMLTO,xmlto,:)
+
+# Checks for libraries.
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+# Use this when we need to compile C programs.
+AM_CONFIG_HEADER(include/config.h)
+
+AC_CONFIG_FILES([
+	Makefile
+	templates/Makefile
+	perl/Makefile
+	doc/Makefile
+	exec/Makefile
+	exec/ipconfig/Makefile
+	exec/nfsmount/Makefile
+	man/Makefile
+	doc/yaird.xml
+	])
+AC_OUTPUT()
+

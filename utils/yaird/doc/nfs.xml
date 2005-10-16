@@ -1,0 +1,205 @@
+<section id="nfs">
+  <title>Supporting NFS Root</title>
+
+  <para>
+    It is possible to use an NFS share rather than a local disk
+    as root device; this is (obviously) useful for diskless terminals,
+    but it also can come in handy for recovery.
+  </para>
+
+  <para>
+    Examples of projects using NFS root for diskless work
+    are
+    	<ulink url="http://www.ltsp.org/">LTSP</ulink>,
+	<ulink url="http://lessdisks.net/">Lessdisks</ulink> and
+	<ulink url="http://people.redhat.com/~hp/stateless/StatelessLinux.pdf"
+	>Stateless Linux</ulink>.
+    In these projects, the initial boot image comes with the distribution
+    and it must be sufficiently generic to support a wide range of
+    hardware; in particular it must probe for different network
+    cards.  For yaird, we'll focus on recovery use, where the initial
+    boot image is tailored for a single computer.
+  </para>
+
+  <para>
+    Although in principe the kernel and initial boot image for an NFS root
+    system can be stored on a local disk, it's more common to have them
+    loaded over the network with TFTP.  This means you'll need a boot loader
+    that can work over the network, such as pxelinux.
+    This takes place before the initial boot image takes over;
+    we won't dive into the details here.
+  </para>
+
+  <para>
+    There are a number of issues that make it impossible to automatically
+    determine exactly what is needed to do a network boot:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Not all interfaces are suitable for booting: think of
+	  loopback devices IPsec tunnels, 802.1Q endpoints.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Interfaces may be renamed by <application>udev</application>;
+	  thus there is no link between the name while running
+	  <application>yaird</application> and the name while
+	  running the initial boot image.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Once the system is running, there is no way to determine
+	  how an interface got its IP address: could be RARP, DHCP
+	  or static.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  An NFS share in <filename>/etc/fstab</filename> contains
+	  a hostname and directory, with no portable indication how
+	  that name is resolved to an IP address, whether that IP
+	  address will be unchanged during the next reboot and whether
+	  the route to that IP address will stay unchanged.
+	</para>
+      </listitem>
+    </itemizedlist>
+    This means we cannot determine how to mount the NFS root using
+    only information that is readily available on the running system:
+    we'll need a hint.  Rather than give that hint in the form of
+    <application>yaird</application> configuration options, we will
+    use the kernel command line.
+  </para>
+
+  <para>
+    The NFS part of the boot process takes place after
+    loading of keyboard drivers and before switching to the
+    final root.  It has the following phases:
+    
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Load device drivers for every interface that is backed
+	  by hardware: <filename>/sys/class/net/*/device</filename>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  load protocols:
+	  nfs for file sharing (this implies lockd and sunrpc),
+	  and af_packet for raw ether, needed for DHCP.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Configure interfaces: get an IP address, netmask, broadcast,
+	  gateway.  As a side effect, get hostname, dns, rootserver,
+	  rootpath.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Mount the NFS root.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    The last two steps are done by a single program,
+    <application>trynfs</application>.  This is based on the klibc
+    components <application>ipconfig</application> and
+    <application>nfsmount</application>.
+
+    This program only is invoked if the kernel command line parameter
+    ip= (or its alias nfsaddrs=) is set.  The kernel parameters ip=,
+    nfsaddrs=, nfsroot= are passed as arguments to
+    <application>trynfs</application>.
+  </para>
+
+  <para>
+    <application>Yaird</application> has an option "--nfs" with possible
+    values "none" (default), "option" and "only".  With "none", no NFS
+    code is generated.  With "option" and "only", NFS code is generated,
+    and it is an error if no hardware-backed network interface is found.
+    With "option", the NFS code is generated before the code to mount the
+    root on hard disk; if no "ip=" kernel command line parameter is given,
+    the system boots from disk.
+    With "only", only the NFS code is generated, with no code to access
+    file systems on harddisk.  If no "ip=" kernel command line parameter
+    is given, the system falls in the "attempt to kill init" at the end
+    of the boot script.
+  </para>
+
+  <simplesect id="nfs4">
+    <title>NFS Pitfalls</title>
+
+    <para>
+      <application>Yaird</application> can get the system to a state
+      where init is running from an NFS mounted root device, but that
+      is not always sufficient to get a reliable system: the init
+      scripts will also need to be written to work well in an NFS
+      mounted environment.  This section discusses some potential
+      problems.
+    </para>
+
+    <para>
+      The Linux version of NFSv4 (<ulink
+      url="http://www.nfsv4.org/">Working Group</ulink>,
+      <ulink url="http://www.citi.umich.edu/projects/nfsv4/">Linux
+      reference implementation</ulink>)
+      has a new channel of communication between the kernel and user
+      space: rpc_pipefs.  This is normally mounted on
+      <filename>/ar/lib/nfs/rpc_pipefs</filename>, and is used to
+      let a user space daemon do locking and Kerberos on behalf of the
+      kernel.
+    </para>
+
+    <para>
+      The rpc_pipefs support on a machine can interfere with
+      <application>yaird</application>.  As an example, in Fedora,
+      <filename>/etc/modprobe.conf.dist</filename> has an 'install'
+      line for module 'sunrpc' that automatically mounts the
+      rpc_pipefs filesystem when the module is loaded.  This means
+      the filesystem is not mounted if the sunrpc module happens
+      to be compiled into the kernel; it also can't be mounted if
+      sunrpc is loaded from the initial boot image, since there is no
+      <filename>/var/lib/nfs/rpc_pipefs</filename> yet to mount it on.
+      When <application>yaird</application> sees such an install line,
+      it can no longer determine what should go on the initial boot
+      image and terminates.
+    </para>
+
+    <para>
+      The workaround is to remove the 'install' line from
+      <filename>modprobe.conf</filename> and to do the mounting
+      in an <filename>/etc/init.d</filename> script before the
+      <application>rpc.gssd</application> and
+      <application>rpc.statd</application> daemons are started.
+    </para>
+
+    <para>
+      Note that using Kerberos with an NFS mounted root is of
+      questionable value: Kerberos relies on a secret file on the root
+      file system to guarantee the security of NFS, and if that secret
+      file is on an NFS file system that is itself not protected by
+      Kerberos, the guarantee loses value.
+    </para>
+
+    <para>
+      Another potential problem is dhclient, a tool to configure a
+      network interface with DHCP.  This can call a user script
+      to manage DHCP state changes, and on FC4, that script happens
+      to stop and start the interface to get it to a known state.
+      Since the script itself is accessed over NFS via the interface,
+      the stopping works, but the starting doesn't ...  By using a
+      fixed IP address you avoid this problem, but that is not a 
+      generally applicable solution.
+    </para>
+  </simplesect>
+</section>

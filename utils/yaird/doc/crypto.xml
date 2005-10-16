@@ -1,0 +1,334 @@
+<section id="crypto">
+  <title>Supporting Encrypted Disks</title>
+
+  <para>
+    To protect the content of your disk against unwanted reading
+    even if the machine is stolen, it can make sense to encrypt the disk.
+    This section discusses Linux support for disk encryption and
+    the impact this has on the initial boot image.
+  </para>
+
+  <para>
+    The idea here is to encrypt the entire disk with a single key:
+    the kernel encrypts and decrypts all blocks on an underlying
+    device and presents it as a new ordinary block device, where
+    you can use mkfs and fsck as always.  Thus an encrypted disk
+    only protects the confidentiality of your data in cases where
+    the hardware is first switched off and then taken away for later
+    perusal by the bad guys.  It will not protect confidentiality
+    if the bad guy gains access to a running system, either through
+    an exploit or with a valid account.
+  </para>
+
+  <para>
+    There are different implementations of this idea.  All implementations
+    use the kernel crypto modules (the same stuff that supports IPsec),
+    but they differ in how that cryptography is squeezed between userland
+    and the diskplatter.<footnote><para>See GDBE for a similar mechanism under
+    BSD.</para></footnote>
+    Note that we do not compare how effective the various implementations are
+    at keeping your data secret: if your data is important enough to encrypt,
+    it's also important enough to do your own research into which implementation
+    is most robust.
+    <variablelist>
+
+      <varlistentry>
+	<term>
+	  cryptoloop
+	</term>
+	<listitem>
+	  <para>
+	    Is in mainline kernel 2.6.10, but has reliability problems, such as
+	    possible deadlocks.  The cryptoloop maintainer:
+	    "We should support cryptoloop. No new features, but working
+	    well. At the same time we should declare it 'deprecated' and
+	    provide dm-crypt as alternative."
+	    See <ulink url="http://kerneltrap.org/node/2433">kerneltrap</ulink>
+	    for background.
+	    The on-disk format is trivial: just the encrypted data.
+	    When the device is initialised, the user enters a passphrase
+	    and a hash of this phrase is used as key to do the decryption,
+	    and if the result is a filesystem, the key was valid.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>
+	  dm-crypt
+	</term>
+	<listitem>
+	  <para>
+	    Is in mainline kernel since 2.6.4.  It uses device mapper
+	    (the same framework that is also used by LVM), which makes
+	    it more stable than cryptoloop.
+	    See <ulink url="http://www.saout.de/misc/dm-crypt/">dm-crypt:
+	    a device-mapper crypto target</ulink>.
+	    Dm-crypt can use the same on-disk format as cryptoloop, but
+	    the device mapper makes it easy to reserve part of the disk
+	    for a partition header with key material.
+	  </para>
+	  <para>
+	    Such a partition header, <ulink url="http://luks.endorphin.org/">LUKS</ulink>,
+	    is now under development; it will offer improved protection
+	    against dictionary attacks and will make it easier to change
+	    the password on an encrypted disk.  Due to the way the device
+	    mapper works, support for the partition header can be implemented
+	    completely in userspace.
+	  </para>
+	  <para>
+	    LUKS is integrated in Gentoo and
+	    included in Fedora FC4 test1.  A debian package exists
+	    (<ulink url="http://einsteinmg.dyndns.org/debian/unstable/">cryptsetup-luks</ulink>),
+	    but is not (yet) included in the main archive.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>
+	  loopaes
+	</term>
+	<listitem>
+	  <para>
+	    An encrypting loop device; see
+	    <ulink url="http://loop-aes.sourceforge.net">http://loop-aes.sourceforge.net</ulink>,
+	    <ulink url="http://mail.nl.linux.org/linux-crypto/">http://mail.nl.linux.org/linux-crypto/</ulink>.
+	    It's not in mainline kernel, and the author has no intentions
+	    of pushing it in.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </para>
+
+  <para>
+    All these implementations need some kind of userspace tool to pass
+    key material to the kernel; this key material may come from lots of
+    places:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  in the most simple case, it could be a hashed version of the
+	  password
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  it could be a large random key stored in a gpg-encrypted file
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  for swap devices, it could be randomly regenerated on each reboot
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  for file systems other than the root, it could be from a file
+	  with mode 600 on the root file system
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  the key could be stored on a USB stick, stored separately
+	  from the machine.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+
+  <para>
+    An overview of relevant userspace tools:
+    <itemizedlist>
+
+      <listitem>
+	<para>
+	  the losetup command has an encryption option to use the
+	  cryptoloop module.  Note that this does not cause cryptoloop
+	  to be mounted automatically.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  versions of the mount command in Debian and Fedora have
+	  a 'loop,encryption' option that will be passed to losetup
+	  for use with cryptoloop, like so:
+	  <programlisting>
+	    /dev/vg0/crwrap /crypt1 ext3 loop,encryption=aes,noauto 0 0
+	  </programlisting>
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The dmsetup command can set and show parameters (including
+	  key hashes!) for dm based devices, including dm-crypt and
+	  LVM.  With a bit of shell scripting, you can hash a password
+	  and pass it on the command line to set up a dm-crypt device.
+	  <programlisting>
+	    # : dont bother cracking this key, its a dummy
+	    # dmsetup table
+	    crypted: 0 2097152 crypt aes-cbc-plain \
+		    e9975dcb10992fbc03a52f44e8f830d8e997\
+		    5dcb10992fbc03a52f44e8f830d8e9975dcb\
+		    10992fbc03a52f44e8f830d8 0 254:7 0
+	    vg0-crwrap: 0 2097152 linear 8:3 56623488
+	    #
+	  </programlisting>
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The cryptsetup command adds a friendly wrapper around this.
+	  In particular, it has hashing of the keyword built in.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  A modified package cryptsetup-luks exists, that adds
+	  extra options to (1) create a luks headers for a partition and
+	  (2) open a partition given one of a number of possible
+	  passphrases.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The file <filename>/etc/crypttab</filename> is a debian
+	  extension to cryptsetup: it provides a list of crypted
+	  devices, their underlying devices, corresponding cipher
+	  and hash settings, plus the source for the passphrase:
+	  either some file or the controlling terminal.  This allows the devices
+	  to be activated by /etc/init.d/cryptdisks.  There is a
+	  thread on adding <filename>/etc/crypttab</filename> to
+	  Fedora: too late for FC3, to be considered again for FC4:
+	  see <ulink url="https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=124789">here</ulink>
+	  and
+	  <ulink url="https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=133461">here</ulink>.
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    In order to activate an encrypted device with cryptsetup,
+    we need to detect:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  which underlying device to use
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  which encryption and hash algorithm to use
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  where the passphrase comes from
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  whether we have a plain crypted partition from LUKS partition
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    In order to determine all these points we need information from
+    <filename>/etc/crypttab</filename>; as a consistency check, we'll
+    compare this to the output from "cryptsetup
+    status".<footnote>
+      <para>
+	The output from "dmsetup table" would be an alternative.
+	It's easier to parse, but introduces an additional package
+	dependency.
+      </para>
+    </footnote>
+  </para>
+
+  <para>
+    The resulting actions:
+    <orderedlist>
+      <listitem>
+	<para>
+	  If the source of the passphrase is something other than
+	  the console, abort.  There are too many variables to support
+	  this reliably.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  For the passphrase hash algorithm, no modules need to be loaded,
+	  since it is included by cryptsetup from a user space
+	  library.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Make the underlying device available.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Modprobe the dm-crypt and the cipher (the module name
+	  is the part of the cipher name before the first hyphen).
+	  If the cipher block mode needs a hash, load that too.
+	  Note that the cipher block mode hash is something
+	  different from the passphrase hash: it's the part after
+	  the colon in eg 'aes-cbc-essiv:sha256'.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  For plain cryptsetup, invoke an action with the following
+	  parameters:
+	  <programlisting>
+	    cryptsetup  target=device
+			src= ...
+			hash= ...
+			cipher= ...
+			size= ...
+			verify=y|undef
+	  </programlisting>
+	  Here the cryptsetup action will result in a script
+	  fragment in /init that has "cryptsetup create" in a loop
+	  until exit status is 0.  For plain cryptsetup,
+	  this only has effect in combination with the "verify"
+	  option: exit status is 0 is the user gives the same
+	  password twice in succession.  With cryptsetup-luks,
+	  this would test that the passphrase actually gives access
+	  to the encrypted device.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  For cryptsetup-luks, invoke a similar action with fewer
+	  parameters, since so much of the required information
+	  is already in the header.
+	</para>
+      </listitem>
+    </orderedlist>
+  </para>
+</section>

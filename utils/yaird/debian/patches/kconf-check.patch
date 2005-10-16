@@ -1,0 +1,26 @@
+Replace-subject: allow space and equals sign in kernel config vars
+
+Forgot to report that the earlier fix was not enough (should be obvious
+now that it is pointed out):
+
+yaird error: bad value in /boot/config-2.6.13-git10+squashfs+wrr+fbsplash:
+CONFIG_CMDLINE="console=ttyS0,9600 console=tty0" (fatal)
+
+yaird error: bad value in /boot/config-2.6.13-git10+squashfs+wrr+fbsplash:
+CONFIG_CMDLINE="console=ttyS0,9600 console=tty0" (fatal)
+
+Fix: Allow " =" in KConfig.pm line 69.
+
+Index: yaird-0.0.10/perl/KConfig.pm
+===================================================================
+--- yaird-0.0.10.orig/perl/KConfig.pm	2005-07-02 01:31:43.000000000 +0200
++++ yaird-0.0.10/perl/KConfig.pm	2005-07-02 01:33:30.000000000 +0200
+@@ -66,7 +66,7 @@
+ 			|| $value eq 'm'
+ 			|| $value =~ /^-?\d+$/
+ 			|| $value =~ /^0x[0-9a-f]+$/
+-			|| $value =~ /^"[-a-zA-Z0-9,._\/]*"$/
++			|| $value =~ /^"[-a-zA-Z0-9,._\/= ]*"$/
+ 		) {
+ 			$kConfMap->{$key} = $value;
+ 		}

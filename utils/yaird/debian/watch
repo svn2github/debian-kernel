@@ -1,0 +1,3 @@
+# run the "uscan" command to check for upstream updates and more.
+version=3
+http://www.xs4all.nl/~ekonijn/yaird/yaird-(.*)\.tar\.gz	debian	uupdate

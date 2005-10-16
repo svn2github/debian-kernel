@@ -1,0 +1,48 @@
+.TH MKINITRD.YAIRD 8
+.SH NAME
+mkinitrd.yaird \- mkinitrd for initramfs
+.SH SYNOPSIS
+.B mkinitrd.yaird
+.BI -o destination
+.RI [ version ]
+.SH DESCRIPTION
+.I Mkinitrd.yaird
+is a wrapper around
+.IR yaird (8)
+that accepts the same command line arguments as the Debian program
+.IR mkinitrd (8),
+a tool to create an initial boot image.
+.P
+To let
+.I yaird
+build the initial boot image when a Debian kernel package is installed,
+rather than the default
+.IR mkinitrd ,
+put the following line in 
+.IR /etc/kernel-img.conf :
+
+.RS
+ramdisk = /usr/sbin/mkinitrd.yaird
+.RE
+
+Support for the ramdisk variable is built into the kernel package;
+it is available in Debian kernels packaged since june 2005.
+.SH OPTIONS
+.TP
+.BI "-o" destination
+Place result here.
+The destination must not exist yet.
+There is no default for this option.
+.TP
+.BI "-m" command
+This option is ignored.
+.TP
+version
+The kernel version for which the initial boot image
+is to be generated.
+.SH AUTHOR
+Erik van Konijnenburg <ekonijn@xs4all.nl>
+.SH SEE ALSO
+.IR yaird (8),
+.IR mkinitrd (8),
+.IR kernel-img.conf (5).

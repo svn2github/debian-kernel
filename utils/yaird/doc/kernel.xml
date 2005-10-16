@@ -1,0 +1,534 @@
+<section id="kernel">
+  <title>The interface between kernel and image</title>
+
+  <para>
+    The initial boot image is supposed to load enough modules to let
+    the real root device be mounted cleanly.  It starts up in a
+    <emphasis>very</emphasis> bare environment and it has to do tricky
+    stuff like juggling root filesystems; to pull that off successfully
+    it makes sense to take a close look at the environment that the
+    kernel creates for the image and what the kernel expects it to do.
+    This section contains raw design notes based on kernel 2.6.8.
+  </para>
+
+  <para>
+    The processing of the image starts even before the kernel is
+    activated.  The bootloader, grub or lilo for example, reads two
+    files from the boot file system into ram: the kernel and image.
+    The bootloader somehow manages to set two variables in the kernel:
+    <code>initrd_start</code> and <code>initrd_end</code>; these variables
+    point to the copy of the image in ram.  The bootloader now
+    hands over control to the kernel.
+  </para>
+
+  <para>
+    During setup, the kernel creates a special file system, rootfs.
+    This mostly reuses ramfs code, but there are a few twists: it can
+    never be mounted from userspace, there's only one copy, and it's not
+    mounted on top of anything else.  The existence of rootfs means that
+    the rest of the kernel always can assume there's a place to mount
+    other file systems.  It also is a place where temporary files can
+    be created during the boot sequence.
+  </para>
+
+    <para>
+      In <code>initramfs.c:populate_rootfs()</code>, there are two
+      possibilities.  If the image looks like a cpio.gz file, it is
+      unpacked into rootfs.  If the file <filename>/init</filename> is
+      among the files unpacked from the cpio file, the initramfs model
+      is used; otherwise we get a more complex interaction between kernel
+      and initrd, discussed in <xref linkend="initrd"/>.
+    </para>
+
+  <simplesect>
+    <title>Booting with Initramfs</title>
+    <para>
+      If the image was a cpio file, and it contains a file
+      <filename>/init</filename>, the initram model is used.
+      The kernel does some basic setup and hands over control to
+      <filename>/init</filename>; it is then up to
+      <filename>/init</filename> to make a real root available and to
+      transfer control to the <filename>/sbin/init</filename> command
+      on the real root.
+    </para>
+
+    <para>
+      The tricky part is to do that in such a way that there
+      is no way for user processes to gain access to the rootfs
+      filesystem; and in such a way that rootfs remains empty and
+      hidden under the user root file system.  This is best done
+      using some C code; <application>yaird</application> uses
+      <application>run_init</application>, a small tool based on
+      <application>klibc</application>.
+      <programlisting>
+	# invoked as last command in /init, with no other processes running,
+	# as follows:
+	# exec run_init /newroot /sbin/init "$@"
+	- chdir /newroot
+	# following after lots of sanity checks and not across mounts:
+	- rm -rf /*
+	- mount --move . /
+	- chroot .
+	- chdir /
+	- open /dev/console
+	- exec /sbin/init "$@"
+      </programlisting>
+    </para>
+
+  </simplesect>
+
+  <simplesect id="initrd">
+    <title>Booting with initrd</title>
+    <para>
+      If the image was not a cpio file, the kernel copies the
+      initrd image from where ever the boot loader left it to
+      <filename>rootfs:/initrd.image</filename>, and frees the ram used
+      by the bootloader for the initrd image.
+    </para>
+
+    <para>
+      After reading initrd, the kernel does more setup to the point where
+      we have:
+      <itemizedlist>
+
+	<listitem>
+	  <para>
+	      working CPU and memory management
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      working process management
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      compiled in drivers activated
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      a number of support processes such as ksoftirqd are created.
+	      (These processes have the rootfs as root; they can get a new
+	      root when the <code>pivot_root()</code> system call is used.)
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      something like a console.  <code>Console_init()</code> is
+	      called before PCI or USB probes, so expect only compiled in
+	      console devices to work.
+	  </para>
+	</listitem>
+
+      </itemizedlist>
+    </para>
+
+    <para>
+      At this point, in <code>do_mounts.c:prepare_namespace()</code>,
+      the kernel looks for a root filesystem to mount.  That root file
+      system can come from a number of places: NFS, a raid device, a plain
+      disk or an initrd.  If it's an initrd, the sequence is as follows
+      (where devfs can fail if it's not compiled into the kernel)
+
+      <programlisting>
+      - mount -t devfs devfs /dev
+      - md_run_setup()
+      - process initrd
+      - umount /dev
+      - mount --move . /
+      - chroot .
+      - mount -t devfs devfs /dev
+      </programlisting>
+
+    </para>
+
+    <para>
+      Once that returns, in <code>init/main.c:init()</code>,
+      initialisation memory is freed and <filename>/sbin/init</filename>
+      is executed with <code>/dev/console</code> as file  descriptor 0, 1
+      and 2.  <filename>/sbin/init</filename> can be overruled with
+      an <code>init=/usr/bin/firefox</code> parameter passed to the
+      boot loader; if <filename>/sbin/init</filename> is not found,
+      <filename>/etc/init</filename> and a number of other fallbacks
+      are tried.  We're in business.
+    </para>
+
+    <para>
+      The processing of initrd starts in
+      <code>do_mounts_initrd.c:initrd_load()</code>.  It creates
+      <filename>rootfs:/dev/ram</filename>, then copies
+      <filename>rootfs:/initrd.image</filename> there and unlinks
+      <filename>rootfs:/initrd.image</filename>.  Now we have the initrd
+      image in a block device, which is good for mounting.  It calls
+      <code>handle_initrd()</code>, which does:
+
+      <programlisting>
+      # make another block special file for ram0
+      - mknod /dev/root.old b 1 0
+      # try mounting initrd with all known file systems,
+      # optionally read-only
+      - mount -t xxx /dev/root.old /root
+      - mkdir rootfs:/old
+      - cd /root
+      - mount --move . /
+      - chroot .
+      - mount -t devfs devfs /dev
+      - system ("/linuxrc");
+      - cd rootfs:/old
+      - mount --move / .
+      - cd rootfs:/
+      - chroot .
+      - umount rootfs:/old/dev
+      - ... more ...
+      </programlisting>
+
+    </para>
+
+    <para>
+      So <filename>initrd:/linuxrc</filename> runs in an environment where
+      initrd is the root, with devfs mounted if available, and rootfs is
+      invisible (except that there are open file handles to directories
+      in rootfs, needed to change back to the old environment).
+    </para>
+
+    <para>
+      Now the idea seems to have been that <filename>/linuxrc</filename>
+      would mount the real root and <code>pivot_root</code> into it, then start
+      <filename>/sbin/init</filename>.  Thus, linuxrc would never return.
+      However, <code>main.c:init()</code> does some usefull stuff only
+      after linuxrc returns: freeing init memory segments and starting numa
+      policy, so in eg Debian and Fedora, <filename>/linuxrc</filename>
+      will end, and <filename>/sbin/init</filename>
+      is started by <code>main.c:init()</code>.
+    </para>
+
+    <para>
+      After linuxrc returns, the variable <code>real_root_dev</code>
+      determines what happens.  This variable can be read and written
+      via <filename>/proc/sys/kernel/real-root-dev</filename>.  If it
+      is 0x0100 (the device number of <filename>/dev/ram0</filename>)
+      or something equivalent, <code>handle_initrd()</code> will change
+      directory to <filename>/old</filename> and return.  If it is
+      something else, <code>handle_initrd()</code> will decode it, mount
+      it as root, mount initrd as <filename>/root/initrd</filename>,
+      and again start <filename>/sbin/init</filename>.  (if mounting as
+      <filename>/root/initrd</filename> fails, the block device is freed.)
+    </para>
+
+    <para>
+      Remember <code>handle_initrd()</code> was called via
+      <code>load_initrd()</code> from <code>prepare_namespace()</code>,
+      and <code>prepare_namespace()</code> ends by chrooting into the
+      current directory: <filename>rootfs:/old</filename>.
+    </para>
+
+    <para>
+      Note that <filename>rootfs:/old</filename> was move-mounted
+      from '/' after <filename>/linuxrc</filename> returned.
+      When <filename>/linuxrc</filename> started, the root was
+      initrd, but <filename>/linuxrc</filename> may have done a
+      <code>pivot_root()</code>, replacing the root with a real root,
+      say <filename>/dev/hda1</filename>.
+    </para>
+
+    <para>
+      Thus:
+      <itemizedlist>
+
+	<listitem>
+	  <para>
+	      <filename>/linuxrc</filename> is started with initrd
+	      mounted as root.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      There is working memory management, processes, compiled
+	      in drivers, and stdin/out/err are connected to a console,
+	      if the relevant drivers are compiled in.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      Devfs may be mounted on <filename>/dev</filename>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      <filename>/linuxrc</filename> can <code>pivot_root</code>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      If you echo 0x0100 to
+	      <filename>/proc/sys/kernel/real-root-dev</filename>,
+	      the <code>pivot_root</code> will remain in effect after
+	      <filename>/linuxrc</filename> ends.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	      After <filename>/linuxrc</filename> returns,
+	      <filename>/dev</filename> may be unmounted and replaced
+	      with devfs.
+	  </para>
+	</listitem>
+
+      </itemizedlist>
+    </para>
+
+    <para>
+      Thus a good strategy for <filename>/linuxrc</filename> is to
+      do as little as possible, and defer the real initialisation
+      to <filename>/sbin/init</filename> on the initrd; this
+      <filename>/sbin/init</filename> can then <code>pivot_root</code>
+      into the real root device.
+      <programlisting>
+	#!/bin/dash
+	set -x
+	mount -nt proc proc /proc
+	# root=$(cat proc/sys/kernel/real-root-dev)
+	echo 256 > proc/sys/kernel/real-root-dev
+	umount -n /proc
+      </programlisting>
+    </para>
+
+  </simplesect>
+
+  <simplesect>
+    <title>Kernel command line parameters</title>
+    <para>
+      The kernel passes more information than just an initial file system
+      to the initrd or initramfs image; there also are the kernel boot
+      parameters.  The bootloader passes these to the kernel, and the kernel
+      in turn passes them on via <filename>/proc/cmdline</filename>.
+    </para>
+
+    <para>
+      An old version of these parameters is documented in the
+      <citerefentry>
+	<!--
+		Sometimes I think docbook is overdoing this markup thing;
+		this used to be just .IR bootparam 7
+	-->
+	<refentrytitle>bootparam</refentrytitle>
+	<manvolnum>7</manvolnum>
+      </citerefentry> manual page; more recent information is in the kernel
+      documentation file <citetitle>kernel-parameters.txt</citetitle>.
+      Mostly, these parameters are used to configure non-modular drivers,
+      and thus not very interesting to <application>yaird</application>.
+      Then there are parameters such as <code>noapic</code>, which are
+      interpreted by the kernel core and also irrelevant to
+      <application>yaird</application>.
+      Finally there are a few parameters which are used by the kernel
+      to determine how to mount the root file system.
+    </para>
+
+    <para>
+      Whether the initial image should emulate these options or ignore them
+      is open to discussion; you can make a case that the flexibility these
+      options offer has become irrelevant now that initrd/initramfs offers
+      far more fine grained control over the way in which the system
+      is booted.
+      Support for these options is mostly a matter of tuning the
+      distribution specific templates, but it is possible that the
+      templates need an occassional hint from the planner.
+      To find out just how much "mostly" is, we'll try to implement
+      full support for these options and see where we run into
+      limitations.
+      An inventarisation of relevant options.
+      <variablelist>
+
+	<varlistentry>
+	  <term>
+	    ydebug
+	  </term>
+	  <listitem>
+	    <para>
+	      The kernel does not know about this option,
+	      so we can use it to enable debugging in the generated image.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    ide
+	  </term>
+	  <listitem>
+	    <para>
+	      These are options for the modular ide-core driver.
+	      This could be supported by adding an attribute
+	      "isIdeCore" to insmod actions, and expanding the ide
+	      kernel options only for insmod actions where that
+	      attribute is true.
+	      It seems cleaner to support the options from
+	      <filename>/etc/modprobe.conf</filename>.
+	      Unsupported for now.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    init
+	  </term>
+	  <listitem>
+	    <para>
+	      The first program to be started on the definitive root device,
+	      default <filename>/sbin/init</filename>.  Supported.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    ro
+	  </term>
+	  <listitem>
+	    <para>
+	      Mount the definitive root device read only,
+	      so that it can be submitted to <application>fsck</application>.
+	      Supported; this is the default behaviour.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    rw
+	  </term>
+	  <listitem>
+	    <para>
+	      Three guesses.  Supported.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    resume, noresume
+	  </term>
+	  <listitem>
+	    <para>
+	      Which device (not) to use for software suspend.
+	      To be done.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    root
+	  </term>
+	  <listitem>
+	    <para>
+	      The device to mount as root.  This is a nasty one:
+	      the planner by default only creates device nodes
+	      that are needed to mount the root device, and even
+	      if you were to put hotplug on the inital image
+	      to create all possible device nodes, there's still
+	      the matter of putting support for the proper file system
+	      on the initial image.
+	      We could make an option to
+	      <application>yaird</application> to specify a list
+	      of possible root devices and load the necessary
+	      modules for all of them.
+	      Unsupported until there's a clear need for it.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    rootflags
+	  </term>
+	  <listitem>
+	    <para>
+	      Flags to use while mounting root file system.
+	      Implement together with root option.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    rootfstype
+	  </term>
+	  <listitem>
+	    <para>
+	      File system type for root file system.
+	      Implement together with root option.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    ip, nfsaddrs =
+	    &lt;client-ip>:&lt;server-ip>:&lt;gw-ip>:&lt;netmask>:&lt;hostname>:&lt;device>:&lt;autoconf>
+	  </term>
+	  <listitem>
+	    <para>
+	      These two are aliases, with "ip" being the preferred
+	      form.  This option may appear more than once.
+	      It tells the kernel to configure a network device,
+	      either based on values that are part of the option
+	      string or based values supplied by DHCP.
+	    </para>
+
+	    <para>
+	      In <application>yaird</application>, it also triggers
+	      the mounting of an NFS root.<footnote>
+		<para>
+		  The idea that the "ip=" kernel command line option
+		  implies mounting an NFS root is debatable.  Since
+		  the only use of the network for now is mounting NFS
+		  we can get away with it, and it simplifies passing
+		  a DHCP supplied boot path to the NFS mount code.
+		  If we find situations where IP is needed but NFS is
+		  not, we'll have to trigger NFS mount when 
+		  "root=/dev/nfs".
+		</para>
+	      </footnote>
+	    </para>
+
+	    <para>
+	      See <xref linkend="nfs"/> and the kernel documentation
+	      file <filename>nfsroot.txt</filename> for details.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    nfsroot=[&lt;server-ip>:]&lt;root-dir>[,&lt;nfs-options>]
+	  </term>
+	  <listitem>
+	    <para>
+	      Where the root file system to be mounted is coming from.
+	      If you don't give any options, we try first with NFS over
+	      TCP, then over UDP and finally NFSv2.
+	      If DHCP specifies a root directory, server and root are
+	      based on DHCP, but options in nfsroot are still applied.
+	      If nfsroot does not give server-ip, the server IP given
+	      by DHCP is used.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+    </para>
+  </simplesect>
+</section>

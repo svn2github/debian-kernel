@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+#
+# Put DEB_BUILD_OPTIONS=update in environment
+# to force control to be regenerated from control.in
+#
+ifneq (,$(findstring update,$(DEB_BUILD_OPTIONS)))
+DEB_AUTO_UPDATE_DEBIAN_CONTROL := yes
+endif
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/patchsys-quilt.mk
+include debian/cdbs/1/rules/buildinfo.mk
+
+DEB_DH_PERL_ARGS = /usr/lib/yaird/perl
+
+# dh_install cannot handle rename,
+# so need an explicit rule here.
+common-install-arch::
+	cp templates/Debian.cfg debian/yaird/usr/lib/yaird/conf/Templates.cfg
+
+# Move configuration files below /etc, and alternatives out as examples
+binary-post-install/yaird::
+	mv $(DEB_DESTDIR)/usr/lib/yaird/conf $(DEB_DESTDIR)/usr/share/doc/yaird/examples
+	mkdir -p $(DEB_DESTDIR)/etc/yaird $(DEB_DESTDIR)/usr/lib/yaird/conf
+	for cfgfile in Default.cfg Templates.cfg; do \
+		mv $(DEB_DESTDIR)/usr/share/doc/yaird/examples/$$cfgfile $(DEB_DESTDIR)/etc/yaird; \
+		ln -s /etc/yaird/$$cfgfile $(DEB_DESTDIR)/usr/lib/yaird/conf/$$cfgfile; \
+	done

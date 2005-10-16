@@ -1,0 +1,316 @@
+<section id="tools">
+  <title>Tool Chain</title>
+  <para>
+    This section discusses which tools are used in implementing
+    <application>yaird</application> and why.
+  </para>
+
+  <para>
+    The application is built as a collection of perl modules.
+    The use of a scripting language makes consistent error checking
+    and building sane data structures a lot easier than shell
+    scripting; using perl rather than python is mainly because in
+    Debian perl has 'required' status while python is only 'standard'.
+    The code follows some conventions:
+  </para>
+
+  <para>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Where there are multiple items of a kind, say fstab entries,
+	  the perl module implements a class for individual items.
+	  All classes share a common base class, <code>Obj</code>,
+	  that handles constructor argument validation and that offers
+	  a place to plug in debugging code.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Object attributes are used via accessor methods to catch
+	  typos in attribute names.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Objects have a <code>string</code> method, that returns
+	  a string version of the object.  Binary data is not
+	  guaranteed to be absent from the string version.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Where there are multiple items of a kind, say fstab entries,
+	  the collection is implemented as a module that is not a
+	  class.  There is a function <code>all</code> that returns a
+	  list of all known items, and functions <code>findByXxx</code>
+	  to retrieve an item where the Xxx attribute has a given
+	  value.  There is an <code>init</code> function that
+	  initializes the collection; this is called automatically
+	  upon first invocation of <code>all</code> or
+	  <code>findByXxx</code>.
+	  Collections may have convenience functions
+	  <code>findXxxByYyy</code>: return attribute Xxx, given a
+	  value for attribute Yyy.
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    The generated initrd image needs a command interpreter;
+    the choice of command interpreter is exclusively determined
+    by the image generation template.
+    At this point, both Debian and Fedora templates use the
+    <application>dash</application> shell, for historical reasons only.
+    Presumably <application>busybox</application> could be used to build a
+    smaller image.  However, support for initramfs requires a complicated
+    construction involving a combination of mount, chroot and chdir;
+    to do that reliably, <application>nash</application> as used in Fedora
+    seems a more attractive option.
+  </para>
+
+  <para>
+    Documentation is in docbook format, since it's widely supported,
+    supports numerous output formats, has better separation between
+    content and layout than texinfo, and provides better guarantees
+    against malformed HTML than texinfo.
+  </para>
+
+  <simplesect>
+    <title>Autoconf</title>
+    <para>
+      GNU automake is used to build and install the application,
+      where 'building' is perhaps too big a word adding the location
+      of the underlying modules to the wrapper script.
+      The reasons for using automake: it provides packagers with a
+      well known mechanism for changing installation directories,
+      and it makes it easy for developers to produce a cruft-free
+      and reproducible tarball based on the tree extracted from
+      version control.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>C Library</title>
+    <para>
+      The standard C library under linux is glibc.  This is big:
+      1.2Mb, where an alternative implementation, klibc, is only 28Kb.
+      The reason klibc can be so much smaller than glibc is that a
+      lot of features of glibc, like NIS support, are not relevant for
+      applications that need to do basic stuff like loading an IDE driver.
+    </para>
+
+    <para>
+      There are other small libc implementations: in the embedded world,
+      dietlibc and uClibc are popular.  However, klibc was specifically
+      developed to support the initial image: it's intended to be included
+      with the mainline kernel and allow moving a lot of startup magic out
+      of the kernel into the initial image.  See 
+      <ulink url="http://marc.theaimsgroup.com/?m=101070502919547">
+	<citetitle>
+	  LKML: [RFC] klibc requirements, round 2</citetitle></ulink>
+      for requirements on klibc; the
+      <ulink url="http://www.zytor.com/mailman/listinfo/klibc">
+	mailing list</ulink> is the most current
+      source of information.
+    </para>
+
+    <para>
+      Recent versions of klibc (1.0 and later) include a wrapper around
+      gcc, named klcc, that will compile a program with klibc.  This means
+      <application>yaird</application> does not need to include klibc,
+      but can easily be configured to use klibc rather than glibc.
+      Of course this will only pay off if <emphasis>every</emphasis>
+      executable on the initial image uses klibc.
+    </para>
+
+    <para>
+      <application>Yaird</application> does not have to be extended in
+      order to support klibc, but it is necessary to avoid assumptions
+      about which shared libraries are used.  This is discussed in 
+      <xref linkend="shlibs"/>.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>Template Processing</title>
+    <para>
+      This section discusses the templates used to transform
+      high-level actions to lines of script in the generated image.
+      These templates are intended to cope with small differences
+      between distributions: a shell that is named
+      <application>dash</application> in Debian and
+      <application>ash</application> in Fedora for example.
+      By processing the output of <application>yaird</application>
+      through a template, we can confine the tuning of
+      <application>yaird</application> for a specific distribution
+      to the template, without having to touch the core code.
+    </para>
+
+    <para>
+      One important function of a template library is to enforce
+      a clear separation between progam logic and output formatting:
+      there should be no way to put perl fragments inside a template.
+      See <ulink url="http://www.stringtemplate.org/">StringTemplate</ulink>
+      for a discussion of what is needed in a templating system, plus
+      a Java implementation.
+    </para>
+
+    <para>
+      Lets consider a number of possible templating solutions:
+      <itemizedlist>
+
+	<listitem>
+	  <para>
+	    <ulink url="http://www.template-toolkit.org/">
+	     Template Toolkit</ulink>:
+	    widely used, not in perl core distribution, does not
+	    prevent mixing of code and templates.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <ulink url="http://search.cpan.org/dist/Text-Template/lib/Text/Template.pm">
+	      Text::Template</ulink>:
+	    not in perl core distribution, does not
+	    prevent mixing of code and templates.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Some XSLT processor.  Not in core distribution,
+	    more suitable for file-to-file transformations
+	    than for expanding in-process data; overkill.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <ulink url="http://search.cpan.org/~samtregar/HTML-Template-2.7/Template.pm">
+	      HTML-Template</ulink>:
+	    not in perl core distribution,
+	    prevents mixing of code and templates,
+	    simple, no dependencies, dual GPL/Artistic license.
+	    Available in Debian as
+	    <application>libhtml-template-perl</application>,
+	    in Fedora 2 as perl-HTML-Template, dropped from Fedora 3,
+	    but available via
+	    <ulink url="http://download.fedora.redhat.com/pub/fedora/linux/extras/">
+	      Fedora Extras</ulink>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A home grown templating system: a simple system such as the
+	    HTML-Template module is over 100Kb.  We can cut down on that
+	    by dropping functions we don't immediately need, but the effort
+	    to get a tested and documented implementation remains substantial.
+	  </para>
+	</listitem>
+	
+      </itemizedlist>
+    </para>
+
+    <para>
+      The HTML-Template approach is the best match for our
+      requirements, so used in <application>yaird</application>.
+    </para>
+
+  </simplesect>
+
+  <simplesect>
+    <title>Configuration Parsing</title>
+
+    <para>
+      <application>Yaird</application> has a fair number of
+      configuration items: templates containing a list of files and
+      trees, named shell script fragments with a value that spans
+      multiple lines.  If future versions of the application are going
+      to be more flexible, the number of configuration items is only
+      going to grow.  Somehow this information has to be passed to the
+      application; an overview of the options.
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Configuration as part of the program.  Simply hard-code
+	    all configuration choices, and structure the program so that
+	    the configuration part is a well defined part of the
+	    program.  The advantage is that there is no need for any
+	    infrastructure, the disadvantage is that there is no clear
+	    boundary where problems can be reported, and that it
+	    requires the user to be familiar with the programming
+	    language.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <ulink
+	    url="http://search.cpan.org/~abw/AppConfig-1.56/lib/AppConfig.pm">AppConfig</ulink>.
+	    A mature perl module that parses configuration files in a
+	    format similar to Win32 "INI" files.  Widely used, stable,
+	    flexible, well-documented, with as added bonus the fact that
+	    it unifies options given on the command line and in the
+	    configuration file.  An ideal solution, except for the fact
+	    that we need a more complex configuration than can
+	    conventiently be expressed in INI-file format.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    An XML based configuration format.  XML parsers for perl are
+	    readily available.  The advantage is that it's an industry
+	    standard; the disadvantage that the markup can get very
+	    verbose and that support for input validation is limited
+	    (XML::LibXML mentions a binding for RelaxNG, but the code is
+	    missing, and defining an input format in XML-Schema ... just
+	    say no).
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <ulink url="http://www.yaml.org/">YAML</ulink> is a data
+	    serialisation format that is a lot more readable than XML.
+	    The disadvantage is that it's not as widely known as XML,
+	    that it's an indentation based language (so confusion over tabs
+	    versus spaces can arise) and that support for input validation
+	    is completely missing.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    A custom made configuration language, based on
+	    <ulink
+	    url="http://search.cpan.org/dist/Parse-RecDescent/">Perl::RecDescent</ulink>,
+	    a widely used, mature module to do recursive descent parsing
+	    in perl.  Using a custom language means we can structure the
+	    language to minimise opportunities for mistakes, can provide
+	    relevant error messages, can support complex configuration
+	    structures and can easily parse the configuration file to a tree
+	    format that's suitable for further processing.  The disadvantage
+	    is that a custom language is yet another syntax to learn.
+	  </para>
+	</listitem>
+
+      </itemizedlist>
+    </para>
+
+    <para>
+      Building a recursive descent parser seems the best match for this
+      application.
+    </para>
+
+  </simplesect>
+</section>

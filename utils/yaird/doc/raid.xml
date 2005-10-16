@@ -1,0 +1,196 @@
+<section id="raid">
+  <title>Supporting Raid Devices</title>
+
+  <para>
+    This section discusses software raid devices from an initial boot
+    image perspective: how to get the root device up and running.
+    There are other aspects to consider, the bootloader for example:
+    if your root device is on a mirror for reliability, it would be
+    a disappointment if after the crash you still had a long downtime
+    because the MBR was only available on the crashed disk.  Then there's
+    the issue of managing raid devices in combination with hotplugging:
+    once the system is operational, how should the raid devices that
+    the initial image left untouched be brought online?
+  </para>
+
+  <para>
+    Raid devices are managed via ioctls (mostly; there is something
+    called "autorun" in the kernel)
+    The interface from userland is simple: mknod a block device file,
+    send an ioctl to it specifying the devnos of the underlying block
+    devices and whether you'd like mirroring or striping, then send
+    a final ioctl to activate the device.  This leaves the managing
+    application free to pick any unused device (minor) number and
+    has no assumptions about device file names.
+  </para>
+
+  <para>
+    Devices that take part in a raid set also have a "superblock",
+    a header at the end of the device that contains a uuid and indicates
+    how many drives and spares are supposed to take part in the raid set.
+    This can be used be the kernel to do consistency checking, it can also
+    be used by applications to scan for all disks belonging in a raid set,
+    even if one of the component drives is moved to another disk controller.
+  </para>
+
+  <para>
+    The fact that the superblock is at the end of a device has an obvious
+    advantage: if you somehow loose your raid software, the device
+    underlying a mirror can be mounted directly as a fallback measure.
+  </para>
+
+  <para>
+    If raid is compiled into the kernel rather than provided as a module,
+    the kernel uses superblocks at boot time to find raid sets and make
+    them available without user interaction.  In this case the filename of
+    the created blockdevice is hardcoded: <filename>/dev/md\d</filename>.
+    This feature is intended for machines with root on a raid device
+    that don't use an initial boot image.  This autorun feature is
+    also accessible via an ioctl, but it's not used in management
+    applications, since it won't work with an initial boot image and
+    it can be a nuisance if some daemon brought a raid set online just
+    after the administator took it off line for replacement.
+  </para>
+
+  <para>
+    Finally, by picking a different major device number for the raid device,
+    the raid device can be made partitionable without use of LVM.
+  </para>
+
+  <para>
+    There are at least three different raid management applications
+    for Linux: raidtools, the oldest; mdadm, more modern; and EVMS, a
+    suite of graphical and command line tools that manages not only raid
+    but also LVM, partitioning and file system formating.  We'll only
+    consider mdadm for now.  The use of mdadm is simple:
+  </para>
+
+  <para>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  There's an option to create a new device from components,
+	  building the superblock.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Another option assembles a raid device from components,
+	  assuming the superblocks are already available.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Optionally, a configuration file can be used, specifying which
+	  components make up a device, whether a device file should
+	  be created or it is assumed to exist, whether it's stripe or
+	  mirror, and the uuid.  Also, a wildcard pattern can be given:
+	  disks matching this pattern will be searched for superblocks.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Information given in the configuration file can be omitted
+	  on the command line.	If there's a wildcard, you don't even
+	  have to specify the component devices of the raid device.
+	  A typical command is <code>mdadm --assemble /dev/md-root
+	  auto=md uuid=...</code>, which translates to "create
+	  <filename>/dev/md-root</filename> with some unused minor number,
+	  and put the components with matching uuid in it."
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    So far, raid devices look fairly simple to use; the complications
+    arise when you have to play nicely with all the other software
+    on the box.  It turns out there are quite a lot of packages that
+    interact with raid devices:
+  </para>
+
+  <para>
+    <itemizedlist>
+
+      <listitem>
+	<para>
+	  When the md module is loaded, it registers 256 block devices
+	  with <application>devfs</application>.  These devices
+	  are not actually allocated, they're just names set up to
+	  allocate the underlying device when opened.  These names in
+	  <application>devfs</application> have no counterpart in sysfs.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When the LVM <application>vgchange</application> is started,
+	  it opens all md devices to scan for headers, only to find the
+	  raid devices have no underlying components and will return
+	  no data.  In this process, all these stillborn md devices get
+	  registered with sysfs.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When <application>udevstart</application> is executed
+	  at boot time, it walks over the sysfs tree and lets
+	  <application>udev</application> create block devices files for
+	  every block device it finds in sysfs.  The name and permissions
+	  of the created file are configurable, and there is a hook to
+	  initialise SELinux access controls.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When <application>mdadm</application> is invoked with the auto
+	  option, it will create a block device file with an unused
+	  device number and put the requested raid volume under it.
+	  The created device file is owned by whoever executed the
+	  <application>mdadm</application> command, permissions are 0600
+	  and there are no hooks for SELinux.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  When the Debian installer builds a system with LVM and raid, the
+	  raid volumes have names such as <filename>/dev/md0</filename>,
+	  where there is an assumption about the device minor number in
+	  the name of the file.
+	</para>
+      </listitem>
+
+    </itemizedlist>
+  </para>
+
+  <para>
+    For the current Debian mkinitrd, this all works together in
+    a wonderful manner: devfs creates file names for raid devices,
+    LVM scans them with as side effect entering the devices in sysfs,
+    and after pivotroot <application>udevstart</application> triggers
+    udev into creating block device files with proper permissions and
+    SELinux hooks.  Later in the processing of <filename>rcS.d</filename>,
+    <application>mdadm</application> will put a raid device under the
+    created special file.  Convoluted but correct, except for the fact
+    that out of 256 generated raid device files, up to 255 are unused.
+  </para>
+
+  <para>
+    In <application>yaird</application>, we do not use devfs.
+    Instead, we do a <application>mknod</application> before the
+    <application>mdadm</application>, taking care to use the same
+    device number that's in use in the running kernel.  We expect
+    <filename>mdadm.conf</filename> to contain an <code>auto=md</code>
+    option for any raid device files that need to be created.
+    This approach should work regardless of whether the fstab uses
+    <filename>/dev/md\d</filename> or a device number independent name.
+  </para>
+
+</section>

@@ -1,0 +1,137 @@
+#
+# Default.cfg.in - default Yaird configuration file
+#   Copyright (C) 2005  Erik van Konijnenburg
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+#
+#
+
+CONFIG
+	#
+	# FORMAT -- Which default format to use for the generated image.
+	# use 'cpio' for initramfs, 'directory' if the image is not to
+	# packed in a single file, or 'cramfs' for initrd images.
+	# Can be overridden by command line option.
+	#
+	FORMAT	cpio
+
+	#
+	# TEMPLATE FILE -- This file contains boilerplate code
+	# to be used on certain occassions, eg when a module is to
+	# be inserted or a device to be created.  The boilerplate
+	# can be adapted for differences between distributions.
+	#
+	TEMPLATE FILE "@CFGDIR@/Templates.cfg"
+
+	#
+	# GOALS -- What should go on the generated image,
+	# in high-level terms.
+	#
+	GOALS
+		#
+		# TEMPLATE -- Insert named piece of boilerplate
+		# from the templates file.  There is no mechanism
+		# to pass parameters.
+		#
+		# By contention, 'prologue' is the first template
+		# added to the image; it should be used to interpret
+		# boot command line parameters.
+		#
+		TEMPLATE	prologue
+
+		#
+		# INPUT -- Insert all modules needed for keyboard
+		# devices found on the machine where the image is generated.
+		# This could also be handled by init scripts on the real
+		# root device, except of course when the keyboard is needed
+		# to enter a password for an encrypted root device.
+		#
+		# Instead of adding only modules for the keyboard devices
+		# found at the time the image is generated, you could also
+		# use a number of predefined devices, eg usbhid, psmouse,
+		# i8042, serio, atkbd.  The advantage is that you don't
+		# have to change the image if the hardware is changed,
+		# the disadvantage is that it stops working if you get a
+		# new kernel where the modules are named differently.
+		#
+		INPUT
+
+		#
+		# MODULE -- make a module available.  If the module is
+		# known to be compiled in the kernel, nothing is added
+		# to the image.  Otherwise, insmod(8) statements are
+		# added in the order given by modprobe(8).
+		#
+		# mousedev implements /dev/input/mice, a device that
+		# collects input from all mice attached to the system.
+		# It is used by X windows and GPM.  This module is not
+		# necessary to boot the system; if your kernel does
+		# not include this module, you can simply delete the
+		# following module line.  Ditto if the module is loaded
+		# via the init scripts on the root device, eg if it's
+		# listed in /etc/modules.
+		#
+		# evdev implements /dev/input/eventX, devices that present
+		# keyboard and mouse input in a manner independent from
+		# the console.  It also helps yaird to detect what kind of
+		# keyboard is connected to the system.  This module is not
+		# necessary to boot the system.
+		#
+		MODULE		mousedev
+		MODULE		evdev
+
+		#
+		# NETWORK -- Insert modules for all ethernet devices
+		# connected to the system, eg for NFS boot.  Note that
+		# the 'network' command does not set up IP addresses,
+		# only the hardware.
+		#
+		# NETWORK
+		#
+		# nfs implements the NFS protocol.
+		# MODULE	nfs
+		#
+		# af_packet allows access to network devices below
+		# the IP level, as raw packets.  It's needed for DHCP clients.
+		# MODULE	af_packet
+		#
+		# the nfsstart template uses DHCP to find IP addresses
+		# for the ethernet devices, then mounts a boot disk
+		# specified with DHCP and hands switches root to that.
+		# TEMPLATE	nfsstart
+
+		#
+		# MOUNTDIR -- Given a directory name that occurs in
+		# fstab, eg "/", insert all modules needed to access
+		# the underlying block device and file system type,
+		# and mount it somewhere else, eg in "/mnt".
+		# The block device can be raid, LVM, or encrypted.
+		#
+		MOUNTDIR	"/" "/mnt"
+
+		#
+		# MOUNTDEV -- You can also specify the device to be
+		# mounted as a block special file.  It still needs to
+		# occur in fstab.
+		#
+                # MOUNTDEV	"/dev/hda3" "/mnt"
+
+		#
+		# By convention, 'postlude' is the last template added.
+		# It should switch root to "/mnt".
+		#
+		TEMPLATE	postlude
+	END GOALS
+END CONFIG

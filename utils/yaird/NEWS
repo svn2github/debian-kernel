@@ -1,0 +1,81 @@
+Version 0.0.11, 2005-08-07
+     * Support configuration file that determines what the generated
+       image should do.  It replaces command line options for root
+       file system selection and forNFS support.
+     * The file /etc/hotplug/blacklist does not have to exist:
+       this can be a machine without hotplug, or with a future
+       hotplug version, where blacklisting is delegated to module-init-tools.
+       Based on patch by Marian Andre <Marian.Andre@sq.sk>
+     * Bugfix: expect A-Z, in kernel config entries.
+     * Handle kernels that do not have ide-generic.
+
+Version 0.0.10, 2005-06-29
+     * Support legacy keyboard compiled as module.
+
+Version 0.0.9, 2005-06-25
+     * Place the docs under GPL instead of GFDL for the benefit of Debian.
+     * This release too boring to announce on the mailing lists.
+
+Version 0.0.8, 2005-06-10
+     * Implement NFS root support (TCP, UDP, v2), based on klibc code.
+     * Merge klibc-1.0.14 changes.
+     * Make debugging output and shell break-outs optional,
+       triggered by kernel option 'ydebug'.
+     * Minor template simplifications.
+     * Added manual page.
+
+Version 0.0.7, 2005-05-08
+     * Support cryptsetup-luks (Based on patch by Dick Middleton)
+     * Bugfixes
+       - cryptsetup, handle multiple hard links to same block special dev
+       - cryptsetup, recognise keyword 'none' in /etc/crypttab
+       - cryptsetup, keyfile check now for both luks and plain
+       - cryptsetup, missing module for aes-cbc-essiv:sha256
+       - Fedora template: dash was used instead of ash
+
+Version 0.0.6, 2005-05-02
+     * Support cryptsetup.  See the README file, see HTML documentation.
+     * Support aliases and options in modprobe.conf,
+       simply by using modprobe rather than doing a reimplementation in perl.
+     * tested OK with ulibc
+     * Bugfixes:
+       - failure to generate image on systems without LVM
+       - overcrowded /dev under Debian with udev
+       - failure to generate image if multiple links to same raid device exist
+       - uninitialised value in verbose output
+
+Version 0.0.5, 2005-03-21
+     * change installation directory from /usr/local/share/yaird/
+       to /usr/local/lib/yaird/, since there are executables included now.
+     * add run_init: executable to make the move to the real root
+       device in initramfs context.
+     * README: new section on (optional) use of klibc,
+       new section on replacing mkinitrd during kernel install.
+     * more reliable shared library detection: works with glibc and
+       klibc; if other C libraries use shared libraries, an error
+       message results.
+     * adapt Debian template to use initramfs rather than initrd.
+       The old initrd template is available as Debian-initrd.
+     * add command line option --root=/dev/hdb, to simplify testing.
+     * allow template to see requested kernel version,
+       and to copy a complete tree to the image.  This makes it
+       possible to put /lib/modules/2.6.10-smp on the image and do hotplug.
+     * Documentation: writeup on initramfs, notes on shared libraries.
+
+Version 0.0.4, 2005-02-23
+     * Process kernel command line options: init=, ro, rw.
+     * Boot into single user mode supported
+     * Support modules outside /lib/modules
+     * Support modules with extension other than .ko
+     * Warn about duplicates in modules.dep
+     * Generated image now waits for device to become visible in /sys,
+       and gives error message if it doesn't
+     * Support 2.6.10 sysfs layout: SCSI now has a
+       new subdirectory 'target'.
+     * Warn about unrecognised paths in /sys
+     * Allow empty lines in /etc/fstab.
+     * Empty lines in /etc/fstab are valid.
+       (Patch Goffredo Baroncelli)
+
+Version 0.0.3, 2005-02-16
+     * First public release.

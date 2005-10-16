@@ -1,0 +1,114 @@
+Replace-subject: support mdadm > 1.9.0 output
+
+    Bugfix: mdadm.patch, based on upstream revision patch-64.
+    Mdadm 1.9.0 has devices= in normal scan output,
+    in 1.12.0 this info is only produced if --verbose option
+    is given.  With 1.9.0, the -v option produces completely
+    different output, that 1.12.0 only produces if -v is given
+    twice.  We first try to retrieve devices= without -v,
+    if that doesn't work, retry with -v.
+    Closes: #324774.
+
+Index: yaird-0.0.11/perl/RaidTab.pm
+===================================================================
+--- yaird-0.0.11.orig/perl/RaidTab.pm	2005-08-08 22:58:58.000000000 +0200
++++ yaird-0.0.11/perl/RaidTab.pm	2005-08-25 21:23:40.000000000 +0200
+@@ -32,36 +32,86 @@
+ my $raidTab = undef;
+ 
+ 
+-sub init () {
+-	if (defined ($raidTab)) {
+-		return;
+-	}
++#
++# getCommandOutput -- all lines of output for a given command or fatal
++#
++sub getCommandOutput ($) {
++	my ($cmd) = @_;
+ 
+-	# my $name = Conf::get('fstab');
+-	$raidTab = [];
+ 	my $in;
+-	if (! open ($in, "-|", "/sbin/mdadm --detail --scan")) {
+-		Base::fatal ("Can't read mdadm output");
++	if (! open ($in, "-|", $cmd)) {
++		Base::fatal ("Can't read output for $cmd");
+ 	}
+ 	my @lines = <$in>;
+ 	if (! close ($in)) {
+-		Base::fatal ("Could not read mdadm output");
++		Base::fatal ("Could not read output for $cmd");
+ 	}
++	return [ @lines ];
++}
++
++
++#
++# joinStanzas -- given a list of lines, return list where indented
++# continuation lines are joined with predecessor.
++#
++sub joinStanzas ($) {
++	my ($lines) = @_;
++	my @result = ();
+ 	my $buf;
+-	for my $line (@lines) {
++	for my $line (@{$lines}) {
+ 		chomp $line;
+ 		if ($line =~ /^\s+/) {
+ 			$buf = $buf . $line;
+ 		}
+ 		else {
+ 			if (defined ($buf)) {
+-				processLine ($buf);
++				push @result, $buf;
+ 			}
+ 			$buf = $line;
+ 		}
+ 	}
+ 	if (defined ($buf)) {
+-		processLine ($buf);
++		push @result, $buf;
++	}
++	return [ @result ];
++}
++
++
++#
++# init -- initialise table of all known raid devices.
++#
++# Sigh.  Mdadm 1.9.0 has devices= in normal scan output,
++# in 1.12.0 this info is only produced if --verbose option
++# is given.  With 1.9.0, the -v option produces completely
++# different output, that 1.12.0 only produces if -v is given
++# twice.  We first try to retrieve devices= without -v,
++# if that doesn't work, retry with -v.  See Debian Bug#324774.
++#
++sub init () {
++	if (defined ($raidTab)) {
++		return;
++	}
++
++	$raidTab = [];
++
++	my $lines = joinStanzas (getCommandOutput
++			("/sbin/mdadm --detail --scan"));
++
++	if (@{$lines} <= 0) {
++		# no output and no error: done.
++		return;
++	}
++
++	if ($lines->[0] !~ /\sdevices=/) {
++		# output, but without the devices part,
++		# lets retry.
++		# Note: don't be deceived by the num-devices=... clause.
++		$lines = joinStanzas (getCommandOutput
++			("/sbin/mdadm --detail --scan --verbose"));
++	}
++
++	for my $line (@{$lines}) {
++		processLine ($line);
+ 	}
+ }
+ 

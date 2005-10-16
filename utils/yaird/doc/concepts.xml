@@ -1,0 +1,566 @@
+<section id="concepts">
+  <title>Concepts</title>
+  <para>
+    This section discusses the basic concepts underlying
+    <application>yaird</application>.
+    The main procedure of the program is this:
+    <programlisting>
+      #
+      # go -- main program:
+      # write an image to destination in specified format.
+      # destination must not exist yet.
+      # templates define how actions in masterplan are expanded.
+      #
+      sub go ($$) {
+	      my ($config, $destination) = @_;
+	      my $masterPlan = Plan::makePlan ($config->{goals});
+	      my $image = $masterPlan->expand ($config->{templates});
+	      Pack::package ($image, $config->{format}, $destination);
+      }
+    </programlisting>
+
+    What it does is simple:
+    <orderedlist>
+
+      <listitem>
+	<para>
+	  given some goals, make a plan with a number of actions
+	  that the generated image should execute;
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  transform the plan to a detailed description of the image;
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  build and pack the image.
+	</para>
+      </listitem>
+
+    </orderedlist>
+
+  </para>
+
+  <simplesect>
+    <title>About Goals</title>
+
+    <para>
+      The generated initial boot image should achieve a number of goals
+      before handing over control to the root file system.  There is a
+      configuration file that determines what these goals are; the
+      default list of goals is as follows:
+      <programlisting>
+	GOALS
+		TEMPLATE	prologue
+		INPUT
+		MODULE		mousedev
+		MODULE		evdev
+		MOUNTDIR	"/" "/mnt"
+		TEMPLATE	postlude
+	END GOALS
+      </programlisting>
+    </para>
+
+    <para>
+      The complete list of goals that <application>yaird</application>
+      knows about is as follows:
+
+      <variablelist>
+	
+	<varlistentry>
+	  <term>
+	    TEMPLATE name
+	  </term>
+	  <listitem>
+	    <para>
+	      Add the contents of the named template to the image.
+	      It is not possible to pass arguments to the template.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    MODULE name
+	  </term>
+	  <listitem>
+	    <para>
+	      Add the named module to the image.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    INPUT
+	  </term>
+	  <listitem>
+	    <para>
+	      Add modules for every keyboard device found on the
+	      system to the image.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    NETWORK
+	  </term>
+	  <listitem>
+	    <para>
+	      Add modules for every ethernet device found on the
+	      system to the image.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    MOUNTDIR fsdir mountPoint
+	  </term>
+	  <listitem>
+	    <para>
+	      Given a directory that occurs in /etc/fstab,
+	      get the underlying block device and file system type
+	      working, then mount it at mountPoint.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    MOUNTDEV blockDevice mountPoint
+	  </term>
+	  <listitem>
+	    <para>
+	      Given a block device that occurs in /etc/fstab,
+	      get the block device and corresponding file system type
+	      working, then mount it at mountPoint.
+	      It is not possible to express activating a block device
+	      without mounting it somewhere.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      It is likely that new types of goal will need to be introduced
+      to support features such as software suspend.
+    </para>
+
+  </simplesect>
+
+  <simplesect>
+    <title>Making the Plan</title>
+
+    <para>
+      The goals listed in the configuration file need to be translated
+      into actions to be taken by the generated image.
+      As an example, before mounting a file system, the modules containing
+      the implementation of the file system need to be loaded.
+    </para>
+
+    <para>
+      To refine the goal of loading a kernel module,
+      the <code>ModProbe</code> module invokes the
+      <application>modprobe</application> command to find any
+      prerequisite modules, skipping any modules that are blacklisted
+      or compiled into the kernel.  Aliases are handled transparantly
+      by modprobe, module options are recorded to be included in the
+      initial image.
+      If the
+      <application>modprobe</application> command decides a module
+      needs an install command, an error is generated because we
+      cannot in general determine which executables the install
+      command would need to be on the initial boot image.
+    </para>
+
+    <para>
+      The <code>KConfig</code> module determines if loading a
+      module can be omitted because the module is hardcoded into the
+      kernel.  As an example, it is aware of the fact that the module
+      <code>ext3</code> is not needed if the new kernel configuration
+      contains <code>CONFIG_EXT3_FS=y</code>.<footnote>
+	<para>
+	  Having knowledge of the relation between module names and
+	  kernel defines hardcoded into <application>yaird</application>
+	  is hardly elegant.  Perhaps it is possible to generate this
+	  mapping based on the kernel Makefiles when building the
+	  kernel, but that's too complex just now.
+	</para>
+      </footnote>
+      Only a few modules are known: <application>yaird</application>
+      looks for modules such as <code>ext3</code> when that filesystem
+      is used, so it makes sense to check whether a missing module
+      is compiled in.  On the other hand, hardware modules that are
+      compiled in never show up in <filename>modules.pcimap</filename>
+      and friends, so they remain completely outside the view of
+      <application>yaird</application>.
+    </para>
+
+    <para>
+      Before a device as listed in <filename>/etc/fstab</filename> can be
+      mounted, that device needs to be enabled.  That device could be an
+      NFS mount, a loopback mount or it could be a block device.
+      The loopback case is not supported yet, but block devices are.
+      This support is based on a number of sources of information:
+      <orderedlist>
+
+	<listitem>
+	  <para>
+	    Scanning the <filename>/dev</filename> directory gives us the
+	    relation between all block special files and major/minor
+	    numbers.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Scanning the <filename>/sys/block</filename> directory gives us the
+	    relation between all major/minor numbers and kernel names
+	    such as <code>dm-0</code> or <code>sda1</code>; it
+	    also gives the relation between partitions and complete
+	    devices.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    If there is a symlink in a <filename>/sys/block</filename>
+	    subdirectory to the <filename>/sys/devices</filename>
+	    directory, it also gives is the relation between a block
+	    device and the underlying hardware.
+	  </para>
+	</listitem>
+
+      </orderedlist>
+    </para>
+
+    <para>
+      Based on the kernel name and partition relationships of the device,
+      we determine the steps needed to activate the device.  As an example,
+      to activate <code>sda1</code>, we need to activate <code>sda</code>,
+      then create a block special file for <code>sda1</code>.  As
+      another example, to activate <code>dm-0</code>, our first bet is
+      to check whether this is an LVM logical volume, and if so activate the
+      physical volumes underlying the volume group, and finally running
+      <code>vgchange -a y</code>.
+      Otherwise, it could be an encrypted device, for which we
+      generate different code.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>Hardware Planning</title>
+
+    <para>
+      Some devices, such as <code>sdx</code> or <code>hdy</code>, are
+      expected to have underlying hardware; as an example, <code>sda</code>
+      may be backed by <code>pci0000:00/0000:00:1f.2/host0/0:0:0:0</code>.
+      This represents a hardware path, in this case a controller on the PCI
+      bus that connects to a SCSI device.  In order to use the device,
+      every component on the path needs to be activated, the component
+      closest to the CPU first.
+      Based on the pathname in <filename>/sys/devices</filename> and on
+      files within the directory for the component, we can determine
+      what kind of component we're dealing with, and how to find the
+      required modules.
+    </para>
+
+    <para>
+      Finding modules closely follows the methods used in the
+      <application>hotplug</application> package, and the
+      <application>hotplug</application> approach in turn is an almost
+      literal translation of the code that the kernel uses to find a
+      driver for a newly detected piece of hardware.
+    </para>
+
+    <para>
+      For components that talk some protocol over a bus, like SCSI or
+      IDE disks or CDROMs, this is a simple hard coded selection; as an
+      example, the <code>ScsiDev</code> module knows that a SCSI device
+      with a <filename>type</filename> file containing "5" is a CDROM,
+      and that <code>sr-mod</code> is the appropriate driver.
+    </para>
+
+    <para>
+      Devices such as PCI or USB devices cannot be classified into
+      a few simple categories.  These devices have properties such
+      as "Vendor", "Device" and "Class" that are visible in sysfs.
+      The source code of kernel driver modules for these devices
+      contains a table listing which combination of properties mark a
+      device that the driver is prepared to handle.  When the kernel
+      is compiled, these tables are summarised in a text file such
+      as <filename>modules.pcimap</filename>.  Based on this table,
+      we find a driver module needed for the device and mark it for
+      inclusion on the image.
+    </para>
+
+    <para>
+      Multiple modules can match the same hardware: as an example,
+      <code>usb-storage</code> and <code>ub</code> both match an USB
+      stick.  In such cases, we load all matching modules into the
+      kernel and leave it to kernel to decide who gets to manage the
+      device.  There's one complication: some modules, such as
+      <code>usb-core</code>, match any device (probably to maintain some
+      administration of their own, or to provide an ultra-generic
+      interface), but do not actually provide access to the device.
+      Such devices are weeded out by the <code>Blacklist</code> module,
+      based on information in
+      <filename>/etc/hotplug/blacklist</filename> and
+      <filename>/etc/hotplug/blacklist.d</filename>.
+    </para>
+
+    <para>
+      It turns out that the "load modules for every component in the sysfs
+      path" approach is not always sufficient: sometimes you have to load
+      siblings as well.  As an example, consider a combined EHCI/UHCI
+      USB controller on a single chip.  The same ports can show up as EHCI
+      or UHCI devices, different PCI functions in the same PCI slot, with
+      different sysfs directories, depending on what kind of hardware is
+      connected.  Purely following the sysfs path, we would only need to load
+      the EHCI driver, but it appears that on this kind of chip, EHCI devices
+      are not reliably detected unless the UHCI driver is loaded as well.
+      For this reason, we extend the algorithm with a rule: "for PCI devices,
+      load modules for every function in the PCI slot".
+    </para>
+
+    <para>
+      That's actually a bit much: it would load all of ALSA if you have a
+      combined ISA/IDE/USB/Multimedia chipset.  So we limit the above
+      to those PCI functions that provide USB ports.
+    </para>
+
+  </simplesect>
+
+  <simplesect>
+    <title>Plan Transformation</title>
+
+    <para>
+      The plan generated in the first phase is a collection of general
+      intentions, stuff like 'load this module', but it does not
+      specify exactly what files must be placed on the image and what
+      lines are to be added to the initialisation scripts.
+    </para>
+
+    <para>
+      The module <code>ActionList</code> represents this plan with a
+      list of hashes; every hash contains at least 'action' and
+      'target', with other keys added to provide extra information
+      as needed.  If two steps in the plan have identical action and
+      target, the last one is considered redundant and silently omitted.
+    </para>
+
+    <para>
+      This plan is transformed to an exact image description with
+      the help of templates.
+      
+      These templates are read from a configuration file; for every
+      type of action they can contain:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    files to be copied from the mother system to the 
+	    same location on the image;
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    directories to be created on the image; these do
+	    not have to exist on the mother system;
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    trees to be copied recursively from the mother
+	    system to the image;
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    script fragments: a few lines of code to be appended to
+	    the named file on the image.
+	  </para>
+	</listitem>
+      </itemizedlist>
+      All of the above are fed through HTML-Template, with the hash
+      describing this action as parameters.  In practice, this looks
+      like so:
+      <programlisting>
+	#
+	# Template -- translating general intentions to exact image layout
+	#
+	TEMPLATE SET
+
+	    TEMPLATE insmod
+	    BEGIN
+		FILE "&lt;TMPL_VAR NAME=target>"
+		FILE "/sbin/insmod"
+
+		# optionList may be undef
+		# and already is suitably escaped.
+		SCRIPT "/init"
+		BEGIN
+		    !/sbin/insmod '&lt;TMPL_VAR NAME=target>' \
+		    !      &lt;TMPL_VAR NAME=optionList>
+		END SCRIPT
+	    END TEMPLATE
+
+	    # lots of other templates omitted ...
+	END TEMPLATE SET
+
+      </programlisting>
+    </para>
+
+    <para>
+      There are a few attributes that are available to every template:
+      <variablelist>
+
+	<varlistentry>
+	  <term>
+	    version
+	  </term>
+	  <listitem>
+	    <para>
+	      The kernel version we're generating an image for.
+	      Useful if you want your image to include a complete copy
+	      of <filename>/lib/modules/(version)/kernel</filename>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    appVersion
+	  </term>
+	  <listitem>
+	    <para>
+	      The version of <application>yaird</application> used to
+	      build the image.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    auxDir
+	  </term>
+	  <listitem>
+	    <para>
+	      The directory where <application>yaird</application>
+	      keeps executables intended to go on the image, such as
+	      <application>run_init</application>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+
+    <para>
+      Currently, there are templates for Debian and for Fedora, plus
+      a template showing how to use the older initrd approach.
+    </para>
+
+  </simplesect>
+
+  <simplesect>
+    <title>Image Generation</title>
+    <para>
+      The detailed image description consists of a collection of names of
+      files, directories, symbolic links and block or character devices,
+      plus a number of lines of shell script.  The image description does
+      not contain permission or ownership information: files always have
+      mode 444, executables and directories always 555, devices always
+      mode 600,<footnote>
+	<para>
+	  Having device files on the image is wrong: it will
+	  break if the new kernel uses different device numbers.  Mostly
+	  this can be avoided by using the <filename>dev</filename>
+	  files provided by sysfs, but there is a bootstrap problem:
+	  the <application>mount</application> command needed to
+	  access sysfs assumes <filename>/dev/null</filename> and
+	  <filename>/dev/console</filename> are available.
+	</para>
+      </footnote> and everything is owned by root.
+    </para>
+
+    <para>
+      The <code>Image</code> module contains the image description and
+      can write the image to a directory.  It understands about symlinks:
+      if <filename>/sbin/vgscan</filename> is added to the image and it
+      happens to be a symlink to <filename>lvmiopversion</filename>, both
+      <filename>vgscan</filename> and <filename>lvmiopversion</filename>
+      will be added to the image.  Shared libraries are supported
+      via the <code>SharedLibraries</code> module, as discussed in
+      <xref linkend="shlibs"/>.  Invocations of other executables are not
+      recognised automatically: if <filename>lvmiopversion</filename> executes
+      <filename>/etc/lvm-200/vgscan</filename>, the latter needs to be
+      added explicitly to the image.
+    </para>
+
+    <para>
+      The copying of complete trees to the image is influenced by the
+      copying for executables: if there is a symlink in the tree, it's
+      target is also included on the image, but if the target is a
+      directory, its contents are not copied recursively.  This
+      approach avoids loops in image generation.
+      Note that the target of a symlink must exist:
+      <application>yaird</application> refuses to copy dangling links.
+    </para>
+  </simplesect>
+
+  <simplesect>
+    <title>Packing the Image</title>
+    <para>
+      The final step is packing the image in a format that the
+      bootloader can process; this is handled by the module
+      <code>Pack</code>.  The following formats are supported:
+      <variablelist>
+
+	<varlistentry>
+	  <term>
+	    cpio
+	  </term>
+	  <listitem>
+	    <para>
+	      A zipped cpio file (new ASCII format), required for the
+	      initramfs model as used in the templates for Debian and
+	      Fedora.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    directory
+	  </term>
+	  <listitem>
+	    <para>
+	      An unpacked directory, good for debugging or manually
+	      creating odd formats.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    cramfs
+	  </term>
+	  <listitem>
+	    <para>
+	      A cramfs filesystem, used for Debian initrd images.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </simplesect>
+
+</section>

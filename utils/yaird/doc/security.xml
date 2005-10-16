@@ -1,0 +1,224 @@
+<section id="security">
+  <title>Security</title>
+
+  <para>
+    This section discusses security: avoiding downtime, avoiding revealing
+    sensitive information, avoiding unwanted modifications to the data;
+    either through accident or malice.
+    A good introduction to secure programming can be found in 
+    <ulink url="http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/">
+      <citetitle>
+	Secure Programming for Linux and Unix HOWTO</citetitle></ulink>.
+  </para>
+  
+  <para>
+    For <application>yaird</application>, security is not very
+    complicated: although it runs with root privileges, the program is
+    not setuid, and all external input comes from files or programs
+    installed by the admnistrator, so our main focus is on avoiding
+    downtime caused by ignored error codes.
+    A full blown risk assessment would be overkill, so we'll just use
+    the HOWTO as a checklist to verify that the basic precautions are
+    in place.
+  </para>
+
+  <para>
+    <informaltable frame='topbot'>
+      <tgroup cols='3' align='left'>
+	<thead>
+	  <row>
+	    <entry>Group</entry>
+	    <entry>Mitigation</entry>
+	    <entry>Status</entry>
+	  </row>
+	</thead>
+	<tbody valign='top'>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify command line</entry>
+	    <entry>
+	      Yes.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify and clean up environment</entry>
+	    <entry>
+	      Complete environment is reset at start of program.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Avoid assumptions about file descriptors</entry>
+	    <entry>
+	      Handled by perl.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify file names</entry>
+	    <entry>
+	      Perl taint check shows filenames are verified for
+	      absence of odd characters before passing to
+	      subprocesses.
+	      TODO: examine UTF-8 impact.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify file content</entry>
+	    <entry>
+	      File contents in sysfs verified.
+	      Fstab entries properly quoted.
+	      TODO: check for spaces in names of LVM volume or of
+	      modules; could end up in generated /sbin/init.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify locale settings</entry>
+	    <entry>
+	      All locale related environment variables are wiped at
+	      program startup.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Verify character encoding</entry>
+	    <entry>
+	      All IO is byte oriented.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Bad input</entry>
+	    <entry>Buffer overflow</entry>
+	    <entry>
+	      In perl?
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Separate data and control</entry>
+	    <entry>
+	      Under this heading, the HOWTO discusses the dangers of
+	      auto-executing macros in data files.  The closest thing we
+	      have to a data file are the templates that tune the image
+	      to the distribution.  We use a templating language that
+	      does not allow code embedding, and the image generation
+	      module does not make it possible for template output to
+	      end up outside of the image.  Conclusion: broken templates
+	      can produce a broken image, but cannot affect the running
+	      system.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Minimize privileges</entry>
+	    <entry>
+	      The user is supposed to bring his own root privileges to
+	      the party, not much to be done here.  A related issue
+	      is the minimizing of privileges in the system that is
+	      started with the generated image.  This would include
+	      starting SELinux at the earliest possible moment.
+	      At least in Fedora, that earliest possible moment is
+	      in <filename>rc.sysinit</filename>, well past the moment
+	      where the initial boot image hands over control to the newly
+	      mount root file system.  No <application>yaird</application>
+	      support needed.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Safe defaults</entry>
+	    <entry>
+	      Configuration only specifies sources of information,
+	      like /etc/hotplug, not much can go wrong here.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Safe Initialisation</entry>
+	    <entry>
+	      The location of the main configuration file is configured
+	      as an absolute path into the application.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Fail safe</entry>
+	    <entry>
+	      Planning and writing the image is separated;
+	      writing only starts after planning is succesfully completed.
+	      Todo: consider backout on write failure.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Program structure</entry>
+	    <entry>Avoid race conditions</entry>
+	    <entry>
+	      Temporary files and directories are created
+	      with the <code>File::Temp</code> module, which is
+	      resistant to name guessing attacks.
+	      The completed image is installed with <code>rename</code>
+	      rather than <code>link</code>; if an existing file is
+	      overwritten, this guarantees there's no race where the
+	      old image has been deleted bu the new one is not yet in
+	      place.  (Note that there is no option in place yet which
+	      allows overwriting of existing files.)
+	      To do: examine File::Temp safe_level=HIGH.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Underlying resources</entry>
+	    <entry>Handle meta characters</entry>
+	    <entry>
+	      Protection against terminal escape sequences in output
+	      is not yet in place.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Underlying resources</entry>
+	    <entry>Check system call results</entry>
+	    <entry>
+	      Yes.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Language specific</entry>
+	    <entry>Verify perl behaviour with taint.</entry>
+	    <entry>
+	      Yes.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>Language specific</entry>
+	    <entry>Avoid perl open magic with 3rd argument.</entry>
+	    <entry>
+	      Yes.
+	    </entry>
+	  </row>
+
+	</tbody>
+      </tgroup>
+    </informaltable>
+  </para>
+
+</section>                                                                       

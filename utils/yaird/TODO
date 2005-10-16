@@ -1,0 +1,20 @@
+Todo:
+	- for the extended config file:
+		- adapt news
+	- verify ext2 => ext3 journal replay: journal should only
+	  be done *after* fsck, so mount as ext2 in initramfs,
+	  then as ext3 in /etc/init.d.
+	- use blkid.  this knows more filesystems than yaird,
+	  plus it knows that ext3 should be ext2 in initramfs.
+	  to be examined.
+	- for cryptsetup, do we need infinite loop around bad
+	  password, or fall into a shell?
+	- what do we need for internationalization?
+	- Fedora 4 no longer ships ash; need an alternative
+	- support loopback devices as root
+	- dmraid - manage software raid controllers.
+	- kernel command line processing: root=,
+	- support multipath
+	- ext2 migration, still necessary?
+	- software suspend support
+	- add Fedora spec file?

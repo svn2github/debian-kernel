@@ -1,0 +1,443 @@
+<section id="input">
+  <title>Supporting Input Devices</title>
+
+  <para>
+    A working console and keyboard during the initial boot image execution
+    is needed to enter a password for encrypted file systems; it also
+    helps while debugging.  This section discusses the kernel input
+    layer and how it can be supported during image generation.
+  </para>
+
+  <para>
+    The console is a designated terminal, where kernel output goes, and that
+    is the initial I/O device for <filename>/sbin/init</filename>.  Like all
+    terminal devices, it provides a number of functions: you can read
+    and write to it, plus it has a number of <code>ioctl()</code>
+    functions to manage line buffering, interrupt characters and
+    baudrate or parity where applicable.
+  </para>
+
+  <para>
+    Terminals come in different types: it can be a VT100 or terminal
+    emulator connected via an RS232 cable, or it can be a combination
+    of a CRT and a keyboard.  The keyboard can be connected via
+    USB or it can talk a byte oriented protocol via a legacy UART
+    chip.
+  </para>
+    
+  <para>
+    The CRT is managed in two layers.  The top layer, "virtual
+    terminal", manages a two dimensional array describing which letter
+    should go in which position of the screen.  In fact, there are a
+    number of different arrays, and which one is actually visible on
+    the screen is selected by a keyboard combination.
+    Below the virtual terminals is a layer that actually places the
+    letters on the screen.  This can be done a letter at a time,
+    using a VGA interface, or the letters can be painted pixel by
+    pixel, using a frame buffer.
+  </para>
+
+  <para>
+    Below the terminal concept we find the input layer.  This provides a
+    unified interface to the various user input devices: mouse, keyboard,
+    PC speaker, joystick, tablet.  These input devices not only
+    generate data, they can also receive input from the computer.  As
+    an example, the keyboard needs computer input to operate the NUM
+    LOCK indicator.  Hardware devices such as keyboards register
+    themselves with the input layer, describing their capabilities
+    (I can send relative position, have two buttons and no LEDs),
+    and the input layer assigns a handler to the hardware device.
+    The handler presents the device to upper layers, either as a char
+    special file or as the input part of a terminal device.
+    This is not a one-to-one mapping: every mouse gets its own
+    handler, but keyboard and PC speaker share a handler, so it looks
+    to userland like you have a keyboard that can do "beep".
+  </para>
+
+  <para>
+    In addition to handlers for specific type of upper layers (mouse,
+    joystick, touch screen) there is a generic handler that provides a
+    character device file such as <filename>/dev/input/event0</filename>
+    for every input device detected; input events are presented through
+    these devices in a unified format.  The input layer generates
+    hotplug events for these generic event handlers; hotplug uses
+    <filename>modules.inputmap</filename> to load a module containing a
+    suitable upper layer event handler.  The keyboard handler is a special
+    case that does not occur in this map, so for image generation there
+    is little to be learned from hotplug input support.
+  </para>
+
+  <para>
+    To guarantee a working console, <application>yaird</application>
+    should examine <filename>/dev/console</filename>, determine
+    whether it's RS232 or hardware directly connected to the computer,
+    and then load modules for either serial port, or for virtual
+    terminals, the input layer and any hardware underlying it.
+    Unfortunately, <filename>/dev/console</filename> does not give
+    a hint what is below the terminal interface, and unfortunately,
+    lots of input devices are legacy hardware that is hard to probe
+    and only sketchily described by sysfs in kernel 2.6.10.
+  </para>
+
+  <para>
+    This means that a guarantee for a working console cannot be made,
+    which is why distribution kernels come with components such as the
+    keyboard and serial port driver compiled into the kernel.  We can
+    do something else though: provide modules for keyboard devices
+    provided the kernel provides correct information.  That covers the
+    case of USB keyboards, and that's something that's not compiled
+    into distribution kernels, so that the administrator has to add
+    modules explictly in order to get the keyboard working in
+    the initial boot image.
+  </para>
+
+  <para>
+    Lets examine the sources of information we have to find which input
+    hardware we have to support.
+    <itemizedlist>
+
+      <listitem>
+	<para>
+	  In <filename>/sys/class/input</filename>, all input devices
+	  are enumerated.  Mostly, these only contain a
+	  <filename>dev</filename> file containing major/minor number,
+	  but USB devices also have a <filename>device</filename>
+	  symlink into <filename>/sys/devices</filename> identifying
+	  the underlying hardware.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  In <filename>/boot/menu/grub.lst</filename>, kernel options
+	  can be defined that determine whether to use a serial line as
+	  console and whether to use a frame buffer.  The consequence
+	  is that it is fundamentally impossible to determine by looking
+	  at the hardware alone what's needed to get an image that will
+	  boot without problems.  This probably means we'll have to consider
+	  supplying some modules in the image that will only get loaded
+	  depending on kernel options.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The file <filename>/proc/bus/input/devices</filename> gives
+	  a formatted overview of all known input devices; entries look
+	  like this:
+	  <programlisting>
+	    I: Bus=0003 Vendor=413c Product=2003 Version=0100
+	    N: Name="DELL DELL USB Keyboard"
+	    P: Phys=usb-0000:00:1d.7-4.1/input1
+	    H: Handlers=kbd event2
+	    B: EV=100003
+	    B: KEY=7f f0000 0 3878 d801d101 1e0000 0 0 0
+	  </programlisting>
+	  Here the "I" line shows identification information passed to
+	  the input layer by the hardware driver that is used to look
+	  up the appropiate handler.  "N" is a printable name provided
+	  by the hardware driver.  "P" is a hint at location in a bus
+	  of the device; note how this line is completely unrelated to
+	  the location of the hardware in
+	  <filename>/sys/devices</filename>.
+	  The H (Handlers) line is obvious; The B lines specify
+	  capabilities of the device, plus extra information for each
+	  capability.  Known capabilities include:
+	  <informaltable frame='topbot'>
+	    <tgroup cols='2' align='left'>
+	      <thead>
+		<row>
+		  <entry>Capability</entry>
+		  <entry>Description</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>SYN</entry>
+		  <entry>Input event is completed</entry>
+		</row>
+		<row>
+		  <entry>KEY</entry>
+		  <entry>Key press/release event</entry>
+		</row>
+		<row>
+		  <entry>REL</entry>
+		  <entry>Relative measure, as in mouse movement</entry>
+		</row>
+		<row>
+		  <entry>ABS</entry>
+		  <entry>Absolute position, as in graphics
+		  tablet</entry>
+		</row>
+		<row>
+		  <entry>MSC</entry>
+		  <entry>Miscelanious</entry>
+		</row>
+		<row>
+		  <entry>SND</entry>
+		  <entry>Beep</entry>
+		</row>
+		<row>
+		  <entry>REP</entry>
+		  <entry>Set hardware repeat</entry>
+		</row>
+		<row>
+		  <entry>FF</entry>
+		  <entry>Don't know</entry>
+		</row>
+		<row>
+		  <entry>PWR</entry>
+		  <entry>Power event: on/off switch pressed.</entry>
+		</row>
+		<row>
+		  <entry>FF_STATUS</entry>
+		  <entry>Don't know.</entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+
+  <para>
+    Finally, let's consider some kernel configuration defines, the
+    corresponding modules and their function.  This could be used as a
+    start to check whether all components required to make an
+    operational console are available on the generated image:
+    <informaltable frame='topbot'>
+      <tgroup cols='3' align='left'>
+	<thead>
+	  <row>
+	    <entry>Define</entry>
+	    <entry>Module</entry>
+	    <entry>Description</entry>
+	  </row>
+	</thead>
+	<tbody valign='top'>
+
+	  <row>
+	    <entry>VT</entry>
+	    <entry>(bool)</entry>
+	    <entry>
+	      Support multiple virtual terminals, irrespective of what
+	      hardware is used to display letters from the virtual
+	      terminal on the CRT.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>VT_CONSOLE</entry>
+	    <entry>(bool)</entry>
+	    <entry>
+	      Make the VT a candidate for console output.  The alternative
+	      is a serial line to a VT100 or terminal emulator
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>VGA_CONSOLE</entry>
+	    <entry>(bool)</entry>
+	    <entry>
+	      Display a terminal on CRT using the VGA interface.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>FRAMEBUFFER_CONSOLE</entry>
+	    <entry>fbcon</entry>
+	    <entry>
+	      Display a terminal on a framebuffer, painting letters a
+	      pixel at a time.  This has to know about fonts.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>FB_VESA</entry>
+	    <entry>vesafb</entry>
+	    <entry>
+	      Implement a framebuffer based on VESA (a common standard
+	      for PC graphic cards), a place where an X server or
+	      the framebuffer console can write pixels to be displayed
+	      on CRT.
+	      There are many different framebuffer modules that
+	      optimise for different graphics cards.
+	      Note that while vesafb and other drivers such as intelfb
+	      can be built as a module, they only function correctly
+	      when built into the kernel.  Most framebuffer modules
+	      depend on three other modules to function correctly:
+	      cfbfillrect, cfbcopyarea, cfbimgblt.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>ATKBD</entry>
+	    <entry>atkbd</entry>
+	    <entry>
+	      Interpret input from a standard AT or PS/2 keyboard.
+	      Other keyboards use other byte codes, see for example
+	      the Acorn keyboard (rpckbd).
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>SERIO</entry>
+	    <entry>serio</entry>
+	    <entry>
+	      Module that manages a stream of bytes from and to an IO port.
+	      It includes a kernel thread (kseriod) that handles the queue
+	      needed to talk to slow ports.  It is normally used for
+	      dedicated IO ports talking to PS/2 mouse and keyboard,
+	      but can also be interfaced to serial ports (COM1, COM2).
+	      The atkbd driver uses a serio driver to communicate with
+	      the keyboard.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>SERIO_I8042</entry>
+	    <entry>i8042</entry>
+	    <entry>
+	      Implement a serio stream on top of the i8042 chip, the chip
+	      that connects the standard AT keyboard and PS/2 mouse to
+	      the computer.
+	      This is legacy hardware: it's not connected via PCI but
+	      directly to the 'platform bus'.
+	      When a chip such as i8042 that implements
+	      serio is detected, it registers itself with the input
+	      layer.  The input layer then lets drivers that use serio
+	      (such as atkbd and psmouse) probe whether a known device
+	      is connected via the chip; if such a device is found,
+	      it is registered as a new input device.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>SERIAL_8250</entry>
+	    <entry>serial</entry>
+	    <entry>
+	      Support for serial ports (COM1, COM2) on PC hardware.
+	      Lots of other configuration options exist to support
+	      multiple cards and fiddle with interrupts.
+	      If compiled in rather than modular, a further option,
+	      SERIAL_8250_CONSOLE, allows using the serial port as a
+	      console.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>USB_HID</entry>
+	    <entry>usbhid</entry>
+	    <entry>
+	      Driver for USB keyboards and mice.
+	      Another define, USB_HIDINPUT, needs to be true for
+	      these devices to actually work.
+	    </entry>
+	  </row>
+
+	  <row>
+	    <entry>USB_KBD</entry>
+	    <entry>usbkbd</entry>
+	    <entry>
+	      Severely limited form of USB keyboard; uses the "boot
+	      protocol".  This conflicts with the complete driver.
+	    </entry>
+	  </row>
+
+	</tbody>
+      </tgroup>
+      
+    </informaltable>
+  </para>
+
+  <para>
+    The following figure gives an example of how the various modules 
+    can fit together.
+  </para>
+
+  <figure id="console-module-flow">
+    <title>
+      Module relation for common console setup
+    </title>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="figures/console.png" format="PNG"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+  <para>
+    In practical terms, a first step toward a more robust boot image
+    is to support new keyboard types, such as USB keyboards.
+    The following algorithm should do that.
+
+    <orderedlist>
+      
+      <listitem>
+	<para>
+	  Interpret <filename>/proc/bus/input/devices</filename>.
+	</para>
+      </listitem>
+      
+      <listitem>
+	<para>
+	  Look for devices that have handler kbd <emphasis>and</emphasis>
+	  that have buttons.  Mice and the PC speaker don't match that
+	  criterium, keyboards do.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  You could interpret the name field of such devices if you're
+	  interested in supporting legacy keyboards.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  The devices that have handler 'kbd' also have a handler 'event\d',
+	  where input is presented in a generalised event format;
+	  look up this device in /sys/class/input/event\d/.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  If it's got a device symlink, load the hardware drivers for that
+	  hardware device (most likely it's usbhid plus a usb core driver).
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Don't bother with a mknod, the input is handled via
+	  <filename>/dev/console</filename>.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Otherwise it's presumable a legacy device; you could check for
+	  the existence of
+	  <filename>/sys/devices/platform/i8042/serio\d/</filename>,
+	  or you could just assume the appropriate driver to be compiled in.
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Implement support for
+	  <filename>/etc/hotplug/blacklist</filename>,
+	  since some USB keyboards publish two interfaces (full HID
+	  and the limited boot protocol), the input layer makes both
+	  visible in <filename>/proc/bus/input/devices</filename> and
+	  the corresponding modules are mutually conflicting.
+	  The blacklist is used to filter out one of these modules.
+	</para>
+      </listitem>
+
+    </orderedlist>
+  </para>
+</section>                                                                       

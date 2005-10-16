@@ -1,0 +1,128 @@
+
+YAIRD -- Yet Another MkInitRd
+=============================
+
+This is a proof of concept rewrite of mkinitrd, intended to test the
+idea that we can get a more accurate picture of the modules needed
+to boot a linux system by fully utilizing the information in sysfs.
+It comes with templates that make it possible to generate different
+initrd or initramfs images for different distributions.
+
+Proof of concept means this software is barely tested: it may
+produce a working image, or it may eat your disk.  This is a good
+moment to re-read the "NO WARRANTY" part of the licence,
+and decide whether you want to test this software.
+
+
+Installation
+============
+
+Two perl modules need to be installed before using the application:
+
+    --	HTML::Template.  This is a standard package under Debian,
+    	in Fedora FC3 available via extras.
+    --	Parse::RecDescent.  In Debian known as libparse-recdescent-perl,
+    	in Fedora FC3 as perl-Parse-RecDescent.
+
+Unpack, then configure and install:
+
+	$ ./configure --prefix=$HOME/local
+	$ make install
+
+This installs a main configuration file (.../lib/yaird/conf/Default.cfg)
+that specifies what the generated images should do.  In addition to this,
+a template file is needed, that tunes this for the distribution in use.
+Pick one from the provided examples, and copy it to the default location:
+
+	$ cd $HOME/local/lib/yaird/conf
+	$ cp Debian.cfg Templates.cfg
+
+If you want to regenerate the html documentation, you need the xmlto
+package.
+
+If you're installing from version control rather than a tarball,
+you'll also need to have automake and autoconf available, and
+need to run bootstrap.sh before doing 'configure; make'.
+
+
+Installing with klibc
+=====================
+
+Yaird comes with a small C programs, and to avoid the overhead of the GNU
+C library, you may want to compile this with klibc.  Note however that
+this is only effective if every other program that is copied to the
+initial root filesystem (such as mount, mknod and a shell) is compiled
+in the same manner.
+
+Recent versions of klibc provide klcc, a wrapper around gcc that makes
+it easier to port programs to klibc.  Installation is faily simple;
+the most important point is to make a symlink to a configured linux
+source tree.  The SHLIBDIR determines where the shared library version
+ends up.  If you want to use klibc for programs used early in the
+boot process it makes sense to put it on the root file system.
+
+You will need klibc 1.0.14 or newer.
+
+	$ cd klibc-1.0.14
+	$ ln -s /usr/src/linux... linux
+	$ make bindir=$HOME/local/bin \
+		mandir=$HOME/local/man \
+		INSTALLDIR=$HOME/local \
+		SHLIBDIR=$HOME/local/shlib \
+		install
+	$
+
+Once you have klibc, you can configure yaird to make use of it
+as follows:
+
+	$ ./configure CFLAGS=-static CC=$HOME/local/bin/klcc \
+		--prefix=$HOME/local
+	...
+	$ make install
+
+The use of CFLAGS=-shared is optional.
+
+
+Installing with uclibc
+======================
+
+To use uclibc rather than glibc or klibc:
+ - Install uclibc.
+   on debian, this can be done with "apt-get install uclibc-toolchain".
+ - Verify that /usr/bin/ldd produces correct output for an
+   executable compiled with i386-uclibc-linux-gcc.
+   If this is not the case, reconfigure and rebuild uclibc
+   to support ldd.
+ - configure and build yaird with uclibc:
+
+	$ ./configure CC=i386-uclibc-linux-gcc \
+		--prefix=$HOME/local
+	...
+	$ make install
+
+
+Using the application
+=====================
+
+See the manual page.
+
+
+Using yaird as a replacement for mkinitrd
+=========================================
+
+If you install a new kernel from your distribution, that means
+making a new initial boot image.  The postinstall script that
+comes with the kernel will normally do this using mkinitrd;
+if you want yaird to be used instead, some tweaking is necessary.
+
+For Debian, there is a native package that includes mkinitrd.yaird,
+a wrapper around yaird that uses the same command line conventions
+as mkinitrd.  Place the following line in /etc/kernel-img.conf
+to use yaird as a replacement for mkinitrd:
+
+	ramdisk = /usr/sbin/mkinitrd.yaird
+
+This only works with kernels distributed after june 2005.
+
+For Fedora, you'll have to modify /sbin/new-kernel-package;
+not tested yet.

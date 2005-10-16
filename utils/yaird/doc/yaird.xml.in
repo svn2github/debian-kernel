@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<!DOCTYPE article
+
+  PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "docbookx.dtd"
+
+  [
+    <!ENTITY VERSION "@VERSION@">
+
+    <!ENTITY INTRODUCTION SYSTEM "intro.xml">
+    <!ENTITY SPEC SYSTEM "spec.xml">
+    <!ENTITY CONCEPTS SYSTEM "concepts.xml">
+    <!ENTITY KERNEL SYSTEM "kernel.xml">
+    <!ENTITY RAID SYSTEM "raid.xml">
+    <!ENTITY CRYPTO SYSTEM "crypto.xml">
+    <!ENTITY NFS SYSTEM "nfs.xml">
+    <!ENTITY INPUT SYSTEM "input.xml">
+    <!ENTITY SHLIBS SYSTEM "shlibs.xml">
+    <!ENTITY SECURITY SYSTEM "security.xml">
+    <!ENTITY TOOLS SYSTEM "tools.xml">
+    <!ENTITY AUTHORS SYSTEM "authors.xml">
+    <!ENTITY LICENSE SYSTEM "license.xml">
+  ]
+
+>
+
+<article id="index" lang="en">
+
+ <articleinfo>
+  <title>Yaird &mdash; Yet Another Mkinitrd</title>
+  <pubdate>2005-02-09</pubdate>
+  <author>
+    <firstname>Erik</firstname>
+    <surname>van Konijnenburg</surname>
+    <email>ekonijn@xs4all.nl</email>
+  </author>
+
+  <abstract>
+    <para>
+      This memo discusses the design goals and implementation of
+      <application>Yaird</application> (Yet Another mkInitRD),
+      a proof-of-concept application to create an initial boot image,
+      a minimal filesystem used to bring a booting Linux kernel to a
+      level where it can access the root file system and use startup
+      scripts to bring the system to the normal run level.  It differs
+      from earlier <application>mkinitrd</application> implementations in
+      that it leverages the information in sysfs to minimise the number
+      of special cases that the application has to know about, and in
+      that it uses a template system to separate the analysis of the
+      system from the building of the image.
+    </para>
+  </abstract>
+
+  <copyright>
+   <year>2005</year>
+   <holder>Erik van Konijnenburg</holder>
+  </copyright>                                                  
+
+  <!--
+    <releaseinfo>
+      This is version &VERSION; of the Yaird manual.
+    </releaseinfo>
+  -->
+
+ </articleinfo>
+
+&INTRODUCTION;
+&SPEC;
+&CONCEPTS;
+&KERNEL;
+&RAID;
+&CRYPTO;
+&NFS;
+&INPUT;
+&SHLIBS;
+&SECURITY;
+&TOOLS;
+&AUTHORS;
+&LICENSE;
+
+</article>

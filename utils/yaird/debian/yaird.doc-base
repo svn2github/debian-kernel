@@ -1,0 +1,17 @@
+Document: yaird
+Title: Yaird -- Yet Another Mkinitrd
+Author: Erik van Konijnenburg
+Abstract:  This memo discusses the design goals and implementation of
+ Yaird (Yet Another mkInitRD), a proof-of-concept application to create
+ an initial boot image, a minimal filesystem used to bring a booting
+ Linux kernel to a level where it can access the root file system and
+ use startup scripts to bring the system to the normal run level. It
+ differs from earlier mkinitrd implementations in that it leverages the
+ information in sysfs to minimise the number of special cases that the
+ application has to know about, and in that it uses a template system to
+ separate the analysis of the system from the building of the image.
+Section: admin
+
+Format: HTML
+Index: /usr/share/doc/yaird/yaird.html
+Files: /usr/share/doc/yaird/yaird.html
