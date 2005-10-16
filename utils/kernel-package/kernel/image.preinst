@@ -51,9 +51,8 @@ my $force_build_link  = '';	 # There is no harm in checking the link
 my $official_image    = "=OF"; # only true for official images
 my $arch              = "=A";  #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
-my $ramdisk           = '/usr/sbin/mkinitrd';  # Tool to create initial ram fs.
-chomp (my $unamedashr = `uname -r`);
-$ramdisk	      = '/usr/sbin/mkinitrd.yaird' if (system ("dpkg --compare-versions $unamedashr ge 2.6.13 1>/dev/null 2>&1") == 0);
+my $ramdisk           = (system ("dpkg --compare-versions $version ge 2.6.13 1>/dev/null 2>&1") == 0 ?
+			 '/usr/sbin/mkinitrd.yaird' : '/usr/sbin/mkinitrd'); # Tool to create initial ram fs.
 
 
 
@@ -160,7 +159,7 @@ if (-r "$CONF_LOC" && -f "$CONF_LOC"  ) {
       $preinst_hook    = "$1"  if /preinst_hook\s*=\s*(\S+)/ig;
       $prerm_hook      = "$1"  if /prerm_hook\s*=\s*(\S+)/ig;
       $mkimage         = "$1"  if /mkimage\s*=\s*(.+)$/ig;
-      $ramdisk         = "$1"  if /ramdisk\s*=\s*(\S+)/ig;
+      $ramdisk         = "$1"  if /ramdisk\s*=\s*(.+)/ig;
     }
     close CONF;
     $have_conffile = "Yes";
@@ -185,23 +184,24 @@ my $pattern = "=" . "I";
 $initrd=~ s/^$pattern$//;
 
 if ($initrd) {
+  chomp (my $hostversion = `uname -r`);
   my @ramdisklist =
     grep {
       -x and
-      system ("$_ --supported-host-version=$unamedashr 1>/dev/null 2>&1") == 0
+      system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
     }
     (split (/ /, $ramdisk));
 
-  my $msgramdisk = $ramdisk;
+  my $ramdiskorig = $ramdisk;
   $ramdisk = shift @ramdisklist;
 
   if (! -e $ramdisk) {
     print STDERR <<EOERROR;
 
 You are attempting to install an initrd kernel image (version
-$version) while running a kernel of version $unamedashr, but
+$version) while running a kernel of version $hostversion, but
 you have no suitable ramdisk generation tool installed among 
-$msgramdisk.  This will break the installation, unless a
+$ramdiskorig.  This will break the installation, unless a
 suitable ramdisk generation tool is also being installed right
 now.
 
