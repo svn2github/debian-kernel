@@ -1,7 +1,6 @@
-initrd-tools (0.1.83) UNRELEASED; urgency=low
+initrd-tools (0.1.83) unstable; urgency=low
 
   [ Simon Horman ]
-  [Simon Horman]
   * Clarify naming of scripts that will be run.
     Thanks to Simon Schoar. (Closes: #324351)
   * Make sure that path to output image is always fully qualified,
