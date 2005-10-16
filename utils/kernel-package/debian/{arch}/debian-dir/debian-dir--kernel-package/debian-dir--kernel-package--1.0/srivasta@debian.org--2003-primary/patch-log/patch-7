@@ -1,0 +1,9 @@
+Revision: debian-dir--kernel-package--1.0--patch-7
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Thu Dec 11 00:01:34 CST 2003
+Standard-date: 2003-12-11 06:01:34 GMT
+Modified-files: changelog local.mk
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-7
+Summary: Do not use the || true paradigm; and set umask in tar trabsfers
+

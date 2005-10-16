@@ -1,0 +1,20 @@
+Revision: debian-dir--kernel-package--1.0--patch-55
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Feb 16 03:13:57 CST 2005
+Standard-date: 2005-02-16 09:13:57 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-55
+Summary: New bugfix upload.
+Keywords: 
+
+Bug fix: "kernel-package: vmlinuz symlink breaks install", thanks to
+Michael Spang   
+
+Bug fix: "make-kpkg breaks make help", thanks to Uwe Zeisberger
+
+Bug fix: "'/lib/modules/2.x.xx-whatever still exists' message uncalled
+for when only headers installed", thanks to Joshua Kwan. Create a work
+around for the breakage introduced in official kernel-header packages,
+which added a build symlink in the modules directory, causing a long
+standing sanity check to trigger.                    

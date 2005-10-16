@@ -1,0 +1,34 @@
+Revision: skeleton-make-rules--main--0.1--patch-8
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Mar 12 12:04:45 CST 2004
+Standard-date: 2004-03-12 18:04:45 GMT
+New-files: debconf.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-8
+Summary: Add mechanisms to allow backporting debconf using packages
+Keywords: 
+
+
+ The idea behind this scheme is that the maintainer (or whoever's
+ building the package for upload to unstable) has to build on a
+ machine with po-debconf installed, but nobody else does.
+
+ When building with po-debconf, a format 1 (no encoding specifications,
+ woody-compatible) debian/templates file is generated in the clean target
+ and shipped in the source package, but a format 2 (UTF8-encoded,
+ woody-incompatible) debian/templates file is generated in binary-arch
+ for the binary package only.
+
+ When building without po-debconf, the binary package simply reuses the
+ woody-compatible debian/templates file that was produced by the clean
+ target of the maintainer's build.
+
+ This also runs debconf-updatepo in either case, just in case the
+ templates have been changed.
+
+ Also, make sure that debian/control has ${debconf-depends} in the
+ appropriate Depends: line., and use the following in the binary
+ target: dpkg-gencontrol -V'debconf-depends=debconf (>= $(MINDEBCONFVER))'
+
+
+ WARNING!! You need to create the templates.master file before this all works.

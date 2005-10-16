@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+#                              -*- Mode: Cperl -*- 
+# debian.postinst ---
+# Author           : Manoj Srivastava ( srivasta@pilgrim.umass.edu )
+# Created On       : Sat Apr 27 05:42:43 1996
+# Created On Node  : melkor.pilgrim.umass.edu
+# Last Modified By : Manoj Srivastava
+# Last Modified On : Tue Mar  2 18:41:35 2004
+# Last Machine Used: glaurung.internal.golden-gryphon.com
+# Update Count     : 44
+# Status           : Unknown, Use with caution!
+# HISTORY          :
+# Description      :
+#
+#
+#
+#  arch-tag: 1c716174-2f0a-476d-a626-a1322e62503a
+#
+
+
+$|=1;
+
+# Predefined values:
+my $package="=P";
+my $version="=V";
+
+# Ignore all invocations uxcept when called on to configure.
+exit 0 unless ($ARGV[0] && $ARGV[0] =~ /configure/);
+
+my $architecture;
+chomp($architecture = `dpkg --print-installation-architecture`);
+$architecture = "ppc" if $architecture eq "powerpc";
+$architecture = "parisc" if $architecture eq "hppa";
+$architecture = "mips" if $architecture eq "mipsel";
+$architecture = "x86_64" if $architecture eq "amd64";
+
+my $stop_and_read     = 0;
+my $have_conffile     = "";
+my $src_postinst_hook = '';
+my $CONF_LOC          = '/etc/kernel-img.conf';
+
+# most of our work is done in /usr/src.
+chdir '/usr/src' or die "Could not chdir to /usr/src:$!";
+
+if (-d "$package") {
+
+  chdir "/usr/src/$package/include" ||
+    die "Could not chdir to  /usr/src/$package/include:$!";
+
+  if (! -d "asm-$architecture") {
+    warn "/usr/src/$package/include/asm-$architecture does not exist.\n";
+  }
+  elsif (-e 'asm') {
+    if (! -l 'asm') {
+      warn "/usr/src/$package/include/asm is not a symlink.\n";
+      $stop_and_read++;
+    }
+    else {
+      my $target=readlink 'asm';
+      if ("$target" ne "asm-$architecture") {
+	if (! unlink 'asm') {
+	  warn "could not unlink /usr/src/$package/include/asm: $!\n";
+	  warn "It points to /usr/src/$package/include/$target\n";
+	  warn  "rather than at /usr/src/$package/include/asm-$architecture\n";
+	  $stop_and_read++;
+	}
+	else {
+	  if (! symlink "asm-$architecture", 'asm') {
+	    warn "Could not link /usr/src/$package/include/asm:$!\n";
+	    warn "to /usr/src/$package/include/asm-$architecture\n";
+	    $stop_and_read++;
+	  }
+	}
+      }
+    }
+  }
+}
+
+chdir '/usr/src' or die "Could not chdir to /usr/src:$!";
+
+if ($stop_and_read) {
+  my $answer;
+  print STDERR " Please Hit return to continue.";
+  $answer = <STDIN>;
+}
+
+if (-r "$CONF_LOC" && -f "$CONF_LOC"  ) {
+  if (open(CONF, "$CONF_LOC")) {
+    while (<CONF>) {
+      chomp;
+      s/\#.*$//g;
+      next if /^\s*$/;
+
+      $src_postinst_hook      = "$1"  if /src_postinst_hook\s*=\s*(\S+)/ig;
+      $header_postinst_hook   = "$1"  if /header_postinst_hook\s*=\s*(\S+)/ig;
+    }
+    close CONF;
+    $have_conffile = "Yes";
+  }
+}
+
+## Run user hook script here, if any
+if (-x "$src_postinst_hook") {
+    system ("$src_postinst_hook", $package, $version) &&
+	warn "User hook script $src_postinst_hook failed";
+}
+if (-x "$header_postinst_hook") {
+    system ("$header_postinst_hook", $package, $version) &&
+	warn "User hook script $header_postinst_hook failed";
+}
+
+
+
+exit 0;
+
+__END__
+
+
+
+
+
+
+
+

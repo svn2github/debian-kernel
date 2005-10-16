@@ -1,0 +1,165 @@
+.\" This file was generated with po4a. Translate the source file.
+.\" 
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\" $Id: kernel-package.5,v 1.6 2001/12/21 21:46:29 srivasta Exp $
+.\"
+.TH KERNEL\-PACKAGE 5 "25 mai 1999" Debian "manuel Debian GNU/Linux"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+.SH NOM
+kernel\-package \- système pour mettre en paquet des noyaux Linux
+.SH DESCRIPTION
+Le paquet \fBkernel\-package\fR est venu du désir d'automatiser les étapes 
+routinières d'une compilation du noyau et de son installation. Si vous 
+cherchez le mode d'emploi de \fBkernel\-package\fR, veuillez consulter la page 
+de manuel \fBmake\-kpkg (1)\fR. Vous trouverez les instructions de 
+configuration dans la page \fBkernel\-pkg.conf(5).\fR
+.SH "Pourquoi utiliser kernel\-package ?"
+.RS
+.TP
+.B i) Commodité.
+Je compilais les noyaux « à la main », et cela comprenait un certain nombre 
+d'étapes, à faire dans un certain ordre. C'est dans le but d'exécuter toutes 
+les étapes nécessaires qu'a été écrit kernel\-package. Il est devenu bien 
+autre chose, mais pour l'essentiel, c'est ce qu'il fait. Et c'est 
+particulièrement important pour les novices : \fBmake\-kpkg\fR exécute toutes 
+les étapes nécessaires à la compilation d'un noyau ; et l'installation est 
+un jeu d'enfant.
+.TP
+.B ii) Possibilité d'avoir plusieurs images
+Vous pouvez maintenir différentes images du noyau sur votre machine, et sans 
+problème particulier.
+.TP
+.B iii) Possibilité d'avoir plusieurs variantes d'une même version du noyau
+Vous pouvez maintenir plusieurs variantes d'une même version du noyau sur 
+votre machine ; par exemple, une version 2.0.36 stable et une version 2.0.36 
+comprenant les derniers pilotes, et cela, sans s'inquièter d'une 
+contamination des modules dans \fI/lib/modules.\fR
+.TP
+.B iv) Valeurs par défaut intégrées
+Le paquet sait que certaines architectures utilisent vmlinuz plutôt que 
+vmlinux, que d'autres utilisent zImage plutôt que bzImage, et il appelle les 
+bonnes valeurs et place les fichiers au bon endroit.
+.TP
+.B v) Place réservée pour les modules
+Plusieurs paquets pour des modules du noyau sont intégrés à 
+\fBkernel\-package,\fR et l'on peut par exemple compiler les modules \fBpcmcia\fR 
+en même temps que l'on compile le noyau tout en étant sûr que ces modules 
+seront compatibles.
+.TP
+.B vi) gestion de dpkg
+Vous pouvez gérer les noyaux ainsi créés avec le système de gestion des 
+paquets, car un fichier .deb est créé et dpkg en prend le contrôle. Cela 
+rend plus facile la tâche des paquets qui en dépendent.
+.TP
+.B vii) Contrôle de la configuration
+le fichier de configuration de chaque image du noyau dans \fI/boot,\fR qui fait 
+partie du paquet, est sous contrôle et ainsi, l'image et son fichier de 
+configuration sont toujours ensemble.
+.TP
+.B viii) Possibilité d'avoir plusieurs fichiers de configuration
+Vous pouvez indiquer un répertoire contenant les fichiers de configuration, 
+un fichier pour chaque sous\-architecture (et même différents fichiers pour 
+i386, i486, etc). C'est une solution très élégante pour ceux qui ont besoin 
+de compiler des noyaux pour plusieurs sous\-architectures.
+.TP
+.B ix) Paquets .deb auxiliaires pour les noyaux
+Vous pouvez créer un paquet, fichier .deb, avec les en-têtes ou les sources 
+et les mettre sous le contrôle du système de gestion des paquets. Il y a des 
+paquets qui dépendent du fait que le système de gestion connaisse de tels 
+paquets.
+.TP
+.B x) Création des scripts du responsable
+Puisque l'image du noyau est mise dans un vrai paquet Debian, le paquet 
+contient les scripts du responsable ; ils proposent certaines actions comme 
+de rendre le disque amorçable, ils manipulent des liens symboliques dans / 
+de manière à rendre statiques les scripts du programme de démarrage (des 
+liens symboliques plutôt que les fichiers réels de l'image, les noms des 
+liens symboliques ne changeant pas tandis que les noms des fichiers de 
+l'image changent avec la version).
+.TP
+.B xi) Gestion des sous\-architectures
+Les innombrables sous\-architectures qui ont fleuri sous l'ombrelle des 
+architectures m68k et power\-PC sont reconnues.
+.TP
+.B xii) kernel\-patch
+Vous pouvez appliquer des patches au noyau, sous forme de fichier .deb de 
+type kernel\-patch, et construire auto\-magiquement un noyau patché tout en 
+conservant les sources du noyau NON patchées.
+.TP
+.B xiii) Images du noyau portables
+Vous pouvez compiler un noyau pour une autre machine, en utilisant par 
+exemple une machine rapide pour la compilation d'un noyau qui sera installé 
+sur une machine plus lente. C'est vraiment pratique puisque les modules sont 
+tous inclus dans le paquet .deb et qu'aucune gestion manuelle n'est 
+demandée.
+.TP
+.B xiv) Peaufinages sur l'autre machine
+Le script postinst cherche un fichier de configuration sur la machine où 
+doit être installé le noyau (non pas la machine où il a été compilé)  et 
+l'administrateur local peut résoudre les questions des liens symboliques, 
+décider si ce qui concerne le programme de démarrage doit être exécuté et 
+s'il faut créer ou non une disquette d'amorçage.
+.TP
+.B  xv) Actions possibles au moment de l'exécution
+Grâce aux scripts postinst et postrm, l'administrateur local peut insérer 
+des scripts à exécuter sur la machine où est installé le noyau. Les 
+utilisateurs de grub peuvent par exemple ajouter ou supprimer un paragraphe 
+dans le fichier menu (des exemples sont donnés dans le paquet).
+.TP
+.B xvi) Description précise de la version du noyau
+Vous pouvez préciser la version du noyau, en ligne de commande ou par une 
+variable d'environnement. Ainsi un noyau appelé kernel\-image\-2.4.1CHEZ.MOI 
+ne pourra être supplanté par le noyau officiel 2.4.1, puisque la version 
+n'est pas la même.
+.RE
+.SH "Inconvénients de make\-kpkg"
+.TP
+.B i) Automaticité
+C'est une approche douce de la compilation du noyau mais il y a des gens qui 
+aiment le métal nu.
+.TP
+.B ii) Non traditionnel
+On ne fait pas ainsi dans le monde non\-Debian. La tradition est 
+bafouée. Cependant, il a été noté que cette manière de faire devenait 
+rapidement une tradition Debian.
+.TP
+.B  iii) nécessité du super-utilisateur
+Vous êtes obligé d'utiliser \fBfakeroot\fR ou \fBsudo\fR ou \fBsuper\fR ou bien 
+d'être root pour créer un paquet .deb de l'image du noyau (mais la situation 
+n'est pas aussi mauvaise qu'elle l'était avant l'apparition de \fBfakeroot\fR).
+.RE
+.SH FICHIERS
+.I /etc/kernel\-pkg.conf.\fR \fI/etc/kernel\-img.conf.
+.SH "VOIR AUSSI"
+.B make\-kpkg\fR(1), \fBmake\fR(1), \fBLe manuel de GNU Make.
+.SH BOGUES
+Il n'y a aucune erreur. Toute ressemblance avec un bogue est du 
+délire. Vrai.
+.SH AUTEUR
+Cette page a été écrite par Manoj Srivastava <srivasta@debian.org>, 
+pour le système Debian GNU/Linux.
+.SH TRADUCTION
+Philippe Batailler <debian-l10n-french@lists.debian.org> Juillet 2004.

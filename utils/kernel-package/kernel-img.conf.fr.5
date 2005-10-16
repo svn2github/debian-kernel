@@ -1,0 +1,310 @@
+.\" This file was generated with po4a. Translate the source file.
+.\" 
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 2000 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\" $Id: kernel-img.conf.5,v 1.25 2003/09/28 01:16:52 srivasta Exp $
+.\"
+.TH KERNEL\-IMG.CONF 5 "21 mars 2000" "Debian" "Manuel Debian GNU/Linux"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+.SH NOM
+kernel\-img.conf \- configuration générale des paquets contenant une image 
+du noyau
+.SH RÉSUMÉ
+.I /etc/kernel\-img.conf
+.SH DESCRIPTION
+Le processus de post-installation de l'image du noyau recherche le fichier 
+\fI/etc/kernel\-img.conf\fR. Ce simple fichier permet de gérer des aspects de 
+l'installation avec des options locales, qui remplacent les valeurs par 
+défaut intégrées dans l'image elle-même.
+.PP
+Le format de ce fichier est simple : des paires \fBVARIABLE = VALEUR\fR. Des 
+valeurs booléennes peuvent être spécifiées par \fIYes, True, 1,\fR ou \fINo, 
+False, 0,\fR en majuscule ou en minuscule. Si ce fichier n'existe pas, ni le 
+lien symbolique \fI/vmlinuz,\fR il est automatiquement créé par le script 
+d'installation. Le script demande s'il faut créer le lien symbolique et 
+enferme la réponse dans \fI/etc/kernel\-img.conf\fR.
+.PP
+Les variables modifiables par l'utilisateur sont les suivantes :
+.TP
+.B link_in_boot
+Valeur « Yes », si vous voulez que le lien symbolique vers l'image du noyau, 
+à savoir \fIvmlinuz\fR, soit dans \fI/boot\fR plutôt que dans \fI/,\fR valeur 
+par défaut. L'ancien nom, prêtant à confusion, image_in_boot, 
+est déconseillé\ ; c'est habituellement le lien symbolique qui est déplacé. 
+Valeur par défaut « No ».
+.TP
+.B do_symlinks
+Le script de post-installation de l'image créera ou mettra à jour les liens 
+symboliques \fI/vmlinuz\fR et \fI/vmlinuz.old\fR. C'est vrai si le lien 
+\fI/vmlinuz\fR existe déjà. Cependant, en l'absence de ce lien, le script 
+recherchera ce fichier de configuration. Si ce fichier n'existe pas, le 
+script demandera à l'utilisateur s'il faut créer le lien symbolique et 
+conservera la réponse dans un nouveau fichier \fI/etc/kernel\-img.conf\fR. Si 
+le fichier de configuration existe déjà et si cette option vaut « No », 
+aucun lien symbolique ne sera créé. Cela, pour les gens qui peuvent démarrer 
+leur machine autrement et qui n'aiment pas que les liens symboliques 
+encombrent leur répertoire /. Valeur par défaut fixée à « Yes ».
+.TP
+.B minimal_swap
+Si le lien symbolique /vmlinuz ne pointe pas sur une image identique à celle 
+qui va être installée, le script postinst déplace /vmlinuz sur /vmlinuz.old 
+et crée un lien symbolique de l'image du noyau vers /vmlinuz\ ; il s'agit 
+d'empêcher que /vmlinuz et /vmlinuz.old ne pointent vers l'image en cours, 
+ce qui pourrait être désastreux si cette image était défectueuse en quoi que 
+ce soit. Cependant, si cette option est activée, rien n'est fait si 
+/vmlinuz.old pointe sur l'image installée (les liens symboliques sont 
+échangés). La valeur par défaut est « no ».
+.TP
+.B no_symlinks
+S'il faut utiliser des liens symboliques avec le fichier \fIimage\fR. Est 
+l'opposé de \fIreverse_symlinks\fR. Peut être utilisée avec \fIlink_in_boot 
+(image_in_boot)\fR. Si cette variable est positionnée à Yes, l'image réelle 
+est mise dans vmlinuz, au lieu de /boot/vmlinuz\-X.X.XX. Et si vous utilisez 
+aussi link_in_boot, /boot/vmlinuz\\-X.X.XX est mis dans 
+/boot/vmlinuz. L'ancien /vmlinuz est déplacé d'office dans 
+vmlinuz.old. Normalement, cela n'est fait que si la version de la nouvelle 
+image est différente de l'ancienne. Vous ne pouvez avoir que deux images, à 
+moins de prendre des mesures pour conserver des copies des anciennes 
+images. Cela peut servir aux gens qui ont \fI/boot\fR sur un système qui 
+n'utilise pas les liens symboliques\ ; ils utilisent aussi loadlin comme 
+programme de démarrage. C'est un Bidouillage. La valeur par défaut est 
+« No ».
+.TP
+.B reverse_symlinks
+S'il faut utiliser des liens symboliques inversés avec le fichier 
+\fIimage\fR. C'est-à-dire, le fichier réel est celui qui n'a pas de numéro de 
+version et le lien possède le numéro de version. Est l'opposé de 
+\fIno_symlinks\fR. Peut être utilisée avec \fIlink_in_boot 
+(image_in_boot)\fR. Tout se passe comme avec \fIno_symlinks,\fR sauf que 
+/boot/vmlinuz\-X.X.XX est un lien symbolique vers la nouvelle image réelle, 
+vmlinuz. Là aussi, vous ne pouvez avoir que deux images, à moins de prendre 
+d'autres mesures. Les liens symboliques plus anciens sont laissés 
+ballants. Cela peut servir aux gens qui ont \fI/boot\fR sur umsdos et qui ne 
+peuvent voir les liens symboliques dans dos mais veulent connaître la 
+version de l'image quand ils sont dans Linux. C'est un Bidouillage. La 
+valeur par défaut est No.
+.TP
+.B image_dest
+Si vous voulez que le lien symbolique (ou l'image, si \fBmove_image\fR est 
+positionnée) soit placé ailleurs que dans \fI/\fR, indiquez le répertoire de 
+votre choix. Veuillez remarquer que cette variable n'est pas une variable 
+booléenne. Cela peut servir aux utilisateurs de \fBloadlin\fR qui pourront 
+déclarer à la fois cette variable et \fBmove_image\fR. La valeur par défaut 
+est 
+\fI/.\fR  Elle peut être utilisée avec toutes les options ci-dessus, sauf 
+\fBlink_in_boot (image_in_boot)\fR, ce qui n'aurait pas de sens. Si vous 
+déclarez à la fois \fBimage_dest\fR et \fBlink_in_boot (image_in_boot)\fR, 
+\fBlink_in_boot (image_in_boot)\fR prend le dessus.
+.TP
+.B postinst_hook
+Indiquez ici un script à exécuter pendant l'installation, après que tous les 
+liens symboliques ont été créés mais avant de lancer le programme d'amorçage 
+ou de proposer la création d'une disquette de démarrage. Ce script doit être 
+appelé avec deux arguments, le premier est la \fIversion\fR de l'image du 
+noyau, et le second est l'\fIadresse\fR de l'image du noyau elle-même. Des 
+erreurs dans le script déclencheront des messages d'avertissement mais 
+seront ignorées. Un exemple pour les utilisateurs de Grub est donné dans le 
+répertoire /usr/share/doc/kernel\-package/.
+.TP
+.B postrm_hook 
+Indiquez ici un script à exécuter dans le postrm, c'est-à-dire, après que 
+l'image a été supprimée et toutes les actions de suppression effectuées. Ce 
+script doit être appelé avec deux arguments, le premier est la \fIversion\fR 
+de l'image du noyau, et le second est l'\fIadresse\fR de l'image du noyau 
+elle-même. Des erreurs dans le script déclencheront des messages 
+d'avertissement mais elles seront ignorées.
+.TP
+.B preinst_hook
+Indiquez ici un script à exécuter avant que le paquet ne soit dépaqueté\ ; il 
+peut servir à effectuer d'autres contrôles. Ce script doit être appelé avec 
+deux arguments, le premier est la \fIversion\fR de l'image du noyau, et le 
+second est l'\fIadresse\fR de l'image du noyau elle-même.
+.TP
+.B prerm_hook 
+Indiquez ici un script à exécuter avant que les fichiers du paquet ne soient 
+supprimés (et ainsi tout fichier ajouté peut être supprimé). Ce script doit 
+être appelé avec deux arguments, le premier est la \fIversion\fR de l'\image 
+du noyau, et le second est l'\fIadresse\fR de l'image du noyau elle-même. Des 
+erreurs dans le script déclencheront des messages d'avertissement mais elles 
+seront ignorées.
+.TP
+.B src_postinst_hook 
+Contrairement aux autres variables de type « hook », cette variable indique 
+un script qui sera exécuté pendant la phase de post-installation d'un paquet 
+de docs, d'en-têtes ou de sources. Utiliser cette possibilité pour les 
+paquets d'en-têtes est maintenant déconseillé\ ; le script de 
+post-installation des paquets d'en-têtes doit seulement lancer le script 
+headers_postinst_hook. On appellera ce script avec deux arguments, le 
+premier étant le \fInom\fR du paquet qui est installé 
+(p.\ ex. kernel\-source\-X.X.XX ou kernel\-headers\-X.X.XX), le second étant 
+la \fIversion\fR du paquet. Des erreurs dans le script déclencheront des 
+messages d'avertissement mais seront ignorées.
+.TP
+.B headers_postinst_hook
+Contrairement aux autres variables de type « hook », cette variable indique 
+un script qui ne sera exécuté que pendant la phase de post-installation d'un 
+paquet d'en-têtes. On appellera ce script avec deux arguments, le premier 
+étant le \fInom\fR du paquet qui est installé 
+(p.\ ex. kernel\-headers\-X.X.XX), 
+le second étant la \fIversion\fR du paquet. Des erreurs dans le script 
+déclencheront des messages d'avertissement mais elles seront ignorées.
+.TP
+.B move_image
+Au lieu de créer un lien symbolique vers \fBimage_dest\fR (ou l'inverse si 
+\fBreverse_symlinks\fR est demandée), l'image est déplacée de \fIboot\fR vers 
+\fIimage_dest\fR. Si \fBreverse_symlinks\fR est demandée, \fIboot\fR 
+contiendra un 
+lien symbolique vers l'image réelle. Cette option peut servir à ceux qui 
+utilisent loadlin, qui pourraient vouloir déplacer l'image sur une autre 
+partition dos. Cette variable n'a pas de valeur par défaut.
+.TP
+.B clobber_modules
+Quand cette variable est déclarée, le script preinst cherchera 
+silencieusement à déplacer /lib/modules/version si cette version est la 
+même que celle de l'image à installer. Utilisez-la à vos risques et 
+périls. Cette variable n'a pas de valeur par défaut.
+.TP
+.B do_boot_enable
+Si la valeur de cette variable est «\ NO\ », toutes les tentatives pour créer 
+une disquette d'amorçage sont court-circuitées, lilo est exécuté, etc. Cela 
+rend aussi le script postinst silencieux. Donner la valeur «\ NO\ » à 
+\fBdo_bootfloppy\fR et à \fBdo_bootloader\fR implique que la valeur de 
+\fBdo_boot_enable\fR soit «\ NO\ ». Valeur par défaut, «\ Yes\ ».
+.TP
+.B do_bootfloppy
+Si la valeur de cette variable est NO, cela empêche le script postinst de 
+demander s'il faut créer une disquette d'amorçage, et aucune disquette n'est 
+créée. Le programme d'amorçage est lancé. Cela peut réduire l'interaction 
+liée au postinst. Mais il demande toujours s'il faut formater 
+\fI/dev/fd0\fR. Valeur par défaut «\ Yes\ ».
+.TP
+.B do_bootloader
+Si la valeur de cette variable est «\ NO\ », cela empêche le script postinst 
+de lancer le programme d'amorçage. On demande toujours s'il faut créer une 
+disquette, sauf si la valeur de \fBdo_bootfloppy\fR est aussi «\ NO\ ». 
+Valeur par défaut «\ Yes\ ».
+.TP
+.B relative_links
+Si la valeur de cette variable est «\ Yes\ », le script postinst de l'image 
+s'assurera par tous les moyens que les liens symboliques sont 
+relatifs. Normalement, ils le sont quand on peut déterminer facilement que 
+des liens relatifs fonctionnent. La valeur par défaut est «\ NO\ ».
+.TP
+.B do_initrd
+Si la valeur de cette variable est «\ YES\ », le script de post-installation 
+de 
+\fIkernel\-image\fR n'affiche pas d'avertissement quand on installe un noyau 
+avec initrd. Il est supposé que le programme d'amorçage est correctement 
+configuré et qu'il saura amorcer l'image initrd. Valeur par défaut\ : 
+«\ NO\ ». Il faut préférer à cette variable la variable \fBwarn_initrd\fR, 
+mais remarquez que son sens est inversé.
+.TP
+.B warn_initrd
+Si la valeur de cette variable est «\ NO\ », le script de post-installation de 
+\fIkernel\-image\fR n'affiche pas d'avertissement quand on installe un noyau 
+avec initrd. Il est supposé que le programme de démarrage est correctement 
+configuré et qu'il saura amorcer l'image initrd. Cette variable est 
+maintenant préférée à \fBdo_initrd\fR, puisqu'il s'agit d'éviter les 
+\fBavertissements\fR. Valeur par défaut\ : «\ Yes\ ».
+.TP
+.B use_hard_links
+Cette variable existe pour les gens qui ne gèrent pas les liens symboliques 
+(un programme de démarrage qui n'accepte pas les liens symboliques, par 
+exemple). Si la valeur de cette variable est YES, le postinst de l'image 
+utilisera des liens réels pour /vmlinuz et /vmlinuz.old, qui sont gérés 
+automatiquement. J'ai essayé de rendre cette variable compatible avec les 
+variables \fBmove_image\fR and \fBreverse_symlinks\fR. Caveat\ : c'est à 
+l'utilisateur de s'assurer que le répertoire \fBimage_dest\fR et l'emplacement 
+de l'image (nominativement /boot) sont sur le même système, car on ne peut 
+créer des liens réels d'un système de fichiers à un autre. \fBVous avez été 
+prévenu.\fR
+.TP
+.B relink_build_link
+Cette option manipule le lien «\ build\ » créé par les noyaux récents. Si le 
+lien est un lien ballant et si les en-têtes correspondants semblent avoir 
+été installés sur le système, un nouveau lien symbolique sera créé et 
+pointera sur eux. La valeur par défaut est de re-lier le lien «\ build\ »
+(«\ YES\ »).
+.TP
+.B force_build_link
+Cette option manipule le lien «\ build\ » créé par les noyaux 
+récents. Si le lien est un lien ballant, un nouveau lien symbolique sera 
+créé et pointera sur /usr/src/kernel\-headers\-X.Y.ZZ, que ces en-têtes 
+aient été installées ou non. Il n'y a pas de valeur par défaut, on ne crée 
+pas des liens symboliques potentiellement ballants par défaut.
+.TP
+.B relink_source_link
+Cette option manipule le lien «\ source\ » créé par les noyaux 
+récents. Si le lien est un lien ballant, il sera supprimé lors de 
+l'installation. La valeur par défaut est de re-lier (supprimer) le 
+lien «\ source\ » («\ YES\ »).
+.TP
+.B mkimage
+La valeur sera une commande pour créer une image initrd, un répertoire
+étant donné. Elle est passée au programme
+\fImkinitrd\fR,
+option
+\fI\-m\fR.
+Par exemple, 
+  mkimage="genromfs -d %s -f %s"
+ ou
+  mkimage="mkcramfs %s %s"
+.TP
+.B silent_modules
+Cette option est là pour les gens excédés par les avertissements concernant 
+l'existence d'un répertoire \fB/lib/modules/$version\fR. Ce répertoire peut 
+appartenir à une \fBkernel\-image\-$version\fR ancienne ou même morte, auquel 
+cas les modules restant dans ce répertoire peuvent poser problème\ ; ou bien,
+ce répertoire a le droit d'exister parce qu'on installe un paquet 
+indépendant des modules d'une version du noyau qui a déjà été dépaquetée.
+Dans ce dernier cas, l'existence de ce répertoire est bénigne. Si vous 
+utilisez cette variable, vous n'aurez plus la possibilité d'interrompre 
+l'installation si un répertoire \fB/lib/modules/$version\fR est détecté. Cette
+variable n'a pas de valeur par défaut.
+.TP
+.B silent_loader
+Si la valeur de cette variable est déclarée, la question posée dans la phase 
+d'installation et avant le lancement du programme d'amorçage ne sera pas 
+posée. Cette option n'influe pas sur l'exécution du programme d'amorçage 
+(voyez \fBdo_bootloader\fR pour savoir comment contrôler son exécution, et 
+l'absence du fichier de configuration rendra loquace et interactif le 
+processus d'installation.
+.TP
+.B ignore_depmod_err
+Si déclarée, cette variable empêchera une interrogation de l'utilisateur 
+après un problème avec depmod dans le script postinst. Cela facilite les 
+installations automatiques, mais cela peut cacher un problème avec l'image du 
+noyau. Un diagnostic est rendu.
+.SH FICHIERS
+Le fichier ici décrit est \fI/etc/kernel\-img.conf.\fR
+.SH "VOIR AUSSI"
+.B make\-kpkg\fR(1), \fBkernel\-pkg.conf\fR(5), \fBmake\fR(1), \fBle manuel GNU Make
+.SH BOGUES
+Il n'y a pas d'erreur. Toute ressemblance avec un bogue est du délire. Sûr.
+.SH Auteur
+Cette page a été écrite par Manoj Srivastava, <srivasta@debian.org>, 
+pour le système Debian GNU/Linux.
+.SH TRADUCTION
+Philippe Batailler <debian-l10n-french@lists.debian.org> Juillet 2004.

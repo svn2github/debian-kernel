@@ -1,0 +1,14 @@
+Revision: debian-dir--kernel-package--1.0--patch-1
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Nov 21 04:33:07 CST 2003
+Standard-date: 2003-11-21 10:33:07 GMT
+New-files: .arch-ids/changelog.id .arch-ids/conffiles.id
+    changelog conffiles copyright
+Removed-files: copyright
+Modified-files: control local-vars.mk local.mk postinst postrm
+    preinst prerm rules
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-1
+Summary: Tailored for kernel-package
+Keywords: 
+

@@ -1,0 +1,430 @@
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\" $Id: kernel-pkg.conf.5,v 1.37 2003/09/01 17:09:15 srivasta Exp $
+.\"
+.TH KERNEL\-PKG.CONF 5 "Jan  7 1997" "Debian" "Debian GNU/Linux manual" 
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+.SH NAME
+kernel\-pkg.conf \- site wide configuration file for make\-kpkg
+.SH SYNOPSIS
+.I /etc/kernel\-pkg.conf
+or
+.I ~/.kernel\-pkg.conf
+.SH "DESCRIPTION"
+The file 
+.I /etc/kernel\-pkg.conf
+or
+.I ~/.kernel\-pkg.conf
+is actually a 
+.BR Makefile
+snippet included during the kernel packages build process, and hence
+you may put any legal Makefile directive in that file (just make very
+sure you know what you are doing).  If the per user configuration file
+.I ~/.kernel\-pkg.conf
+exists, it is loaded in favour of the system wide configuration file
+.I /etc/kernel\-pkg.conf.
+.PP
+All the variables have reasonable default values, and maybe
+overridden on a per run or a per individual basis by using
+environment variables.  Some of the variables can further be
+overridden by options to 
+.B make\-kpkg.
+.PP
+At the moment, the user modifiable variables supported are:
+.TP
+.B maintainer
+Local kernel-* package maintainer. Set up at package installation by
+the 
+.IR postinst.
+Can be overridden by the environment variable 
+.B KPKG_MAINTAINER.
+Please note that any apostrophes "'" shall have to be quoted like so:
+maintainer = John O'\\''Brien. Yes, this is ugly, but this works.
+.TP
+.B email      
+The email address of that person.  Set up at package installation by
+the 
+.IR postinst.
+Can be overridden by the environment variable 
+.B KPKG_EMAIL.
+.TP
+.B pgp           
+Name to search for in the pgp database 
+.BI if
+separate modules (like pcmcia etc) are being built in
+.IR /usr/src/modules/.
+Can be overridden by the environment variable 
+.B PGP_SIGNATURE, 
+and is overridden (again) by the 
+.IR \-\-pgpsign
+option of
+.B make\-kpkg.
+Defaults to 
+.I maintainer.
+(Optional)
+.TP
+.B debian         
+The Debian revision of the kernel packages. Can be overridden
+by the environment variable 
+.B DEBIAN_REVISION, 
+and is overridden (again) by the 
+.IR \-\-revision
+option of
+.B make\-kpkg.
+Defaults to 
+.I 10.0.0.Custom
+(Optional)
+.TP
+.B debian_revision_mandatory
+Normally unset. If this, or the environment variable
+.B DEBIAN_REVISION_MANDATORY
+are set, then not providing a debian revision results in an error (and 
+.B make\-kpkg
+shall not provide a default value of 10.0.0.Custom)
+.TP
+.B link_in_boot
+Set to True if you want the symbolic link to the kernel image, namely, 
+.I vmlinuz 
+in 
+.I /boot 
+rather than the default 
+.I /.  
+Can be overridden by the environment variable
+.B LINK_IN_BOOT. 
+Defaults to undefined.
+(Optional)
+.TP
+.B kimage         
+The kernel image type (i.e. zImage or bzImage). Can be
+overridden from the environment variable 
+.B IMAGE_TYPE,  
+and is overridden (again) by the options
+.IR \-\-zimage
+or
+.IR \-\-bzimage
+of
+.B make\-kpkg.
+Defaults to 
+.I bzImage.
+(Optional)
+.TP
+.B no_symlinks
+Whether to use symlinks to the 
+.I image
+file. Can be overridden by the environment variable
+.B NO_SYMLINK
+Mutually exclusive to 
+.I reverse_symlinks. 
+Can be used with
+.I link_in_boot. 
+The image is placed in vmlinuz (instead of /boot/vmlinuz\-X.X.XX). The
+old vmlinuz is moved to vmlinuz.old unconditionally. (Normally, that
+is only done if the version of the new image differs from the old
+one). This restricts you to two images, unless you take additional
+action and save copies of older images. This is for people who have
+.I /boot
+on a system that does not use symbolic links (and say, they use
+loadlin as a boot loader). This is a Hack.
+Defaults to  undefined (optional)
+.TP
+.B reverse_symlinks
+Whether to use reverse symlinks (that is, the real file is the one
+without the version number, and the numbered version is the link) to the 
+.I image
+file. Can be overridden by the environment variable
+.B REVERSE_SYMLINK
+Mutualy exclusive to 
+.I no_symlinks.
+Can be used with
+.I link_in_boot.
+Just like 
+.I no_symlinks, 
+except that the
+/boot/vmlinuz\-X.XX is symlinked to the real new
+image, vmlinuz. This, too, restricts you to just two
+images unless further action is taken. The older
+symlinks are left dangling. This is for people with
+.I /boot
+on umsdos, and who can't see the link in dos, but
+do want to know the image version when in Linux. 
+This is a Hack.
+Defaults to  undefined. (optional)
+.TP
+.B patch_the_kernel
+This is an experts only variable. If set to YES (ENV
+variable 
+.B PATCH_THE_KERNEL 
+overrides this), the build
+process causes run\-parts to be run over
+.I /usr/src/kernel\-patches/$(architecture)/apply 
+and (hopefully) reverses the process during clean by
+running run\-parts over
+.I /usr/src/kernel\-patches/$(architecture)/unpatch. 
+The special architecture all is used for arch independent patches.
+.TP
+.B config_target
+What type of configure step to do.
+Defaults to oldconfig, which is good for non\-interactive (or minimally
+interactive) runs.
+If you are setting patch_the_kernel to YES and some of the patches
+change what configuration settings are available, then you may wish to
+set this to something else (like menuconfig or xconfig).
+(ENV variable
+.B CONFIG_TARGET
+overrides this setting.)
+If the value of config_target is other than config, oldconfig,
+menuconfig or xconfig then it is reset to oldconfig.
+.TP
+.B use_saved_config
+This is an experts only variable. If set to NO (ENV
+variable 
+.B USE_SAVED_CONFIG
+overrides this), the file .config.save in the top level directory is
+ignored. 
+.TP
+.B root_cmd 
+This is a variable meant to be passed on to 
+.B dpkg\-buildpackage
+in the 
+.I buildpackage
+target.
+This should be set to a means of gaining superuser access (for
+example, 
+.I `sudo'
+or 
+.I `fakeroot')
+as needed by 
+.B dpkg\-buildpackages' 
+-r option. The environment variable 
+.B ROOT_CMD
+overrides this. Use the environment variable
+.B UNSIGN_SOURCE
+to pass an option to dpkg\-buildpackage to not sign the
+source; similarly, use the environment variable
+.B UNSIGN_CHANGELOG 
+to pass an option to dpkg\-buildpackage to not sign the
+changelog. Again, this variable is only useful for the
+.I buildpackage
+target. Set the  environment variable 
+.B ROOT_CMD
+if you just wish to build the kernel image, for instance.
+.TP
+.B delete_build_link
+If set to YES, the symbolic link 
+.I /lib/modules/$VERSION/build
+shall be removed from the resulting .deb package.  The environment variable 
+.B DELETE_BUILD_LINK
+overrides this. 
+.TP
+.B do_clean	
+Set to anything but YES, this shall forego the make clean done in the
+kernel source tree after building the kernel image package. The
+environment variable 
+.B CLEAN_SOURCE
+overrides this.
+.TP
+.B install_vmlinux
+Set to YES to install the uncompressed kernel ELF image along with the bootable
+compressed kernel image (vmlinuz).  This image is necessary for profiling
+kernel and userspace with oprofile (oprofile.sourceforge.net, i386 only).
+.TP 
+.B image_clean_hook
+Set to point to an executable, this shall cause that executable to run
+from the top level of the (temporary) kernel image tree before the
+kernel image is packaged. This has no effect on anything other than
+the image that is being packaged -- if the script operates on the
+current directory and its children, the original source tree should
+remain intact.  This is to facilitate massaging of the kernel image
+that is packaged.
+.TP 
+.B source_clean_hook
+Set to point to an executable, this shall cause that executable to run
+from the top level of the (temporary) kernel source tree before the
+sources are packaged, 
+.I ./debian/tmp\-source/usr/src/kernel\-source\-X.X.XX.
+This has no effect on anything other than the sources that are being
+packaged -- if the script operates on the current directory and its
+children, the original source tree should remain intact. This is to
+facilitate massaging of the kernel sources that are packaged (for
+example, to remove version control directories, or to prune away
+unwanted architectures).
+.TP 
+.B header_clean_hook
+Set to point to an executable, this shall cause that executable to run
+from the top level of the kernel headers before the headers are
+packaged. This has no effect on anything other than the sources that
+are being packaged -- if the script operates on the current directory
+and its children, the original source tree should remain intact. This
+is to facilitate massaging of the kernel headers that are packaged
+(for example, to remove version control directories, or to prune away
+unwanted architectures).
+.TP 
+.B doc_clean_hook
+Set to point to an executable, this shall cause that executable to run
+from the top of the documentation tree before kernel documentation is
+packaged.  This has no effect on anything other than the documentation
+that is being packaged -- if the script operates on the current
+directory and its children, the original source tree should remain
+intact. This is to facilitate massaging of the kernel documentation
+that is packaged (for example, to remove version control directories,
+or to prune away unwanted architectures).
+.TP
+.B extra_docs
+This variable should be set to the path of any extra documentation
+that should be installed in 
+.I /usr/share/doc/kernel\-image\-X.X.XX/
+directory. There is no checking for name conflicts, and the files are
+not compressed. Hence, if you want the files to be compressed, please
+precompress it and provide the path of the compressed file.  The
+environment variable  
+.B EXTRA_DOCS
+overrides this, and would most likely be how extra documentation is
+specified. 
+.TP
+.B kpkg_follow_symlinks_in_src
+This option is especially useful for people who use symlinc farms to
+compile kernels. With this option, kernel\-source and kernel\-header
+packages shall not be just full of dangling symlinks, instead, the
+symbolic links shall be followed. Please note that any symbolic links
+in the kernel sources would be flattened as well.  The environment
+variable 
+.B KPKG_FOLLOW_SYMLINKS_IN_SRC
+overrides this.
+.TP
+.B make_libc_headers
+This is meant to be used by the 
+.I libc6 
+maintainer, when he compiles
+.I libc6, 
+to also package up the corresponding headers. 
+.B DO NOT SET THIS
+unless you know what you are doing, since a mismatch between the
+headers you package and 
+.I libc6 
+may well 
+create a subtle instability in all code compiled on your machine. You
+have been warned. The environment variable 
+.B MAKE_LIBC_HEADERS
+overrides this.
+.TP
+.B CONCURRENCY_LEVEL
+If defined, this variable sets the concurrency level of make used to
+compile the kernel and the modules set using 
+.I -j
+flags to the sub make in the 
+.B build
+target of 
+.B make\-kpkg.
+Should be a (small) integer, if used.
+.TP
+.B ARCH_IN_NAME
+If defined, this variable causes 
+.B make\-kpkg
+to use an extended name for the kernel image package by embedding the
+subarchitecture  in the image name, so one could write a script to
+create multiple subarchitectures one after the  other. 
+.B Please note
+that  only  the package 
+.I name
+is  affected,  not module locations etc.
+.TP
+.B CONFDIR
+This variable should be set to a directory which contains architecture
+specific 
+.I .config
+files (look at
+.I /usr/share/kernel\-package/Config
+for examples). This is useful for people who need to compile for
+several architectures. Defaults to 
+.I /usr/share/kernel\-package/Config
+.TP
+.B IMAGEDIR
+If you want the image to be stored elsewhere than
+.I /boot
+set this variable to the dir where you want the image. This may be of
+help to
+.B loadlin
+users. Defaults to 
+.I /boot.
+.TP
+.B MODULE_LOC
+Set this variable, either in the environment or in the config file, to
+point to the location where the add\-on modules are located. Defaults
+to 
+.I /usr/src/modules
+.TP
+.B CONFDIR
+Set this variable, either in the environment or in the config file, to
+point to the location where the kernel config files are
+located. Defaults to 
+.I /usr/share/kernel\-package/Config
+.TP
+.B PATCH_DIR 
+Set this variable, either in the environment or in the config file, to
+point to the location where the add\-on kernel patches are
+located. Defaults to
+.I /usr/src/kernel\-patches/ARCHITECTURE
+.TP
+.B ALL_PATCH_DIR 
+Set this variable, either in the environment or in the config file, to
+point to the location where the add\-on arch independent kernel patches
+are located. Defaults to
+.I /usr/src/kernel\-patches/all
+.PP
+The value of a variable can be set so:
+.IP a)
+Defaults exist in the rules file. These are the values used if no
+customization is done.
+.IP b)
+Variables can be set in the config file 
+.I /etc/kernel\-pkg.conf. 
+These values override the defaults.
+.IP c)
+Variables can also be set by setting a corresponding environment
+variable.  These values override the config file and the defaults.
+.IP d)
+Using 
+.B make\-kpkg 
+options, or, if using the rules file directly, on 
+command line 
+.br
+.BI "# xxx/rules DEBIAN_REVISION=2.0a kernel_image"
+.br
+This overrides all the above methods.
+.SH FILES
+The file described here is
+.I /etc/kernel\-pkg.conf.
+or
+.I ~/.kernel\-pkg.conf.
+.SH "SEE ALSO"
+.BR make\-kpkg (1),
+.BR kernel\-img.conf (5),
+.BR make (1),
+.B The GNU Make manual.
+.SH BUGS
+There are no bugs.  Any resemblance thereof is delirium. Really.
+.SH AUTHOR
+This manual page was written by Manoj Srivastava <srivasta@debian.org>,
+for the Debian GNU/Linux system.

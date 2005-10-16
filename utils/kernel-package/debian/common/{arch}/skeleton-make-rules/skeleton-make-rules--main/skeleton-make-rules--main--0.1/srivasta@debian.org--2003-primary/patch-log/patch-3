@@ -1,0 +1,10 @@
+Revision: skeleton-make-rules--main--0.1--patch-3
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Tue Nov 18 14:34:16 CST 2003
+Standard-date: 2003-11-18 20:34:16 GMT
+Modified-files: targets.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-3
+Summary: Added common (not arch, not indep) targets to all phases.
+Keywords: 
+

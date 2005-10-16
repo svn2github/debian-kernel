@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-68
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon May  2 00:58:26 CDT 2005
+Standard-date: 2005-05-02 05:58:26 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-68
+Summary: Fixed the postrm greedy symlink deletion bug.
+Keywords: 
+

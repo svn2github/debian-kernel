@@ -1,0 +1,121 @@
+#! /usr/bin/perl
+#                              -*- Mode: Perl -*- 
+# kernel-package-config --- 
+# Author           : root ( root@melkor.pilgrim.umass.edu ) 
+# Created On       : Thu Jun 13 08:17:09 1996
+# Created On Node  : melkor.pilgrim.umass.edu
+# Last Modified By : Manoj Srivastava
+# Last Modified On : Tue Feb  1 02:06:56 2000
+# Last Machine Used: glaurung.green-gryphon.com
+# Update Count     : 7
+# Status           : Unknown, Use with caution!
+# HISTORY          : 
+# Description      : 
+# 
+# 
+#
+#    $Id: kernel-packageconfig,v 1.5 2000/02/01 08:07:12 srivasta Exp $
+#
+
+$|=1;
+use strict;
+
+my $conffile = '/etc/kernel-pkg.conf';
+my $prompt = <<"EOP";
+
+You have installed the debian package kernel-package.  This package
+essentially consists of a Makefile called debian.rules and supporting
+scripts and documentation, and also a site over-ride file 
+ $conffile.
+At a minimum, the name and email address of the maintainer of the
+kernel packages which will be created by kernel-package should be
+provided in $conffile
+
+EOP
+;
+
+sub main (){
+  open (CONF, "$conffile") || do {
+    my $ans;
+
+    warn "Error reading configuration file $conffile:$!";
+    print "$prompt";
+    print "I could not read this file, so please edit the file by hand.\n";
+    print "\n\tPlease Hit return to continue";
+    $ans = <STDIN>;
+    exit (1);
+  };
+  my $oldrs = $/;
+  undef $/;
+  my $File = <CONF>;
+  $/ = $oldrs;
+  close (CONF);
+  if ($File =~ m|^\s*?maintainer\s*?:?=\s*?Unknown.*?$|im) {
+    my $maintainer;
+    print <<"EOF1";
+
+Configuring the Full name of the local person responsible for the
+kernel packages.
+
+This information will be used to sign the new packages produced.  If
+you never intend to sign the kernel images, source, or header packages
+created (You should only need to do so if you upload an official
+package), you may safely leave it blank.  However, we recommend that
+you do supply a full name if only so that the dpkg -s kernel-*
+information looks prettier <grin>.
+
+Please supply the full name of the local kernel maintainer
+EOF1
+;
+    print "\t[default Unknown]:";
+    $maintainer = <STDIN>;
+    $maintainer =~ s|\n||g;
+    $maintainer =~ s|\s+| |g;
+    # replace any correctly escaped ' with bare '
+    $maintainer =~ s/'\\''/'/g;
+    # then revert
+    $maintainer =~ s/'/'\\''/g;
+
+    if ($maintainer !~ m|^\s*$|) {
+      $File =~
+        s|^\s*?maintainer\s*?:?=\s*?Unknown.*?$|maintainer := $maintainer|im;
+    }
+  }
+
+
+  if ($File =~ m|^\s*?email\s*?:?=\s*?unknown.*?$|im) {
+    my $email;
+    print <<"EOF2";
+
+Configuring the email address of the local person responsible for the
+kernel packages.
+
+This information will be put into the dpkg database, you may safely
+leave it blank.  However, we recommend that you do supply a email
+address, it make keeping track easier.
+
+Please supply the email address of the local kernel maintainer
+EOF2
+;
+    print "\t[default unknown]:";
+    $email = <STDIN>;
+    $email =~ s|\n||g;
+    $email =~ s|\s+| |g;
+    if ($email !~ m|^\s*$|) {
+      $File =~
+        s|^\s*?email\s*?:?=\s*?unknown.*?$|email := $email|im;
+    }
+  }
+  open (CONF, ">$conffile") || do {
+    warn "Could not open $conffile for writing:$!";
+    exit 1;
+  };
+  print CONF $File;
+  close (CONF);
+  exit 0;
+}
+
+&main();
+exit 0;
+__END__
+

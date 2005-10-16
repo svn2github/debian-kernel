@@ -1,0 +1,724 @@
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\"
+.\"    $Id: make-kpkg.8,v 1.76 2003/09/28 01:16:52 srivasta Exp $
+.\"
+.TH MAKE\-KPKG 1 "14 Nov 2002" "Debian" "Manuel Debian GNU/Linux"
+.SH NOM
+make\-kpkg \- construit des paquets Debian du noyau à partir des sources du noyau Linux
+.SH SYNOPSIS
+.B make\-kpkg
+.I [options]
+\&[cible [cible ...]]
+.SH DESCRIPTION
+Cette page de manuel décrit l'utilitaire Debian
+.B "make\-kpkg",
+utilisé pour créer les paquets Debian concernant le noyau. Cet
+utilitaire doit être lancé à partir du répertoire racine des sources du
+noyau Linux, qui doit avoir été préalablement configuré (à moins que vous 
+n'utilisiez la cible «\ configure\ »). Typiquement, vous exécutez cette commande
+en tant que root, avec
+.B fakeroot,
+ou bien en indiquant à 
+.B make\-kpkg
+comment devenir root, comme ceci :
+.sp 1
+.ti +5
+make\-kpkg \-\-rootcmd fakeroot kernel_image
+.sp 1
+Le paquet Debian sera créé dans le répertoire père de celui des sources
+du noyau depuis lequel la commande a été lancée.
+.PP
+De plus, sachez que certaines versions de gcc ne fonctionnent pas très bien 
+avec les sources du noyau (gcc 2.95 rencontre des problèmes de compilation
+du noyau si on n'utilise pas l'option de compilation
+.I '\-fno\-strict\-aliasing'). 
+Ce problème a été réglé pour les noyaux récents (les séries 2.2 et 2.4)
+(je crois que, pour les noyaux plus anciens, vous risquez d'avoir à modifier 
+le makefile).
+Vous pouvez indiquer la version de gcc à utiliser pour la compilation du
+noyau en définissant les variables CC et HOSTCC du Makefile (le Makefile 
+du premier niveau). Cela se fait tout simplement grâce à : 
+.PP
+  % MAKEFLAGS="CC=gcc\-2.95" make\-kpkg ...
+.PP
+(Consultez le Makefile de premier niveau pour connaître les variables qui
+peuvent être définies).
+.SH OPTIONS
+.B \-\-help
+Affiche un message d'aide.
+.TP
+.BR \-\-revision " numéro"
+Modifie le numéro de révision Debian des paquets créés avec ce
+.BR numéro.
+Il y a quelques contraintes d'utilisation : l'option \-\-revision n'a d'effets
+que pendant la phase de configuration. En d'autres termes, si le fichier
+.I stamp\-configure
+existe, cette option n'aura pas d'effet. Exécutez 
+.B make\-kpkg clean 
+ou supprimez vous-même
+.I stamp\-configure 
+et
+.I stamp\-debian
+afin que l'option fonctionne. Je vous recommande avec insistance
+d'utiliser
+.B make\-kpkg clean 
+sauf si vous êtes sûr de ce que vous faites. 
+De plus, les responsables officiels des paquets des sources fournissent leurs
+propres numéros de versions et données pour leurs envois officiels dans 
+l'archive Debian,
+ce qui entraîne qu'un certain nombre de choses, dont le numéro de révision
+.B Debian
+, ne seront pas modifiés par
+.B make\-kpkg.
+S'il vous arrive d'avoir une source officielle, (il y a alors un fichier
+.I debian/official
+qui ne doit pas être vide), et que vous voulez utiliser votre propre numéro
+de révision, pensez bien à supprimer 
+.I debian/official
+avant de lancer
+.B make\-kpkg clean 
+si vous voulez que cette option fasse effet.
+Par conséquent, si vous voulez relancer
+.B make\-kpkg 
+avec un numéro de révision différent, assurez-vous de commencer avec une 
+structure propre. Ensuite, le numéro de version doit être composé
+uniquement de caractères alphanumériques, des caractères  + et . (plus et 
+point),
+et doit impérativement comporter un chiffre (consultez la charte Debian pour
+plus d'informations).
+.I En fait, c'est un mensonge.
+Les responsables officiels du noyau et des
+modules ont une dispense spéciale qui leur permet l'usage du trait d'union,
+mais cela est fortement déconseillé à la plupart des gens, puisqu'aucune
+correction du numéro de version n'est faite, et dpkg et autres risquent de
+planter en fin de compilation sans qu'on sache très bien d'où cela vient.
+Enfin, vous pouvez préfixer la version d'un chiffre suivi de deux
+points (:). La valeur par défaut est
+.B 1.0.0.Custom
+à moins que la variable d'environnement
+.B DEBIAN_REVISION_MANDATORY
+ne soit activée, auquel cas une erreur est générée si le numéro de version
+est omis dans la ligne de commande ou le fichier de configuration.
+.TP
+.BR \-\-append\-to\-version " toto"
+.TP
+.BR \-\-append_to_version " toto"
+Cet argument (
+.B toto
+) est ajouté à la valeur de la variable EXTRAVERSION du Makefile du noyau.
+Puisqu'EXTRAVERSION est un des composants du numéro de version du noyau, il
+est aussi ajouté au nom du paquet Debian, et en tant que tel, doit répondre
+aux contraintes de la charte concernant les noms de paquets. Ce qui veut dire
+qu'il ne doit contenir que des caractères alphanumériques 
+.B  minuscules
+et les caractères -, + et . (trait d'union, plus et point). Les lettres
+majuscules ne sont pas autorisées par la Charte pour un nouveau paquet. Si la 
+variable d'environnement 
+.B IGNORE_UPPERCASE_VERSION
+est définie, make-kpkg écrira le numéro de version défini dans le Makefile ou 
+dans le fichier 
+.I localversion
+en minuscules. Cet argument a priorité
+sur la variable d'environnement
+.B APPEND_TO_VERSION.
+Notez bien que vous \fB\s-1devez\s0\fR lancer 
+.B make\-kpkg 
+.I clean
+après avoir configuré le noyau avec 
+.I make (x|menu)?config, 
+puisque celui-ci génère le fichier
+.I include/linux/version.h
+.B sans 
+la valeur
+.I append_to_version
+(toto). Ce fichier ne sera pas modifié par le lancement de make\-kpkg 
+(make\-kpkg crée version.h s'il n'existe pas, mais ne le modifie pas s'il
+existe), et donc le noyau final n'aura pas la valeur append_to_version dans
+son numéro de version, et ira chercher les modules et les symboles aux mauvais
+endroits. Le plus simple est soit de supprimer include/linux/version.h après
+la configuration et avant la compilation, soit de lancer
+.B make\-kpkg clean
+après la configuration, et avant la compilation.
+.B Notez
+aussi qu'une fois que vous avez utilisé
+.BR \-\-append_to_version " toto"
+pour la configuration ou la construction du kernel\-image, vous devez aussi
+utiliser la même option lors de lancements ultérieurs de make\-kpkg (par 
+exemple, pour construire des modules indépendants, ou autres).
+.B make\-kpkg
+ne se souvient pas de l'argument toto à chacun des lancements de la commande (ce
+comportement est différent de \-\-revision, qui est lui persistant lors 
+des différents lancements). Si vous en avez assez de voir make\-kpkg se
+plaindre de l'utilisation de 
+.BR \-\-append_to_version 
+alors qu'il y a déjà un fichier créé précédemment
+.T version.h
+, vous pouvez définir la variable d'environnement 
+.B VERSION_H_OK
+ce qui fera cesser cet avertissement.
+.TP
+.BR \-\-flavour\ toto
+Cette option est maintenant déconseillée, au profit de
+.BR \-\-append_to_version.
+pour définir à \fBtoto\fR la «\ variante\ » (flavour) du noyau. La 
+«\ variante\ » est ajoutée aussi au nom du paquet. Vous aurez besoin d'un
+Makefile modifié afin que cela fonctionne convenablement (consultez
+/usr/share/doc/kernel\-package/\s-1Flavours\s0.gz).
+Il ne peut être constitué que de caractères alphanumériques 
+.B minuscules
+et des caractères \- + . (trait d'union, plus et point). Les majuscules ne sont
+pas autorisées pour les nouveaux paquets par la Charte. \fB\s-1NOTA\s0\fR: Les
+traits d'union sont déconseillés (Voir le Chapitre 4 de la Charte pour plus
+de détails).  Notez bien que vous devrez certainement utiliser
+.B make\-kpkg 
+.I clean
+.B EN PREMIER LIEU
+si vous voulez recompiler le kernel\-image en utilisant une «\ variante\ ».
+.TP
+.BR \-\-added\-modules\ toto
+.TP
+.BR \-\-added_modules\ toto
+Cet argument se présente sous la forme d'une liste de modules additionnels
+séparés par des virgules (modules non inclus dans l'arborescence principale
+du noyau) que vous souhaitez construire lorsque vous invoquez les cibles
+modules_truc. Vous devez indiquer le chemin complet des répertoires 
+contenant les modules, ou simplement le nom du module s'il peut être 
+trouvé dans
+.B MODULE_LOC,
+qui pointe par défaut sur
+.I /usr/src/modules.
+Le comportement par défaut compile tous les modules qui sont dans 
+.B MODULE_LOC,
+quand les cibles modules_truc sont demandées.
+.TP
+.BR \-\-added\-patches\ truc
+.TP
+.BR \-\-added_patches\ truc
+Cet argument (truc) doit être une liste de patches additionnels pour les sources
+du noyau séparés par des virgules. L'option de configuration 
+.I patch_the_kernel
+sera alors automatiquement réglée à YES. 
+.IP
+Contrairement à la gestion des modules, vous pouvez n'indiquer que le nom
+du fichier de patch (et pas le chemin complet du fichier). Pour chaque fichier
+<nom_patch> de la liste, l'algorithme suivant est appliqué : si ce fichier
+est trouvé dans les répertoires
+.B ALL_PATCH_DIR/{apply,unpatch}/,
+alors le fichier
+.B ALL_PATCH_DIR/apply/<nom_patch>
+sera appliqué pendant la phase de configuration (on présume que cela appliquera
+le patch). De la même façon, le fichier 
+.B ALL_PATCH_DIR/unpatch/<nom_patch> 
+sera exécuté pendant la phase «\ clean\ ».  
+Par défaut, tous les patches sont appliqués en lançant tous les exécutables
+contenus dans 
+.B ALL_PATCH_DIR/apply/
+si la demande en est faite (que ce soit par l'option de configuration
+.B patch_the_kernel
+ou par la mise à YES de la variable d'environnement
+.B PATCH_THE_KERNEL.
+Notez bien que les patches sont DÉS-INSTALLÉS des sources quand vous lancez
+la cible «\ clean\ ». Ce nettoyage peut être désactivé par la définition de
+la variable d'environnement
+.B NO_UNPATCH_BY_DEFAULT.
+.IP
+Dans ce qui précède, 
+.B ALL_PATCH_DIR
+pointe par défaut vers un sous répertoire de 
+.I /usr/src/kernel\-patches/.
+.IP
+Parfois, il serait pratique de voir les patches s'appliquer quand quelqu'un 
+demande un patch spécifique grâce à cette option, sans être obligé de définir
+explicitement la variable d'environnement. Mais puisque régler la variable
+d'environnement
+.B PATCH_THE_KERNEL
+à YES peut être dangereux (en ce sens où tous les patches seraient installés
+quand vous n'en vouliez aucun, puisque vous n'avez pas spécifié l'option
+added_patches), vous pouvez régler la variable PATCH_THE_KERNEL à 
+.I AUTO,
+et dans ce cas, PATCH_THE_KERNEL sera réglé à YES quand vous demanderez 
+.BR \-\-added\-patches\ truc, 
+et pas dans le cas inverse.  
+De plus, notez que si un quelconque patch installe un script dans le répertoire
+.I ./debian/image.d/,
+.B run\-parts
+sera lancé sur ce répertoire juste avant la construction du paquet de l'image
+du noyau. L'emplacement de la racine du paquet en cours de construction sera
+défini dans la variable d'environnement 
+.B IMAGE_TOP,
+et la version du noyau sera transmise par la variable d'environnement 
+.B version.
+C'est un des systèmes utilisés par le patch pour insérer, par exemple, des
+fichiers supplémentaires dans l'image.
+.TP
+.BR \-\-arch\ truc
+Pratique pour définir l'architecture quand vous utilisez la compilation
+croisée.
+Si vous ne faites pas de compilation croisée, l'architecture est 
+automatiquement déterminée. On peut obtenir le même résultat en réglant la
+variable d'environnement 
+.B KPKG_ARCH
+.TP
+.BR \-\-cross\-compile\ truc
+.TP
+.BR \-\-cross_compile\ truc
+Pratique pour définir la cible quand vous faites de la compilation croisée.
+On peut obtenir le même résultat en réglant la variable d'environnement
+.B CROSS_COMPILE
+.TP
+.BR \-\-subarch\ truc
+Certaines architectures (comme Alpha, ou m68k) ont besoin de noyaux différents
+pour chacune des sous\-architectures. Cette option offre un moyen de le 
+spécifier en tant qu'argument de \fBmake\-kpkg\fR. \fBNotez bien\fR
+qu'une gestion de ces sous\-architectures doit être présente dans
+les sources du noyaux afin que cette option serve à quelque chose. On peut
+obtenir le même résultat en réglant la variable d'environnement 
+.B KPKG_SUBARCH
+.TP
+.BR \-\-arch\-in\-name
+.TP
+.BR \-\-arch_in_name
+Cette option rallonge le nom du paquet de l'image du noyau
+en intégrant la sous\-architecture dans le nom de l'image\ ;\ ainsi on peut
+écrire des scripts pour créer de multiples sous\-architectures, l'une après 
+l'autre. On peut faire la même chose en réglant la variable
+d'environnement
+.B ARCH_IN_NAME. 
+\fBNotez bien\fR que seul le
+.I nom
+du paquet est changé, pas l'emplacement des modules, etc.
+.TP
+.BR \-\-pgpsign " nom"
+Définit la chaîne utilisée pour signer le fichier des modifications
+.B (changes) 
+pour les modules externes rangés dans 
+.IR /usr/src/modules/
+et qui utilisent PGP. Cette option prendra le pas sur le comportement par défaut
+et sur les préférences générales qui se trouvent dans le fichier
+.IR /etc/kernel\-pkg.conf
+ou
+.IR ~/.kernel\-pkg.conf.
+.TP
+.BR \-\-config " cible"
+Modifie le type de configuration utilisée, par défaut \f(CWoldconfig\fR.
+\fIcible\fR doit prendre une des valeurs suivantes \f(CWoldconfig\fR,
+\f(CWconfig\fR, \f(CWmenuconfig\fR, \f(CWgconfig\fR, \f(CWxconfig\fR;
+\f(CWold\fR, \f(CWmenu\fR, \f(CWg\fR, ou \f(CWx\fR.
+.Sp
+Cette option est particulièrement utile lors de l'utilisation de 
+\s-1PATCH_THE_KERNEL\s0 lorsque certains patches modifient les options de
+configuration offertes.
+.B Notez
+cependant que
+.BR make\-kpkg
+explore au démarrage le fichier de configuration à la recherche de certaines
+options, notamment l'activation ou non des modules, et que la modification
+de ce choix plus tard dans la configuration engendrera une erreur. Si
+nécessaire, créez un fichier de configuration le plus proche possible de celui
+désiré avant d'appeler make\-kpkg avec cette option.
+.TP
+.B \-\-targets
+Affiche la liste des cibles connues. Voir la section
+.B Cibles
+plus loin.
+.TP
+.B \-\-noexec
+Passe l'option 
+.B \-n
+au processus  
+.I make
+afin que les commandes soient simplement affichées à l'écran mais pas réellement
+exécutées. C'est très pratique pour le debogage.
+.TP 
+.B \-\-initrd
+Si 
+.B make\-kpkg 
+génère un paquet 
+.I kernel\-image
+, génère toutes les actions nécessaires lors du chargement d'un noyau utilisant
+.B initrd.  
+.B NOTE :
+Nécessite un patch non standard des sources du noyau pour initrd et cramfs,
+(à moins que la configuration de mkinitrd n'ait été modifiée afin de ne pas
+utiliser cramfs), sans lequel vous risquez d'obtenir un noyau non amorçable.
+Ce patch est généralement présent dans les sources du noyau fournies par
+Debian, mais pas dans les sources originales du noyau. Cette option peut
+entraîner des dépendances additionnelles, et des modifications des scripts
+du responsable. Elle n'a pas d'effet quand
+.B make\-kpkg ne génère pas de paquet 
+.I kernel\-image.
+Le même résultat peut être obtenu en donnant à la variable d'environnement
+.B INITRD
+une valeur non vide. Cette option entraînera un avertissement, qu'on pourra éviter
+en donnant à la variable d'environnement 
+.B INITRD_OK
+une valeur non nulle.
+Pour éviter l'avertissement lors de l'installation, consultez kernel\-img.conf(5),
+et ajoutez une directive
+.I warn_initrd 
+à ce fichier.
+.TP
+.B \-\-zimage
+Génère un noyau en zImage plutôt qu'en bzImage (comportement par défaut).
+C'est utile pour ceux qui ont des problèmes avec les noyaux bzImage.
+.TP
+.B \-\-bzimage
+Génère un noyau en bzImage. C'est utile pour ceux qui veulent un noyau bzImage
+sur les systèmes où le réglage par défaut est zImage.
+.TP
+.B \-\-mkimage commande
+Ce doit être une commande qui produit une image initrd à partir d'un répertoire.
+Elle sera passée au programme
+.I mkinitrd
+grâce à l'option 
+.I \-m .
+Ce peut être
+"genromfs -d %s -f %s" ou 
+"mkcramfs %s %s",
+par exemple.
+.TP
+.B \-\-rootcmd commande
+La commande qui offre la possibilité d'obtenir l'accès super-utilisateur (Par
+exemple, «\ sudo\ » ou «\ fakeroot\ »). Cet accès est nécessaire pour l'option
+\-r de dpkg\-buildpackage. 
+.TP
+.B \-\-us
+Cette option est transmise à dpkg\-buildpackage et demande de ne pas signer
+la source. Elle n'a de sens que pour la cible buildpackage.
+.TP
+.B \-\-uc
+Cette option est transmise à dpkg\-buildpackage, et demande de ne pas signer
+le changelog. Elle n'a de sens que pour la cible buildpackage.
+.PP
+Les options peuvent être raccourcies en la plus petite chaîne de caractères
+non équivoque et peuvent être invoquées indifféremment avec les préfixes \- 
+ou \-\-\ ;\ Vous pouvez mettre un espace ou un symbole\ =\ entre une option et
+sa valeur. Vous pouvez aussi utiliser la forme option=valeur\ ;\ Pour plus
+d'informations sur ces variantes et d'autres qui sont reconnues, consultez la
+page de manuel Getopt::Long (3perl).
+.TP
+.B CONCURRENCY_LEVEL
+Si elle est définie, cette variable règle le nombre de processus concurrents
+qu'utilisera make pour compiler le noyau et les modules, grâce à l'utilisation
+de l'option
+.I -j
+de la commande make lancée par la cible
+.B build
+de
+.B make\-kpkg.
+Doit être, s'il est défini, un (petit) entier.
+.SH CIBLES
+.TP
+.B clean
+Efface tous les fichiers créés dans le répertoire des sources du noyau par la
+cible
+.B build,
+et lance un make distclean. (Consultez le Makefile du noyau Linux pour plus
+d'informations). Notez que malgré l'attention que nous portons aux réglages
+du noyau courant contenus dans le fichier
+.I .config,
+le fichier
+.I include/linux/autoconf.h
+ne sera pas gardé. Cette cible ne doit pas être combinée avec une autre, puisque
+.B make\-kpkg 
+lit toutes les données
+.I avant
+de lancer une quelconque cible, donc les autres cibles seront exécutées avec les
+anciennes données, ce qui n'est sûrement pas ce que vous désirez.
+.TP
+.B buildpackage
+Cette cible lance les cibles
+.B clean, 
+et
+.B binary,
+et génère le paquet complet grâce à 
+.B dpkg\-buildpackage
+.TP
+.B binary
+Cette cible génère les quatre paquets Debian en lançant les cibles 
+.B kernel_source, kernel_headers, kernel_doc
+et
+.B kernel_image.
+.TP
+.B kernel_source
+Cette cible génère un paquet Debian des sources du noyau Linux.
+Si la variable d'environnement
+.B SOURCE_CLEAN_HOOK
+pointe sur un exécutable, alors cet exécutable sera lancé, juste avant de 
+faire le paquet, sur le répertoire racine temporaire des sources du noyau,
+.I ./debian/tmp\-source/usr/src/kernel\-source\-X.X.XX,
+de façon à ce qu'on puisse lancer toute commande appropriée (supprimer des arborescences liées à des architectures, ôter les
+répertoires de contrôle de version,
+.I find . \-type d \-name CVS \-prune \-exec rm \-rf {} \\;
+etc.). Cela ne concerne que les sources du noyau qui sont en cours
+d'empaquetage.  Si cette action porte sur le répertoire courant et ses
+répertoires fils, l'arborescence originale qui contient les sources reste,
+elle, inchangée.
+Les variables d'environnement
+.B HEADER_CLEAN_HOOK
+et
+.B DOC_CLEAN_HOOK
+sont semblables. Elles doivent pointer sur des exécutables, ces exécutables 
+seront appliqués sur la racine temporaire des en-têtes du noyau et de la 
+documentation juste avant la génération des paquets respectifs, de façon à
+ce que vous puissiez lancer toute action qui vous semble adéquate. De même, ne
+sont touchées que les sources qui sont en cours d'empaquetage.
+.TP
+.B kernel_headers
+Cette cible génère le paquet Debian contenant les fichiers d'en-têtes
+contenu dans le noyau Linux.
+.TP
+.B kernel_doc
+Cette cible génère un paquet Debian contenant la documentation contenue
+dans le noyau Linux.
+.TP
+.B kernel_image
+Cette cible génère un paquet Debian contenant un noyau Linux, et tous les modules
+définis dans le fichier de configuration du noyau 
+.I .config.
+S'il n'y a pas de fichier
+.I .config
+dans les répertoires des sources du noyau, une configuration par défaut est
+utilisé, identique à celle utilisé pour créer les disquettes de démarrage
+.B Debian.
+.IP
+Si le fichier
+.I ./debian/post\-install
+existe, et qu'il s'agit d'un exécutable, il est lancé juste avant la création
+du paquet de l'image du noyau. De même, notez que si des scripts existent
+dans le répertoire
+.I ./debian/image.d/
+, 
+.B run\-parts 
+sera lancé sur ce répertoire juste avant la création du paquet de l'image du
+noyau. L'emplacement de la racine de l'image pour le paquet en cours de
+construction peut être défini par la variable d'environnement
+.B IMAGE_TOP,
+et la version du noyau est définie grâce à la variable d'environnement
+.B version
+pour tous ces scripts.
+.IP
+Lors de l'installation initiale, le paquet image met à jour le lien symbolique
+contenu dans le répertoire destination (la racine, par défaut) afin qu'il pointe
+sur la nouvelle image du noyau dans le répertoire des images, qui est
+.I /boot.
+Si le lien symbolique pointe déjà sur l'image du noyau à jour, rien ne se
+passe. Si le lien pointe une version précédente, il y a permutation avec 
+le suffixe .old, et un nouveau lien symbolique, correctement mis à jour, 
+prend sa place (la variable minimal_swap dans
+.I /etc/kernel\-img.conf
+modifie ce comportement). Rien n'est fait lors de mises à jour.
+.IP
+Consultez la documentation à propos des variables de type «\ hook\ » dans 
+.B kernel\-img.conf(5).
+Ces variables peuvent indiquer des scripts qui 
+ajoutent ou suppriment une ligne dans le menu du grub à l'installation ou à la
+suppression de l'image du noyau. Un exemple de script pour ajouter des lignes
+au menu du grub est fourni dans le répertoire 
+.I /usr/share/doc/kernel\-package/.
+.IP
+En dehors de ces variables de type «\ hook\ » que l'administrateur peut définir,
+il existe un ensemble de répertoires dans lesquels des paquets, ou 
+l'administrateur, peuvent déposer des scripts. Ces répertoires sont 
+.I /etc/kernel/preinst.d/,
+.I /etc/kernel/postinst.d/,
+.I /etc/kernel/prerm.d/,
+et
+.I /etc/kernel/postrm.d/.
+Si ces répertoires existent, le paquet kernel-image lancera le programme
+.B run-parts
+sur ceux-ci, en passant la version en cours d'installation ou de suppression
+en tant qu'argument, durant la phase correspondante d'installation ou de 
+suppression.
+.IP
+À l'installation, vous aurez la possibilité de lancer le chargeur de démarrage
+.I LILO
+(ou des équivalents tels que
+.I loadlin, SILO, QUIK, VMELILO, ZIPL, yaboot, PALO 
+ou 
+.I GRUB
+), en créant un fichier de configuration pour ces programmes de démarrage, si
+nécessaire. À ce moment, vous aurez aussi la possibilité de mettre ce nouveau
+noyau sur une disquette, en formatant la disquette si nécessaire.
+En cas de suppression, le paquet vérifie la version du noyau en cours
+d'exécution, et refuse alors d'effacer le noyau en cours d'utilisation.
+.I grub
+mérite une mention particulière ici, puisque grub n'a pas besoin d'être 
+relancé après l'installation d'une image de noyau, et qu'une modification
+automatisée du contenu du menu est suffisante pour l'installation ou la
+suppression d'une image d'un noyau.
+.TP
+.B build
+Cette cible, utilisée par la cible
+.B kernel_image
+ci-dessus, compile le noyau Linux.
+.TP
+.B modules
+Cette cible vous permet de générer tous les modules et paquets additionnels qui
+dépendent fortement de la version du noyau pour laquelle ils ont été compilés,
+en même temps que vous construisez votre image du noyau. Cette cible s'attend
+à trouver les modules et paquets sous /usr/src/modules, et, pour chacun de ces
+répertoires, s'y déplacera et lancera la règle 
+.B kdist
+du fichier
+.I debian.rules
+qui s'y trouve. Cette cible créera le(s) paquet(s)
+.B Debian
+de(s) module(s), ainsi qu'un fichier tar compressé et un fichier diff compressé,
+les
+.I md5sums
+correspondants, générés par 
+.B dpkg\-genchanges,
+seront enregistrés dans un fichier des modifications (changes).
+Ce fichier sera signé avec la même identité que celle utilisée pour signer le
+paquet du noyau. Cette option est utilisée par les responsables qui déploient
+les paquets dans les archives de Debian.
+.TP
+.B modules_config
+Cette cible permet de configurer tous les paquets de
+.B MODULE_LOC,
+qui pointe par défaut sur
+.B /usr/src/modules.
+À utiliser si vous avez besoin de modifier manuellement certains points de 
+la configuration, ou si vous voulez compiler manuellement tous les modules 
+additionnels.
+.TP
+.B modules_image
+Cette cible vous permet de construire tous les paquets de 
+.B MODULE_LOC,
+qui pointe par défaut sur
+.B /usr/src/modules,
+mais elle ne crée pas les fichiers sources ou diffs, ni ne crée ni ne signe un
+fichier des modifications (un fichier «\ changes\ »). C'est la seule option
+liée aux modules dont vous aurez besoin si vous voulez juste compiler les
+modules additionnels pour leur installation sur une ou plusieurs machines.
+Utilisée en général en conjonction avec
+.B kernel_image,
+notamment si vous invoquez aussi l'option 
+.B append_to_version
+(afin d'éviter de faux messages d'avertissement).
+.TP
+.B modules_clean
+Cette cible vous permet de nettoyer tous les paquets de
+.B MODULE_LOC,
+qui pointe par défaut sur
+.B /usr/src/modules,
+ce qui devrait être suffisant pour défaire tout ce qu'ont pu faire toutes les 
+autres cibles modules_truc. 
+.TP
+.B configure
+Cette cible lance configure (en fait
+.B config_target,
+défini par
+.B --config 
+qui pointe par défaut sur
+.I oldconfig
+) assez tôt, de sorte que vous puissiez éditer les fichiers créés par
+.B make config
+dans le répertoire des sources du noyau, sans que
+.B make\-kpkg 
+ne les écrase.
+.TP
+.B debian
+Cette cible crée le répertoire 
+.I ./debian,
+et patche éventuellement le source. Cette cible est appelée par la cible
+.B configure. 
+Vous utiliserez cette cible pour patcher les sources, puis vous lancerez
+l'étape de configuration manuellement.
+.TP
+.B libc\-kheaders
+C'est une cible spéciale pour les responsables de libc\-dev, qui peuvent
+s'en servir pour créer les paquets d'en-têtes dont la libc a besoin. Notez
+qu'il est dangereux de créer un paquet de libc\-kheaders qui est différent
+des en-têtes avec lesquels la libc a été compilée. C'est une cause
+.B connue
+d'arrêts brutaux du système. Consultez
+.I /usr/share/kernel\-package/README.headers
+pour plus d'informations. Créer et installer votre propre paquet libc\-kheaders
+peut endommager votre système, à moins que vous ne soyez sûr de ce vous faites.
+Vous êtes prévenus.
+.SH "VARIABLES D'ENVIRONNEMENT"
+Les variables suivantes (décrites plus haut) affectent
+.B make\-kpkg:
+.I DEBIAN_REVISION_MANDATORY
+.I APPEND_TO_VERSION
+.I VERSION_H_OK
+.I PATCH_THE_KERNEL
+.I NO_UNPATCH_BY_DEFAULT
+.I KPKG_ARCH
+.I CROSS_COMPILE
+.I KPKG_SUBARCH
+.I ARCH_IN_NAME
+.I INITRD
+.I SOURCE_CLEAN_HOOK
+.I MODULE_LOC
+.I INITRD_OK
+.I CONCURRENCY_LEVEL
+.I IGNORE_UPPERCASE_VERSION
+.SH FICHIERS
+Outre les options de lancement, le fichier
+.I debian.rules
+lancé par
+.B make\-kpkg
+recherche également un fichier de configuration propre à l'utilisateur
+.I ~/.kernel\-pkg.conf.
+En cas d'absence de ce fichier, il recherche un réglage par défaut pour 
+tout le système dans le fichier
+.I /etc/kernel\-pkg.conf.
+La configuration par défaut permet le remplacement pour tout le système du
+nom complet et du courriel de la personne responsable de la maintenance des
+paquets du noyau sur le site, mais les fichiers
+.I /etc/kernel\-pkg.conf
+(ou
+.I ~/.kernel\-pkg.conf.
+) sont en fait des bribes de Makefile, et toute directive valide
+peut y être incluse.
+.B Note :
+La prudence est de mise avec ce fichier, puisque vous pouvez changer
+complètement le comportement du make en modifiant son
+contenu. Consultez le fichier
+.I /usr/share/doc/kernel\-package/Problems.gz
+pour connaître la liste des problèmes recensés lors de la compilation des
+images du noyau. Un tutoriel exhaustif et une documentation sont aussi 
+disponibles dans 
+.I /usr/share/doc/kernel\-package/README.gz
+et leurs lectures sont recommandées avant l'utilisation de cet utilitaire.
+.SH "VOIR AUSSI"
+.BR kernel\-pkg.conf (5),
+.BR kernel\-img.conf (5),
+.BR Getopt::Long (3perl),
+.BR dpkg\-deb (1),
+.BR dpkg\-source (1),
+.BR make (1),
+.BR Le\ manuel\ des\ Programmeurs
+.BR Le\ manuel\ du\ make\ du\ GNU
+et la documentation complète du répertoire
+.B /usr/share/doc/kernel\-package
+.SH AUTEUR
+Cette page de manuel a été écrite par Manoj Srivastava <srivasta@debian.org>,
+pour le système Debian GNU/Linux.
+.SH TRADUCTION
+Sylvain Cherrier <sylvain.cherrier@free.fr> Octobre 2004.

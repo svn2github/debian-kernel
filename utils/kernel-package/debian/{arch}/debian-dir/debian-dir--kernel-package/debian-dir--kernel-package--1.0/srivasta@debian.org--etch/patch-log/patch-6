@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-6
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Jul 20 07:54:49 CDT 2005
+Standard-date: 2005-07-20 12:54:49 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-6
+Summary: Fix an unterminated variable reference.
+Keywords: 
+

@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-14
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Sep 28 08:36:02 CDT 2005
+Standard-date: 2005-09-28 13:36:02 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-14
+Summary: New bug fixing version
+Keywords: 
+

@@ -1,0 +1,9 @@
+Revision: skeleton-make-rules--main--0.1--patch-5
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Dec  3 23:33:39 CST 2003
+Standard-date: 2003-12-04 05:33:39 GMT
+Modified-files: targets.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-5
+Summary: prebuild should not depend on configure
+

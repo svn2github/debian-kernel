@@ -1,0 +1,10 @@
+Revision: skeleton-make-rules--main--0.1--patch-13
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Nov 17 10:31:10 CST 2004
+Standard-date: 2004-11-17 16:31:10 GMT
+Modified-files: archvars.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-13
+Summary: Fix arch variable determination for cross compilation
+Keywords: 
+

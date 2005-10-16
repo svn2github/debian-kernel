@@ -1,0 +1,393 @@
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 2000 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\" $Id: kernel-img.conf.es.5,v 1.3 2003/08/08 19:13:57 srivasta Exp $
+.\"
+
+.\" (c) 2003 Software in the Public Interest
+.\" Esta traducción ha sido realizada por Rubén Porras <nahoo@inicia.es>
+.\" Está basada en la página de manual original:
+.\" versión 1.10 del CVS de
+.\" /cvs/debian-doc/manpages/english/kernel-package/kernel-img.conf.5 
+.\" Revisada por Rudy Godoy <rudy@kernel-panik.org>
+
+.TH KERNEL\-IMG.CONF 5 "21 de marzo de 2000" "Debian" "manual Debian GNU/Linux" 
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+.SH NOMBRE
+kernel\-img.conf \- fichero de configuración global para paquetes con
+imágenes del núcleo
+.SH SINOPSIS
+.I /etc/kernel\-img.conf
+.SH "DESCRIPCIÓN"
+El fichero 
+.I /etc/kernel\-img.conf
+es un simple fichero que se consulta durante el proceso de post\-instalación de
+la imagen del núcleo y que permite personalizar localmente algunos aspectos de
+la instalación, modificando las opciones predeterminadas de la propia imagen.
+.PP
+El formato de los valores es una simple pareja
+.B VAR = VALOR. 
+Los valores booleanos han de especificarse como
+.I Yes, True, 1,
+y
+.I No, False, 0,
+teniendo en cuenta las mayúsculas.
+Este fichero se crea automáticamente por el script de instalación si no existe,
+al contrario que con el enlace simbólico
+.I /vmlinuz.
+El script pregunta al usuario si se debe de crear el enlace simbólico y guarda
+la respuesta en
+.I /etc/kernel\-img.conf
+.PP
+En este momento, las variables modificables por el usuario son:
+.TP
+.B link_in_boot 
+Si es Yes en enlace simbólico con la imagen llamado
+.I vmlinuz 
+se creará en 
+.I /boot 
+en vez de en
+.I /.  
+El nombre antiguo y confuso image_in_boot es desaconsejado, ya que lo que
+se reubica normalmente es el enlace simbólico.
+Por omisión es No.
+.TP
+.B do_symlinks
+Por omisión, el script de post\-instalación de la imagen del núcleo crea o
+actualiza los enlaces simbólicos
+.I /vmlinuz
+y 
+.I /vmlinuz.old.
+Esto es cierto si ya existe un enlace
+.I /vmlinuz
+, sin embargo, en ausencia de éste, el script busca el fichero de configuración.
+Si no existe, el script de configuración pregunta al usuario si desea crear el
+enlace simbólico, y guarda la respuesta en el fichero
+.I /etc/kernel\-img.conf
+recién creado.
+Si el fichero de configuración ya existe, y esta opción está puesta a NO, nunca
+se crea ningún enlace. Esto es para aquellos que no quieran tener enlaces
+simbólicos molestando en su directorio / . Por omisión es Yes.
+.TP
+.B minimal_swap
+Por omisión, si el enlace simbólico /vmlinuz no apunta a una imagen que es la
+misma que la imagen instalada, el postinst mueve /vmlinuz a /vmlinuz.old, y crea
+un enlace simbólico a la imagen del núcleo en /vmlinuz (la excepción es para
+prevenir que /vmlinuz y /vmlinuz.old apunten a la misma imagen del núcleo --
+potencialmente desastroso si la imagen actual es defectuosa o le falta
+algo). Sin embargo, si la opción está habilitada, no se realiza ninguna acción si
+/vmlinuz.old apunta a la imagen actualmente instalada (por omisión los enlaces
+simbólicos son intercambiados). Por omisión tiene el valor de No.
+.TP
+.B no_symlinks
+Determina si se usan los enlaces al fichero con la
+.I imagen.
+Mutuamente excluyente con
+.I reverse_symlinks. 
+Puede usarse con
+.I link_in_boot (image_in_boot).
+Si es Yes, la imagen real es colocada en vmlinuz (en vez de en
+/boot/vmlinuz\-X.X.XX). Si usa link_in_boot junto con esto, se mueve
+/boot/vmlinuz\-X.X.XX a /boot/vmlinuz. El vmlinuz previo se mueve
+incondicionalmente a vmlinuz.old. (Normalmente, esto sólo se hace si la versión
+de la nueva imagen es diferente de la anterior). Esto le restringe a dos
+imágenes, a menos que tome acciones adicionales y guarde copias de imágenes
+anteriores.
+Esto es para aquellos que tienen
+.I /boot
+en un sistema que no usa los enlaces simbólicos (digamos, que usan loadlin
+como gestor de arranque). Esto es una chapuza.
+Por omisión tiene el valor de No. 
+.TP
+.B reverse_symlinks
+Determina si se usan enlaces simbólico invertidos (esto es, el fichero real es
+el que no tiene número de versión, la versión numerada es el enlace) al fichero
+con la 
+.I imagen.
+Puede ser modificado mediante la variable de entorno
+.B REVERSE_SYMLINK
+Mutuamente excluyente con
+.I no_symlinks.
+Se puede usar junto con
+.I link_in_boot (image_in_boot).
+Igual que
+.I no_symlinks, 
+excepto porque /boot/vmlinuz\-X.XX es enlazado con la nueva imagen real,
+vmlinuz. Esto también le restringe a dos imágenes a menos que tome alguna acción
+adicional. Los enlaces anteriores quedan colgando. Esto es para aquellos con
+.I /boot
+en umsdos, y no pueden ver el enlace en dos, pero quieren saber el número de la
+versión cuando estén en Linux. Esto es una chapuza.
+Por omisión tiene el valor de No.
+.TP
+.B image_dest 
+Si quiere que el enlace simbólico (o imagen, si 
+.B move_image 
+está establecida) se guarde en algún sitio distinto de
+.I /
+establezca esta variable al directorio donde quiera poner el enlace. Dese cuenta
+que no es una variable booleana. Puede ser de ayuda para usuarios de
+.B loadlin
+, que pueden establecer ésta y
+.B move_image. 
+Por omisión es
+.I /.
+Se puede usar con todas la opciones anteriores excepto con
+.B link_in_boot (image_in_boot),
+porque no tendría sentido. (Si ambas
+.B image_dest 
+y 
+.B link_in_boot (image_in_boot)
+están establecidas, predomina
+.B link_in_boot (image_in_boot)).
+.TP
+.B postinst_hook 
+Establezca esta variable apuntando a un script que debe ser ejecutado durante la
+instalación después de que se hayan creado todos los enlaces simbólicos, pero
+antes de invocar el gestor de arranque u ofrecer crear un disquete de
+arranque. Este script debe invocarse con dos argumentos, el primero es la
+.I versión
+de la imagen del núcleo, el segundo es la
+.I localización
+de la imagen del núcleo. Los errores en el script sólo producirán un mensaje de
+aviso. Un script de ejemplo para usuarios de grub se puede encontrar
+en /usr/share/doc/kernel\-package/.
+.TP
+.B postrm_hook 
+Establezca esta variable apuntando a un script que debe ser ejecutado después de
+que se haya eliminado la imagen y después de que se hayan realizado todas las
+acciones. Este script debe invocarse con dos argumentos, el primero es la
+.I versión
+de la imagen del núcleo, el segundo es la
+.I localización
+de la imagen del núcleo. Los errores en el script sólo producirán un mensaje de
+aviso.
+.TP
+.B preinst_hook 
+Establezca esta variable apuntando a un script que debe ser ejecutado después de
+desempaquetar el paquete, puede usarse para comprobaciones adicionales. Este
+script debe invocarse con dos argumentos, el primero es la
+.I versión
+de la imagen del núcleo, el segundo es la
+.I localización
+de la imagen del núcleo.
+.TP
+.B prerm_hook 
+Establezca esta variable apuntando a un script que debe de ser ejecutado después
+que los ficheros del paquete hayan sido eliminados (de este modo se
+puede eliminar cualquier fichero añadido). Este script debe invocarse con dos
+argumentos, el primero es la
+.I versión
+de la imagen del núcleo, el segundo es la
+.I localización
+de la imagen del núcleo. Los errores en el script sólo producirán un mensaje de
+aviso.
+.TP
+.B src_postinst_hook
+A diferencia de las otras variables hook, éste es para un script que se ejecuta
+durante el postinst de un paquete de documentación, de cabeceras, o fuente. El
+uso de esta variable en paquetes con cabeceras ahora está desaconsejado, en algún
+momento el script de postinst del paquete con las cabeceras sólo deberá ejecutar
+header_postinst_hook.
+Este script necesita dos argumentos, el primero es el
+.I nombre
+del paquete que se esta instalando (kernel\-headers\-X.X.XX), y el segundo
+argumento es la
+.I versión
+del paquete que esta siendo instalado. Los errores en el script sólo producirán
+un mensaje de aviso.
+.TP
+.B headers_postinst_hook
+A diferencia de las otras variables hook, ésta es sólo para un script que se
+ejecuta durante el postinst de un paquete de cabeceras. Este script necesita dos
+argumentos, el primero es el
+.I nombre
+del paquete que se esta instalando (podría ser kernel\-source\-X.X.XX o
+kernel\-headers\-X.X.XX), y el segundo argumento es la
+.I versión
+del paquete que esta siendo instalado. Los errores en el script sólo producirán
+un mensaje de aviso.
+.TP
+.B move_image 
+En vez de crear el enlace simbólico a (o, si 
+.B reverse_symlinks 
+está establecida, desde)
+.B image_dest,
+La imagen se mueve desde
+.I /boot
+a
+.B image_dest.
+Si 
+.B reverse_symlinks 
+está establecida
+.I /boot
+contendrá un enlace simbólico a la imagen real. 
+Esta opción puede ser útil para aquellos que usen loadlin, y que quizá necesiten
+mover la imagen a una partición diferente, de dos.
+Por omisión esta variable está sin establecer.
+.TP
+.B clobber_modules
+Si está establecida, el preinst tratará de eliminar /lib/modules/version sin
+comunicarlo si es la misma versión que la de la imagen siendo instalada. Uselo
+bajo su responsabilidad. Por omisión esta variable está sin establecer.
+.TP
+.B do_boot_enable
+Si es NO, deshabilita cualquier intento de crear disquetes de arranque, ejecutar
+lilo, etc. Tiene el efecto adicional de que el postinst sea silencioso.
+Estableciendo  
+.B do_bootfloppy
+y 
+.B do_bootloader
+a NO implica establecer
+.B do_boot_enable 
+a NO. Por omisión es Yes.
+.TP
+.B do_bootfloppy
+Si es NO, hace que el postinst no cree un disquete de arranque y tampoco
+pregunte acerca de ello. El gestor de arranque todavía será ejecutado. Esto
+reducirá la interacción de postinst. (Todavía pregunta antes de dar formato a
+.I /dev/fd0) 
+Por omisión es Yes.
+.TP
+.B do_bootloader
+Si es NO, hace que el postinst no ejecute el gestor de arranque. Todavía se
+preguntará al usuario si desea crear un disquete de arranque a menos que
+.B do_bootfloppy
+también esté a NO. Por omisión es Yes.
+.TP
+.B relative_links
+Si es Yes, el script de postinst de la imagen del núcleo tomará medidas
+adicionales para que el enlace simbólico sea relativo. Normalmente el enlace es
+relativo sólo si es relativamente fácil saber que el enlace relativo
+funcionará. Por omisión es No.
+.TP
+.B do_initrd
+Si es YES el script de postinst de
+.I kernel\-image
+no avisará de que está instalando un núcleo que usa initrd. Esto asume que ha
+configurado correctamente su gestor de arranque para que arranque la imagen
+initrd. Por omisión es No. Esta opción está desaconsejada en favor de la opción
+más descriptiva
+.B warn_initrd
+(dese cuenta que el sentido de la opción es el contrario).
+.TP
+.B warn_initrd
+Si es NO el script de postinst de
+.I kernel\-image
+no avisará de que está instalando un núcleo que usa initrd. Esto asume que ha
+configurado correctamente su gestor de arranque para que arranque la imagen
+initrd. Esta opción se prefiere respecto a
+.B do_initrd,
+ya que lo que se previene son los
+.I avisos.
+Por omisión es Yes.
+.TP
+.B use_hard_links
+Esta opción es para aquellos que no puedan usar enlaces simbólicos (por ejemplo,
+si el gestor de arranque no los soporta). Si es YES, esto hará que el postinst
+de la imagen del núcleo use enlaces duros en vez de los enlaces simbólicos para
+los ficheros /vmlinuz y /vmlinuz.old, manejados automáticamente. He tratado de
+que sea compatible con
+.B move_image
+y
+.B reverse_symlinks
+Precaución: Es trabajo del usuario final asegurarse de que el directorio
+.B image_dest
+y el lugar de la imagen (normalmente /boot) se encuentran en el mismo sistema de
+ficheros (ya que no se pueden crear enlaces duros entre sistemas de ficheros).
+.B Está avisado.
+.TP
+.B relink_build_link
+Esta opción manipula el enlace de construcción creado por los núcleos
+recientes. Si el enlace es un enlace colgante, y si parece que el
+correspondiente kernel\-headers está instalado en el sistema, se creará un nuevo
+enlace apuntándolo. Por omisión se reenlazará el directorio de construcción
+(SI).
+.TP
+.B force_build_link
+Esta opción manipula el enlace de construcción creado por los núcleos
+recientes. Si el enlace es un enlace colgante se creará un nuevo
+enlace a /usr/src/kernel\-headers\-X.Y.ZZ, sin importar que estén o no
+instalados. Por omisión está sin establecer, ya que no creamos enlaces colgantes
+de forma predeterminada.
+.TP
+.B relink_source_link
+Esta opción manipula el enlace al código fuente creado por los últimos núcleos.
+Si el enlace es un enlace colgante se elimina durante la instalación.
+Por omisión re-enlaza (elimina) el enlace «source» («YES»).
+.TP
+.B mkimage
+Debe ser una orden que produzca una imagen initrd dado un directorio. Se pasa a
+la opción
+.I \-m
+del programa
+.I mkinitrd.
+Por ejemplo, puede ser
+ mkimage="genromfs -d %s -f %s"
+o
+ mkimage="mkcramfs %s %s"
+.TP
+.B silent_modules
+Está opción es para aquellos que se sienten molestos cuando se les avisa de
+módulos existentes en el directorio
+.I /lib/modules/$version.
+Este directorio probablemente pertenezca a un paquete 
+.I kernel\-image\-$version
+viejo o que ya no existe, en cuyo caso pueden aparecer problemas con módulos
+que hayan quedado en ese directorio, o puede que el directorio exista
+legítimamente porque se haya instalado un paquete independiente con módulos
+para la misma versión del núcleo. En este último caso la existencia del
+directorio es totalmente benigna. Si establece esta variable, nunca más podrá
+cancelar la instalación si se detecta previamente un directorio
+.I /lib/modules/$version
+existente. Por omisión no está establecido.
+.TP
+.B silent_loader
+Si está establecida, está opción hará que se omita la pregunta realizada antes
+de ejecutar el gestor de arranque durante el proceso de instalación. Esta opción
+no afecta a que el gestor de arranque sea o no ejecutado (lea
+.B do_bootloader
+para entender como controlarlo, la ausencia de un fichero de configuración hará
+el proceso de instalación ameno e interactivo).
+.TP
+.B ignore_depmod_error
+Si está establecida, no pide confirmación para continuar después de un problema
+con depmod en el script de post\-instalación. Esto facilita las instalaciones
+automatizadas, aunque puede enmascarar algún problema con la imagen del
+núcleo. De todas formas todavía se muestra un diagnóstico. 
+.SH FICHEROS
+El fichero descrito en este documento es
+.I /etc/kernel\-img.conf.
+.SH "VÉASE TAMBIÉN"
+.BR make\-kpkg (1),
+.BR kernel\-pkg.conf (5),
+.BR make (1),
+.B El manual de GNU Make.
+.SH FALLOS
+No tiene fallos. Cualquier cosa que se lo parezca es un delirio, de verdad.
+.SH AUTOR
+Esta página del manual fue escrita por Manoj Srivastava <srivasta@debian.org>,
+para el sistema Debian GNU/Linux.
+.SH TRADUCTOR
+Traducción de Rubén Porras Campo <debian\-l10n\-spanish@lists.debian.org>

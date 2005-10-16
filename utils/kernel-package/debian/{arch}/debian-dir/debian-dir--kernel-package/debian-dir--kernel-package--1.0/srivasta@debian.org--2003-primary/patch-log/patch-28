@@ -1,0 +1,29 @@
+Revision: debian-dir--kernel-package--1.0--patch-28
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon Sep 27 20:30:53 CDT 2004
+Standard-date: 2004-09-28 01:30:53 GMT
+New-files: semantic.cache
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-28
+Summary: Important bug fix release
+Keywords: 
+
+The important bug fixed here (and thanks go to joshk for that) is that
+when we clean the sources, and patches are unapplied, the
+unapplication dhould be done in reverse order. We do take care of that
+for patches specified on the command line, but if the user had wanted
+all installed patches applied, there was a glitch. This bug crept in
+in the last upload.
+
+The other major fix is that when we run depmod it shall no longer go
+into an infinite loop while trying to chase down the build and source
+symbolic links.
+
+There are also a couple of small fixes in this release;  including
+passing KERNEL_ARCH to third party module builds, and a man page
+typo. 
+
+A new feature has been introduced in this release, with many thanks to
+Ralph Paßgang <ralph@debianbase.de>, qho implemented the uml package
+feature. 

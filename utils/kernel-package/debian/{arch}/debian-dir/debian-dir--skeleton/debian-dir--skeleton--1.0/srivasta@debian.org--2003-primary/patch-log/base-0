@@ -1,0 +1,14 @@
+Revision: debian-dir--skeleton--1.0--base-0
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Nov 21 03:16:51 CST 2003
+Standard-date: 2003-11-21 09:16:51 GMT
+Summary: Initial implementation of a generic debian directory
+Keywords: 
+New-files: control copyright local-vars.mk local.mk postinst
+    postrm preinst prerm rules
+New-patches: srivasta@debian.org--2003-primary/debian-dir--skeleton--1.0--base-0
+
+This is a baseline for creating debian directories for packages. Any
+new package should have a new branch ragged from this one, and then
+tailored for the needs of the package itself.

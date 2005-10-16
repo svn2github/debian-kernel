@@ -1,0 +1,14 @@
+Revision: debian-dir--kernel-package--1.0--patch-56
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Sat Feb 19 10:20:01 CST 2005
+Standard-date: 2005-02-19 16:20:01 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-56
+Summary: Minor bug fixes
+Keywords: 
+
+
+Implement and document a hook for cleaning the kernel image package, for
+symmetry. Make minor tweaks to the kernel_version.mk file to eliminate
+complaints about missing .config files.

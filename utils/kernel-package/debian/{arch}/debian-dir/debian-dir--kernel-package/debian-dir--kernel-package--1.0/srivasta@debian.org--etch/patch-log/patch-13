@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-13
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Aug 31 11:07:57 CDT 2005
+Standard-date: 2005-08-31 16:07:57 GMT
+Modified-files: copyright
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-13
+Summary: fix lintian warnings
+Keywords: 
+

@@ -1,0 +1,12 @@
+Revision: skeleton-make-rules--main--0.1--patch-11
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Mar 12 13:55:29 CST 2004
+Standard-date: 2004-03-12 19:55:29 GMT
+Modified-files: debconf.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-11
+Summary: debconf-updatepo should not be run always, so take it out of the macro.
+Keywords: 
+
+debconf-updatepo should not be run always, so take it out of the macro.
+

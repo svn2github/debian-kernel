@@ -1,0 +1,12 @@
+Revision: skeleton-make-rules--main--0.1--patch-9
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Mar 12 13:13:23 CST 2004
+Standard-date: 2004-03-12 19:13:23 GMT
+Modified-files: debconf.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-9
+Summary: Definitions can't have conditionals inside.
+Keywords: 
+
+Definitions can't have conditionals inside.
+

@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-54
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Sat Feb 12 00:28:40 CST 2005
+Standard-date: 2005-02-12 06:28:40 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-54
+Summary: New bugfix release
+Keywords: 
+

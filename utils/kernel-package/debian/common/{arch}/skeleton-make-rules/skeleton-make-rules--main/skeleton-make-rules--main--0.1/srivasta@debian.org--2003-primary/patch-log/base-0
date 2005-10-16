@@ -1,0 +1,11 @@
+Revision: skeleton-make-rules--main--0.1--base-0
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Sat Nov 15 11:39:12 CST 2003
+Standard-date: 2003-11-15 17:39:12 GMT
+Summary: Initial upload of the package
+Keywords: 
+New-files: archvars.mk automake.mk copt.mk install_cmds.mk
+    perlvars.mk pkgvars.mk targets.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--base-0
+

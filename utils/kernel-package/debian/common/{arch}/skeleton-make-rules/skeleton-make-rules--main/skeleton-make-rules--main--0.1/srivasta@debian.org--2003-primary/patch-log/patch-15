@@ -1,0 +1,18 @@
+Revision: skeleton-make-rules--main--0.1--patch-15
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon Apr 11 13:23:39 CDT 2005
+Standard-date: 2005-04-11 18:23:39 GMT
+Modified-files: debconf.mk targets.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-15
+Summary: Added a checkpo target
+Keywords: 
+
+Based on a blog entry I saw from Alexis Sukrieh, added a rule to allow
+for checking the po files shipped with the program. This shall let you
+know if some files need extra attention.
+
+* debconf.mk: Added rules to check po files in the package, if any.
+
+* targets.mk (checkpo): Added a checkpo target
+

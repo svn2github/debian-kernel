@@ -1,0 +1,16 @@
+Revision: debian-dir--kernel-package--1.0--patch-58
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Tue Mar  1 15:13:43 CST 2005
+Standard-date: 2005-03-01 21:13:43 GMT
+Modified-files: changelog control
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-58
+Summary: A new upstream bugfix release
+Keywords: 
+
+* control (Recommends): Added bzip2
+
+The upstream bugfixes are:
+Update ARM netwinder rules to be correct
+add nubus support
+add doc for initrd options

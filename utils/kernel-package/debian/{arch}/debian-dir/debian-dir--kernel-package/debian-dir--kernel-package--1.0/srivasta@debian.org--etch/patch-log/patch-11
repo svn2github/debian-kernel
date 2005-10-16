@@ -1,0 +1,11 @@
+Revision: debian-dir--kernel-package--1.0--patch-11
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon Aug 15 23:42:50 CDT 2005
+Standard-date: 2005-08-16 04:42:50 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-11
+Summary: New release
+Keywords: 
+
+* changelog: Fix the location where UML modules are located.

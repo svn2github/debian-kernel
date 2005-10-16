@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-10
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Sun Aug  7 10:45:53 CDT 2005
+Standard-date: 2005-08-07 15:45:53 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-10
+Summary: New bugfix release
+Keywords: 
+

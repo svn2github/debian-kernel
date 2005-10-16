@@ -1,0 +1,20 @@
+Revision: debian-dir--kernel-package--1.0--patch-2
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Fri Dec  5 02:49:59 CST 2003
+Standard-date: 2003-12-05 08:49:59 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-2
+Summary: A bug fix release
+Keywords: 
+
+Strange set of error messages about build link on fresh
+install, quoth Joey Hess. This was related to the postinst trying to
+handle the dangling build link. Now actually test to see if the link
+was present, and is a bit more chatty.             (Closes: #221286).
+
+Bug fix: "kernel-package: Inconsistent default kernel-image package
+revision", thanks to Roland Stigge.  Made it 10.0.Custome all over.
+                                                    (Closes: #221916).
+Bug fix: "tries to access lib/modules/<version>/build even when
+it doesn't exist", thanks to Peter Palfrader.         (Closes: #222239).

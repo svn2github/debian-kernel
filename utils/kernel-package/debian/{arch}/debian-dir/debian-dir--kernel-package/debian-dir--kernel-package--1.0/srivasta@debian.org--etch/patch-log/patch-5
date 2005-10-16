@@ -1,0 +1,14 @@
+Revision: debian-dir--kernel-package--1.0--patch-5
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Tue Jul 19 10:34:58 CDT 2005
+Standard-date: 2005-07-19 15:34:58 GMT
+Modified-files: changelog control
+New-patches: srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-5
+Summary: New bug fix version
+Keywords: 
+
+* changelog: Typographical fixes in kernel-package allow us to close
+  317638 and 313338
+  
+

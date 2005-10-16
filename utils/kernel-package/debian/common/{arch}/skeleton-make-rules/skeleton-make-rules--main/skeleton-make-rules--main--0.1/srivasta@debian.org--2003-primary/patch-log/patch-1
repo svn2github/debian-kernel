@@ -1,0 +1,10 @@
+Revision: skeleton-make-rules--main--0.1--patch-1
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon Nov 17 01:56:37 CST 2003
+Standard-date: 2003-11-17 07:56:37 GMT
+Modified-files: targets.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-1
+Summary: We need to use a char that can't legally be in a package name, / seems to fit best
+Keywords: 
+

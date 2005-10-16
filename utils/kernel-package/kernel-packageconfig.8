@@ -1,0 +1,52 @@
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\"
+.\"    $Id: kernel-packageconfig.8,v 1.2 1997/06/03 00:24:04 srivasta Exp $
+.\"
+.TH KERNEL\-PACKAGECONFIG 8 "Jan 7 1997" "Debian" "Debian GNU/Linux manual"
+.SH NAME
+kernel\-packageconfig \- Internal handler of /etc/kernel\-pkg.conf.
+.SH SYNOPSIS
+.B kernel\-packageconfig
+.SH DESCRIPTION
+The utility
+.B kernel\-packageconfig
+is called internally by the 
+.B kernel\-package postinst
+script to set up the conf file /etc/kernel\-pkg.conf.
+It is idempotent, and only modifies the file if it contains factory
+default values. It is 
+.B not
+meant for general use.
+.SH OPTIONS
+This utility does not have any options.
+.SH FILES
+The files affected by this program are
+.I /etc/kernel\-pkg.conf.
+.SH "SEE ALSO"
+.B kernel\-pkg.conf (5)
+.SH AUTHOR
+This manual page was written by Manoj Srivastava <srivasta@debian.org>,
+for the Debian GNU/Linux system.
+

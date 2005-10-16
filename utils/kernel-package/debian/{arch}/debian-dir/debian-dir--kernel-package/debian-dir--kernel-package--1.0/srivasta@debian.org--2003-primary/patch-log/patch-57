@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-57
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Sun Feb 20 00:22:20 CST 2005
+Standard-date: 2005-02-20 06:22:20 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-57
+Summary: A new bug fix release
+Keywords: 
+

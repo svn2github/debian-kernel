@@ -1,0 +1,10 @@
+Revision: debian-dir--kernel-package--1.0--patch-59
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Thu Mar 17 01:45:38 CST 2005
+Standard-date: 2005-03-17 07:45:38 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-59
+Summary: New bug fixing version
+Keywords: 
+

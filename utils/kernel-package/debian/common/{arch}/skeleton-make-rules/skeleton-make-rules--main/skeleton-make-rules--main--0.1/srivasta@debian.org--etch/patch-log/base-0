@@ -1,0 +1,27 @@
+Revision: skeleton-make-rules--main--0.1--base-0
+Archive: srivasta@debian.org--etch
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed May 18 23:18:21 CDT 2005
+Standard-date: 2005-05-19 04:18:21 GMT
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--base-0
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-1
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-2
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-3
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-4
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-5
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-6
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-7
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-8
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-9
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-10
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-11
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-12
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-13
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-14
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-15
+    srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--version-0
+    srivasta@debian.org--etch/skeleton-make-rules--main--0.1--base-0
+Continuation-of: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--version-0
+Summary: tag of srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--version-0
+
+(automatically generated log message)

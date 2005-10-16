@@ -1,0 +1,12 @@
+Revision: debian-dir--kernel-package--1.0--patch-64
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Wed Apr 13 00:03:03 CDT 2005
+Standard-date: 2005-04-13 05:03:03 GMT
+Modified-files: changelog
+New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-64
+Summary: New bug fixing version. 
+Keywords: 
+
+* changelog: New bug fixing version. Refreshed Spanish man pages.
+

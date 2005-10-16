@@ -1,0 +1,10 @@
+Revision: skeleton-make-rules--main--0.1--patch-14
+Archive: srivasta@debian.org--2003-primary
+Creator: Manoj Srivastava <srivasta@debian.org>
+Date: Mon Feb 28 14:38:56 CST 2005
+Standard-date: 2005-02-28 20:38:56 GMT
+Modified-files: copt.mk
+New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-14
+Summary: Add the -g option to CFLAGS by default
+Keywords: 
+
