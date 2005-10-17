@@ -1309,51 +1309,62 @@ PROG="$0"
 CONFDIR=/etc/mkinitrd
 unset keep croot cmkimage out || :
 
-while getopts "d:km:o:r:-:" flag; do
-	case $flag in
-	d)
-		CONFDIR="$OPTARG"
+TEMP=`getopt -o d:km:o:r: --long supported-host-version:,supported-target-version: -n "$PROG" -- "$@"`
+
+# Check for non-GNU getopt
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+while true ; do
+	case "$1" in
+	-d)
+		CONFDIR="$2"
+		shift 2
 		if [ ! -d "$CONFDIR" ]; then
 			echo "$PROG: $CONFDIR: Not a directory" >&2
 			exit 1
 		fi
 		[ -z "${CONFDIR##/*}" ] || CONFDIR="$ORIGDIR/$CONFDIR"
 		;;
-	k)
+	-k)
 		keep=yes
+		shift 1
 		;;
-	m)
-		cmkimage=$OPTARG
+	-m)
+		cmkimage=$2
+		shift 2
 		;;
-	o)
-		initrd_file="${OPTARG}"
+	-o)
+		initrd_file="$2"
+		shift 2
 		if [ "$initrd_file" = "${initrd_file#/}" ]; then
 			initrd_file="${ORIGDIR}/$initrd_file"
 		fi
 		out=yes
 		;;
-	r)
-		croot=$OPTARG
+	-r)
+		croot=$2
+		shift 2
 		;;
-	-)
-		case ${OPTARG%=*} in
-			supported-host-version)
-				supported_host_version=${OPTARG#*=}
-				;;
-			supported-target-version)
-				supported_target_version=${OPTARG#*=}
-				;;
-			*)
-				usage
-				;;
-		esac
+	--supported-host-version)
+		supported_host_version="$2"
+		shift 2
+		;;
+	--supported-target-version)
+		supported_target_version="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
 		;;
 	*)
+		echo "Internal error!" >&2
 		usage
 		;;
 	esac
 done
-shift $(($OPTIND - 1))
 
 if [ "$supported_host_version" ] || [ "$supported_target_version" ]; then
 	if [ "$supported_host_version" ]; then
