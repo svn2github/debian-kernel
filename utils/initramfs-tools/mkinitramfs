@@ -10,36 +10,46 @@ errors_to="2>/dev/null"
 # BUSYBOXDIR="/usr/lib/initramfs-tools/bin/"
 BUSYBOXDIR="/bin" 
 
-while getopts "d:ko:r:-:" flag; do
-	case $flag in
-	d)
-		CONFDIR="${OPTAGS}"
+TEMP=`getopt -o d:ko:r: --long supported-host-version:,supported-target-version: -n "$0" -- "$@"`
+
+# Check for non-GNU getopt
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$TEMP"
+
+while true ; do
+	case "$1" in
+	-d)
+		CONFDIR="$2"
+		shift 2
 		if [ ! d "${CONFDIR}" ]; then
 			echo "${0}: ${CONFDIR}: Not a directory" >&2
 			exit 1
 		fi
 		;;
-	o)
-		touch ${OPTARG}
-		outfile="$(readlink -f ${OPTARG})"
+	-o)
+		touch $2
+		shift 2
+		outfile="$(readlink -f $2)"
 		;;
-	k)
+	-k)
 		keep="y"
+		shift
 		;;
-	-)
-		case ${OPTARG%=*} in
-			supported-host-version)
-				supported_host_version=${OPTARG#*=}
-				;;
-			supported-target-version)
-				supported_target_version=${OPTARG#*=}
-				;;
-		esac
+	--supported-host-version)
+		supported_host_version="$2"
+		shift 2
+		;;
+	--supported-target-version)
+		supported_target_version="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
 		;;
 	esac
 done
-
-shift $((${OPTIND} - 1))
 
 if [ "$supported_host_version" ] || [ "$supported_target_version" ]; then
 	if [ "$supported_host_version" ]; then
