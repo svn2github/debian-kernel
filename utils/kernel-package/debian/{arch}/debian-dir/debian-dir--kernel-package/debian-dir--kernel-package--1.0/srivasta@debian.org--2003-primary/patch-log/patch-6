@@ -1,9 +1,0 @@
-Revision: debian-dir--kernel-package--1.0--patch-6
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Sun Dec  7 11:20:10 CST 2003
-Standard-date: 2003-12-07 17:20:10 GMT
-Modified-files: changelog
-New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-6
-Summary: Double a $ inside make files to really get a $
-

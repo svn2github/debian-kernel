@@ -1,9 +1,0 @@
-Revision: debian-dir--kernel-package--1.0--patch-3
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Fri Dec  5 11:21:47 CST 2003
-Standard-date: 2003-12-05 17:21:47 GMT
-Modified-files: changelog
-New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-3
-Summary: Need to escape # in the UTS_RELEASE calculation in the rules file
-

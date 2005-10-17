@@ -1,9 +1,0 @@
-Revision: debian-dir--kernel-package--1.0--patch-5
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Sat Dec  6 17:20:54 CST 2003
-Standard-date: 2003-12-06 23:20:54 GMT
-Modified-files: changelog local.mk
-New-patches: srivasta@debian.org--2003-primary/debian-dir--kernel-package--1.0--patch-5
-Summary: Set version number
-
