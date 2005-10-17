@@ -36,6 +36,10 @@ while true ; do
 		keep="y"
 		shift
 		;;
+	-r)
+		# ignore (FIXME: manpage says differently?!?)
+		shift 2
+		;;
 	--supported-host-version)
 		supported_host_version="$2"
 		shift 2
@@ -47,6 +51,10 @@ while true ; do
 	--)
 		shift
 		break
+		;;
+	*)
+		echo "Internal error!" >&2
+		exit 1
 		;;
 	esac
 done
