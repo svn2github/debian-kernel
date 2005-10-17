@@ -2,7 +2,7 @@ Source: initrd-tools
 Section: utils
 Priority: optional
 Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
-Uploaders: Jeff Bailey <jbailey@raspberryginger.com>, Bastian Blank <waldi@debian.org>, Steve Langasek <vorlon@debian.org>
+Uploaders: Jeff Bailey <jbailey@raspberryginger.com>, Bastian Blank <waldi@debian.org>, Steve Langasek <vorlon@debian.org>, Sven Luther <luther@debian.org>, Simon Horman <horms@debian.org>
 Standards-Version: 3.6.1
 Build-Depends: debhelper (>= 3)
 

@@ -1,3 +1,9 @@
+initrd-tools (0.1.84) unstable; urgency=low
+
+  * Add Sven Luther and myself an uploaders
+
+ -- Simon Horman <horms@debian.org>  Mon, 17 Oct 2005 12:18:53 +0900
+
 initrd-tools (0.1.83) unstable; urgency=low
 
   [ Simon Horman ]
