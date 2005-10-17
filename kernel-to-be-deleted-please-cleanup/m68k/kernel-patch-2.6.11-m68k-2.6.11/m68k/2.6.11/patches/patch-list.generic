@@ -1,6 +1,0 @@
-# 2.6.11 generic kernel patches
-kernel-source-2.6.11-m68k-cvs-20050507
-
-# apply this patch when you need Atari tosfs support on non-m68k:
-#tosfs
-

@@ -1,6 +1,0 @@
-kernel-latest-2.6-s390 (2.6.8-1) unstable; urgency=high
-
-  * Initial version.
-
- -- Bastian Blank <waldi@debian.org>  Mon, 04 Apr 2005 18:38:44 +0200
-

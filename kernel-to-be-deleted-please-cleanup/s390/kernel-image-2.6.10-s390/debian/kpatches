@@ -1,7 +1,0 @@
-Patch-name: IBM s390 and zSeries support for Linux 2.6.10
-Patch-id: s390-2_6_10
-Architecture: s390
-Path-strip-level: 1
-
-Patch-file: linux-2.6.10-s390.debian.diff
-Kernel-version: 2.6.10

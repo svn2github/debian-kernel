@@ -1,7 +1,0 @@
-Patch-name: hppa architecture
-Patch-id: hppa_2_6_10
-Path-strip-level: 1
-
-Patch-file: hppa_2.6.10.diff
-Architecture: hppa
-Kernel-version: 2.6.10

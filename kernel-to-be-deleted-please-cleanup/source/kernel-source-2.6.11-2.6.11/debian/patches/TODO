@@ -1,8 +1,0 @@
-1) clear the non-free firmware pruning issue.
-
-   tg3: + sed script to just kill the tg3 firmware
-        + keep the patch to add firmware loading separate
-   
-   remove-references-to-removed-drivers.dpatch
-
-2) redo the ia64 generic-no-smp patches, if still needed.

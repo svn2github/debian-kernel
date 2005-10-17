@@ -1,8 +1,0 @@
-NOTES TO PACKAGE USERS
-======================
-
-  To use this patch with make-kpkg, use a command like:
-
-$ PATCH_THE_KERNEL=YES make-kpkg --added_patches=hppa --config=menuconfig
-
-  Read the make-kpkg documentation for more information.
