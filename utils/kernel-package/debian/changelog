@@ -1,6 +1,6 @@
 kernel-package (9.008.1) UNRELEASED; urgency=low
 
-  * NMU with maitnainers permission.
+  * NMU with maintainer's permission.
   * Implement the new ramdisk generation tool finding plan. Thanks go to
     Mattia Dongili for helping me out with the needed perl code.
 
