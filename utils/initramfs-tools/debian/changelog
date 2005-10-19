@@ -1,4 +1,4 @@
-initramfs-tools (0.32) UNRELEASED; urgency=low
+initramfs-tools (0.32) unstable; urgency=low
 
   [ Bastian Blank ]
   * Use mklibs-copy.
@@ -13,7 +13,9 @@ initramfs-tools (0.32) UNRELEASED; urgency=low
   [ maximilian attems ]
   * Resynchronise with latest upstream release.
   * Place shift after variable outfile assignment.
-  * Fix strange chars in the Depends line resulting in _no depends at all.
+  * Fix strange chars in the Depends line resulting in no depends at all.
+  * Thanks to Bastian Blank for the fixes concerning the new busybox version.
+    (Closes: #334467)
 
   [ Jeff Bailey ]
   * scripts/nfs (mountroot): New variable: NFSOPTS, default to
