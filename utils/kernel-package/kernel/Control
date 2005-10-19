@@ -43,6 +43,7 @@ Architecture: =A
 Section: base
 Priority: optional
 Provides: =ST-image,  =ST-image-=CV
+Conflicts: initramfs-tools (<< 0.32), yaird (<< 0.0.11-5), initrd-tools (<< 0.1.83)
 Depends: =I coreutils | fileutils (>= 4.0)
 Suggests: =L fdutils, =ST-doc-=V=SA | =ST-source-=V 
 Description: Linux kernel binary image for version =V=SA.
