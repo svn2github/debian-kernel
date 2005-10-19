@@ -1,8 +1,11 @@
-kernel-package (9.008.1) UNRELEASED; urgency=low
+kernel-package (9.008.0.experimental.1) experimental; urgency=low
 
   * NMU with maintainer's permission.
   * Implement the new ramdisk generation tool finding plan. Thanks go to
     Mattia Dongili for helping me out with the needed perl code.
+  * Added conflict with older version of the ramdisk generating tools to the
+    resulting kernel-image package. 
+  * Upgraded manpage to reflect those changes.
 
  -- Sven Luther <luther@debian.org>  Sun, 16 Oct 2005 08:59:47 +0200
 
