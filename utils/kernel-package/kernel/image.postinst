@@ -987,7 +987,9 @@ if ($initrd) {
     or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
 
   print STDERR <<"EOINFOMSG";
-$ramdisk used to build ramdisk, out of suitable tools : @ramdisklist. Original list was :$ramdiskorig. 
+Using $ramdisk to build the ramdisk.
+Other suitable ramdisk generating tools : @ramdisklist.
+Full list of probed ramdisk generating tools : $ramdiskorig. 
 EOINFOMSG
   ;
   my $initrd_path = $realimageloc . "initrd.img-$version";
