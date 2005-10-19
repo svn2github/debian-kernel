@@ -1,9 +1,0 @@
-# List of modules that you want to include in your initramfs.
-#
-# Syntax:  module_name [args ...]
-#
-#
-# This might be good choices:
-#
-# raid1
-# sd_mod
