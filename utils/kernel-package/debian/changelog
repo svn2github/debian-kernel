@@ -1,4 +1,4 @@
-kernel-package (9.008.0.experimental.1) experimental; urgency=low
+kernel-package (9.008.1) unstable; urgency=low
 
   * NMU with maintainer's permission.
   * Implement the new ramdisk generation tool finding plan. Thanks go to
@@ -7,7 +7,7 @@ kernel-package (9.008.0.experimental.1) experimental; urgency=low
     resulting kernel-image package. 
   * Upgraded manpage to reflect those changes.
 
- -- Sven Luther <luther@debian.org>  Sun, 16 Oct 2005 08:59:47 +0200
+ -- Sven Luther <luther@debian.org>  Thu, 20 Oct 2005 14:05:12 +0000
 
 kernel-package (9.008) unstable; urgency=low
 
