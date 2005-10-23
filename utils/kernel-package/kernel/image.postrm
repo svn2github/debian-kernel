@@ -51,8 +51,7 @@ my $force_build_link  = '';	# we shall not create a dangling link
 my $official_image    = "=OF";      # only true for official images
 my $arch              = "=A";  #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
-my $ramdisk           = "/usr/sbin/mkinitrd /usr/sbin/mkinitrd.yaird /usr/sbin/mkinitramfs"
-
+my $ramdisk           = "/usr/sbin/mkinitrd /usr/sbin/mkinitrd.yaird /usr/sbin/mkinitramfs";
 
 my $Loader          = "NoLOADER"; # 
 $Loader             = "LILO"     if $loader =~ /^lilo/io;
