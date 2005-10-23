@@ -252,6 +252,9 @@ def process_real_main(packages, makefile, config, version, abiname, kpkg_abiname
     source = read_template("source")
     packages['source'] = process_package(source[0], vars)
 
+    main = read_template("main")
+    packages.extend(process_packages(main, vars))
+
     makeflags = {
         'VERSION': version['version'],
         'SOURCE_VERSION': version['source'],

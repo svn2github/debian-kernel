@@ -1,0 +1,10 @@
+Package: linux-nonfree-source-@version@
+Architecture: all
+Section: non-free/devel
+Priority: optional
+Depends: bzip2
+Recommends: gcc, make
+Description: Linux non-free source for version @version@
+ This package provides source code for the non-free parts of the Linux
+ kernel version @version@.  This source closely tracks official Linux
+ kernel releases.

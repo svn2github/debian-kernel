@@ -16,18 +16,37 @@ include debian/rules.defs
 #
 binary-arch-flavour: install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
 
+binary-indep: install-source
+
 build: $(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
+
+$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAM_VERSION).tar.bz2: SOURCE_DIR=$(BUILD_DIR)/source
+$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAM_VERSION).tar.bz2: DIR = $(BUILD_DIR)/linux-nonfree-source-$(UPSTREAM_VERSION)
+$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAM_VERSION).tar.bz2: $(STAMPS_DIR)/source
+	rm -rf '$@' '$(DIR)'
+	cp -al '$(SOURCE_DIR)' '$(DIR)'
+	chmod -R u+rw,go=rX '$(DIR)'
+	cd '$(BUILD_DIR)'; tar -cjf 'linux-nonfree-source-$(UPSTREAM_VERSION).tar.bz2' 'linux-nonfree-source-$(UPSTREAM_VERSION)'
+	rm -rf '$(DIR)'
+
+srcfiles := $(filter-out debian, $(wildcard *))
+$(STAMPS_DIR)/source: DIR=$(BUILD_DIR)/source
+$(STAMPS_DIR)/source:
+	rm -rf '$(DIR)'
+	mkdir -p '$(DIR)'
+	cp -a $(srcfiles) '$(DIR)'
+	touch '$@'
 
 $(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DIR=$(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
 $(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR): $(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
-	cd $(DIR); env -u MAKEFLAGS ARCH=$(KERNEL_ARCH) $(MAKE) DIR=$(HEADERS_DIR) V=1
+	cd $(DIR); env -u MAKEFLAGS ARCH=$(KERNEL_ARCH) $(MAKE) DIR=$(HEADERS_DIR)
 	touch $@
 
+$(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR): SOURCE_DIR=$(BUILD_DIR)/source
 $(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DIR=$(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
-$(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR):
+$(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR): $(STAMPS_DIR)/source
 	rm -rf $(DIR)
-	mkdir -p $(DIR)
-	cp -al $(filter-out debian, $(wildcard *)) $(DIR)
+	cp -al '$(SOURCE_DIR)' '$(DIR)'
 	cd $(HEADERS_DIR); \
 	for i in $$(find -follow -name "Kconfig*"); do \
 	  mkdir -p $(CURDIR)/$(DIR)/$$(dirname $$i); \
@@ -36,7 +55,6 @@ $(STAMPS_DIR)/setup-$(ARCH)-$(SUBARCH)-$(FLAVOUR):
 	cat $(HEADERS_DIR)/.config debian/arch/kconfig > $(DIR)/.config
 	echo "source 'arch/$(KERNEL_ARCH)/Kconfig'" > $(DIR)/Kconfig.include
 	echo "source 'Kconfig'" >> $(DIR)/Kconfig.include
-	rm $(DIR)/Makefile
 	echo "include $(CURDIR)/$(DIR)/.config" > $(DIR)/Makefile
 	echo "include $(CURDIR)/Makefile" >> $(DIR)/Makefile
 	cd $(DIR); $(HEADERS_DIR)/scripts/kconfig/conf -s Kconfig.include
@@ -62,4 +80,12 @@ install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR):
 	dh_installchangelogs $(DH_OPTIONS)
 	$(MAKE) -f debian/rules.real install-base DH_OPTIONS=$(DH_OPTIONS)
 
+install-source: DH_OPTIONS = -plinux-nonfree-source-$(VERSION)
+install-source: $(BUILD_DIR)/linux-nonfree-source-$(UPSTREAM_VERSION).tar.bz2
+	dh_testdir
+	dh_testroot
+	dh_install $(DH_OPTIONS) '$<' /usr/src
+	dh_installdocs $(DH_OPTIONS)
+	dh_installchangelogs $(DH_OPTIONS)
+	$(MAKE) -f debian/rules.real install-base DH_OPTIONS='$(DH_OPTIONS)'
 
