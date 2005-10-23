@@ -1,3 +1,13 @@
+kernel-package (9.008.2) unstable; urgency=low
+
+  * Second take on the ramdisk generation tool resolution. Thanks go to Jonas
+    Smedegaar and Steve Langasek for proposing this solution, and all others
+    who discussed this. 
+  * Removed again conflicts since we can now handle legacy ramdisk generation
+    tools.
+
+ -- Sven Luther <luther@debian.org>  Sun, 23 Oct 2005 16:21:46 +0200
+
 kernel-package (9.008.1) unstable; urgency=low
 
   * NMU with maintainer's permission.
