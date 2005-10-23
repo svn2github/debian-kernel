@@ -182,15 +182,37 @@ $initrd=~ s/^$pattern$//;
 
 if ($initrd) {
   chomp (my $hostversion = `uname -r`);
-  my @ramdisklist =
-    grep {
-      -x and
-      system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
+  my @ramdisklist = split (/ /, $ramdisk);
+  if (@ramdisklist == 1) {
+    if (!( -x $ramdisk)) {
+      die ("Failed to create initrd, $ramdisk does not exist or is not executable\n");
     }
-    (split (/ /, $ramdisk));
+    if (system ("$ramdisk --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") != 0) {
+      if (($ramdisk eq "/usr/sbin/mkinitrd") &&
+        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 1)) {
+        die ("Failed, initrd-tools cannot create ramdisks for kernel version greater than 2.6.12\n");
+      }
+      if (($ramdisk eq "/usr/sbin/mkinitrd") &&
+        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 0)) {
+        die ("Failed, initramfs-tools cannot create ramdisks for kernel version prior to 2.6.12\n");
+      }
+      if (($ramdisk eq "/usr/sbin/mkinitrd.yaird") &&
+        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 0) &&
+        (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 0)) {
+        die ("Failed, yaird cannot create ramdisks for kernel version lesser than 2.6.8 or running on kernels older than 2.6.8\n");
+      }
+    }
+  } else {
+    my @ramdisklist =
+      grep {
+        -x and
+        system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
+      }
+      (split (/ /, $ramdisk));
 
-  my $ramdiskorig = $ramdisk;
-  $ramdisk = shift @ramdisklist;
+    my $ramdiskorig = $ramdisk;
+    $ramdisk = shift @ramdisklist;
+  }
 
   if (! -e $ramdisk) {
     print STDERR <<EOERROR;
