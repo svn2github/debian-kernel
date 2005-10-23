@@ -973,23 +973,58 @@ if ( -d "$modules_base/$version" ) {
 # symlinks are in
 if ($initrd) {
   chomp (my $hostversion = `uname -r`);
-  my @ramdisklist =
-    grep {
-      -x and
-      system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
+  my @ramdisklist = split (/ /, $ramdisk);
+  if (@ramdisklist == 1) {
+    if (!( -x $ramdisk)) {
+      die ("Failed to create initrd, $ramdisk does not exist or is not executable\n");
     }
-    (split (/ /, $ramdisk));
+    if (system ("$ramdisk" .
+      "--supported-host-version=$hostversion" .
+      "--supported-target-version=$version 1>/dev/null 2>&1") != 0) {
+    }
+        my $answer='n';
+        my $ramdiskpackage = `dpkg -S $ramdisk`;
+        $ramdiskpackage =~ s/:(.*)//;
+        print STDERR <<"EOFIMG";
+WARNING! $ramdisk does not advertize support for installing kernel version
+$version on a running kernel version $hostversion. This may mean that either
+$ramdisk will fail to produce a working ramdisk, and possibly leave the system
+unbootable, or simply that $ramdisk does not support querying supported
+versions. In any case, we strongly recomend you abort here, check that
+$ramdisk does indeed support your kernel version configuration, and either
+edit /etc/kernel-img.conf to set the right ramdisk field or if you believe
+$ramdisk should work, file a bug against the $ramdiskpackage package.
+Do you really want to use $ramdisk and possibly make your system unbootable, y or n ?
+EOFIMG
+        ;
+        $answer=<STDIN>;
+        if ($answer =~ /^\s*y/i) {
+          print STDERR <<"EOFIMG";
+As you wish, but under your own responsability :)
+EOFIMG
+          ;
+        } else {
+          die ("Failed, $ramdisk not suitable to create a ramdisk for kernel version $version running on kernel version $hostversion\n");
+        }
+  } else {
+    my @ramdisklist =
+      grep {
+        -x and
+        system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
+      }
+      (split (/ /, $ramdisk));
 
-  my $ramdiskorig = $ramdisk;
-  defined ($ramdisk = shift @ramdisklist)
-    or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
+    my $ramdiskorig = $ramdisk;
+    defined ($ramdisk = shift @ramdisklist)
+      or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
 
-  print STDERR <<"EOINFOMSG";
+    print STDERR <<"EOFIMG";
 Using $ramdisk to build the ramdisk.
 Other suitable ramdisk generating tools : @ramdisklist.
 Full list of probed ramdisk generating tools : $ramdiskorig. 
-EOINFOMSG
-  ;
+EOFIMG
+    ;
+  }
   my $initrd_path = $realimageloc . "initrd.img-$version";
   my $ret = system("$ramdisk " .
                    ($mkimage ? "-m '$mkimage' " : "") .
