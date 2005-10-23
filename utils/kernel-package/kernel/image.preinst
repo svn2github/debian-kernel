@@ -51,8 +51,7 @@ my $force_build_link  = '';	 # There is no harm in checking the link
 my $official_image    = "=OF"; # only true for official images
 my $arch              = "=A";  #  should be same as dpkg --print-installation-architecture
 my $kernel_arch       = "=B";
-my $ramdisk           = (system ("dpkg --compare-versions $version ge 2.6.13 1>/dev/null 2>&1") == 0 ?
-			 '/usr/sbin/mkinitrd.yaird' : '/usr/sbin/mkinitrd'); # Tool to create initial ram fs.
+my $ramdisk	      = "/usr/sbin/mkinitrd /usr/sbin/mkinitrd.yaird /usr/sbin/mkinitramfs"
 
 
 
