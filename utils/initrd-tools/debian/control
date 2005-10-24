@@ -9,6 +9,7 @@ Build-Depends: debhelper (>= 3)
 Package: initrd-tools
 Architecture: all
 Depends: coreutils | fileutils (>= 4.1.9) | stat (>= 3.0), cpio, cramfsprogs (>= 1.1-4), dash, util-linux (>= 2.11b-3)
+Provides: linux-initrd-tool, linux-ramdisk-tool
 Description: tools to create initrd image for prepackaged Linux kernel
  This package contains tools needed to generate an initrd image suitable for
  booting a prepackaged Linux kernel image (as shipped with the Debian main
