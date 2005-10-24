@@ -3,7 +3,7 @@ kernel-package (9.008.3) unstable; urgency=low
   * ramdisk generation tools now return 2 on --supported-* negative, so we can
     now add overrides for non- --supported-* supporting tools.
 
- -- Sven Luther <sven@localhost.localdomain>  Mon, 24 Oct 2005 10:34:46 +0200
+ -- Sven Luther <luther@debian.org>  Mon, 24 Oct 2005 10:34:46 +0200
 
 kernel-package (9.008.2) unstable; urgency=low
 
