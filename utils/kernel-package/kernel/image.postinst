@@ -996,12 +996,10 @@ if ($initrd) {
   defined ($ramdisk = shift @ramdisklist)
     or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
 
-  print STDERR <<"EOFIMG";
-Using $ramdisk to build the ramdisk.
-Other suitable ramdisk generating tools : @ramdisklist.
-Full list of probed ramdisk generating tools : $ramdiskorig. 
-EOFIMG
-  ;
+  print STDERR "Using $ramdisk to build the ramdisk.";;
+  if (@ramdisklist) { print STDERR "Other suitable ramdisk generating tools : @ramdisklist.\n"; }
+  print STDERR "Full list of probed ramdisk generating tools : $ramdiskorig.\n";
+  
   my $initrd_path = $realimageloc . "initrd.img-$version";
   my $ret = system("$ramdisk " .
                    ($mkimage ? "-m '$mkimage' " : "") .
