@@ -201,6 +201,9 @@ if ($initrd) {
     }
     (split (/ /, $ramdisk));
 
+  my $ramdiskorig = $ramdisk;
+  $ramdisk = shift $ramdisklist;
+
   if (! -e $ramdisk) {
     print STDERR <<EOERROR;
 
