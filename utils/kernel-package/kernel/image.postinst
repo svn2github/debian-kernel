@@ -973,45 +973,35 @@ if ( -d "$modules_base/$version" ) {
 # symlinks are in
 if ($initrd) {
   chomp (my $hostversion = `uname -r`);
-  my @ramdisklist = split (/ /, $ramdisk);
-  if (@ramdisklist == 1) {
-    if (!( -x $ramdisk)) {
-      die ("Failed to create initrd, $ramdisk does not exist or is not executable\n");
+  my @ramdisklist =
+    grep {
+      my $ret = system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1");
+      -x and (
+        $ret == 0 or (
+	  $ret == 1 and (
+            (($ramdisk eq "/usr/sbin/mkinitrd") and
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 1)) or
+            (($ramdisk eq "/usr/sbin/mkinitramfs") and
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 0)) or
+            (($ramdisk eq "/usr/sbin/mkinitrd.yaird") and
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 0) and
+	     (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 0))
+	  )
+	)
+      )
     }
-    if (system ("$ramdisk --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") != 0) {
-      if (($ramdisk eq "/usr/sbin/mkinitrd") &&
-        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 1)) {
-        die ("Failed, initrd-tools cannot create ramdisks for kernel version greater than 2.6.12\n");
-      }
-      if (($ramdisk eq "/usr/sbin/mkinitrd") &&
-        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 0)) {
-        die ("Failed, initramfs-tools cannot create ramdisks for kernel version prior to 2.6.12\n");
-      }
-      if (($ramdisk eq "/usr/sbin/mkinitrd.yaird") &&
-        (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 0) &&
-        (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 0)) {
-        die ("Failed, yaird cannot create ramdisks for kernel version lesser than 2.6.8 or running on kernels older than 2.6.8\n");
-      }
-    }
-  } else {
-    my @ramdisklist =
-      grep {
-        -x and
-        system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1") == 0
-      }
-      (split (/ /, $ramdisk));
+    (split (/ /, $ramdisk));
 
-    my $ramdiskorig = $ramdisk;
-    defined ($ramdisk = shift @ramdisklist)
-      or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
+  my $ramdiskorig = $ramdisk;
+  defined ($ramdisk = shift @ramdisklist)
+    or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
 
-    print STDERR <<"EOFIMG";
+  print STDERR <<"EOFIMG";
 Using $ramdisk to build the ramdisk.
 Other suitable ramdisk generating tools : @ramdisklist.
 Full list of probed ramdisk generating tools : $ramdiskorig. 
 EOFIMG
-    ;
-  }
+  ;
   my $initrd_path = $realimageloc . "initrd.img-$version";
   my $ret = system("$ramdisk " .
                    ($mkimage ? "-m '$mkimage' " : "") .
