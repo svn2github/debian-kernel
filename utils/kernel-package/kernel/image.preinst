@@ -180,24 +180,33 @@ $ENV{KERNEL_ARCH}=$kernel_arch if $kernel_arch;
 my $pattern = "=" . "I";
 $initrd=~ s/^$pattern$//;
 
+sub system_shift8 {
+  system(@_) >> 8
+}
+sub compare_versions {
+  system_shift8 "dpkg", "--compare-versions", $_[0], "lt", $_[1]
+}
 if ($initrd) {
   chomp (my $hostversion = `uname -r`);
   my @ramdisklist =
     grep {
-      my $ret = system ("$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1");
-      -x and (
+      if (-x) {
+        my $ret = system_shift8 "$_ --supported-host-version=$hostversion --supported-target-version=$version 1>/dev/null 2>&1";
         $ret == 0 or (
 	  $ret == 1 and (
-            (($_ eq "/usr/sbin/mkinitrd") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 0)) or
-            (($_ eq "/usr/sbin/mkinitramfs") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 1)) or
-            (($_ eq "/usr/sbin/mkinitrd.yaird") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 1) and
-	     (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 1))
-	  )
-	)
-      )
+            $_ eq "/usr/sbin/mkinitrd" ?
+              compare_versions($version, "2.6.13") == 0
+            : 
+            $_ eq "/usr/sbin/mkinitramfs" ?
+              compare_versions($version, "2.6.12") == 1
+            : 
+            $_ eq "/usr/sbin/mkinitrd.yaird" ?
+              compare_versions($version, "2.6.8") == 1 && compare_versions($hostversion, "2.6.8") == 1
+            : 
+            0
+          )
+        )
+      }
     }
     (split (/ /, $ramdisk));
 

@@ -1,6 +1,6 @@
 kernel-package (9.008.4) unstable; urgency=low
 
-  * Fixed a few small typos.
+  * Some small fixes.
 
  -- Sven Luther <luther@debian.org>  Mon, 24 Oct 2005 11:04:19 +0000
 
