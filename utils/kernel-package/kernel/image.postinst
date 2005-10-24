@@ -980,12 +980,12 @@ if ($initrd) {
         $ret == 0 or (
 	  $ret == 1 and (
             (($ramdisk eq "/usr/sbin/mkinitrd") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 1)) or
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 0)) or
             (($ramdisk eq "/usr/sbin/mkinitramfs") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 0)) or
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 1)) or
             (($ramdisk eq "/usr/sbin/mkinitrd.yaird") and
-	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 0) and
-	     (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 0))
+	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 1) and
+	     (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 1))
 	  )
 	)
       )
