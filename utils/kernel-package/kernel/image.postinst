@@ -979,11 +979,11 @@ if ($initrd) {
       -x and (
         $ret == 0 or (
 	  $ret == 1 and (
-            (($ramdisk eq "/usr/sbin/mkinitrd") and
+            (($_ eq "/usr/sbin/mkinitrd") and
 	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.13") == 0)) or
-            (($ramdisk eq "/usr/sbin/mkinitramfs") and
+            (($_ eq "/usr/sbin/mkinitramfs") and
 	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.12") == 1)) or
-            (($ramdisk eq "/usr/sbin/mkinitrd.yaird") and
+            (($_ eq "/usr/sbin/mkinitrd.yaird") and
 	     (system ("dpkg", "--compare-versions", "$version", "lt", "2.6.8") == 1) and
 	     (system ("dpkg", "--compare-versions", "$hostversion", "lt", "2.6.8") == 1))
 	  )
@@ -996,7 +996,7 @@ if ($initrd) {
   defined ($ramdisk = shift @ramdisklist)
     or die ("Failed to find suitable ramdisk generation tool for kernel version $version on running kernel $hostversion in $ramdiskorig\n");
 
-  print STDERR "Using $ramdisk to build the ramdisk.";;
+  print STDERR "Using $ramdisk to build the ramdisk.\n";
   if (@ramdisklist) { print STDERR "Other suitable ramdisk generating tools : @ramdisklist.\n"; }
   print STDERR "Full list of probed ramdisk generating tools : $ramdiskorig.\n";
   

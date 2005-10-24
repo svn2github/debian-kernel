@@ -1,3 +1,9 @@
+kernel-package (9.008.4) unstable; urgency=low
+
+  * Fixed a few small typos.
+
+ -- Sven Luther <luther@debian.org>  Mon, 24 Oct 2005 11:04:19 +0000
+
 kernel-package (9.008.3) unstable; urgency=low
 
   * ramdisk generation tools now return 2 on --supported-* negative, so we can
