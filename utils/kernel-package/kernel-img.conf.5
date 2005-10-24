@@ -207,13 +207,12 @@ Set this variable to a space separated list of executables that create
 an initial RAM disk. This only has any effect if installing a kernel-image
 that uses an initial RAM disk. The commands so pointed must be drop-in
 compatible with
-.I mkinitrd
-and support the
+.I mkinitrd .
+If they support the
 .I --supported-host-version
 and
 .I --supported-target-version
-arguments.
-At installation time, the commands are queried in turn to see if
+arguments, at installation time, the commands are queried in turn to see if
 they support the currently running kernel as host kernel and the to be
 installed kernel as target kernel, and removed from the list if not. 
 Then the first of the remaining executables is used to create the actual
