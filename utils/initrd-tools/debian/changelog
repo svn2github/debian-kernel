@@ -1,8 +1,18 @@
 initrd-tools (0.1.84) unstable; urgency=low
 
+  [ Simon Horman ]
   * Add Sven Luther and myself an uploaders
 
- -- Simon Horman <horms@debian.org>  Mon, 17 Oct 2005 12:18:53 +0900
+  [ Sven Luther ]
+  * removed the linux-ramdisk-tool virtual package, as we really don't want
+    this one to be used for post 2.6.13 kernels, altough it seems it may work
+    for the generic cases (no lvm i think).
+  * Now --supported-(host|target)-version returns 2 in case of negative, to
+    distinguish from the 1 returned in case of normal failure (like using an
+    older version of initrd-tools with no --supported-(host|target)-version
+    support.
+
+ -- Sven Luther <luther@debian.org>  Mon, 24 Oct 2005 08:53:40 +0200
 
 initrd-tools (0.1.83) unstable; urgency=low
 
