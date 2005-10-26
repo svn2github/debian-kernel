@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "x${1}" = "xpurge" ]; then
+	rm -f /etc/mkinitramfs/modules
+fi
+
+#DEBHELPER#
+
