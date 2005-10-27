@@ -84,7 +84,10 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     CAN-NOMATCH
     Links in Patch file
 
- -- Simon Horman <horms@debian.org>  Fri, 14 Oct 2005 16:23:08 +0900
+  * 195_net-ipv6-udp_v6_get_port-loop.diff 
+     [SECURITY] Fix infinite loop in udp_v6_get_port().  See CVE-2005-2973
+
+ -- Simon Horman <horms@debian.org>  Thu, 27 Oct 2005 15:26:00 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 

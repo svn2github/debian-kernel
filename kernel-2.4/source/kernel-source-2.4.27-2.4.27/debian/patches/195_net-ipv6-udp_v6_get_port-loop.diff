@@ -1,0 +1,35 @@
+diff -Naru a/net/ipv6/udp.c b/net/ipv6/udp.c
+--- a/net/ipv6/udp.c	2005-10-24 10:03:00 -07:00
++++ b/net/ipv6/udp.c	2005-10-24 10:03:00 -07:00
+@@ -99,7 +99,7 @@
+ 		next:;
+ 		}
+ 		result = best;
+-		for(;; result += UDP_HTABLE_SIZE) {
++		for(i = 0; i < (1 << 16) / UDP_HTABLE_SIZE; i++, result += UDP_HTABLE_SIZE) {
+ 			if (result > sysctl_local_port_range[1])
+ 				result = sysctl_local_port_range[0]
+ 					+ ((result - sysctl_local_port_range[0]) &
+@@ -107,6 +107,8 @@
+ 			if (!udp_lport_inuse(result))
+ 				break;
+ 		}
++		if (i >= (1 << 16) / UDP_HTABLE_SIZE)
++			goto fail;
+ gotit:
+ 		udp_port_rover = snum = result;
+ 	} else {
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/10/04 13:00:39-07:00 yoshfuji@linux-ipv6.org 
+#   [IPV6]: Fix infinite loop in udp_v6_get_port().
+#   
+#   Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+#   
+#   GIT: 87bf9c97b4b3af8dec7b2b79cdfe7bfc0a0a03b2
+# 
+# net/ipv6/udp.c
+#   2005/10/04 13:00:39-07:00 yoshfuji@linux-ipv6.org +3 -1
+# 
