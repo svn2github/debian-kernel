@@ -75,19 +75,15 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
     See CAN-2005-3180
     From 2.6.13.4
 
-  * 193_plug-names_cache-memleak.diff
-    [SECURITY] Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
-    From 2.6.13.4
-
   * 194_xfs-inode-race.diff
     [SECURITY] XFS: Handle inode creation race
     CAN-NOMATCH
     Links in Patch file
 
-  * 195_net-ipv6-udp_v6_get_port-loop.diff 
+  * 195_net-ipv6-udp_v6_get_port-loop.diff
      [SECURITY] Fix infinite loop in udp_v6_get_port().  See CVE-2005-2973
 
- -- Simon Horman <horms@debian.org>  Thu, 27 Oct 2005 15:26:00 +0900
+ -- Simon Horman <horms@debian.org>  Mon, 31 Oct 2005 18:43:51 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 

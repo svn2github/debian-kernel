@@ -9,6 +9,5 @@
 + 190_outs-2.diff
 + 191_build_foo.diff
 + 192_orinoco-info-leak.diff
-+ 193_plug-names_cache-memleak.diff
 + 194_xfs-inode-race.diff
 + 195_net-ipv6-udp_v6_get_port-loop.diff
