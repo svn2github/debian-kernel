@@ -15,11 +15,14 @@ Signed-off-by: Chris Wright <chrisw@osdl.org>
  net/ipv4/icmp.c |   12 ++++++------
  1 files changed, 6 insertions(+), 6 deletions(-)
 
+Backported to Debian's 2.4.27, 
+which is needed because of IPSEC backport -- Horms
+
 Index: linux-2.6.12.y/net/ipv4/icmp.c
 ===================================================================
 --- a/net/ipv4/icmp.c	2005-09-01 12:04:56.000000000 +0900
 +++ b/net/ipv4/icmp.c	2005-09-01 12:24:09.000000000 +0900
-@@ -297,11 +297,12 @@
+@@ -297,12 +297,12 @@
  {
  	struct sk_buff *skb;
  
@@ -28,12 +31,12 @@ Index: linux-2.6.12.y/net/ipv4/icmp.c
 -		       icmp_param->head_len,
 -		       ipc, rt, MSG_DONTWAIT);
 -
+-	if ((skb = skb_peek(&icmp_socket->sk->write_queue)) != NULL) {
 +	if (ip_append_data(icmp_socket->sk, icmp_glue_bits, icmp_param,
 +			icmp_param->data_len+icmp_param->head_len,
 +			icmp_param->head_len,
 +			ipc, rt, MSG_DONTWAIT) < 0)
 +		ip_flush_pending_frames(icmp_socket->sk);
 +	else if ((skb = skb_peek(&icmp_socket->sk->sk_write_queue)) != NULL) {
- 	if ((skb = skb_peek(&icmp_socket->sk->write_queue)) != NULL) {
  		struct icmphdr *icmph = skb->h.icmph;
  		unsigned int csum = 0;
