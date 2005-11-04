@@ -1,0 +1,15 @@
+
+initramfs-tools uses bzr for it's dev and not svn.
+Daily bzr, bzr-tools snapshots are provided by jbailey,                        
+add this line to your /etc/apt/sources.list:                                   
+deb http://people.ubuntu.com/~jbailey/snapshot/bzr/ ./
+
+# jbailey branch                                                               
+bzr branch http://people.ubuntu.com/~jbailey/bzrtree/initramfs-tools           
+                                                                               
+# Debian branch (current)                                                      
+bzr branch http://debian.stro.at/bzr-test/initramfs-tools/                     
+                                                                               
+# Update your branch                                                           
+bzr pull                                                                       
+
