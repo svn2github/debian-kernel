@@ -1,0 +1,1752 @@
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/Makefile linux-2.6.13/Makefile
+--- linux-2.6.13-i386/Makefile	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/Makefile	2005-08-30 16:30:50.000000000 +0200
+@@ -190,7 +190,7 @@
+ # Default value for CROSS_COMPILE is not to prefix executables
+ # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
+ 
+-ARCH		?= $(SUBARCH)
++ARCH		?= m68k
+ CROSS_COMPILE	?=
+ 
+ # Architecture as present in compile.h
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/fs/fat/inode.c linux-2.6.13/fs/fat/inode.c
+--- linux-2.6.13-i386/fs/fat/inode.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/fs/fat/inode.c	2005-08-30 16:35:05.000000000 +0200
+@@ -11,12 +11,14 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/time.h>
+ #include <linux/slab.h>
+ #include <linux/smp_lock.h>
+ #include <linux/seq_file.h>
+ #include <linux/msdos_fs.h>
++#include <linux/major.h>
+ #include <linux/pagemap.h>
+ #include <linux/buffer_head.h>
+ #include <linux/mount.h>
+@@ -751,7 +753,7 @@
+ 	Opt_check_n, Opt_check_r, Opt_check_s, Opt_uid, Opt_gid,
+ 	Opt_umask, Opt_dmask, Opt_fmask, Opt_codepage, Opt_nocase,
+ 	Opt_quiet, Opt_showexec, Opt_debug, Opt_immutable,
+-	Opt_dots, Opt_nodots,
++	Opt_dots, Opt_nodots, Opt_atari_no, Opt_atari_yes,
+ 	Opt_charset, Opt_shortname_lower, Opt_shortname_win95,
+ 	Opt_shortname_winnt, Opt_shortname_mixed, Opt_utf8_no, Opt_utf8_yes,
+ 	Opt_uni_xl_no, Opt_uni_xl_yes, Opt_nonumtail_no, Opt_nonumtail_yes,
+@@ -776,6 +778,9 @@
+ 	{Opt_showexec, "showexec"},
+ 	{Opt_debug, "debug"},
+ 	{Opt_immutable, "sys_immutable"},
++	{Opt_atari_yes, "atari=yes"},
++	{Opt_atari_yes, "atari"},
++	{Opt_atari_no, "atari=no"},
+ 	{Opt_obsolate, "conv=binary"},
+ 	{Opt_obsolate, "conv=text"},
+ 	{Opt_obsolate, "conv=auto"},
+@@ -850,6 +855,13 @@
+ 	opts->utf8 = opts->unicode_xlate = 0;
+ 	opts->numtail = 1;
+ 	opts->nocase = 0;
++	opts->atari = 0;
++
++#ifdef CONFIG_ATARI
++	if(MACH_IS_ATARI)
++	/* make Atari GEMDOS format the default if machine is an Atari */
++		opts->atari = 1;
++#endif
+ 	*debug = 0;
+ 
+ 	if (!options)
+@@ -898,6 +910,12 @@
+ 		case Opt_immutable:
+ 			opts->sys_immutable = 1;
+ 			break;
++		case Opt_atari_yes:
++			opts->atari = 1;
++			break;
++		case Opt_atari_no:
++			opts->atari = 0;
++			break;
+ 		case Opt_uid:
+ 			if (match_int(&args[0], &option))
+ 				return 0;
+@@ -1230,8 +1248,31 @@
+ 
+ 	total_clusters = (total_sectors - sbi->data_start) / sbi->sec_per_clus;
+ 
+-	if (sbi->fat_bits != 32)
+-		sbi->fat_bits = (total_clusters > MAX_FAT12) ? 16 : 12;
++	if (!sbi->options.atari) {
++		if (sbi->fat_bits != 32)
++			sbi->fat_bits = (total_clusters > MAX_FAT12) ? 16 : 12;
++	} else {
++		int sectors;
++		/* Atari GEMDOS partitions always have 16-bit fat */
++		if (sbi->fat_bits != 32)
++			sbi->fat_bits = 16;
++		/* If more clusters than fat entries in 16-bit fat, we assume
++		 * it's a real MSDOS partition with 12-bit fat.
++		 */
++		if (sbi->fat_bits != 32 && total_clusters+2 > sbi->
++			fat_length*SECTOR_SIZE*8/sbi->fat_bits)
++			sbi->fat_bits = 12;
++		/* if it's a floppy disk --> 12bit fat */
++		if (sbi->fat_bits != 32 && MAJOR(sb->s_dev) == FLOPPY_MAJOR)
++			sbi->fat_bits = 12;
++		/* if it's a ramdisk or loopback device and has one of the usual
++		 * floppy sizes -> 12bit FAT  */
++		sectors = total_sectors + sbi->data_start;
++		if (sbi->fat_bits != 32 && (MAJOR(sb->s_dev) == RAMDISK_MAJOR ||
++			 MAJOR(sb->s_dev) == LOOP_MAJOR) &&
++			(sectors == 720 || sectors == 1440 || sectors == 2880))
++			sbi->fat_bits = 12;
++	}
+ 
+ 	/* check that FAT table does not overflow */
+ 	fat_clusters = sbi->fat_length * sb->s_blocksize * 8 / sbi->fat_bits;
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/drivers/net/7990.c linux-2.6.13/drivers/net/7990.c
+--- linux-2.6.13-i386/drivers/net/7990.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/net/7990.c	2005-10-12 16:32:42.000000000 +0200
+@@ -500,7 +500,7 @@
+ 	int res;
+         
+         /* Install the Interrupt handler. Or we could shunt this out to specific drivers? */
+-        if (request_irq(lp->irq, lance_interrupt, 0, lp->name, dev))
++        if (request_irq(lp->irq, lance_interrupt, SA_SHIRQ, lp->name, dev))
+                 return -EAGAIN;
+ 
+         res = lance_reset(dev);
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/drivers/scsi/53c7xx.c linux-2.6.13/drivers/scsi/53c7xx.c
+--- linux-2.6.13-i386/drivers/scsi/53c7xx.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/scsi/53c7xx.c	2005-06-19 16:34:18.000000000 +0200
+@@ -307,7 +307,7 @@
+ 
+ static int check_address (unsigned long addr, int size);
+ static void dump_events (struct Scsi_Host *host, int count);
+-static Scsi_Cmnd * return_outstanding_commands (struct Scsi_Host *host, 
++static struct scsi_cmnd * return_outstanding_commands (struct Scsi_Host *host, 
+     int free, int issue);
+ static void hard_reset (struct Scsi_Host *host);
+ static void ncr_scsi_reset (struct Scsi_Host *host);
+@@ -316,7 +316,7 @@
+     int scntl3, int now_connected);
+ static int datapath_residual (struct Scsi_Host *host);
+ static const char * sbcl_to_phase (int sbcl);
+-static void print_progress (Scsi_Cmnd *cmd);
++static void print_progress (struct scsi_cmnd *cmd);
+ static void print_queues (struct Scsi_Host *host);
+ static void process_issue_queue (unsigned long flags);
+ static int shutdown (struct Scsi_Host *host);
+@@ -341,9 +341,8 @@
+ static void NCR53c7x0_soft_reset (struct Scsi_Host *host);
+ 
+ /* Size of event list (per host adapter) */
+-static int track_events = 0;
+-static struct Scsi_Host *first_host = NULL;	/* Head of list of NCR boards */
+-static Scsi_Host_Template *the_template = NULL;	
++static int track_events;
++static Scsi_Host_Template *the_template;
+ 
+ /* NCR53c710 script handling code */
+ 
+@@ -666,8 +665,11 @@
+ 
+ static struct Scsi_Host *
+ find_host (int host) {
+-    struct Scsi_Host *h;
+-    for (h = first_host; h && h->host_no != host; h = h->next);
++    struct Scsi_Host *h, *s;
++    list_for_each_entry_safe(h, s, &the_template->legacy_hosts, sht_legacy_list) {
++	if (h->host_no == host)
++	    break;
++    }
+     if (!h) {
+ 	printk (KERN_ALERT "scsi%d not found\n", host);
+ 	return NULL;
+@@ -715,14 +717,14 @@
+     }
+     hostdata = (struct NCR53c7x0_hostdata *)h->hostdata[0];
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     if (hostdata->initiate_sdtr & (1 << target)) {
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	printk (KERN_ALERT "target %d already doing SDTR\n", target);
+ 	return -1;
+     } 
+     hostdata->initiate_sdtr |= (1 << target);
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     return 0;
+ }
+ #endif
+@@ -1033,9 +1035,6 @@
+    
+     ccf = clock_to_ccf_710 (expected_clock);
+ 
+-    for (i = 0; i < 16; ++i) 
+-	hostdata->cmd_allocated[i] = 0;
+-
+     if (hostdata->init_save_regs)
+     	hostdata->init_save_regs (host);
+     if (hostdata->init_fixup)
+@@ -1043,7 +1042,6 @@
+ 
+     if (!the_template) {
+ 	the_template = host->hostt;
+-	first_host = host;
+     }
+ 
+     /* 
+@@ -1306,7 +1304,6 @@
+     hostdata->free->size = max_cmd_size;
+     hostdata->free->free = NULL;
+     hostdata->free->next = NULL;
+-    hostdata->extra_allocate = 0;
+ 
+     /* Allocate command start code space */
+     hostdata->schedule = (chip == 700 || chip == 70066) ?
+@@ -1589,10 +1586,10 @@
+ 
+     /* The NCR chip _must_ be idle to run the test scripts */
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     if (!hostdata->idle) {
+ 	printk ("scsi%d : chip not idle, aborting tests\n", host->host_no);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	return -1;
+     }
+ 
+@@ -1616,7 +1613,7 @@
+ 	    NCR53c7x0_write8 (DCNTL_REG, hostdata->saved_dcntl | DCNTL_SSM |
+ 						DCNTL_STD);
+ 	printk (" started\n");
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 
+ 	/* 
+ 	 * This is currently a .5 second timeout, since (in theory) no slow 
+@@ -1655,7 +1652,7 @@
+ 		hostdata->script, start);
+ 	    printk ("scsi%d : DSPS = 0x%x\n", host->host_no,
+ 		NCR53c7x0_read32(DSPS_REG));
+-	    local_irq_restore(flags);
++	    spin_unlock_irqrestore(host->host_lock, flags);
+ 	    return -1;
+ 	}
+     	hostdata->test_running = 0;
+@@ -1693,7 +1690,7 @@
+ 	    local_irq_disable();
+ 	    if (!hostdata->idle) {
+ 		printk ("scsi%d : chip not idle, aborting tests\n", host->host_no);
+-		local_irq_restore(flags);
++		spin_unlock_irqrestore(host->host_lock, flags);
+ 		return -1;
+ 	    }
+ 
+@@ -1709,7 +1706,7 @@
+ 	    if (hostdata->options & OPTION_DEBUG_TRACE)
+ 	        NCR53c7x0_write8 (DCNTL_REG, hostdata->saved_dcntl |
+ 				DCNTL_SSM | DCNTL_STD);
+-	    local_irq_restore(flags);
++	    spin_unlock_irqrestore(host->host_lock, flags);
+ 
+ 	    timeout = jiffies + 5 * HZ;	/* arbitrary */
+ 	    while ((hostdata->test_completed == -1) && time_before(jiffies, timeout))
+@@ -1731,19 +1728,19 @@
+ 		    host->host_no, i);
+ 		if (!hostdata->idle) {
+ 		    printk("scsi%d : not idle\n", host->host_no);
+-		    local_irq_restore(flags);
++		    spin_unlock_irqrestore(host->host_lock, flags);
+ 		    return -1;
+ 		}
+ 	    } else if (hostdata->test_completed == -1) {
+ 		printk ("scsi%d : test 2 timed out\n", host->host_no);
+-		local_irq_restore(flags);
++		spin_unlock_irqrestore(host->host_lock, flags);
+ 		return -1;
+ 	    } 
+ 	    hostdata->test_running = 0;
+ 	}
+     }
+ 
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     return 0;
+ }
+ 
+@@ -1759,7 +1756,7 @@
+ 
+ static void 
+ NCR53c7xx_dsa_fixup (struct NCR53c7x0_cmd *cmd) {
+-    Scsi_Cmnd *c = cmd->cmd;
++    struct scsi_cmnd *c = cmd->cmd;
+     struct Scsi_Host *host = c->device->host;
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+     	host->hostdata[0];
+@@ -1845,7 +1842,7 @@
+  *
+  * Purpose : mark SCSI command as finished, OR'ing the host portion 
+  *	of the result word into the result field of the corresponding
+- *	Scsi_Cmnd structure, and removing it from the internal queues.
++ *	scsi_cmnd structure, and removing it from the internal queues.
+  *
+  * Inputs : cmd - command, result - entire result field
+  *
+@@ -1856,7 +1853,7 @@
+ 
+ static void 
+ abnormal_finished (struct NCR53c7x0_cmd *cmd, int result) {
+-    Scsi_Cmnd *c = cmd->cmd;
++    struct scsi_cmnd *c = cmd->cmd;
+     struct Scsi_Host *host = c->device->host;
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+     	host->hostdata[0];
+@@ -1870,7 +1867,7 @@
+     printk ("scsi%d: abnormal finished\n", host->host_no);
+ #endif
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     found = 0;
+     /* 
+      * Traverse the NCR issue array until we find a match or run out 
+@@ -1953,7 +1950,7 @@
+     c->result = result;
+     c->scsi_done(c);
+ 
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     run_process_issue_queue();
+ }
+ 
+@@ -1975,7 +1972,7 @@
+     NCR53c7x0_local_declare();
+     struct NCR53c7x0_break *bp;
+ #if 0
+-    Scsi_Cmnd *c = cmd ? cmd->cmd : NULL;
++    struct scsi_cmnd *c = cmd ? cmd->cmd : NULL;
+ #endif
+     u32 *dsp;
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+@@ -1988,7 +1985,7 @@
+      * dump the appropriate debugging information to standard 
+      * output.  
+      */
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     dsp = (u32 *) bus_to_virt(NCR53c7x0_read32(DSP_REG));
+     for (bp = hostdata->breakpoints; bp && bp->address != dsp; 
+     	bp = bp->next);
+@@ -2010,7 +2007,7 @@
+      * instruction in bytes.
+      */
+ 
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ }
+ /*
+  * Function : static void print_synchronous (const char *prefix, 
+@@ -2252,7 +2249,7 @@
+     NCR53c7x0_cmd *cmd) {
+     NCR53c7x0_local_declare();
+     int print;
+-    Scsi_Cmnd *c = cmd ? cmd->cmd : NULL;
++    struct scsi_cmnd *c = cmd ? cmd->cmd : NULL;
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+ 	host->hostdata[0];		
+     u32 dsps,*dsp;	/* Argument of the INT instruction */
+@@ -2916,7 +2913,7 @@
+ 	host->hostdata[0];
+     NCR53c7x0_local_setup(host);
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+ 
+     /* Disable scsi chip and s/w level 7 ints */
+ 
+@@ -3017,12 +3014,12 @@
+     }
+ #endif
+     /* Anything needed for your hardware? */
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ }
+ 
+ 
+ /*
+- * Function static struct NCR53c7x0_cmd *allocate_cmd (Scsi_Cmnd *cmd)
++ * Function static struct NCR53c7x0_cmd *allocate_cmd (struct scsi_cmnd *cmd)
+  * 
+  * Purpose : Return the first free NCR53c7x0_cmd structure (which are 
+  * 	reused in a LIFO manner to minimize cache thrashing).
+@@ -3049,86 +3046,25 @@
+ }
+ 
+ static struct NCR53c7x0_cmd *
+-allocate_cmd (Scsi_Cmnd *cmd) {
++allocate_cmd (struct scsi_cmnd *cmd) {
+     struct Scsi_Host *host = cmd->device->host;
+     struct NCR53c7x0_hostdata *hostdata = 
+ 	(struct NCR53c7x0_hostdata *) host->hostdata[0];
+-    u32 real;			/* Real address */
+-    int size;			/* Size of *tmp */
+     struct NCR53c7x0_cmd *tmp;
+     unsigned long flags;
+ 
+     if (hostdata->options & OPTION_DEBUG_ALLOCATION)
+ 	printk ("scsi%d : num_cmds = %d, can_queue = %d\n"
+-		"         target = %d, lun = %d, %s\n",
++		"         target = %d, lun = %d\n",
+ 	    host->host_no, hostdata->num_cmds, host->can_queue,
+-	    cmd->device->id, cmd->device->lun, (hostdata->cmd_allocated[cmd->device->id] &
+-		(1 << cmd->device->lun)) ? "already allocated" : "not allocated");
+-
+-/*
+- * If we have not yet reserved commands for this I_T_L nexus, and
+- * the device exists (as indicated by permanent Scsi_Cmnd structures
+- * being allocated under 1.3.x, or being outside of scan_scsis in
+- * 1.2.x), do so now.
+- */
+-    if (!(hostdata->cmd_allocated[cmd->device->id] & (1 << cmd->device->lun)) &&
+-				cmd->device && cmd->device->has_cmdblocks) {
+-      if ((hostdata->extra_allocate + hostdata->num_cmds) < host->can_queue)
+-          hostdata->extra_allocate += host->cmd_per_lun;
+-      hostdata->cmd_allocated[cmd->device->id] |= (1 << cmd->device->lun);
+-    }
+-
+-    for (; hostdata->extra_allocate > 0 ; --hostdata->extra_allocate, 
+-    	++hostdata->num_cmds) {
+-    /* historically, kmalloc has returned unaligned addresses; pad so we
+-       have enough room to ROUNDUP */
+-	size = hostdata->max_cmd_size + sizeof (void *);
+-#ifdef FORCE_DSA_ALIGNMENT
+-	/*
+-	 * 53c710 rev.0 doesn't have an add-with-carry instruction.
+-	 * Ensure we allocate enough memory to force alignment.
+-	 */
+-	size += 256;
+-#endif
+-/* FIXME: for ISA bus '7xx chips, we need to or GFP_DMA in here */
++	    cmd->device->id, cmd->device->lun);
+ 
+-        if (size > 4096) {
+-            printk (KERN_ERR "53c7xx: allocate_cmd size > 4K\n");
+-	    return NULL;
+-	}
+-        real = get_zeroed_page(GFP_ATOMIC);
+-        if (real == 0)
+-        	return NULL;
+-        memset((void *)real, 0, 4096);
+-        cache_push(virt_to_phys((void *)real), 4096);
+-        cache_clear(virt_to_phys((void *)real), 4096);
+-        kernel_set_cachemode((void *)real, 4096, IOMAP_NOCACHE_SER);
+-	tmp = ROUNDUP(real, void *);
+-#ifdef FORCE_DSA_ALIGNMENT
+-	{
+-	    if (((u32)tmp & 0xff) > CmdPageStart)
+-		tmp = (struct NCR53c7x0_cmd *)((u32)tmp + 255);
+-	    tmp = (struct NCR53c7x0_cmd *)(((u32)tmp & ~0xff) + CmdPageStart);
+-#if 0
+-	    printk ("scsi: size = %d, real = 0x%08x, tmp set to 0x%08x\n",
+-			size, real, (u32)tmp);
+-#endif
+-	}
+-#endif
+-	tmp->real = (void *)real;
+-	tmp->size = size;			
+-	tmp->free = ((void (*)(void *, int)) my_free_page);
+-	local_irq_save(flags);
+-	tmp->next = hostdata->free;
+-	hostdata->free = tmp;
+-	local_irq_restore(flags);
+-    }
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     tmp = (struct NCR53c7x0_cmd *) hostdata->free;
+     if (tmp) {
+ 	hostdata->free = tmp->next;
+     }
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     if (!tmp)
+ 	printk ("scsi%d : can't allocate command for target %d lun %d\n",
+ 	    host->host_no, cmd->device->id, cmd->device->lun);
+@@ -3136,11 +3072,11 @@
+ }
+ 
+ /*
+- * Function static struct NCR53c7x0_cmd *create_cmd (Scsi_Cmnd *cmd) 
++ * Function static struct NCR53c7x0_cmd *create_cmd (struct scsi_cmnd *cmd) 
+  *
+  *
+  * Purpose : allocate a NCR53c7x0_cmd structure, initialize it based on the 
+- * 	Scsi_Cmnd structure passed in cmd, including dsa and Linux field 
++ * 	scsi_cmnd structure passed in cmd, including dsa and Linux field 
+  * 	initialization, and dsa code relocation.
+  *
+  * Inputs : cmd - SCSI command
+@@ -3149,7 +3085,7 @@
+  *	NULL on failure.
+  */
+ static struct NCR53c7x0_cmd *
+-create_cmd (Scsi_Cmnd *cmd) {
++create_cmd (struct scsi_cmnd *cmd) {
+     NCR53c7x0_local_declare();
+     struct Scsi_Host *host = cmd->device->host;
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+@@ -3173,7 +3109,7 @@
+ 	return NULL;
+ 
+     /*
+-     * Copy CDB and initialised result fields from Scsi_Cmnd to NCR53c7x0_cmd.
++     * Copy CDB and initialised result fields from scsi_cmnd to NCR53c7x0_cmd.
+      * We do this because NCR53c7x0_cmd may have a special cache mode
+      * selected to cope with lack of bus snooping, etc.
+      */
+@@ -3316,7 +3252,7 @@
+ 
+     patch_dsa_32(tmp->dsa, dsa_next, 0, 0);
+     /*
+-     * XXX is this giving 53c710 access to the Scsi_Cmnd in some way?
++     * XXX is this giving 53c710 access to the scsi_cmnd in some way?
+      * Do we need to change it for caching reasons?
+      */
+     patch_dsa_32(tmp->dsa, dsa_cmnd, 0, virt_to_bus(cmd));
+@@ -3347,17 +3283,17 @@
+ 	memcpy ((void *) (tmp->select + 1), (void *) wdtr_message,
+ 	    sizeof(wdtr_message));
+     	patch_dsa_32(tmp->dsa, dsa_msgout, 0, 1 + sizeof(wdtr_message));
+-	local_irq_save(flags);
++	spin_lock_irqsave(host->host_lock, flags);
+ 	hostdata->initiate_wdtr &= ~(1 << cmd->device->id);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+     } else if (hostdata->initiate_sdtr & (1 << cmd->device->id)) {
+ 	memcpy ((void *) (tmp->select + 1), (void *) sdtr_message, 
+ 	    sizeof(sdtr_message));
+     	patch_dsa_32(tmp->dsa, dsa_msgout, 0, 1 + sizeof(sdtr_message));
+ 	tmp->flags |= CMD_FLAG_SDTR;
+-	local_irq_save(flags);
++	spin_lock_irqsave(host->host_lock, flags);
+ 	hostdata->initiate_sdtr &= ~(1 << cmd->device->id);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+     
+     }
+ #if 1
+@@ -3570,8 +3506,8 @@
+ }
+ 
+ /*
+- * Function : int NCR53c7xx_queue_command (Scsi_Cmnd *cmd,
+- *      void (*done)(Scsi_Cmnd *))
++ * Function : int NCR53c7xx_queue_command (struct scsi_cmnd *cmd,
++ *      void (*done)(struct scsi_cmnd *))
+  *
+  * Purpose :  enqueues a SCSI command
+  *
+@@ -3585,18 +3521,18 @@
+  *      twiddling done to the host specific fields of cmd.  If the
+  *      process_issue_queue coroutine isn't running, it is restarted.
+  * 
+- * NOTE : we use the host_scribble field of the Scsi_Cmnd structure to 
++ * NOTE : we use the host_scribble field of the scsi_cmnd structure to 
+  *	hold our own data, and pervert the ptr field of the SCp field
+  *	to create a linked list.
+  */
+ 
+ int
+-NCR53c7xx_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *)) {
++NCR53c7xx_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *)) {
+     struct Scsi_Host *host = cmd->device->host;
+     struct NCR53c7x0_hostdata *hostdata = 
+ 	(struct NCR53c7x0_hostdata *) host->hostdata[0];
+     unsigned long flags;
+-    Scsi_Cmnd *tmp;
++    struct scsi_cmnd *tmp;
+ 
+     cmd->scsi_done = done;
+     cmd->host_scribble = NULL;
+@@ -3614,7 +3550,7 @@
+     }
+ #endif
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     if ((hostdata->options & (OPTION_DEBUG_INIT_ONLY|OPTION_DEBUG_PROBE_ONLY)) 
+ 	|| ((hostdata->options & OPTION_DEBUG_TARGET_LIMIT) &&
+ 	    !(hostdata->debug_lun_limit[cmd->device->id] & (1 << cmd->device->lun)))
+@@ -3629,7 +3565,7 @@
+ 	    cmd->device->id, cmd->device->lun);
+ 	cmd->result = (DID_BAD_TARGET << 16);
+ 	done(cmd);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	return 0;
+     }
+ 
+@@ -3638,7 +3574,7 @@
+ 	printk("scsi%d : maximum commands exceeded\n", host->host_no);
+ 	cmd->result = (DID_BAD_TARGET << 16);
+ 	done(cmd);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	return 0;
+     }
+ 
+@@ -3650,7 +3586,7 @@
+ 		host->host_no);
+ 	    cmd->result = (DID_BAD_TARGET << 16);
+ 	    done(cmd);
+-	    local_irq_restore(flags);
++	    spin_unlock_irqrestore(host->host_lock, flags);
+ 	    return 0;
+ 	}
+     }
+@@ -3673,18 +3609,18 @@
+ 	cmd->SCp.ptr = (unsigned char *) hostdata->issue_queue;
+ 	hostdata->issue_queue = cmd;
+     } else {
+-	for (tmp = (Scsi_Cmnd *) hostdata->issue_queue; tmp->SCp.ptr; 
+-		tmp = (Scsi_Cmnd *) tmp->SCp.ptr);
++	for (tmp = (struct scsi_cmnd *) hostdata->issue_queue; tmp->SCp.ptr; 
++		tmp = (struct scsi_cmnd *) tmp->SCp.ptr);
+ 	tmp->SCp.ptr = (unsigned char *) cmd;
+     }
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     run_process_issue_queue();
+     return 0;
+ }
+ 
+ /*
+  * Function : void to_schedule_list (struct Scsi_Host *host,
+- * 	struct NCR53c7x0_hostdata * hostdata, Scsi_Cmnd *cmd)
++ * 	struct NCR53c7x0_hostdata * hostdata, struct scsi_cmnd *cmd)
+  *
+  * Purpose : takes a SCSI command which was just removed from the 
+  *	issue queue, and deals with it by inserting it in the first
+@@ -3705,7 +3641,7 @@
+ to_schedule_list (struct Scsi_Host *host, struct NCR53c7x0_hostdata *hostdata,
+     struct NCR53c7x0_cmd *cmd) {
+     NCR53c7x0_local_declare();
+-    Scsi_Cmnd *tmp = cmd->cmd;
++    struct scsi_cmnd *tmp = cmd->cmd;
+     unsigned long flags;
+     /* dsa start is negative, so subtraction is used */
+     volatile u32 *ncrcurrent;
+@@ -3717,7 +3653,7 @@
+ 	virt_to_bus(hostdata->dsa), hostdata->dsa);
+ #endif
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     
+     /* 
+      * Work around race condition : if an interrupt fired and we 
+@@ -3730,7 +3666,7 @@
+ 	cmd->next = (struct NCR53c7x0_cmd *) hostdata->free;
+ 	hostdata->free = cmd;
+ 	tmp->scsi_done(tmp);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	return;
+     }
+ 
+@@ -3760,7 +3696,7 @@
+ 	cmd->next = (struct NCR53c7x0_cmd *) hostdata->free;
+ 	hostdata->free = cmd;
+ 	tmp->scsi_done(tmp);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+ 	return;
+     }
+ 
+@@ -3781,12 +3717,12 @@
+ 	NCR53c7x0_write8(hostdata->istat, ISTAT_10_SIGP);
+     }
+ 
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ }
+ 
+ /*
+  * Function : busyp (struct Scsi_Host *host, struct NCR53c7x0_hostdata 
+- *	*hostdata, Scsi_Cmnd *cmd)
++ *	*hostdata, struct scsi_cmnd *cmd)
+  *
+  * Purpose : decide if we can pass the given SCSI command on to the 
+  *	device in question or not.
+@@ -3796,7 +3732,7 @@
+ 
+ static __inline__ int
+ busyp (struct Scsi_Host *host, struct NCR53c7x0_hostdata *hostdata, 
+-    Scsi_Cmnd *cmd) {
++    struct scsi_cmnd *cmd) {
+     /* FIXME : in the future, this needs to accommodate SCSI-II tagged
+        queuing, and we may be able to play with fairness here a bit.
+      */
+@@ -3822,8 +3758,8 @@
+ 
+ static void 
+ process_issue_queue (unsigned long flags) {
+-    Scsi_Cmnd *tmp, *prev;
+-    struct Scsi_Host *host;
++    struct scsi_cmnd *tmp, *prev;
++    struct Scsi_Host *host, *s;
+     struct NCR53c7x0_hostdata *hostdata;
+     int done;
+ 
+@@ -3841,14 +3777,13 @@
+     do {
+ 	local_irq_disable(); /* Freeze request queues */
+ 	done = 1;
+-	for (host = first_host; host && host->hostt == the_template;
+-	    host = host->next) {
++	list_for_each_entry_safe(host, s, &the_template->legacy_hosts, sht_legacy_list) {
+ 	    hostdata = (struct NCR53c7x0_hostdata *) host->hostdata[0];
+-	    local_irq_disable();
++	    spin_lock_irq(host->host_lock);
+ 	    if (hostdata->issue_queue) {
+ 	    	if (hostdata->state == STATE_DISABLED) {
+-		    tmp = (Scsi_Cmnd *) hostdata->issue_queue;
+-		    hostdata->issue_queue = (Scsi_Cmnd *) tmp->SCp.ptr;
++		    tmp = (struct scsi_cmnd *) hostdata->issue_queue;
++		    hostdata->issue_queue = (struct scsi_cmnd *) tmp->SCp.ptr;
+ 		    tmp->result = (DID_BAD_TARGET << 16);
+ 		    if (tmp->host_scribble) {
+ 			((struct NCR53c7x0_cmd *)tmp->host_scribble)->next = 
+@@ -3860,15 +3795,15 @@
+ 		    tmp->scsi_done (tmp);
+ 		    done = 0;
+ 		} else 
+-		    for (tmp = (Scsi_Cmnd *) hostdata->issue_queue, 
+-			prev = NULL; tmp; prev = tmp, tmp = (Scsi_Cmnd *) 
++		    for (tmp = (struct scsi_cmnd *) hostdata->issue_queue, 
++			prev = NULL; tmp; prev = tmp, tmp = (struct scsi_cmnd *) 
+ 			tmp->SCp.ptr) 
+ 			if (!tmp->host_scribble || 
+ 			    !busyp (host, hostdata, tmp)) {
+ 				if (prev)
+ 				    prev->SCp.ptr = tmp->SCp.ptr;
+ 				else
+-				    hostdata->issue_queue = (Scsi_Cmnd *) 
++				    hostdata->issue_queue = (struct scsi_cmnd *) 
+ 					tmp->SCp.ptr;
+ 			    tmp->SCp.ptr = NULL;
+ 			    if (tmp->host_scribble) {
+@@ -3893,6 +3828,7 @@
+ 			    done = 0;
+ 			} /* if target/lun is not busy */
+ 	    } /* if hostdata->issue_queue */
++	    spin_unlock(host->host_lock);
+ 	    if (!done)
+ 		local_irq_restore(flags);
+     	} /* for host */
+@@ -4103,7 +4039,7 @@
+ 	int cnt = 0;
+ 	int i = insn_log_index;
+ 	int size;
+-	struct Scsi_Host *host = first_host;
++	struct Scsi_Host *host = (struct Scsi_Host *)the_template->legacy_hosts->next;
+ 
+ 	while (cnt < 4096) {
+ 		printk ("%08x (+%6x): ", insn_log[i], (insn_log[i] - (u32)&(((struct NCR53c7x0_hostdata *)host->hostdata[0])->script))/4);
+@@ -4161,14 +4097,14 @@
+     * completion.
+     */
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+ restart:
+     for (cmd_prev_ptr = (struct NCR53c7x0_cmd **)&(hostdata->running_list),
+ 	cmd = (struct NCR53c7x0_cmd *) hostdata->running_list; cmd ;
+ 	cmd_prev_ptr = (struct NCR53c7x0_cmd **) &(cmd->next), 
+     	cmd = (struct NCR53c7x0_cmd *) cmd->next)
+     {
+-	Scsi_Cmnd *tmp;
++	struct scsi_cmnd *tmp;
+ 
+ 	if (!cmd) {
+ 	    printk("scsi%d : very weird.\n", host->host_no);
+@@ -4176,7 +4112,7 @@
+ 	}
+ 
+ 	if (!(tmp = cmd->cmd)) {
+-	    printk("scsi%d : weird.  NCR53c7x0_cmd has no Scsi_Cmnd\n",
++	    printk("scsi%d : weird.  NCR53c7x0_cmd has no scsi_cmnd\n",
+ 		    host->host_no);
+ 	    continue;
+ 	}
+@@ -4215,7 +4151,7 @@
+ 	tmp->scsi_done(tmp);
+ 	goto restart;
+     }
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ 
+     if (!search_found)  {
+ 	printk ("scsi%d : WARNING : INTFLY with no completed commands.\n",
+@@ -4250,7 +4186,7 @@
+     struct NCR53c7x0_cmd *cmd;			/* command which halted */
+     u32 *dsa;					/* DSA */
+     int handled = 0;
+-
++    unsigned long flags;
+ #ifdef NCR_DEBUG
+     char buf[80];				/* Debugging sprintf buffer */
+     size_t buflen;				/* Length of same */
+@@ -4259,6 +4195,7 @@
+     host     = (struct Scsi_Host *)dev_id;
+     hostdata = (struct NCR53c7x0_hostdata *) host->hostdata[0];
+     NCR53c7x0_local_setup(host);
++    spin_lock_irqsave(host->host_lock, flags);
+ 
+     /*
+      * Only read istat once per loop, since reading it again will unstack
+@@ -4351,7 +4288,8 @@
+ 	    }
+ 	}
+     }
+-    return IRQ_HANDLED;
++    spin_unlock_irqrestore(host->host_lock, flags);
++    return IRQ_RETVAL(handled);
+ }
+ 
+ 
+@@ -4360,7 +4298,7 @@
+  *
+  * Purpose : Assuming that the NCR SCSI processor is currently 
+  * 	halted, break the currently established nexus.  Clean
+- *	up of the NCR53c7x0_cmd and Scsi_Cmnd structures should
++ *	up of the NCR53c7x0_cmd and scsi_cmnd structures should
+  *	be done on receipt of the abort interrupt.
+  *
+  * Inputs : host - SCSI host
+@@ -4899,12 +4837,12 @@
+ 	    /* Don't print instr. until we write DSP at end of intr function */
+ 	} else if (hostdata->options & OPTION_DEBUG_SINGLE) {
+ 	    print_insn (host, dsp, "s ", 0);
+-	    local_irq_save(flags);
++	    spin_lock_irqsave(host->host_lock, flags);
+ /* XXX - should we do this, or can we get away with writing dsp? */
+ 
+ 	    NCR53c7x0_write8 (DCNTL_REG, (NCR53c7x0_read8(DCNTL_REG) & 
+     	    	~DCNTL_SSM) | DCNTL_STD);
+-	    local_irq_restore(flags);
++	    spin_unlock_irqrestore(host->host_lock, flags);
+ 	} else {
+ 	    printk(KERN_ALERT "scsi%d : unexpected single step interrupt at\n"
+ 		   "         ", host->host_no);
+@@ -5127,7 +5065,7 @@
+ }
+ 
+ /*
+- * Function : int NCR53c7xx_abort (Scsi_Cmnd *cmd)
++ * Function : int NCR53c7xx_abort (struct scsi_cmnd *cmd)
+  * 
+  * Purpose : Abort an errant SCSI command, doing all necessary
+  *	cleanup of the issue_queue, running_list, shared Linux/NCR
+@@ -5139,14 +5077,14 @@
+  */
+ 
+ int 
+-NCR53c7xx_abort (Scsi_Cmnd *cmd) {
++NCR53c7xx_abort (struct scsi_cmnd *cmd) {
+     NCR53c7x0_local_declare();
+     struct Scsi_Host *host = cmd->device->host;
+     struct NCR53c7x0_hostdata *hostdata = host ? (struct NCR53c7x0_hostdata *) 
+ 	host->hostdata[0] : NULL;
+     unsigned long flags;
+     struct NCR53c7x0_cmd *curr, **prev;
+-    Scsi_Cmnd *me, **last;
++    struct scsi_cmnd *me, **last;
+ #if 0
+     static long cache_pid = -1;
+ #endif
+@@ -5155,10 +5093,10 @@
+     if (!host) {
+ 	printk ("Bogus SCSI command pid %ld; no host structure\n",
+ 	    cmd->pid);
+-	return SCSI_ABORT_ERROR;
++	return FAILED;
+     } else if (!hostdata) {
+ 	printk ("Bogus SCSI host %d; no hostdata\n", host->host_no);
+-	return SCSI_ABORT_ERROR;
++	return FAILED;
+     }
+     NCR53c7x0_local_setup(host);
+ 
+@@ -5179,10 +5117,10 @@
+ 	printk ("scsi%d : dropped interrupt for command %ld\n", host->host_no,
+ 	    cmd->pid);
+ 	NCR53c7x0_intr (host->irq, NULL, NULL);
+-	return SCSI_ABORT_BUSY;
++	return FAILED;
+     }
+ 	
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+ #if 0
+     if (cache_pid == cmd->pid) 
+ 	panic ("scsi%d : bloody fetus %d\n", host->host_no, cmd->pid);
+@@ -5201,13 +5139,13 @@
+  * pull the command out of the old queue, and call it aborted.
+  */
+ 
+-    for (me = (Scsi_Cmnd *) hostdata->issue_queue, 
+-         last = (Scsi_Cmnd **) &(hostdata->issue_queue);
+-	 me && me != cmd;  last = (Scsi_Cmnd **)&(me->SCp.ptr), 
+-	 me = (Scsi_Cmnd *)me->SCp.ptr);
++    for (me = (struct scsi_cmnd *) hostdata->issue_queue, 
++         last = (struct scsi_cmnd **) &(hostdata->issue_queue);
++	 me && me != cmd;  last = (struct scsi_cmnd **)&(me->SCp.ptr), 
++	 me = (struct scsi_cmnd *)me->SCp.ptr);
+ 
+     if (me) {
+-	*last = (Scsi_Cmnd *) me->SCp.ptr;
++	*last = (struct scsi_cmnd *) me->SCp.ptr;
+ 	if (me->host_scribble) {
+ 	    ((struct NCR53c7x0_cmd *)me->host_scribble)->next = hostdata->free;
+ 	    hostdata->free = (struct NCR53c7x0_cmd *) me->host_scribble;
+@@ -5217,9 +5155,9 @@
+ 	cmd->scsi_done(cmd);
+ 	printk ("scsi%d : found command %ld in Linux issue queue\n", 
+ 	    host->host_no, me->pid);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+     	run_process_issue_queue();
+-	return SCSI_ABORT_SUCCESS;
++	return SUCCESS;
+     }
+ 
+ /* 
+@@ -5243,13 +5181,13 @@
+ 	    cmd->scsi_done(cmd);
+ 	printk ("scsi%d : found finished command %ld in running list\n", 
+ 	    host->host_no, cmd->pid);
+-	    local_irq_restore(flags);
+-	    return SCSI_ABORT_NOT_RUNNING;
++	    spin_unlock_irqrestore(host->host_lock, flags);
++	    return SUCCESS;
+ 	} else {
+ 	    printk ("scsi%d : DANGER : command running, can not abort.\n",
+ 		cmd->device->host->host_no);
+-	    local_irq_restore(flags);
+-	    return SCSI_ABORT_BUSY;
++	    spin_unlock_irqrestore(host->host_lock, flags);
++	    return FAILED;
+ 	}
+     }
+ 
+@@ -5280,21 +5218,20 @@
+  */
+         --hostdata->busy[cmd->device->id][cmd->device->lun];
+     }
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     cmd->scsi_done(cmd);
+ 
+ /* 
+  * We need to run process_issue_queue since termination of this command 
+  * may allow another queued command to execute first? 
+  */
+-    return SCSI_ABORT_NOT_RUNNING;
++    return SUCCESS;
+ }
+ 
+ /*
+- * Function : int NCR53c7xx_reset (Scsi_Cmnd *cmd) 
++ * Function : int NCR53c7xx_reset (struct scsi_cmnd *cmd) 
+  * 
+- * Purpose : perform a hard reset of the SCSI bus and NCR
+- * 	chip.
++ * Purpose : perform a hard reset of the SCSI bus.
+  *
+  * Inputs : cmd - command which caused the SCSI RESET
+  *
+@@ -5302,12 +5239,12 @@
+  */
+  
+ int 
+-NCR53c7xx_reset (Scsi_Cmnd *cmd, unsigned int reset_flags) {
++NCR53c7xx_reset (struct scsi_cmnd *cmd) {
+     NCR53c7x0_local_declare();
+     unsigned long flags;
+     int found = 0;
+     struct NCR53c7x0_cmd * c;
+-    Scsi_Cmnd *tmp;
++    struct scsi_cmnd *tmp;
+     /*
+      * When we call scsi_done(), it's going to wake up anything sleeping on the
+      * resources which were in use by the aborted commands, and we'll start to 
+@@ -5322,19 +5259,19 @@
+      * pointer), do our reinitialization, and then call the done function for
+      * each command.  
+      */
+-    Scsi_Cmnd *nuke_list = NULL;
++    struct scsi_cmnd *nuke_list = NULL;
+     struct Scsi_Host *host = cmd->device->host;
+     struct NCR53c7x0_hostdata *hostdata = 
+     	(struct NCR53c7x0_hostdata *) host->hostdata[0];
+ 
+     NCR53c7x0_local_setup(host);
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     ncr_halt (host);
+     print_lots (host);
+     dump_events (host, 30);
+     ncr_scsi_reset (host);
+     for (tmp = nuke_list = return_outstanding_commands (host, 1 /* free */,
+-	0 /* issue */ ); tmp; tmp = (Scsi_Cmnd *) tmp->SCp.buffer)
++	0 /* issue */ ); tmp; tmp = (struct scsi_cmnd *) tmp->SCp.buffer)
+ 	if (tmp == cmd) {
+ 	    found = 1;
+ 	    break;
+@@ -5357,19 +5294,21 @@
+     }
+ 
+     NCR53c7x0_driver_init (host);
++#if 0
+     hostdata->soft_reset (host);
++#endif
+     if (hostdata->resets == 0) 
+ 	disable(host);
+     else if (hostdata->resets != -1)
+ 	--hostdata->resets;
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     for (; nuke_list; nuke_list = tmp) {
+-	tmp = (Scsi_Cmnd *) nuke_list->SCp.buffer;
++	tmp = (struct scsi_cmnd *) nuke_list->SCp.buffer;
+     	nuke_list->result = DID_RESET << 16;
+ 	nuke_list->scsi_done (nuke_list);
+     }
+-    local_irq_restore(flags);
+-    return SCSI_RESET_SUCCESS;
++    spin_unlock_irqrestore(host->host_lock, flags);
++    return SUCCESS;
+ }
+ 
+ /*
+@@ -5378,7 +5317,7 @@
+  */
+ 
+ /*
+- * Function : int insn_to_offset (Scsi_Cmnd *cmd, u32 *insn)
++ * Function : int insn_to_offset (struct scsi_cmnd *cmd, u32 *insn)
+  *
+  * Purpose : convert instructions stored at NCR pointer into data 
+  *	pointer offset.
+@@ -5391,7 +5330,7 @@
+ 
+ 
+ static int 
+-insn_to_offset (Scsi_Cmnd *cmd, u32 *insn) {
++insn_to_offset (struct scsi_cmnd *cmd, u32 *insn) {
+     struct NCR53c7x0_hostdata *hostdata = 
+ 	(struct NCR53c7x0_hostdata *) cmd->device->host->hostdata[0];
+     struct NCR53c7x0_cmd *ncmd = 
+@@ -5445,7 +5384,7 @@
+ 
+ 
+ /*
+- * Function : void print_progress (Scsi_Cmnd *cmd) 
++ * Function : void print_progress (struct scsi_cmnd *cmd) 
+  * 
+  * Purpose : print the current location of the saved data pointer
+  *
+@@ -5454,7 +5393,7 @@
+  */
+ 
+ static void 
+-print_progress (Scsi_Cmnd *cmd) {
++print_progress (struct scsi_cmnd *cmd) {
+     NCR53c7x0_local_declare();
+     struct NCR53c7x0_cmd *ncmd = 
+ 	(struct NCR53c7x0_cmd *) cmd->host_scribble;
+@@ -5512,7 +5451,7 @@
+ 	host->hostdata[0];
+     int i, len;
+     char *ptr;
+-    Scsi_Cmnd *cmd;
++    struct scsi_cmnd *cmd;
+ 
+     if (check_address ((unsigned long) dsa, hostdata->dsa_end - 
+ 	hostdata->dsa_start) == -1) {
+@@ -5548,7 +5487,7 @@
+ 
+     printk("        + %d : select_indirect = 0x%x\n",
+ 	hostdata->dsa_select, dsa[hostdata->dsa_select / sizeof(u32)]);
+-    cmd = (Scsi_Cmnd *) bus_to_virt(dsa[hostdata->dsa_cmnd / sizeof(u32)]);
++    cmd = (struct scsi_cmnd *) bus_to_virt(dsa[hostdata->dsa_cmnd / sizeof(u32)]);
+     printk("        + %d : dsa_cmnd = 0x%x ", hostdata->dsa_cmnd,
+ 	   (u32) virt_to_bus(cmd));
+     /* XXX Maybe we should access cmd->host_scribble->result here. RGH */
+@@ -5588,16 +5527,16 @@
+     u32 *dsa, *next_dsa;
+     volatile u32 *ncrcurrent;
+     int left;
+-    Scsi_Cmnd *cmd, *next_cmd;
++    struct scsi_cmnd *cmd, *next_cmd;
+     unsigned long flags;
+ 
+     printk ("scsi%d : issue queue\n", host->host_no);
+ 
+-    for (left = host->can_queue, cmd = (Scsi_Cmnd *) hostdata->issue_queue; 
++    for (left = host->can_queue, cmd = (struct scsi_cmnd *) hostdata->issue_queue; 
+ 	    left >= 0 && cmd; 
+ 	    cmd = next_cmd) {
+-	next_cmd = (Scsi_Cmnd *) cmd->SCp.ptr;
+-	local_irq_save(flags);
++	next_cmd = (struct scsi_cmnd *) cmd->SCp.ptr;
++	spin_lock_irqsave(host->host_lock, flags);
+ 	if (cmd->host_scribble) {
+ 	    if (check_address ((unsigned long) (cmd->host_scribble), 
+ 		sizeof (cmd->host_scribble)) == -1)
+@@ -5610,7 +5549,7 @@
+ 	} else 
+ 	    printk ("scsi%d : scsi pid %ld for target %d lun %d has no NCR53c7x0_cmd\n",
+ 		host->host_no, cmd->pid, cmd->device->id, cmd->device->lun);
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+     }
+ 
+     if (left <= 0) {
+@@ -5642,7 +5581,7 @@
+ 	dsa = bus_to_virt (hostdata->reconnect_dsa_head);
+ 	left >= 0 && dsa; 
+ 	dsa = next_dsa) {
+-	local_irq_save(flags);
++	spin_lock_irqsave(host->host_lock, flags);
+ 	if (check_address ((unsigned long) dsa, sizeof(dsa)) == -1) {
+ 	    printk ("scsi%d: bad DSA pointer 0x%p", host->host_no,
+ 		dsa);
+@@ -5653,7 +5592,7 @@
+ 	    next_dsa = bus_to_virt(dsa[hostdata->dsa_next / sizeof(u32)]);
+ 	    print_dsa (host, dsa, "");
+ 	}
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(host->host_lock, flags);
+     }
+     printk ("scsi%d : end reconnect_dsa_head\n", host->host_no);
+     if (left < 0)
+@@ -5743,14 +5682,14 @@
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+ 	host->hostdata[0];
+     NCR53c7x0_local_setup(host);
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+ /* Get in a state where we can reset the SCSI bus */
+     ncr_halt (host);
+     ncr_scsi_reset (host);
+     hostdata->soft_reset(host);
+ 
+     disable (host);
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     return 0;
+ }
+ 
+@@ -5765,11 +5704,11 @@
+     NCR53c7x0_local_declare();
+     unsigned long flags;
+     NCR53c7x0_local_setup(host);
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     NCR53c7x0_write8(SCNTL1_REG, SCNTL1_RST);
+     udelay(25);	/* Minimum amount of time to assert RST */
+     NCR53c7x0_write8(SCNTL1_REG, 0);
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ }
+ 
+ /* 
+@@ -5782,26 +5721,26 @@
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+ 	host->hostdata[0];
+     unsigned long flags;
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     ncr_scsi_reset(host);
+     NCR53c7x0_driver_init (host);
+     if (hostdata->soft_reset)
+ 	hostdata->soft_reset (host);
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ }
+ 
+ 
+ /*
+- * Function : Scsi_Cmnd *return_outstanding_commands (struct Scsi_Host *host,
++ * Function : struct scsi_cmnd *return_outstanding_commands (struct Scsi_Host *host,
+  *	int free, int issue)
+  *
+  * Purpose : return a linked list (using the SCp.buffer field as next,
+  *	so we don't perturb hostdata.  We don't use a field of the 
+  *	NCR53c7x0_cmd structure since we may not have allocated one 
+- *	for the command causing the reset.) of Scsi_Cmnd structures that 
++ *	for the command causing the reset.) of scsi_cmnd structures that 
+  *  	had propagated below the Linux issue queue level.  If free is set, 
+  *	free the NCR53c7x0_cmd structures which are associated with 
+- *	the Scsi_Cmnd structures, and clean up any internal 
++ *	the scsi_cmnd structures, and clean up any internal 
+  *	NCR lists that the commands were on.  If issue is set,
+  *	also return commands in the issue queue.
+  *
+@@ -5811,14 +5750,14 @@
+  *	if the free flag is set. 
+  */
+ 
+-static Scsi_Cmnd *
++static struct scsi_cmnd *
+ return_outstanding_commands (struct Scsi_Host *host, int free, int issue) {
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+ 	host->hostdata[0];
+     struct NCR53c7x0_cmd *c;
+     int i;
+     u32 *ncrcurrent;
+-    Scsi_Cmnd *list = NULL, *tmp;
++    struct scsi_cmnd *list = NULL, *tmp, *next_cmd;
+     for (c = (struct NCR53c7x0_cmd *) hostdata->running_list; c; 
+     	c = (struct NCR53c7x0_cmd *) c->next)  {
+ 	if (c->cmd->SCp.buffer) {
+@@ -5847,7 +5786,9 @@
+     }
+ 
+     if (issue) {
+-	for (tmp = (Scsi_Cmnd *) hostdata->issue_queue; tmp; tmp = tmp->next) {
++	for (tmp = (struct scsi_cmnd *) hostdata->issue_queue; tmp; tmp = next_cmd) {
++	    next_cmd = (struct scsi_cmnd *) tmp->SCp.ptr;
++
+ 	    if (tmp->SCp.buffer) {
+ 		printk ("scsi%d : loop detected in issue queue!\n", 
+ 			host->host_no);
+@@ -5882,17 +5823,17 @@
+     struct NCR53c7x0_hostdata *hostdata = (struct NCR53c7x0_hostdata *)
+ 	host->hostdata[0];
+     unsigned long flags;
+-    Scsi_Cmnd *nuke_list, *tmp;
+-    local_irq_save(flags);
++    struct scsi_cmnd *nuke_list, *tmp;
++    spin_lock_irqsave(host->host_lock, flags);
+     if (hostdata->state != STATE_HALTED)
+ 	ncr_halt (host);
+     nuke_list = return_outstanding_commands (host, 1 /* free */, 1 /* issue */);
+     hard_reset (host);
+     hostdata->state = STATE_DISABLED;
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+     printk ("scsi%d : nuking commands\n", host->host_no);
+     for (; nuke_list; nuke_list = tmp) {
+-	    tmp = (Scsi_Cmnd *) nuke_list->SCp.buffer;
++	    tmp = (struct scsi_cmnd *) nuke_list->SCp.buffer;
+ 	    nuke_list->result = DID_ERROR << 16;
+ 	    nuke_list->scsi_done(nuke_list);
+     }
+@@ -5922,7 +5863,7 @@
+     int stage;
+     NCR53c7x0_local_setup(host);
+ 
+-    local_irq_save(flags);
++    spin_lock_irqsave(host->host_lock, flags);
+     /* Stage 0 : eat all interrupts
+        Stage 1 : set ABORT
+        Stage 2 : eat all but abort interrupts
+@@ -5957,7 +5898,7 @@
+ 	}
+     }
+     hostdata->state = STATE_HALTED;
+-    local_irq_restore(flags);
++    spin_unlock_irqrestore(host->host_lock, flags);
+ #if 0
+     print_lots (host);
+ #endif
+@@ -6011,7 +5952,7 @@
+  * still be guaranteed that they're happening on the same 
+  * event structure.
+  */
+-	    local_irq_save(flags);
++	    spin_lock_irqsave(host->host_lock, flags);
+ #if 0
+ 	    event = hostdata->events[i];
+ #else
+@@ -6019,7 +5960,7 @@
+ 		sizeof(event));
+ #endif
+ 
+-	    local_irq_restore(flags);
++	    spin_unlock_irqrestore(host->host_lock, flags);
+ 	    printk ("scsi%d : %s event %d at %ld secs %ld usecs target %d lun %d\n",
+ 		host->host_no, event_name (event.event), count,
+ 		(long) event.time.tv_sec, (long) event.time.tv_usec,
+@@ -6054,6 +5995,72 @@
+     return (virt_to_phys((void *)addr) < PAGE_SIZE || virt_to_phys((void *)(addr + size)) > virt_to_phys(high_memory) ?  -1 : 0);
+ }
+ 
++int
++NCR53c7xx_slave_configure(struct scsi_device *sdev) {
++    struct Scsi_Host *host = sdev->host;
++    struct NCR53c7x0_hostdata *hostdata = 
++	(struct NCR53c7x0_hostdata *) host->hostdata[0];
++    struct NCR53c7x0_cmd *tmp;
++    u32 real;			/* Real address */
++    int size;			/* Size of *tmp */
++    unsigned long flags;
++    int extra_allocate = 0;
++
++/*
++ * Reserve commands for this I_T_L nexus.
++ */
++    if (hostdata->num_cmds < host->can_queue)
++        extra_allocate = host->cmd_per_lun;
++
++    for (; extra_allocate > 0 ; --extra_allocate, 
++    	++hostdata->num_cmds) {
++    /* historically, kmalloc has returned unaligned addresses; pad so we
++       have enough room to ROUNDUP */
++	size = hostdata->max_cmd_size + sizeof (void *);
++#ifdef FORCE_DSA_ALIGNMENT
++	/*
++	 * 53c710 rev.0 doesn't have an add-with-carry instruction.
++	 * Ensure we allocate enough memory to force alignment.
++	 */
++	size += 256;
++#endif
++/* FIXME: for ISA bus '7xx chips, we need to or GFP_DMA in here */
++
++        if (size > 4096) {
++            printk (KERN_ERR "53c7xx: slave_configure size > 4K\n");
++	    return -ENOMEM;
++	}
++        real = get_zeroed_page(GFP_ATOMIC);
++        if (real == 0)
++        	return -ENOMEM;
++        memset((void *)real, 0, 4096);
++        cache_push(virt_to_phys((void *)real), 4096);
++        cache_clear(virt_to_phys((void *)real), 4096);
++        kernel_set_cachemode((void *)real, 4096, IOMAP_NOCACHE_SER);
++	tmp = ROUNDUP(real, void *);
++#ifdef FORCE_DSA_ALIGNMENT
++	{
++	    if (((u32)tmp & 0xff) > CmdPageStart)
++		tmp = (struct NCR53c7x0_cmd *)((u32)tmp + 255);
++	    tmp = (struct NCR53c7x0_cmd *)(((u32)tmp & ~0xff) + CmdPageStart);
++#if 0
++	    printk ("scsi: size = %d, real = 0x%08x, tmp set to 0x%08x\n",
++			size, real, (u32)tmp);
++#endif
++	}
++#endif
++	tmp->real = (void *)real;
++	tmp->size = size;			
++	tmp->free = ((void (*)(void *, int)) my_free_page);
++	spin_lock_irqsave(host->host_lock, flags);
++	tmp->next = hostdata->free;
++	hostdata->free = tmp;
++	spin_unlock_irqrestore(host->host_lock, flags);
++    }
++
++    return 0;
++}
++
+ #ifdef MODULE
+ int 
+ NCR53c7x0_release(struct Scsi_Host *host) {
+@@ -6063,19 +6070,22 @@
+     shutdown (host);
+     if (host->irq != SCSI_IRQ_NONE)
+ 	{
+-	    int irq_count;
+-	    struct Scsi_Host *tmp;
+-	    for (irq_count = 0, tmp = first_host; tmp; tmp = tmp->next)
+-		if (tmp->hostt == the_template && tmp->irq == host->irq)
++	    int irq_count = 0;
++	    struct Scsi_Host *tmp, *s;
++	    list_for_each_entry_safe(tmp, s, &the_template->legacy_hosts, sht_legacy_list) {
++		if (tmp->irq == host->irq)
+ 		    ++irq_count;
++	    }
+ 	    if (irq_count == 1)
+ 		free_irq(host->irq, NULL);
+ 	}
++#ifdef CONFIG_ISA
+     if (host->dma_channel != DMA_NONE)
+ 	free_dma(host->dma_channel);
++#endif
+     if (host->io_port)
+ 	release_region(host->io_port, host->n_io_port);
+-    
++
+     for (cmd = (struct NCR53c7x0_cmd *) hostdata->free; cmd; cmd = tmp, 
+ 	--hostdata->num_cmds) {
+ 	tmp = (struct NCR53c7x0_cmd *) cmd->next;
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/drivers/scsi/53c7xx.h linux-2.6.13/drivers/scsi/53c7xx.h
+--- linux-2.6.13-i386/drivers/scsi/53c7xx.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/scsi/53c7xx.h	2004-10-30 16:35:43.000000000 +0200
+@@ -997,7 +997,7 @@
+     u32 *dsa;			/* What's in the DSA register now (virt) */
+ /* 
+  * A few things from that SCSI pid so we know what happened after 
+- * the Scsi_Cmnd structure in question may have disappeared.
++ * the scsi_cmnd structure in question may have disappeared.
+  */
+     unsigned long pid;		/* The SCSI PID which caused this 
+ 				   event */
+@@ -1029,8 +1029,8 @@
+     void (* free)(void *, int);		/* Command to deallocate; NULL
+ 					   for structures allocated with
+ 					   scsi_register, etc. */
+-    Scsi_Cmnd *cmd;			/* Associated Scsi_Cmnd 
+-					   structure, Scsi_Cmnd points
++    struct scsi_cmnd *cmd;		/* Associated scsi_cmnd 
++					   structure, scsi_cmnd points
+ 					   at NCR53c7x0_cmd using 
+ 					   host_scribble structure */
+ 
+@@ -1039,8 +1039,8 @@
+ 
+     int flags;				/* CMD_* flags */
+ 
+-    unsigned char      cmnd[12];	/* CDB, copied from Scsi_Cmnd */
+-    int                result;		/* Copy to Scsi_Cmnd when done */
++    unsigned char      cmnd[12];	/* CDB, copied from scsi_cmnd */
++    int                result;		/* Copy to scsi_cmnd when done */
+ 
+     struct {				/* Private non-cached bounce buffer */
+         unsigned char buf[256];
+@@ -1339,7 +1339,7 @@
+     volatile struct NCR53c7x0_synchronous sync[16]
+ 	__attribute__ ((aligned (4)));
+ 
+-    volatile Scsi_Cmnd *issue_queue
++    volatile struct scsi_cmnd *issue_queue
+ 	__attribute__ ((aligned (4)));
+ 						/* waiting to be issued by
+ 						   Linux driver */
+@@ -1363,10 +1363,6 @@
+ 						   */
+     volatile int num_cmds;			/* Number of commands 
+ 						   allocated */
+-    volatile int extra_allocate;
+-    volatile unsigned char cmd_allocated[16];	/* Have we allocated commands
+-						   for this target yet?  If not,
+-						   do so ASAP */
+     volatile unsigned char busy[16][8];     	/* number of commands 
+ 						   executing on each target
+     	    	    	    	    	    	 */
+@@ -1589,20 +1585,26 @@
+ /* Patch field in dsa structure (assignment should be +=?) */
+ #define patch_dsa_32(dsa, symbol, word, value)				\
+ 	{								\
+-	(dsa)[(hostdata->##symbol - hostdata->dsa_start) / sizeof(u32)	\
++	(dsa)[(hostdata->symbol - hostdata->dsa_start) / sizeof(u32)	\
+ 	    + (word)] = (value);					\
+ 	if (hostdata->options & OPTION_DEBUG_DSA)			\
+ 	    printk("scsi : dsa %s symbol %s(%d) word %d now 0x%x\n",	\
+-		#dsa, #symbol, hostdata->##symbol, 			\
++		#dsa, #symbol, hostdata->symbol, 			\
+ 		(word), (u32) (value));					\
+ 	}
+ 
+ /* Paranoid people could use panic() here. */
+ #define FATAL(host) shutdown((host));
+ 
+-extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
++extern int ncr53c7xx_init(struct scsi_host_template *tpnt, int board, int chip,
+ 			  unsigned long base, int io_port, int irq, int dma,
+ 			  long long options, int clock);
++extern const char *NCR53c7x0_info(void);
++extern int NCR53c7xx_queue_command(struct scsi_cmnd *, void (*done)(struct scsi_cmnd *));
++extern int NCR53c7xx_abort(struct scsi_cmnd *);
++extern int NCR53c7x0_release (struct Scsi_Host *);
++extern int NCR53c7xx_reset(struct scsi_cmnd *);
++extern int NCR53c7xx_slave_configure(struct scsi_device *);
+ 
+ #endif /* NCR53c710_C */
+ #endif /* NCR53c710_H */
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/drivers/scsi/NCR5380.c linux-2.6.13/drivers/scsi/NCR5380.c
+--- linux-2.6.13-i386/drivers/scsi/NCR5380.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/scsi/NCR5380.c	2005-08-30 16:33:54.000000000 +0200
+@@ -346,6 +346,7 @@
+ 	return -ETIMEDOUT;
+ }
+ 
++#ifdef NDEBUG
+ static struct {
+ 	unsigned char value;
+ 	const char *name;
+@@ -359,7 +360,6 @@
+ 	{PHASE_UNKNOWN, "UNKNOWN"}
+ };
+ 
+-#ifdef NDEBUG
+ static struct {
+ 	unsigned char mask;
+ 	const char *name;
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/adb.h linux-2.6.13/include/linux/adb.h
+--- linux-2.6.13-i386/include/linux/adb.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/adb.h	2003-03-25 20:25:16.000000000 +0100
+@@ -76,6 +76,7 @@
+ #define ADBREQ_REPLY	1	/* expect reply */
+ #define ADBREQ_SYNC	2	/* poll until done */
+ #define ADBREQ_NOSEND	4	/* build the request, but don't send it */
++#define ADBREQ_RAW	8	/* send raw packet (don't prepend ADB_PACKET) */
+ 
+ /* Messages sent thru the client_list notifier. You should NOT stop
+    the operation, at least not with this version */
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/bootmem.h linux-2.6.13/include/linux/bootmem.h
+--- linux-2.6.13-i386/include/linux/bootmem.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/bootmem.h	2005-08-30 16:36:32.000000000 +0200
+@@ -49,11 +49,11 @@
+ #define alloc_bootmem(x) \
+ 	__alloc_bootmem((x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low(x) \
+-	__alloc_bootmem((x), SMP_CACHE_BYTES, 0)
++	__alloc_bootmem((x), SMP_CACHE_BYTES, __pa(PAGE_OFFSET))
+ #define alloc_bootmem_pages(x) \
+ 	__alloc_bootmem((x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low_pages(x) \
+-	__alloc_bootmem((x), PAGE_SIZE, 0)
++	__alloc_bootmem((x), PAGE_SIZE, __pa(PAGE_OFFSET))
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+ extern unsigned long __init free_all_bootmem (void);
+ 
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/ide.h linux-2.6.13/include/linux/ide.h
+--- linux-2.6.13-i386/include/linux/ide.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/ide.h	2005-08-30 16:36:33.000000000 +0200
+@@ -592,7 +592,7 @@
+  * sense_key	: Sense key of the last failed packet command
+  */
+ typedef union {
+-	unsigned all			:8;
++	u8 all;
+ 	struct {
+ #if defined(__LITTLE_ENDIAN_BITFIELD)
+ 		unsigned ili		:1;
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/init_task.h linux-2.6.13/include/linux/init_task.h
+--- linux-2.6.13-i386/include/linux/init_task.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/init_task.h	2005-08-30 16:36:33.000000000 +0200
+@@ -70,7 +70,7 @@
+ #define INIT_TASK(tsk)	\
+ {									\
+ 	.state		= 0,						\
+-	.thread_info	= &init_thread_info,				\
++	.stack		= &init_stack,					\
+ 	.usage		= ATOMIC_INIT(2),				\
+ 	.flags		= 0,						\
+ 	.lock_depth	= -1,						\
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/interrupt.h linux-2.6.13/include/linux/interrupt.h
+--- linux-2.6.13-i386/include/linux/interrupt.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/interrupt.h	2005-05-30 16:33:46.000000000 +0200
+@@ -9,6 +9,7 @@
+ #include <linux/preempt.h>
+ #include <linux/cpumask.h>
+ #include <linux/hardirq.h>
++#include <linux/sched.h>
+ #include <asm/atomic.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/sched.h linux-2.6.13/include/linux/sched.h
+--- linux-2.6.13-i386/include/linux/sched.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/sched.h	2005-08-30 16:36:35.000000000 +0200
+@@ -598,7 +598,8 @@
+ 
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+-	struct thread_info *thread_info;
++	//struct thread_info *thread_info;
++	void *stack;
+ 	atomic_t usage;
+ 	unsigned long flags;	/* per process flags, defined below */
+ 	unsigned long ptrace;
+@@ -1136,32 +1137,50 @@
+ 	spin_unlock(&p->alloc_lock);
+ }
+ 
++#ifndef __HAVE_THREAD_FUNCTIONS
++
++#define task_thread_info(task) ((struct thread_info *)(task)->stack)
++
++static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
++{
++	*task_thread_info(p) = *task_thread_info(org);
++	task_thread_info(p)->task = p;
++}
++
++static inline unsigned long *end_of_stack(struct task_struct *p)
++{
++	return (unsigned long *)(task_thread_info(p)(p) + 1);
++}
++
++#endif
++
+ /* set thread flags in other task's structures
+  * - see asm/thread_info.h for TIF_xxxx flags available
+  */
++
+ static inline void set_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	set_ti_thread_flag(tsk->thread_info,flag);
++	set_ti_thread_flag(task_thread_info(tsk), flag);
+ }
+ 
+ static inline void clear_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	clear_ti_thread_flag(tsk->thread_info,flag);
++	clear_ti_thread_flag(task_thread_info(tsk), flag);
+ }
+ 
+ static inline int test_and_set_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_and_set_ti_thread_flag(tsk->thread_info,flag);
++	return test_and_set_ti_thread_flag(task_thread_info(tsk), flag);
+ }
+ 
+ static inline int test_and_clear_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_and_clear_ti_thread_flag(tsk->thread_info,flag);
++	return test_and_clear_ti_thread_flag(task_thread_info(tsk), flag);
+ }
+ 
+ static inline int test_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_ti_thread_flag(tsk->thread_info,flag);
++	return test_ti_thread_flag(task_thread_info(tsk), flag);
+ }
+ 
+ static inline void set_tsk_need_resched(struct task_struct *tsk)
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/smp_lock.h linux-2.6.13/include/linux/smp_lock.h
+--- linux-2.6.13-i386/include/linux/smp_lock.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/smp_lock.h	2005-04-25 23:13:18.000000000 +0200
+@@ -2,7 +2,6 @@
+ #define __LINUX_SMPLOCK_H
+ 
+ #include <linux/config.h>
+-#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ 
+ #ifdef CONFIG_LOCK_KERNEL
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/include/linux/thread_info.h linux-2.6.13/include/linux/thread_info.h
+--- linux-2.6.13-i386/include/linux/thread_info.h	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/include/linux/thread_info.h	2005-05-30 16:33:47.000000000 +0200
+@@ -27,31 +27,6 @@
+  * - pass TIF_xxxx constants to these functions
+  */
+ 
+-static inline void set_thread_flag(int flag)
+-{
+-	set_bit(flag,&current_thread_info()->flags);
+-}
+-
+-static inline void clear_thread_flag(int flag)
+-{
+-	clear_bit(flag,&current_thread_info()->flags);
+-}
+-
+-static inline int test_and_set_thread_flag(int flag)
+-{
+-	return test_and_set_bit(flag,&current_thread_info()->flags);
+-}
+-
+-static inline int test_and_clear_thread_flag(int flag)
+-{
+-	return test_and_clear_bit(flag,&current_thread_info()->flags);
+-}
+-
+-static inline int test_thread_flag(int flag)
+-{
+-	return test_bit(flag,&current_thread_info()->flags);
+-}
+-
+ static inline void set_ti_thread_flag(struct thread_info *ti, int flag)
+ {
+ 	set_bit(flag,&ti->flags);
+@@ -77,16 +52,20 @@
+ 	return test_bit(flag,&ti->flags);
+ }
+ 
+-static inline void set_need_resched(void)
+-{
+-	set_thread_flag(TIF_NEED_RESCHED);
+-}
++#define set_thread_flag(flag) \
++	set_ti_thread_flag(current_thread_info(), flag)
++#define clear_thread_flag(flag) \
++	clear_ti_thread_flag(current_thread_info(), flag)
++#define test_and_set_thread_flag(flag) \
++	test_and_set_ti_thread_flag(current_thread_info(), flag)
++#define test_and_clear_thread_flag(flag) \
++	test_and_clear_ti_thread_flag(current_thread_info(), flag)
++#define test_thread_flag(flag) \
++	test_ti_thread_flag(current_thread_info(), flag)
+ 
+-static inline void clear_need_resched(void)
+-{
+-	clear_thread_flag(TIF_NEED_RESCHED);
+-}
++#define set_need_resched()	set_thread_flag(TIF_NEED_RESCHED)
++#define clear_need_resched()	clear_thread_flag(TIF_NEED_RESCHED)
+ 
+-#endif
++#endif	/* __KERNEL__ */
+ 
+ #endif /* _LINUX_THREAD_INFO_H */
+diff -urN --exclude-from=/usr/src/exclude-file linux-2.6.13-i386/mm/bootmem.c linux-2.6.13/mm/bootmem.c
+--- linux-2.6.13-i386/mm/bootmem.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/mm/bootmem.c	2005-08-30 16:36:44.000000000 +0200
+@@ -275,7 +275,6 @@
+ 
+ 	count = 0;
+ 	/* first extant page of the node */
+-	pfn = bdata->node_boot_start >> PAGE_SHIFT;
+ 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+ 	map = bdata->node_bootmem_map;
+ 	/* Check physaddr is O(LOG2(BITS_PER_LONG)) page aligned */
+@@ -288,7 +287,8 @@
+ 		if (gofast && v == ~0UL) {
+ 			int j, order;
+ 
+-			page = pfn_to_page(pfn);
++			page = virt_to_page(phys_to_virt((i << PAGE_SHIFT) +
++							 bdata->node_boot_start));
+ 			count += BITS_PER_LONG;
+ 			__ClearPageReserved(page);
+ 			order = ffs(BITS_PER_LONG) - 1;
+@@ -300,23 +300,20 @@
+ 			}
+ 			__free_pages(page, order);
+ 			i += BITS_PER_LONG;
+-			page += BITS_PER_LONG;
+ 		} else if (v) {
+ 			unsigned long m;
+-
+-			page = pfn_to_page(pfn);
+-			for (m = 1; m && i < idx; m<<=1, page++, i++) {
++			for (m = 1; m && i < idx; m<<=1, i++) {
+ 				if (v & m) {
++					page = virt_to_page(phys_to_virt((i << PAGE_SHIFT) +
++									 bdata->node_boot_start));
+ 					count++;
+ 					__ClearPageReserved(page);
+ 					set_page_refs(page, 0);
+ 					__free_page(page);
+ 				}
+ 			}
+-		} else {
++		} else
+ 			i+=BITS_PER_LONG;
+-		}
+-		pfn += BITS_PER_LONG;
+ 	}
+ 	total += count;
+ 

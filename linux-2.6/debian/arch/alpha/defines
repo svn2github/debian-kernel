@@ -1,0 +1,13 @@
+[base]
+flavours: alpha-generic alpha-smp
+suggests: aboot, fdutils
+
+kernel-arch: alpha
+kernel-header-dirs: alpha
+
+[alpha-generic]
+class = Alpha
+
+[alpha-smp]
+class = Alpha SMP
+
