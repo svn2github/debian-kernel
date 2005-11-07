@@ -50,6 +50,7 @@
       <arg><option>-i <replaceable>initrd</replaceable></option></arg>
       <arg><option>-d <replaceable>objdir</replaceable></option></arg>
       <arg><option>-r <replaceable>release</replaceable></option></arg>
+      <arg><option>-l <replaceable>linkaddress</replaceable></option></arg>
       <arg><option>-n</option></arg>
       <arg><option>-z</option></arg>
       <arg><option>-u</option></arg>
@@ -231,6 +232,14 @@
 	<listitem>
 	  <para>Assume the initrd image file is not already compressed. The
 	  default is to autodetect if the initrd is compressed or not.
+	  </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-l</option></term>
+	<listitem>
+	  <para>Allows to set the elf link address, where the kernel will be
+	  relocated inside the firmware.
 	  </para>
         </listitem>
       </varlistentry>

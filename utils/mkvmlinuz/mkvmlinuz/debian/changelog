@@ -1,3 +1,9 @@
+mkvmlinuz (16) unstable; urgency=low
+
+  * Added -l option, enabling the caller to specify the elf link address.
+
+ -- Sven Luther <luther@debian.org>  Mon,  7 Nov 2005 14:47:22 +0000
+
 mkvmlinuz (15) unstable; urgency=high
 
   * Generates a striped compressed vmlinuz on apus and miboot.

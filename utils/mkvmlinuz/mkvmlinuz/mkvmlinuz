@@ -10,6 +10,7 @@ usage() {
     echo ' -i <initrd>  - path to initrd image file'
     echo ' -d <objdir>  - path to directory with additional object files'
     echo ' -r <release> - kernel release number'
+    echo ' -l <address> - Address where the kernel should be relocated'
     echo ' -n           - do not use an initrd'
     echo ' -z           - assume the initrd image file is already compressed'
     echo ' -u           - assume the initrd image file is not compressed'
@@ -30,7 +31,7 @@ do_cmd() {
 }
 
 # parse command line
-while getopts o:k:s:i:d:r:a:nzv option; do
+while getopts o:k:s:i:d:r:a:l:nuzv option; do
     case "$option" in
 	o) output=$OPTARG ;;
 	k) kernel=$OPTARG ;;
@@ -39,6 +40,7 @@ while getopts o:k:s:i:d:r:a:nzv option; do
 	d) objdir=$OPTARG ;;
 	r) release=$OPTARG ;;
 	a) arch=$OPTARG ;;
+	l) linkaddr=$OPTARG ;;
 	n) noinitrd="Yes" ;;
 	z) compressed="Yes" ;;
 	u) compressed="No" ;;
@@ -279,41 +281,47 @@ OBJCOPY_ARGS="-R .comment"
 test -z "$verbose" || echo === Creating bootable kernel image file vmlinuz.$arch...
 case "$arch","$release" in
     chrp,2.6*)
-	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00800000"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd cp -p $objdir/boot/note $work
 	do_cmd $ADDNOTE $vmlinuz
 	;;
     chrp,2.4*)
-	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00800000"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/../common/crt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $ADDNOTE $vmlinuz
 	;;
     coff,2.6*)
-	LD_ARGS="$LD_ARGS -e _start -Ttext 0x00500000 -Bstatic"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00500000;
+	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/coffcrt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $HACKOFF $vmlinuz
 	;;
     pmac,2.6*)
-	LD_ARGS="$LD_ARGS -e _start -Ttext 0x01000000"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x01000000;
+	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	OBJCOPY_ARGS="--add-section=.note=$work/note $OBJCOPY_ARGS"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $LIBS $work/image.o
 	do_cmd $MKNOTE > $work/note
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	;;
     ppcbug,2.6*)
-	LD_ARGS="$LD_ARGS -Ttext 0x00800000 -Bstatic"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
 	do_cmd $MKBUGBOOT $vmlinuz.tmp $vmlinuz
 	;;
     prep,2.6*)
-	LD_ARGS="$LD_ARGS -Ttext 0x00800000 -Bstatic"
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
