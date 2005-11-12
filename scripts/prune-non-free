@@ -38,35 +38,6 @@ FILES = %w{
 	drivers/net/tokenring/smctr.h
 	drivers/net/tokenring/smctr_firmware.h
 
-	drivers/scsi/qla2xxx/ql2100.c
-	drivers/scsi/qla2xxx/ql2100_fw.c
-	drivers/scsi/qla2xxx/ql2200.c
-	drivers/scsi/qla2xxx/ql2200_fw.c
-	drivers/scsi/qla2xxx/ql2300.c
-	drivers/scsi/qla2xxx/ql2300_fw.c
-	drivers/scsi/qla2xxx/ql2322.c
-	drivers/scsi/qla2xxx/ql2322_fw.c
-	drivers/scsi/qla2xxx/ql6312.c
-	drivers/scsi/qla2xxx/ql6312_fw.c
-	drivers/scsi/qla2xxx/qla_attr.c
-	drivers/scsi/qla2xxx/qla_dbg.c
-	drivers/scsi/qla2xxx/qla_dbg.h
-	drivers/scsi/qla2xxx/qla_def.h
-	drivers/scsi/qla2xxx/qla_devtbl.h
-	drivers/scsi/qla2xxx/qla_fw.h
-	drivers/scsi/qla2xxx/qla_gbl.h
-	drivers/scsi/qla2xxx/qla_gs.c
-	drivers/scsi/qla2xxx/qla_init.c
-	drivers/scsi/qla2xxx/qla_inline.h
-	drivers/scsi/qla2xxx/qla_iocb.c
-	drivers/scsi/qla2xxx/qla_isr.c
-	drivers/scsi/qla2xxx/qla_mbx.c
-	drivers/scsi/qla2xxx/qla_os.c
-	drivers/scsi/qla2xxx/qla_settings.h
-	drivers/scsi/qla2xxx/qla_rscn.c
-	drivers/scsi/qla2xxx/qla_sup.c
-	drivers/scsi/qla2xxx/qla_version.h
-
 	drivers/usb/media/dabusb.c
 	drivers/usb/media/dabusb.h
 	drivers/usb/media/dabfirmware.h
