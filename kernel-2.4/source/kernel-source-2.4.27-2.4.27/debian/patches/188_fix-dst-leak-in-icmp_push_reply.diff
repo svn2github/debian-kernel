@@ -37,6 +37,6 @@ Index: linux-2.6.12.y/net/ipv4/icmp.c
 +			icmp_param->head_len,
 +			ipc, rt, MSG_DONTWAIT) < 0)
 +		ip_flush_pending_frames(icmp_socket->sk);
-+	else if ((skb = skb_peek(&icmp_socket->sk->sk_write_queue)) != NULL) {
++	else if ((skb = skb_peek(&icmp_socket->sk->write_queue)) != NULL) {
  		struct icmphdr *icmph = skb->h.icmph;
  		unsigned int csum = 0;
