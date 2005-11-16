@@ -83,7 +83,15 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
   * 195_net-ipv6-udp_v6_get_port-loop.diff
      [SECURITY] Fix infinite loop in udp_v6_get_port().  See CVE-2005-2973
 
- -- Simon Horman <horms@debian.org>  Mon, 31 Oct 2005 18:43:51 +0900
+  * 196_net-bridge-if_del-panic.diff
+     Fix panic when non-existant bridge is deleted
+     (closes: #255406)
+
+  *  197_net-plip-invalid-ioctl.diff
+     Detect invalid ioctls in plip driver
+     (closes: #252187)
+
+ -- Simon Horman <horms@debian.org>  Wed, 16 Nov 2005 14:56:28 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 

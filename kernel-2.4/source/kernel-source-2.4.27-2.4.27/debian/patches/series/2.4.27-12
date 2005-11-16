@@ -11,3 +11,5 @@
 + 192_orinoco-info-leak.diff
 + 194_xfs-inode-race.diff
 + 195_net-ipv6-udp_v6_get_port-loop.diff
++ 196_net-bridge-if_del-panic.diff
++ 197_net-plip-invalid-ioctl.diff
