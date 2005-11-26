@@ -281,7 +281,7 @@ OBJCOPY_ARGS="-R .comment"
 test -z "$verbose" || echo === Creating bootable kernel image file vmlinuz.$arch...
 case "$arch","$release" in
     chrp,2.6*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
@@ -289,14 +289,14 @@ case "$arch","$release" in
 	do_cmd $ADDNOTE $vmlinuz
 	;;
     chrp,2.4*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/../common/crt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $ADDNOTE $vmlinuz
 	;;
     coff,2.6*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x00500000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00500000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/coffcrt0.o $OBJS $work/image.o $LIBS
@@ -304,7 +304,7 @@ case "$arch","$release" in
 	do_cmd $HACKOFF $vmlinuz
 	;;
     pmac,2.6*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x01000000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x01000000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	OBJCOPY_ARGS="--add-section=.note=$work/note $OBJCOPY_ARGS"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $LIBS $work/image.o
@@ -312,7 +312,7 @@ case "$arch","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	;;
     ppcbug,2.6*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS
@@ -320,7 +320,7 @@ case "$arch","$release" in
 	do_cmd $MKBUGBOOT $vmlinuz.tmp $vmlinuz
 	;;
     prep,2.6*)
-    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000;
+    	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $OBJS $work/image.o $LIBS

@@ -1,3 +1,9 @@
+mkvmlinuz (17) unstable; urgency=low
+
+  * Fixed lame typo in version 16 :/
+
+ -- Sven Luther <luther@debian.org>  Sat, 26 Nov 2005 14:07:45 +0000
+
 mkvmlinuz (16) unstable; urgency=low
 
   * Added -l option, enabling the caller to specify the elf link address.
