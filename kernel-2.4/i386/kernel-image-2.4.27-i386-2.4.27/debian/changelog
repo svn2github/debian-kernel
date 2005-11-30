@@ -1,3 +1,9 @@
+kernel-image-2.4.27-i386 (2.4.27-12) unstable; urgency=low
+
+  * Build against kernel-tree-2.4.27-12
+
+ -- Simon Horman <horms@verge.net.au>  Wed, 30 Nov 2005 20:58:08 +0900
+
 kernel-image-2.4.27-i386 (2.4.27-11) unstable; urgency=low
 
   * Added build debpends on gcc-3.3 as the default gcc
