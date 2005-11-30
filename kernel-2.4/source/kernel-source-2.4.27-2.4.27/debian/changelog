@@ -1,4 +1,4 @@
-kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
+kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
   [ Simon Horman ]
   * 184_arch-x86_64-ia32-ptrace32-oops.diff
@@ -91,7 +91,7 @@ kernel-source-2.4.27 (2.4.27-12) UNRELEASED; urgency=low
      Detect invalid ioctls in plip driver
      (closes: #252187)
 
- -- Simon Horman <horms@debian.org>  Wed, 16 Nov 2005 14:56:28 +0900
+ -- Simon Horman <horms@verge.net.au>  Wed, 30 Nov 2005 20:56:54 +0900
 
 kernel-source-2.4.27 (2.4.27-11) unstable; urgency=low
 
