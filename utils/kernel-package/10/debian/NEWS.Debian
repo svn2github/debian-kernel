@@ -1,0 +1,58 @@
+kernel-package (10.009) unstable; urgency=low
+
+  * The long obsolete --flavour option is now gone, and --apend-to-version
+    should be used. 
+
+ -- Manoj Srivastava <srivasta@debian.org>  Tue,  8 Nov 2005 21:28:38 -0600
+
+kernel-package (10.007) experimental; urgency=low
+
+  * We now take special care of the case in which the kernel-headers 
+    are installed after the kernel-image has been; and the build 
+    symlink is not setr. In this case, the header postinst now
+    correctly installs the build symlink.
+  * Another fallout from the kernel-package generated packages being made
+    lintian clean is that it was noticed that the default versioning was
+    such that the packages appeared to be Debian native, obviously not the
+    case. It now generates a proper $version-$debian version, unless over
+    ridden. 
+  
+ -- Manoj Srivastava <srivasta@debian.org>  Mon,  7 Nov 2005 20:11:04 -0600
+
+kernel-package (10.004) experimental; urgency=low
+
+  * This version of kernel-package has been largely reorganized. The
+    crusty old mechanism has beenremoved, the targets are now
+    streamlined. One of the factors that made the build mechanism so
+    complex was that the rules file had a dual purpose: Initially, when
+    ./debian was not present or not populated, it was responsible for
+    populating that, and then it was responsible for building the kernel
+    packages, incorporating any user customizations. 
+  * Implement the new ramdisk generation tool finding plan. The ramdisk
+    variable in /etc/kernel-pkg.conf or /etc/kernel-img.conf can now be a
+    space separated list of init ram disk creation commands, which need to
+    also support the --supported-host-version and
+    --supported-target-version options, just like mkinitrd does. The list
+    in /etc/kernel-pkg.conf is used to set defaults (by setting
+    INITRD_CMD). However, the defaults are set to a subset of "mkinitrd
+    mkinitrd.yaird mkinitramfs", the subset being decided based on the
+    version of the kernel being built, so one should refrain from setting
+    this manually -- unless one knows what one is doing.  The list in 
+    /etc/kernel-img.conf is the list tried at installation time.
+  * The stem used for the kernel-related packages is now set to
+    $DEB_HOST_OS -- so we create kfreebsd-image-foo or linux-image-foo
+    packages, for instance.
+  * The kernel image maintainer scripts now use  debconf; and a number of
+    questions have been moved to the config file while others are asked
+    conditionally in the postinst. The postinst has also become far less
+    verbose. 
+  * The postinst gets rid of the code that generated boot floppies
+    and created lilo.conf (that latter was probably illegal under current
+    policy anyway). The do_boot_enable and do_boot_floppy configuration
+    variables in /etc/kernel-img.conf are now invalid.
+  * Also, the source tree is not automatically cleaned; the do_clean
+    configuration variable, and the environment variable CLEAN_SOURCE, now
+    control if the source tree is optionally cleaned after the kernel
+    image package is built.
+  
+ -- Manoj Srivastava <srivasta@debian.org>  Thu,  3 Nov 2005 23:38:14 -0600

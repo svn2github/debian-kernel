@@ -1,0 +1,722 @@
+.\" Hey, Emacs! This is an -*- nroff -*- source file.
+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+.\" USA.
+.\"
+.\"
+.\"    $Id: make-kpkg.es.8,v 1.3 2003/08/08 19:13:57 srivasta Exp $
+.\"
+
+.\" (c) 2003 Software in the Public Interest
+.\" Esta traducción ha sido realizada por Rubén Porras Campo <nahoo@inicia.es>
+.\" Está basada en la página de manual original:
+.\" versión 1.24 del CVS de
+.\" /cvs/debian-doc/manpages/english/kernel-package/make-kpkg.8
+.\" Revisada por Rudy Godoy <rudy@kernel-panik.org>
+
+.TH MAKE\-KPKG 1 "14 noviembre de 2002" "Debian" "manual Debian GNU/Linux"
+.SH NOMBRE
+make\-kpkg \- construye paquetes Debian con núcleos a partir de las fuentes
+.SH SINOPSIS
+.B make\-kpkg
+.I [opciones]
+\&[objetivo [objetivo ...]]
+.SH DESCRIPCIÓN
+Esta página del manual explica la utilidad
+.B "make\-kpkg"
+, usada para crear paquetes Debian relacionados con el núcleo. La utilidad debe
+ejecutarse desde el directorio superior de las fuentes del núcleo, el cual ya
+debe de haber sido configurado previamente (a menos que se use el objetivo
+configure). Normalmente, el programa se ejecuta como superusuario o bajo
+.B fakeroot,
+sino hay que indicar a
+.B make\-kpkg
+como convertirse en superusuario, por ejemplo:
+.sp 1
+.ti +5
+make\-kpkg \-\-rootcmd fakeroot kernel_image
+.sp 1
+El paquete Debian se crea en el directorio padre al directorio donde se ejecute
+esta orden.
+.PP
+También, tenga en cuenta que algunas versiones de gcc no interaccionan bien con
+las fuentes del núcleo (gcc 2.95 tiene problemas compilando el núcleo sin la
+opción
+.I '\-fno\-strict\-aliasing' ).
+Este asunto ha sido cuidado en los núcleos recientes (las series 2.2 y 2.4
+están bien) (Creo que puede necesitar editar el Makefile para núcleos
+anteriores, o alguna otra cosa). Puede controlar que versión se usa para
+compilar el núcleo estableciendo las variables CC y HOSTCC en el Makefile
+principal del núcleo. Puede hacer esto simplemente con
+.PP
+  % MAKEFLAGS="CC=gcc\-2.95" make\-kpkg ...
+.PP
+(por favor, lea el Makefile principal para saber que variables pueden establecerse).
+.SH OPCIONES
+.B \-\-help
+Muestra el modo de uso.
+.TP
+.BR \-\-revision " número"
+Cambia el número de revisión de los paquetes a
+.BR número.
+Esto tiene algunas restricciones: la opción \-\-revision sólo tiene efecto en la
+fase de configuración (en otras palabras, si existe un fichero llamado
+.I stamp\-configure
+, esta opción no tiene efecto \-\- ejecute 
+.B make\-kpkg clean 
+o elimine manualmente los ficheros
+.I stamp\-configure 
+y
+.I stamp\-debian
+para que tenga efecto \-\- Recomiendo encarecidamente
+.B make\-kpkg clean 
+a menos que sepa lo que está haciendo).
+Adicionalmente, los paquetes oficiales con las fuentes proporcionan su propio
+número de versión, por eso,
+.B make\-kpkg.
+no modifica algunas cosas, incluyendo el número de revisión de
+.B Debian.
+Si quiere cambiar el número de revisión de unas fuentes oficiales (esto implica
+que existe
+.I debian/official
+y no está vacío), asegúrese de eliminar
+.I debian/official
+antes de ejecutar
+.B make\-kpkg clean 
+para que esta opción tenga efecto.
+Por eso, si desea volver a ejecutar
+.B make\-kpkg 
+con un número de versión diferente, tiene que asegurarse de hacer borrón y
+cuenta nueva. La versión sólo puede contener caracteres alfanuméricos y los
+caracteres + y . (punto y signo más) y debe de contener un dígito. Consulte las
+Normas de Debian (Debian Policy) para más detalles.
+.I Realmente, esto es mentira: los responsables de los núcleos y módulos
+oficiales tienen permiso para usar guiones, pero está altamente desaconsejado
+para la mayoría de la gente, ya que no hay ningún tipo de comprobación del número
+de versión, y dpkg y otros pueden atascar al final de la compilación a menos que
+uno sepa lo que está haciendo. Opcionalmente, puede anteponer a la revisión un
+dígito seguido de dos puntos (:). Por omisión es
+.B 10.00.Custom
+a menos que esté establecida la variable de entorno
+.B DEBIAN_REVISION_MANDATORY
+, en cuyo caso se genera un error si no se especifica un número de versión, bien
+en la línea de órdenes o bien en el fichero de configuración.
+.TP
+.BR \-\-append\-to\-version " tal"
+.TP
+.BR \-\-append_to_version " tal"
+Este argumento (
+.B tal
+) se añade al valor de la variable EXTRAVERSION presente en el Makefile del
+núcleo. Dado que EXTRAVERSION es un componente de la versión del núcleo, también
+se añade al nombre del paquete, y, como tal, debe de cumplir las normas a las
+que están sujetos los nombres de los paquetes Debian. Esto quiere decir que sólo
+puede contener caracteres alfanuméricos en
+.B  minúsculas
+y los caracteres \- + . (guión, signo más y punto). Las Normas no permiten
+letras mayúsculas en los paquetes nuevos. Si la variable de entorno
+.B IGNORE_UPPERCASE_VERSION
+está establecida, make-kpkg pasará a minúsculas los números de versión en el
+Makefile o en el fichero
+.I localversion.
+Esto predomina sobre la variable de entorno
+.B APPEND_TO_VERSION.
+Por favor, dese cuenta que \fB\s\-1debe\s0\fR ejecutar
+.B make\-kpkg 
+.I clean
+después de configurar el núcleo usando
+.I make (x|menu)?config, 
+ya que esto crea el fichero
+.I include/linux/version.h
+.B sin
+el contenido de
+.I append_to_version
+(tal). Este fichero no será actualizado por make\-kpkg (make\-kpkg
+crea version.h si éste no existe, pero no lo toca si ya existe),
+y el núcleo final _no_ tendrá el contenido de append_to_version en su número de
+versión, esto hará que busque los módulos y símbolos en sitios incorrectos. La
+solución mas sencilla es borrar include/linux/version.h después de configurar y
+antes de compilar, o ejecutar
+.B make\-kpkg clean
+después de configurar y antes de compilar.
+.B Dese cuenta
+de que una vez que use
+.BR \-\-append_to_version " tal"
+para configurar o construir la imagen del núcleo, necesita usar la misma opción
+en ejecuciones posteriores de make\-kpkg (por ejemplo, para construir módulos
+independientes, o cualquier cosa).
+.B make\-kpkg
+no recuerda el argumento tal entre ejecuciones (esto es diferente con el
+argumento \-\-revision, que si se recuerda). Si le molesta que make\-kpkg se queje
+acerca del uso de
+.BR \-\-append_to_version 
+cuando ya existe un fichero
+.T version.h
+anterior, puede establecer la variable de entorno
+.B VERSION_H_OK
+que debería parar estos avisos.
+.TP
+.BR \-\-added\-modules\ tal
+.TP
+.BR \-\-added_modules\ tal
+El argumento debe ser una lista de módulos añadidos separada por comas (que no
+estén en el árbol principal del núcleo) que desea construir cuando invoque el
+objetivo modules_blah. Debe proporcionar la ruta completa del directorio donde
+residen los módulos, o sólo el nombre del módulo si se puede encontrar en
+.B MODULE_LOC,
+que por omisión apunta a
+.I /usr/src/modules.
+Por omisión se compilan todos los módulos en
+.B MODULE_LOC,
+cuando se invocan los objetivos modules_blah.
+.TP
+.BR \-\-added\-patches\ tal
+.TP
+.BR \-\-added_patches\ tal
+El argumento debe de ser una lista separada por comas de parches adicionales
+para el núcleo. Establece automáticamente la opción de configuración del núcleo
+.I patch_the_kernel
+a YES. 
+.IP
+A diferencia de con los módulos, sólo debe proporcionar la base del nombre (n.t.
+del inglés basename) (no el nombre completo del fichero con el parche). Por cada
+fichero <nombre_parche> en la lista se sigue el siguiente proceso: Si el fichero
+se puede encontrar en los directorios
+.B ALL_PATCH_DIR/{apply,unpatch}/,
+entonces el fichero
+.B ALL_PATCH_DIR/apply/<nombre_parche>
+se ejecutará durante la fase de configuración (y presumiblemente esto aplicará
+el parche). Correspondientemente, el fichero
+.B ALL_PATCH_DIR/unpatch/<nombre_parche> 
+debe de ejecutarse en la fase de borrado. Por omisión todos los parches se
+aplican invocando los ficheros ejecutables en
+.B ALL_PATCH_DIR/apply/
+si es requerido (Bien estableciendo la opción de configuración
+.B patch_the_kernel
+o la variable de entorno
+.B PATCH_THE_KERNEL
+a YES). Dese cuenta de que los parches son DES\-instalados de las fuentes del
+núcleo cuando se ejecuta el objetivo clean. Esto se puede prevenir estableciendo
+la variable de entorno
+.B NO_UNPATCH_BY_DEFAULT
+.IP
+Arriba, 
+.B ALL_PATCH_DIR
+es por omisión un subdirectorio de
+.I /usr/src/kernel\-patches/.
+.IP
+Algunas veces puede ser conveniente aplicar los parches cuando uno pide un
+parche específico usando esta opción, sin necesidad de tener que establecer
+explícitamente la variable de entorno. Puesto que establecer la variable de
+entorno
+.B PATCH_THE_KERNEL
+a YES puede ser peligroso, (puede darse el caso de que apliquen todos los
+parches cuando no quería aplicar ninguno, y no especificó la opción
+added_patches), también puede establecer la variable PATCH_THE_KERNEL a
+.I AUTO,
+en cuyo caso PATCH_THE_KERNEL será establecida a YES por usted cuando invoque
+.BR \-\-added\-patches\ tal, 
+pero no en otra situación.
+Además, dese cuenta que si algún parche instala un script en el directorio
+.I ./debian/image.d/
+, debe de llamarse a 
+.B run\-parts
+sobre ese directorio nada más se construya la imagen del núcleo. El lugar de
+la raíz del paquete con la imagen siendo construida debe pasarse en la variable
+de entorno
+.B IMAGE_TOP,
+y la versión del núcleo se pasa mediante la variable de entorno
+.B version.
+De esta forma es posible que un parche inserte ficheros adicionales en la
+imagen, por ejemplo.
+.IP
+Algunos de los paquetes con parches también tienen en cuenta otras variables de
+entorno, esto se documenta en el directorio doc apropiador (por ejemplo, debería
+mirar en
+.I /usr/share/doc/kernel-patch-tal/README-kernelpatch.Debian
+si quiere información adicional para sobre el parche tal).
+.TP
+.BR \-\-arch\ tal
+Útil para establecer la arquitectura cuando se esté realizando compilación
+cruzada. La arquitectura se detecta automáticamente si no está realizando
+compilación cruzada. El mismo efecto se puede conseguir estableciendo la
+variable de entorno
+.B KPKG_ARCH
+.TP
+.BR \-\-cross\-compile\ tal
+.TP
+.BR \-\-cross_compile\ tal
+Es útil para definir la cadena de caracteres del objetivo cuando se esté
+realizando compilación cruzada. El mismo efecto se puede conseguir estableciendo
+la variable de entorno
+.B CROSS_COMPILE
+.TP
+.BR \-\-subarch\ tal
+Algunas arquitecturas (Alpha, y m68k) requieren un núcleo diferente para cada
+sub\-arquitectura. Esta opción proporciona un modo de especificarlo como
+argumento de \fBmake\-kpkg\fR. \fBDese cuenta\fR que se necesita soporte
+adicional para sub\-arquitecturas en las fuentes del núcleo para que esto haga
+algo. El mismo efecto se puede conseguir estableciendo la variable de entorno
+.B KPKG_SUBARCH
+.TP
+.BR \-\-arch\-in\-name
+.TP
+.BR \-\-arch_in_name
+Esta opción usa un nombre extendido para la imagen del núcleo empaquetada,
+introduciendo la sub\-arquitectura en el nombre de ésta, de este modo se pueden
+crear scripts que creen múltiples sub\-aquitecturas, una después de otra. El
+mismo efecto se puede conseguir estableciendo la variable de entorno
+.B ARCH_IN_NAME. 
+\fBDese cuenta\fR que sólo afecta al
+.I nombre
+del paquete, no a la localización de los módulos y demás.
+.TP
+.BR \-\-pgpsign " nombre"
+Establece la cadena a usar para firmar el fichero de
+.B cambios
+de cada módulo externo en
+.IR /usr/src/modules/
+usando PGP. Esta opción no tendrá en cuenta el comportamiento predeterminado ni
+la configuración del sistema guardada en
+.IR /etc/kernel\-pkg.conf
+o
+.IR ~/.kernel\-pkg.conf.
+.TP
+.BR \-\-config " objetivo"
+Cambia el tipo de configuración hecha desde el \f(CWoldconfig\fR por omisión.
+\fIobjetivo\fR debe ser uno de \f(CWoldconfig\fR, \f(CWconfig\fR, \f(CWmenuconfig\fR,
+\f(CWgconfig\fR, \f(CWxconfig\fR; o \f(CWold\fR, \f(CWmenu\fR, \f(CWg\fR o \f(CWx\fR.
+.Sp
+Esta opción es particularmente útil cuando se usa \s\-1PATCH_THE_KERNEL\s0 por si
+alguno de los parches cambia las opciones de configuración disponibles.
+.B Nota
+Sin embargo
+.BR make\-kpkg
+busca al arrancar algunas opciones en el fichero de configuración, notablemente
+el hecho de que los módulos estén o no habilitados, de manera que cambiar el
+estado durante esta configuración retrasada resulta en un error. Si es
+necesario, cree el fichero de configuración lo más próximo a lo deseado antes de
+llamar a make\-kpkg con esta opción.
+.TP
+.B \-\-targets
+Muestra una lista de objetivos conocidos. Lea la sección
+.B Objetivos
+más abajo.
+.TP
+.B \-\-noexec
+Pasa la opción 
+.B \-n
+a
+.I make
+de forma que las órdenes se muestran en pantalla pero no se ejecutan. Útil para
+depuración.
+.TP 
+.B \-\-initrd
+Si 
+.B make\-kpkg 
+está generando un paquete del tipo
+.I kernel\-image 
+, realizará cualquier acción necesaria para que el núcleo se pueda cargar usando
+.B initrd.  
+.B NOTA:
+en los núcleos antiguos, esto requiere un parche (que no es estándar) cramfs de
+initrd a las fuentes del núcleo, (a menos que la configuración del mkinitrd se
+haya modificado para no usar cramfs) o se generará una imagen del núcleo
+imposible de arrancar. El parche normalmente se encontraba en las fuentes del
+núcleo proporcionadas por Debian. Algunas arquitecturas todavía necesitan
+parches para arreglar problemas con cramfs. Esta opción puede implicar
+dependencias extra y modificaciones en los scripts del encargado del paquete. No
+tiene efecto cuando 
+.B make\-kpkg no está generando un paquete 
+.I kernel\-image.
+El mismo efecto se puede conseguir estableciendo la
+variable de entorno
+.B INITRD
+a cualquier valor no nulo. Esta opción provoca un aviso, para evitar el aviso
+establezca la variable de entorno
+.B INITRD_OK
+a cualquier valor no nulo.
+Para evitar el aviso en tiempo de instalación, lea kernel\-img.conf(5), y añada
+una directiva
+.I warn_initrd 
+en ese fichero. Para configurar initrd consulte
+.I mkinitrd (8).
+.TP
+.B \-\-zimage
+Crea una imagen del núcleo del tipo zImage en vez de bzImage (predeterminada).
+Útil para gente con problemas con los núcleos bzImage. 
+.TP
+.B \-\-bzimage
+Crea un núcleo bzImage. Útil para gente que quiera un núcleo bzImage donde el
+núcleo predeterminado es un zImage. 
+.TP
+ .B \-\-mkimage
+Debe ser una orden que produzca una imagen initrd dado un directorio. Se pasa a
+la opción
+.I \-m
+del programa
+.I mkinitrd.
+Por ejemplo, puede ser
+ "genromfs \-d %s \-f %s"
+o
+ "mkcramfs %s %s"
+.TP
+.B \-\-rootcmd tal
+La orden que proporciona acceso de superusuario (por ejemplo, `sudo' o
+`fakeroot'), necesitado por la opción \-r de dpkg\-buildpackage.
+.TP
+.B \-\-us
+Esta opción se pasa a dpkg\-buildpackage, indica que el paquete no debe firmar
+las fuentes. Sólo es relevante para el objetivo buildpackage.
+.TP
+.B \-\-uc
+Esta opción se pasa a dpkg\-buildpackage, indica que el paquete no debe firmar el
+fichero de cambios (changelog). Sólo es relevante para el objetivo buildpackage.
+.PP
+Las opciones pueden acortarse a una única cadena más corta, pudiendo
+introducirse además con el prefijo \- o \-\-, entre una opción y su valor se
+puede usar tanto un espacio como un símbolo '='. También puede usar la forma
+opción=valor; para más detalles sobre ésta y otras variantes soportadas, lea la
+página del manual Getopt::Long (3perl).
+.TP
+.B CONCURRENCY_LEVEL
+Si está definida, esta variable de entorno establece el nivel de concurrencia
+usado por make para compilar el núcleo y el conjunto de módulos, usando la
+opción
+.I \-j
+para el make del objetivo
+.B build
+de
+.B make\-kpkg.
+Si se usa debe ser un entero (pequeño). Puede obtener el número actual de
+procesadores usando la orden:
+ "grep -c '^processor' /proc/cpuinfo"
+.SH OBJETIVOS
+.TP
+.B clean
+Elimina del directorio con las fuentes del núcleo todos los ficheros generados
+por el objetivo
+.B build,
+y ejecuta make distclean. (Véa en el Makefile del núcleo de Linux para más
+detalles).
+Dese cuenta que aunque se preserva la lista de configuración del núcleo actual
+del fichero
+.I .config,
+no se preserva el fichero
+.I include/linux/autoconf.h.
+Este objetivo no debe combinarse con otros, ya que
+.B make\-kpkg
+lee todos los datos
+.I antes
+de ejecutar cualquier objetivo, lo que hace que los objetivos siguientes se
+ejecuten con los datos viejos, algo que probablemente no es lo que desea.
+.TP
+.B buildpackage
+Este objetivo ejecuta los objetivos
+.B clean, 
+y
+.B binary,
+para producir el paquete completo usando
+.B dpkg\-buildpackage
+.TP
+.B binary
+Este objetivo produce los cuatro paquetes del núcleo de Debian ejecutando los
+objetivos
+.B binary-indep
+y
+.B binary-arch.
+.TP
+.B binary-indep
+Este objetivo produce los paquetes independientes de la arquitectura ejecutando
+los objetivos
+.B kernel_source
+y
+.B kernel_doc.
+.TP
+.B binary-arch
+Este objetivo produce los paquetes dependientes de la arquitectura ejecutando
+los objetivos
+.B kernel_headers
+y
+.B kernel_image.
+.TP
+.B kernel_source
+Este objetivo produce un paquete debianizado de las fuentes del núcleo. Si la
+variable de entorno 
+.B SOURCE_CLEAN_HOOK
+apunta a un ejecutable, éste se ejecutará desde el directorio temporal de las
+fuentes del núcleo justo antes de empaquetarlo,
+.I ./debian/tmp\-source/usr/src/kernel\-source\-X.X.XX,
+de esta forma puede tomar acciones necesarias para ajustar el núcleo a sus
+necesidades (eliminar arquitecturas, borrar los directorios de control de
+versiones, 
+.I find . \-type d \-name CVS \-prune \-exec rm \-rf {} \\;
+etc). No tiene efecto sobre otra cosa que no sean las fuentes del núcleo que van
+a ser empaquetadas \-\- si el script opera en el directorio actual y sus
+descendientes las fuentes originales del núcleo deberían permanecer
+intactas. Las variables de entorno
+.B HEADER_CLEAN_HOOK
+y
+.B DOC_CLEAN_HOOK
+son similares. Deberían apuntar a ejecutables, éstos se ejecutará
+respectivamente desde el directorio temporal de las fuentes del núcleo justo
+antes de empaquetarlo, de esta forma puede tomar acciones necesarias para
+ajustar el núcleo a sus necesidades. Sólo tiene efecto sobre las fuentes que se
+están empaquetando.
+.TP
+.B kernel_headers
+Este objetivo produce una paquete Debian que contiene las cabeceras del núcleo
+de Linux.
+.TP
+.B kernel_doc
+Este objetivo produce un paquete Debian que contiene la documentación incluida
+con el núcleo de Linux.
+.TP
+.B kernel_image
+Este objetivo produce un paquete Debian con la imagen del núcleo de Linux y
+cualquier módulo configurado en el fichero de configuración del núcleo
+.I .config.
+Si no hay ningún fichero
+.I .config
+en el directorio con las fuentes del núcleo se proporciona una configuración por
+omisión parecida a la usada para crear los boot\-floppies de
+.B Debian.
+.IP
+Si existe el fichero
+.I ./debian/post\-install
+y es ejecutable, éste se ejecuta justo antes de crear el paquete con la imagen
+del núcleo. Además, tenga en cuenta que si hay algún script en el directorio
+.I ./debian/image.d/
+, 
+.B run\-parts 
+debe de ser ejecutado en ese directorio justo antes construir el paquete con la
+imagen del núcleo. La localización de la raíz del paquete con la imagen que se
+está construyendo debe de pasarse mediante la variable de entorno
+.B IMAGE_TOP,
+y la versión del núcleo se pasa a través de la variable de entorno
+.B version
+para todos los scripts.
+.IP
+En una instalación inicial, el paquete con la imagen actualiza los enlaces
+simbólicos en el directorio destino de los enlaces simbólicos (por omisión es
+el directorio raíz) para que apunten a la nueva imagen del núcleo en el
+directorio de las imágenes del núcleo (
+.I /boot).
+Si el enlace simbólico ya apunta a la imagen actual del núcleo no se hace
+nada. Si existe un enlace simbólico anterior, éste se mueve a un fichero con el
+mismo nombre pero con el sufijo .old, y se instala en su lugar un nuevo enlace
+simbólico acorde a la nueva situación (la variable minimal_swap en 
+.I /etc/kernel\-img.conf
+modifica este comportamiento). No se realiza ninguna actuación en las
+actualizaciones.
+.IP
+Por favor, lea la documentación acerca de enganches en
+.B kernel\-img.conf(5).
+Estos enganches son variables que pueden apuntar a scripts que añadan o eliminen
+una línea a la lista del menú de grub durante la instalación o desinstalación
+del núcleo. Se incluye un script de ejemplo para añadir líneas al fichero de
+menú de grub en el directorio
+.I /usr/share/doc/kernel\-package/.
+.IP
+Además de las variables de enganche que pueda establecer el administrador local,
+hay una serie de directorios en los que los paquetes, o el administrador local,
+pueden colocar scripts. Los directorios son
+.I /etc/kernel/preinst.d/,
+.I /etc/kernel/postinst.d/,
+.I /etc/kernel/prerm.d/,
+.I /etc/kernel/postrm.d/.
+y
+.I /etc/kernel/preinst.d/<VERSIÓN>/,
+.I /etc/kernel/postinst.d/<VERSIÓN>/,
+.I /etc/kernel/prerm.d/<VERSIÓN>/,
+.I /etc/kernel/postrm.d/<VERSIÓN>/.
+Si existen, el paquete kernel-image ejecutará
+.B run-parts
+sobre los directorios (incluyendo los que tengan un número de versión), usando
+la versión a instalar o eliminar como argumento, en la fase correspondiente de
+la instalación o desinstalación.
+.IP
+Durante la instalación, también ofrece ejecutar
+.I LILO
+(o alternativas como 
+.I loadlin, SILO, QUIK, VMELILO, ZIPL, yaboot, PALO 
+o 
+.I GRUB
+), creando un fichero de configuración para los cargadores de arranque si es
+necesario. En ese momento también ofrece poner el nuevo núcleo en un disquete,
+dando formato al disquete si fuese necesario. Cuando se intente eliminar, se
+comprobará la versión del núcleo en ejecución, negándose a desinstalar un núcleo
+en ejecución.
+.I grub
+se merece una mención especial, aunque no necesite ejecutarse después de
+instalar la imagen del núcleo no está de más un cambio automático a su menú
+después de instalar o desinstalar un paquete con una imagen del núcleo.
+.TP
+.B build
+Este objetivo, es usado por el objetivo
+.B kernel_image
+, compila la imagen del núcleo de
+Linux.
+.TP
+.B modules
+Este objetivo permite construir todos los módulos añadidos y paquetes muy
+dependientes de la versión del núcleo para la que han sido compilados al mismo
+tiempo que se genera la imagen del núcleo. Este objetivo espera encontrar los
+módulos o paquetes bajo /usr/src/modules, y, para todos los subdirectorios,
+cambia a MODULE_LOC/x (MODULE_LOC de forma predeterminada es
+.I /usr/src/modules
+), y ejecuta la regla
+.B kdist
+en el fichero local 
+.I debian.rules.
+Este objetivo debe crear uno o varios paquetes
+.B Debian
+con los módulos, y quizá produzca un fichero tar comprimido, un fichero diff
+comprimido, con las sumas
+.I md5
+guardadas en un fichero de cambios usando
+.B dpkg\-genchanges.
+El fichero es firmado por la misma identidad que se usa para firmar los paquetes
+del núcleo. Esta opción es usada por los responsables  de subir los paquetes a
+los archivos de Debian.
+.TP
+.B modules_config
+Este objetivo permite configurar todos los paquetes debajo de
+.B MODULE_LOC,
+que de forma predeterminada es
+.B /usr/src/modules.
+Esto es útil si necesita modificar manualmente algunos aspectos de
+configuración, o si quiere compilar manualmente los módulos añadidos.
+.TP
+.B modules_image
+Este objetivo permite construir todos los paquetes debajo de
+.B MODULE_LOC,
+que de forma predeterminada es
+.B /usr/src/modules,
+pero no crea las fuentes o los ficheros diff, tampoco crea ni firma el fichero
+de cambios. Ésta es la única opción relacionada con los módulos que necesita si
+sólo quiere compilar los módulos para instalarlos en una o más máquinas.
+Generalmente se usa junto con 
+.B kernel_image,
+especialmente si además se usa la opción
+.B append_to_version
+(previene avisos espúreos).
+.TP
+.B modules_clean
+Este objetivo permite limpiar todos los paquetes bajo
+.B MODULE_LOC,
+que de forma predeterminada es
+.B /usr/src/modules,
+debería de ser todo lo necesario para deshacer el efecto de cualquiera de los
+otros objetivos modules_.
+.TP
+.B configure
+Este objetivo ejecuta pronto la configuración (realmente,
+.B config_target,
+establecido por 
+.B \-\-config 
+que por omisión es
+.I oldconfig
+), de forma que pueda editar los ficheros generados por
+.B make config
+en el directorio de las fuentes del núcleo y estar seguro de que
+.B make\-kpkg 
+no los sobreescribirá más tarde.
+.TP
+.B debian
+Este objetivo crea el directorio
+.I ./debian
+, y opcionalmente aplica algún parche a las fuentes. Es llamado por el objetivo
+.B configure.
+Probablemente use este objetivo para aplicar algún parche a las fuentes y
+después ejecutar manualmente la fase de configuración.
+.TP
+.B libc\-kheaders
+Este es un objetivo especial para el responsable de libc\-dev, puede usarlo para
+crear las cabeceras del núcleo que necesita libc. Por favor, dese cuenta de que
+es peligroso crear un paquete libc\-kheaders que sea diferente de las cabeceras
+con las que fue compilado libc, se
+.B sabe
+que puede dañar sutilmente el sistema. Lea 
+.I /usr/share/kernel\-package/README.headers
+para más detalles. Crear e instalar un paquete de libc\-kheaders personalizado
+puede dañar el sistema y volverlo inusable a menos que sepa lo que está
+haciendo. Está avisado.
+.SH "VARIABLES DE ENTORNO"
+Las siguientes variables (documentadas arriba) afectan a 
+.B make\-kpkg:
+.I DEBIAN_REVISION_MANDATORY
+.I APPEND_TO_VERSION
+.I VERSION_H_OK
+.I PATCH_THE_KERNEL
+.I NO_UNPATCH_BY_DEFAULT
+.I KPKG_ARCH
+.I CROSS_COMPILE
+.I KPKG_SUBARCH
+.I ARCH_IN_NAME
+.I INITRD
+.I SOURCE_CLEAN_HOOK
+.I MODULE_LOC
+.I INITRD_OK
+.I CONCURRENCY_LEVEL
+.I IGNORE_UPPERCASE_VERSION
+.SH FICHEROS
+Aparte de las opciones de ejecución, el fichero 
+.I debian.rules
+ejecutado por
+.B make\-kpkg
+también busca el fichero de configuración de usuario
+.I ~/.kernel\-pkg.conf.
+Si no lo encuentra, busca el fichero de configuración global del sistema
+.I /etc/kernel\-pkg.conf.
+La configuración predeterminada permite que haya un predominio para el
+nombre completo y la dirección de correo electrónico de la persona responsable
+de mantener los paquetes en el sitio, pero el fichero
+.I /etc/kernel\-pkg.conf
+(o
+.I ~/.kernel\-pkg.conf.
+) es realmente un pequeño Makefile, se puede incluir cualquier directiva válida
+de make.  
+.B Nota:
+Se debe de tener mucho cuidado con este fichero, usted puede cambiar totalmente
+el modo en que se ejecuta make editando este fichero. Por favor, lea
+.I /usr/share/doc/kernel\-package/Problems.gz
+para ver una lista de problemas conocidos compilando imágenes del núcleo. Un
+tutorial extensivo se encuentra disponible como documentación en
+.I /usr/share/doc/kernel\-package/README.gz
+y es recomendable que uno lo lea antes de usar esta utilidad.
+.SH "VÉASE TAMBIÉN"
+.BR kernel\-pkg.conf (5),
+.BR kernel\-img.conf (5),
+.BR mkinitrd (8),
+.BR Getopt::Long (3perl),
+.BR dpkg\-deb (1),
+.BR dpkg\-source (1),
+.BR make (1),
+.BR The\ Programmers\ manual, 
+.BR El\ manual\ de\ GNU\ Make\,
+y la extensiva documentación en el directorio
+.B /usr/share/doc/kernel\-package
+.SH AUTOR
+Esta página del manual fue escrita por Manoj Srivastava <srivasta@debian.org>,
+para el sistema Debian GNU/Linux.
+.SH TRADUCTOR
+Traducción de Rubén Porras Campo <debian\-l10n\-spanish@lists.debian.org>

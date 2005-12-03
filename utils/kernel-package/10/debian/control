@@ -1,0 +1,27 @@
+Source: kernel-package
+Priority: optional
+Section: misc
+Maintainer: Manoj Srivastava <srivasta@debian.org>
+Standards-Version: 3.6.2.0
+
+Package: kernel-package
+Description: A utility for building Linux kernel related Debian packages.
+ This package provides the capability to create a debian kernel-image
+ package by just running make-kpkg kernel_image in a kernel source
+ directory tree.  It can also package the relevant kernel headers into
+ a kernel-headers package. In general, this package is very useful if
+ you need to create a custom kernel, if, for example, the default
+ kernel does not support some of your hardware, or you wish a leaner,
+ meaner kernel.  It also scripts the steps that need be taken to
+ compile the kernel, which is quite convenient (forgetting a crucial
+ step once was the initial motivation for this package). Please look at 
+ /usr/share/doc/kernel-package/Rationale.gz for a full list of advantages
+ of this package.
+ .
+ If you are running on an intel x86 platform, and you wish to compile a
+ custom kernel (why else are you considering this package?), then you may
+ need the package bin86 as well.  (This is not required on other platforms).
+Depends: perl, dpkg (>= 1.4), dpkg-dev (>= 1.4.0.9), gcc | c-compiler, make, po-debconf, gettext, file
+Recommends: libc6-dev | libc-dev, bzip2
+Suggests: kernel-source, libdb3-dev, libncurses-dev, docbook-utils
+Architecture: all

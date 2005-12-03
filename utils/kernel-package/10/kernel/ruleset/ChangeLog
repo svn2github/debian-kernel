@@ -1,0 +1,59 @@
+2005-12-01  Manoj Srivastava  <srivasta@debian.org>
+
+	* local.mk (kernel-image-deb stamp-kernel-image):
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-73
+		  Add kernel-image-deb as a alias for stamp-kernel-image 
+
+2005-11-06  Manoj Srivastava  <srivasta@debian.org>
+
+	* minimal.mk (minimal_debian):
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Do not ever write the control or the changelog if they
+		  are already there. (probably the  official version).
+
+2005-11-03  Manoj Srivastava  <srivasta@debian.org>
+
+	* local.mk (CLEAN/$(i_package)):
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Ensure that the templates.master, and the templates, are
+		  created even on clean, for the kernel image package. 
+
+2005-11-02  Manoj Srivastava  <srivasta@debian.org>
+
+	* modules.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  This file contains the targets responsible for third
+		  party module interaction. 
+
+	* minimal.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file. This is the new top level file used when the
+		  clean target (which does not populate ./debian, indeed,
+		  can remove it if present), and to populate ./debian, if
+		  more complex tasks are to be performed. The population
+		  of ./debian requires that certain variables be set, and
+		  this file ensures we use the same makefile snippets that
+		  ./debian/rules shall use when actually performing the
+		  tasks, so there is no mismatch.  
+
+	* local.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  This is yet another of the files that has been reduced
+		  to an outline. Apart from the buildpackage target, every
+		  thing else has been moved out to file in the targets
+		  subdirectory (the top level targets were already moved
+		  to common/targets)
+
+	* local-vars.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Made this file a skeleton/outline as well. All actual
+		  variable settings (apart from the stuff to clean) are
+		  now done in separate files (which allows us to have a
+		  minimal.mk in the first place). 
+
+	* architecture.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Converted this file into an skeleton/outline, to better
+		  allow delegation of responsibility for each architecture
+		  to the person in charge of kernel images for that arch. 
+

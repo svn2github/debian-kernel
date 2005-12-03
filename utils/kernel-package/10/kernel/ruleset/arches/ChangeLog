@@ -1,0 +1,67 @@
+2005-11-02  Manoj Srivastava  <srivasta@debian.org>
+
+	* xen.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables.  
+
+	* uml.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables.  
+
+	* sparc.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* s390.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* ppc64.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* ppc.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables.  
+
+	* mipsel.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* mips.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* m68k.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* m32r.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* ia64.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* i386.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* hppa.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+	* amd64.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables.
+
+	* alpha.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file to handle the architecture specific variables. 
+
+2005-11-01  Manoj Srivastava  <srivasta@debian.org>
+
+	* README.txt: New file. Describes what the files in this directory
+		  do.
+

@@ -1,0 +1,7 @@
+2005-11-07  Manoj Srivastava  <srivasta@debian.org>
+
+	* control (Depends):
+		  srivasta@debian.org--etch/debian-dir--kernel-package--1.0--patch-16
+		  Add a dependency on file, since the rules file calls it
+		  while creating a headers package. 
+

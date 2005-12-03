@@ -1,0 +1,28 @@
+2005-11-02  Manoj Srivastava  <srivasta@debian.org>
+
+	* README: Describes what this directory is used for.
+
+	* pkgvars.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file. This is what allows us to separate out the top
+		  level targets, by determining which packages need to be
+		  built.
+
+	* install_cmds.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file, pulling these out of the local-vars file. 
+
+	* debconf.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  New file, in preparation for the forthcoming
+		  debconfication. 
+
+	* targets.mk:
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Made all the targets verbose. This is likely to be a
+		  temporary measure, but who knows. 
+
+	* archvars.mk (REASON):
+		  srivasta@debian.org--etch/kernel-package--devel--9.0--patch-53
+		  Changed the wording for non-file targets. 
+
