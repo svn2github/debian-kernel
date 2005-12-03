@@ -1,9 +1,0 @@
-Revision: skeleton-make-rules--main--0.1--patch-4
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Wed Dec  3 16:08:31 CST 2003
-Standard-date: 2003-12-03 22:08:31 GMT
-Modified-files: targets.mk
-New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-4
-Summary: Add target prebuild, which arch-buildpackage likes to call
-

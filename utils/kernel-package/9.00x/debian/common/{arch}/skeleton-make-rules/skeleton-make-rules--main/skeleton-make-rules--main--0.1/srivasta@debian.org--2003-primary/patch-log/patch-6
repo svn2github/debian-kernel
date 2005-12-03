@@ -1,9 +1,0 @@
-Revision: skeleton-make-rules--main--0.1--patch-6
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Sat Dec 13 13:17:50 CST 2003
-Standard-date: 2003-12-13 19:17:50 GMT
-Modified-files: perlvars.mk
-New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-6
-Summary: Added the PEL variable tp pervars.mk
-

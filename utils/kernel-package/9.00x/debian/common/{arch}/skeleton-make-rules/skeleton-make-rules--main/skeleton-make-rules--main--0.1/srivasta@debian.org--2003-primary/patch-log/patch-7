@@ -1,9 +1,0 @@
-Revision: skeleton-make-rules--main--0.1--patch-7
-Archive: srivasta@debian.org--2003-primary
-Creator: Manoj Srivastava <srivasta@debian.org>
-Date: Sat Dec 13 13:51:54 CST 2003
-Standard-date: 2003-12-13 19:51:54 GMT
-Modified-files: perlvars.mk
-New-patches: srivasta@debian.org--2003-primary/skeleton-make-rules--main--0.1--patch-7
-Summary: use =, not :=, so that the package dir can be specified later
-
