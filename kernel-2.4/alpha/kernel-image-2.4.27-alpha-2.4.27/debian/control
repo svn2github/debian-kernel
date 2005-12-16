@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Norbert Tretkowski <nobse@debian.org>
 Standards-Version: 3.6.1.1
-Build-Depends: debhelper, kernel-package (>= 8.042), kernel-tree-2.4.27-11, modutils, gcc-3.3
+Build-Depends: debhelper, kernel-package (>= 8.042), kernel-tree-2.4.27-12, modutils, gcc-3.3
 
 Package: kernel-headers-2.4.27-2
 Architecture: alpha
