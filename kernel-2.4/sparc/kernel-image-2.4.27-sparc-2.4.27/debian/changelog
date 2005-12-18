@@ -1,9 +1,12 @@
-kernel-image-2.4.27-sparc (2.4.27-11) UNRELEASED; urgency=low
+kernel-image-2.4.27-sparc (2.4.27-12) unstable; urgency=low
 
-  * Added build debpends on gcc-3.3 as the default gcc
+  * [ Simon Horman ]
+    Added build depends on gcc-3.3 as the default gcc
     is being changed from 3.3 to 4.0.
+  * [ Jurij Smakov ]
+    Build against 2.4.27-12 kernel tree.
 
- -- Simon Horman <horms@debian.org>  Mon,  4 Jul 2005 12:16:52 +0900
+ -- Jurij Smakov <jurij@wooyd.org>  Sun, 18 Dec 2005 13:28:13 -0800
 
 kernel-image-2.4.27-sparc (2.4.27-9) unstable; urgency=high
 
