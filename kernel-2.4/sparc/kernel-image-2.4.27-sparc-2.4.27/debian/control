@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Rob Radez <rob@osinvestor.com>, Joshua Kwan <joshk@triplehelix.org>, Andres Salomon <dilinger@debian.org>
 Standards-Version: 3.6.1.0
-Build-Depends: gcc-3.3 (>= 4:3.3), kernel-tree-2.4.27-12, debhelper (>= 4), kernel-package, sparc-utils, modutils
+Build-Depends: gcc-3.3 (>= 1:3.3), kernel-tree-2.4.27-12, debhelper (>= 4), kernel-package, sparc-utils, modutils
 
 Package: kernel-build-2.4.27-2
 Architecture: sparc
