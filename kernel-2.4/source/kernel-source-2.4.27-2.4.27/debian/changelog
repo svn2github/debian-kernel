@@ -1,3 +1,10 @@
+kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
+
+  * 198_fs-lock-lease-log-spam.patch
+     [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
+
+ -- Simon Horman <horms@verge.net.au>  Mon, 19 Dec 2005 19:06:39 +0900
+
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
   [ Simon Horman ]
