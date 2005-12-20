@@ -1,7 +1,6 @@
 kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
 
-  * [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
-    198_fs-lock-lease-log-spam.patch
+  *** Note this release introduces an ABI Change for CVE-2005-2709 ***
 
   * Errata for 2.4.27-12
     - [SECURITY] IPV4: Fix DST leak in icmp_push_reply(). Remote DoS.
@@ -11,7 +10,15 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
       See CVE-2005-3858.
       189_ipv6-skb-leak.diff, included in 2.4.27-12
 
- -- Simon Horman <horms@verge.net.au>  Tue, 20 Dec 2005 11:03:54 +0900
+  * [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
+    198_fs-lock-lease-log-spam.patch
+
+  * [SECURITY] Fix a potential local root exploit in the
+    /proc/sys/net/ipv4/conf interface.  See CVE-2005-2709
+    ABI Change
+    196_sysctl-unregistration-oops.patch
+
+ -- Simon Horman <horms@verge.net.au>  Tue, 20 Dec 2005 11:24:30 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
