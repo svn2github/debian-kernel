@@ -11,12 +11,12 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
       189_ipv6-skb-leak.diff, included in 2.4.27-12
 
   * [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
-    198_fs-lock-lease-log-spam.patch
+    198_fs-lock-lease-log-spam.diff
 
   * [SECURITY] Fix a potential local root exploit in the
     /proc/sys/net/ipv4/conf interface.  See CVE-2005-2709
     ABI Change
-    196_sysctl-unregistration-oops.patch
+    196_sysctl-unregistration-oops.diff
 
  -- Simon Horman <horms@verge.net.au>  Tue, 20 Dec 2005 11:24:30 +0900
 
