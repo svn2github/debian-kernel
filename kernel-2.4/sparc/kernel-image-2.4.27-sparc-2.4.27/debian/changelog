@@ -5,6 +5,8 @@ kernel-image-2.4.27-sparc (2.4.27-12) unstable; urgency=low
     is being changed from 3.3 to 4.0.
   * [ Jurij Smakov ]
     Build against 2.4.27-12 kernel tree.
+    Add --stem kernel option to all make-kpkg calls since the default
+    stem is now linux. Thanks to Frans Pop for working this out.
 
  -- Jurij Smakov <jurij@wooyd.org>  Sun, 18 Dec 2005 13:28:13 -0800
 

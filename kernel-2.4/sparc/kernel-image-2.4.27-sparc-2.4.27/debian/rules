@@ -70,7 +70,7 @@ build-stamp: unpack-stamp
 	PATH=$$PWD/bin:$$PATH; \
 	for i in $(flavours); do \
 		cd build-$$i; \
-		make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i build; \
+		make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i --stem kernel build; \
 		$(STRIP) -R .comment -R .note -K sun4u_init -K _end -K _start vmlinux; \
 		cd ..; \
 	done
@@ -97,13 +97,13 @@ binary-arch: install
 	dh_testdir
 
 	cd kernel-source-$(version); HEADER_CLEAN_HOOK=$(CURDIR)/header-install \
-		make-kpkg --subarch sparc64 $(appvan) kernel-headers
+		make-kpkg --subarch sparc64 $(appvan) --stem kernel kernel-headers
 	mv kernel-source-$(version)/debian/files debian
 
 	for i in $(flavours); do \
 		cp -al build-$$i install-$$i; \
 		cd install-$$i; \
-		$${i%-smp} make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i --initrd \
+		$${i%-smp} make-kpkg --subarch $${i%-smp} --append_to_version $(debnum)-$$i --initrd --stem kernel \
 			kernel-image; \
 		cd ..; \
 		cat install-$$i/debian/files >> debian/files; \
