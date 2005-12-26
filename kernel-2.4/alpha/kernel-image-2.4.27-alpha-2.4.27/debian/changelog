@@ -1,6 +1,6 @@
 kernel-image-2.4.27-alpha (2.4.27-12) unstable; urgency=low
 
-  * Built against kernel-tree 2.4.27-11.
+  * Built against kernel-tree 2.4.27-12.
 
  -- Norbert Tretkowski <nobse@debian.org>  Fri, 16 Dec 2005 22:30:06 +0100
 
