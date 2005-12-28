@@ -1,0 +1,106 @@
+#!/bin/sh
+
+set -e
+#set -x
+
+scriptname="`basename $0`"
+function printhelp() {
+	echo 'Usage: $scriptname [options] <config dir> [<flavour>]'
+	echo
+	echo '  if flavour is omitted then all flavours are found'
+	echo '  (flavour is actually a shell pattern, so powerpc* works too)'
+	echo
+	echo 'Options:'
+	echo '  -f|--full  Strip from shared files options found in more specific files too'
+	echo '             This potentially breaks other arches, so is off by default'
+}
+
+function find_duplicate_options() {
+	# Scan all files provided as arguments for kernel options
+	# Emit options mentioned more than once
+	egrep -h '^([^# ]|.* is not set)' "$@" \
+		| sed -e 's/[# ]*//' -e 's/[= ].*//' | sort | uniq -d
+}
+
+function strip_duplicate_options() {
+	# Strip from bloatfile all but last of each entry on stdin
+	bloatfile="$1"
+	while read option; do
+		tac "$bloatfile" > "$bloatfile.tmp"
+		perl -ni -e "\$n++ if /$option[= ]/; print if \$n==0;" "$bloatfile.tmp"
+		tac "$bloatfile.tmp" > "$bloatfile"
+		rm "$bloatfile.tmp"
+	done
+}
+
+function strip_all_options() {
+	# Strip from bloatfile all entries on stdin
+	bloatfile="$1"
+	while read option; do
+		perl -ni -e "print unless /$option[= ]/;" "$bloatfile"
+	done
+}
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+	echo 'ERROR: Wrong number of options provided!'
+	echo
+	printhelp
+	exit 1
+fi
+
+full=''
+case "$1" in
+    -h|--help)
+	printhelp
+	exit 0
+	;;
+    -f|--full)
+	full="true"
+	shift
+	;;
+esac
+
+configdir="$1"
+flavour="$2"
+
+if [ -z "$flavour" ]; then
+	flavour="*"
+fi
+
+paths="`find "$configdir" -mindepth 2 -maxdepth 2 -name "config.$flavour"`"
+
+if [ -z "$paths" ]; then
+	echo 'ERROR: No flavours found (did you provide the correct config dir?)!'
+	echo
+	printhelp
+	exit 1
+fi
+
+TMPFILE=`mktemp -t "$scriptname.XXXXXX"` || exit 1
+
+for path in $paths; do
+	basedir="$(dirname "$(dirname "$path")")"
+	arch="$(basename "$(dirname "$path")")"
+	subarch="$(basename "$path" | sed 's/^config\.//')"
+	echo -n "cleaning $arch/$subarch..."
+	# Cleanup each individual file
+	for file in "$basedir/config" "$basedir/$arch/config" "$basedir/$arch/config.$subarch"; do
+		find_duplicate_options "$file" > "$TMPFILE"
+		cat "$TMPFILE" | strip_duplicate_options "$file"
+	done
+	if [ -n "$full" ]; then
+		echo -n '.'
+		# Clean common file
+		find_duplicate_options "$basedir/config" "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
+			> "$TMPFILE"
+		cat "$TMPFILE" | strip_all_options "$basedir/config"
+		echo -n '.'
+		# Clean arch file
+		find_duplicate_options "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
+			> "$TMPFILE"
+		cat "$TMPFILE" | strip_all_options "$basedir/$arch/config"
+	fi
+	echo ' Done!'
+done
+
+rm $TMPFILE
