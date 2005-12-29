@@ -27,7 +27,7 @@ function strip_duplicate_options() {
 	bloatfile="$1"
 	while read option; do
 		tac "$bloatfile" > "$bloatfile.tmp"
-		perl -ni -e "\$n++ if /$option[= ]/; print if \$n==0;" "$bloatfile.tmp"
+		perl -ni -e "print and next unless /$option[= ]/; \$n++; print if \$n==1;" "$bloatfile.tmp"
 		tac "$bloatfile.tmp" > "$bloatfile"
 		rm "$bloatfile.tmp"
 	done
