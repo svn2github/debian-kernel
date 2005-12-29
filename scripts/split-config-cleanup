@@ -98,12 +98,9 @@ for path in $paths; do
 			> "$TMPFILE"
 		strip_all_options "$TMPFILE" "$basedir/$arch/config.$subarch"
 	echo ' Done!'
-	if [ "$subarch" = "ixp4xx" ]; then
-		exit 1
-	fi
 		echo -n '.'
 		# Clean arch file
-		find_duplicate_options "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
+		find_duplicate_options "$basedir/config" "$basedir/$arch/config" \
 			> "$TMPFILE"
 		strip_all_options "$TMPFILE" "$basedir/$arch/config"
 	fi
