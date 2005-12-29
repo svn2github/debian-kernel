@@ -11,7 +11,7 @@ function printhelp() {
 	echo '  (flavour is actually a shell pattern, so powerpc* works too)'
 	echo
 	echo 'Options:'
-	echo '  -f|--full  Strip from shared files options found in more specific files too'
+	echo '  -f|--full  Strip from arch-specific files options defined more generic too'
 	echo '             This potentially breaks other arches, so is off by default'
 }
 
@@ -90,10 +90,10 @@ for path in $paths; do
 	done
 	if [ -n "$full" ]; then
 		echo -n '.'
-		# Clean common file
+		# Clean subarch file
 		find_duplicate_options "$basedir/config" "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
 			> "$TMPFILE"
-		cat "$TMPFILE" | strip_all_options "$basedir/config"
+		cat "$TMPFILE" | strip_all_options "$basedir/$arch/config.$subarch"
 		echo -n '.'
 		# Clean arch file
 		find_duplicate_options "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
