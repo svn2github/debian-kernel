@@ -34,11 +34,14 @@ function strip_duplicate_options() {
 }
 
 function strip_all_options() {
-	# Strip from bloatfile all entries on stdin
-	bloatfile="$1"
-	while read option; do
-		perl -ni -e "print unless /$option[= ]/;" "$bloatfile"
-	done
+	# Strip all entries in optionfile from bloatfile
+	optionfile="$1"
+	bloatfile="$2"
+	if [ -s "$bloatfile" ]; then
+		mv "$bloatfile" "$bloatfile.tmp"
+		grep -F -v -f "$optionfile" "$bloatfile.tmp" > "$bloatfile"
+		rm "$bloatfile.tmp"
+	fi
 }
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
@@ -93,14 +96,17 @@ for path in $paths; do
 		# Clean subarch file
 		find_duplicate_options "$basedir/config" "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
 			> "$TMPFILE"
-		cat "$TMPFILE" | strip_all_options "$basedir/$arch/config.$subarch"
+		strip_all_options "$TMPFILE" "$basedir/$arch/config.$subarch"
+	echo ' Done!'
+	if [ "$subarch" = "ixp4xx" ]; then
+		exit 1
+	fi
 		echo -n '.'
 		# Clean arch file
 		find_duplicate_options "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
 			> "$TMPFILE"
-		cat "$TMPFILE" | strip_all_options "$basedir/$arch/config"
+		strip_all_options "$TMPFILE" "$basedir/$arch/config"
 	fi
-	echo ' Done!'
 done
 
-rm $TMPFILE
+rm "$TMPFILE"
