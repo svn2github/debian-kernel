@@ -27,7 +27,7 @@ function strip_duplicate_options() {
 	bloatfile="$1"
 	while read option; do
 		tac "$bloatfile" > "$bloatfile.tmp"
-		perl -ni -e "print and next unless /$option[= ]/; \$n++; print if \$n==1;" "$bloatfile.tmp"
+		perl -ni -e "print and next unless /^$option[= ]/; \$n++; print if \$n==1;" "$bloatfile.tmp"
 		tac "$bloatfile.tmp" > "$bloatfile"
 		rm "$bloatfile.tmp"
 	done
@@ -97,13 +97,13 @@ for path in $paths; do
 		find_duplicate_options "$basedir/config" "$basedir/$arch/config" "$basedir/$arch/config.$subarch" \
 			> "$TMPFILE"
 		strip_all_options "$TMPFILE" "$basedir/$arch/config.$subarch"
-	echo ' Done!'
 		echo -n '.'
 		# Clean arch file
 		find_duplicate_options "$basedir/config" "$basedir/$arch/config" \
 			> "$TMPFILE"
 		strip_all_options "$TMPFILE" "$basedir/$arch/config"
 	fi
+	echo ' Done!'
 done
 
 rm "$TMPFILE"
