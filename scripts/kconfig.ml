@@ -7,6 +7,9 @@ let () = Arg.parse
   (function s -> config_name := s) 
   "./kconfig.ml <config_file>"
 
+let usage () = Arg.usage
+  [ ]
+  "./kconfig.ml <config_file>"
 
 type options =
   | Config_Yes of string
@@ -66,7 +69,7 @@ let rec parse_config fd =
   with End_of_file -> ()
   
 let () =
-  if !config_name != "" then
+  if !config_name = "" then usage () else
   try
     let config = open_in !config_name in
     parse_config config
