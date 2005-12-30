@@ -1,15 +1,25 @@
 #!/usr/bin/ocamlrun /usr/bin/ocaml
 
+let basedir = ref "debian/arch"
+let arch = ref ""
+let flavour = ref ""
 let config_name = ref ""
 
-let () = Arg.parse
-  [ ]
-  (function s -> config_name := s) 
-  "./kconfig.ml <config_file>"
+let spec = [
+  "-b", Arg.Set_string basedir, "base dir of the arch configurations [default: debian/arch]";
+  "-a", Arg.Set_string arch, "architecture";
+  "-f", Arg.Set_string flavour, "flavour";
+]
+let usage =
+  "./kconfig.ml [ -b basedir ] -a arch -f flavour" ^ "\n" ^
+  "./kconfig.ml config_file"
 
-let usage () = Arg.usage
-  [ ]
-  "./kconfig.ml <config_file>"
+let () = Arg.parse
+  spec
+  (function s -> config_name := s) 
+  usage
+
+let usage () = Arg.usage spec usage
 
 type options =
   | Config_Yes of string
@@ -62,15 +72,40 @@ let parse_line fd =
     | _ -> raise Comment
   with Comment -> Config_Comment (String.sub line 1 (len - 1))
 
-let rec parse_config fd =
+module C = Map.Make (String)
+
+(* Map.add behavior ensures the latest entry is the one staying *)
+let rec parse_config fd m =
   try 
-    print_option (parse_line fd);
-    parse_config fd
-  with End_of_file -> ()
-  
+    let line = parse_line fd in
+    match line with
+    | Config_Comment _ | Config_Empty -> parse_config fd m
+    | Config_Yes s | Config_No s | Config_Module s | Config_Value (s,_) ->
+      parse_config fd (C.add s line m)
+  with End_of_file -> m
+
+let print_config m = C.iter (function _ -> print_option) m
+
 let () =
-  if !config_name = "" then usage () else
-  try
-    let config = open_in !config_name in
-    parse_config config
-  with Sys_error s -> Printf.printf "Error: %s\n" s
+  if !config_name <> "" then 
+    try
+      let config = open_in !config_name in
+      let m = parse_config config C.empty in
+      print_config m;
+      close_in config
+    with Sys_error s -> Printf.printf "Error: %s\n" s
+  else if !arch <> "" && !flavour <> "" then
+    try
+      let config = open_in (!basedir ^ "/config") in
+      let m = parse_config config C.empty in
+      close_in config;
+      let config = open_in (!basedir ^ "/" ^ !arch ^ "/config") in
+      let m = parse_config config C.empty in
+      close_in config;
+      let config = open_in (!basedir ^ "/" ^ !arch ^ "/config." ^ !flavour) in
+      let m = parse_config config C.empty in
+      close_in config;
+      print_config m;
+    with Sys_error s -> Printf.printf "Error: %s\n" s
+  else
+    usage ()
