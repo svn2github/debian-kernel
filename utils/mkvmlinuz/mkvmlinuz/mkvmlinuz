@@ -145,8 +145,13 @@ test -z "$verbose" || echo === Release version seems to be $release.
 # if no object file directory was specified, try to find one
 if test -z "$objdir"; then
 
-    # try a default location, then use the current directory
-    if objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
+    # try using $STEM-image, then linux-image, then kernel-image
+    # in a default location, then use the current directory
+    if objdir=/usr/lib/$STEM-image-$release; test -d $objdir; then
+	:
+    elif objdir=/usr/lib/linux-image-$release; test -d $objdir; then
+	:
+    elif objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
 	:
     else
 	objdir="$PWD"
