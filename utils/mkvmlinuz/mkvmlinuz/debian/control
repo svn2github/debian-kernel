@@ -2,13 +2,13 @@ Source: mkvmlinuz
 Section: devel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Uploaders: Sven Luther <luther@debian.org>, Jens Schmalzing <jensen@debian.org>
+Uploaders: Sven Luther <luther@debian.org>
 Build-Depends: docbook-to-man, debhelper (>= 4.0.0)
 Standards-Version: 3.6.0
 
 Package: mkvmlinuz
 Architecture: powerpc
-Depends: binutils
+Depends: binutils, debconf
 Description: create a kernel to boot a PowerPC machine from Open Firmware
  .
  This little program takes a PowerPC Linux kernel as an uncompressed

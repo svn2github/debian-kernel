@@ -1,3 +1,9 @@
+mkvmlinuz (19) unstable; urgency=low
+
+  * Added debconf dependency. (Closes: #342372)
+
+ -- Sven Luther <luther@debian.org>  Fri,  6 Jan 2006 16:25:10 +0100
+
 mkvmlinuz (18) unstable; urgency=low
 
   * Now look at $STEM-image, linux-image and then only kernel-image for the
