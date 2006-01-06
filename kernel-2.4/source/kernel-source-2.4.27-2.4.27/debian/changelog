@@ -10,6 +10,13 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
       See CVE-2005-3858.
       189_ipv6-skb-leak.diff, included in 2.4.27-12
 
+  * Errata for 2.4.27-8
+    [SECURITY] SDLA firmware upgrade should require CAP_SYS_RAWIO;
+    Local privelage escalation. See CVE-2006-0096
+    This was incorrectly annotated in 2.4.27-8 as an overflow
+    discovered using coverty, which is actually CVE-2004-2607
+    129_net_sdla_coverty.diff, included in 2.4.27-8
+
   * [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
     198_fs-lock-lease-log-spam.diff
 
@@ -28,7 +35,7 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     See CVE-2004-2607
     200_net_sdla_xfer_leak.diff
 
- -- Simon Horman <horms@verge.net.au>  Thu,  5 Jan 2006 17:09:08 +0900
+ -- Simon Horman <horms@verge.net.au>  Fri,  6 Jan 2006 14:58:06 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
