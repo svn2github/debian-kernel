@@ -1,0 +1,5 @@
+linux-patch-2.6.12-mips (2.6.12-0) UNRELEASED; urgency=low
+
+  * Initial mips/mipsel 2.6 kernel.
+
+ -- Thiemo Seufer <ths@debian.org>  Tue, 12 Jul 2005 19:39:46 +0200

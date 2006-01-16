@@ -1,0 +1,14 @@
+This is the Debian GNU/Linux prepackaged version of diffs to the
+mainline kernel source for use on the MIPS architecture.  They come
+from the linux-mips.org cvs repository. For more information visit:
+		     <http://www.linux-mips.org>
+
+This package was created by Thiemo Seufer.
+
+Linux is copyrighted by Linus Torvalds and others, and is licensed
+under the GNU General Public License; these patches are under the
+same terms. On Debian GNU/Linux systems, the complete text of the
+GNU General Public License can be found in
+/usr/share/common-licenses/GPL.
+
+Linux® is a registered trademark of Linus Torvalds.
