@@ -34,7 +34,7 @@ Index: linux-2.6-work/arch/mips/kernel/cpu-probe.c
  	switch (c->processor_id & 0xff00) {
  	case PRID_IMP_SB1:
  		c->cputype = CPU_SB1;
-+		c->options &= ~MIPS_CPU_4KTLB;
++		c->options &= ~MIPS_CPU_4K_CACHE;
 +		c->options |= MIPS_CPU_TLB;
  #ifdef CONFIG_SB1_PASS_1_WORKAROUNDS
  		/* FPU in pass1 is known to have issues. */
