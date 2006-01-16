@@ -1,0 +1,55 @@
+#! /bin/sh -e
+## 10_arch-makefile.dpatch by Ralf Baechle <ralf@linux-mips.org>
+#
+## DP: Fix C version of ssnop to use the right opcode.
+## DP: Patch author: Ralf Baechle <ralf@linux-mips.org>
+## DP: Upstream status: in linux-mips git
+#
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+
+Fix C version of ssnop to use the right opcode.
+author	Ralf Baechle <ralf@linux-mips.org>
+	Wed, 11 Jan 2006 18:23:00 +0000 (18:23 +0000)
+committer	Ralf Baechle <ralf@linux-mips.org>
+	Wed, 11 Jan 2006 18:23:00 +0000 (18:23 +0000)
+commit	e4ce2d06d3c4b691557aeaf6bcf5e79d92855c3e
+tree	ab7be50e2922f353d401907e731a3ac9afbdadc9	tree
+parent	aa01d786de57c8d062e47411747ceccf004dfb79	commit | commitdiff
+
+Fix C version of ssnop to use the right opcode.
+
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+
+
+file:2fc90632f88cfeaab2e8fbaea794a961019a3a6f -> file:6111a0ce58c4cf4bb4b1db0b5aa6fb064fc3d413
+
+diff -urN linux-mips/include/asm-mips/hazards.h new/include/asm-mips/hazards.h
+--- linux-mips/include/asm-mips/hazards.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/hazards.h	2006-01-16 17:47:23.000000000 +0000
+@@ -100,7 +100,7 @@
+ 
+ __asm__(
+ 	"	.macro	_ssnop					\n\t"
+-	"	sll	$0, $2, 1				\n\t"
++	"	sll	$0, $0, 1				\n\t"
+ 	"	.endm						\n\t"
+ 	"							\n\t"
+ 	"	.macro	_ehb					\n\t"

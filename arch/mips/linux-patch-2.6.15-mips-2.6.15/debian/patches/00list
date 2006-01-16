@@ -17,3 +17,5 @@
 55_o32-kcore.dpatch
 56_corefile-o32.dpatch
 61_uaccess_breakage.dpatch
+62_remove_stray_mips3_in_32bit.dpatch
+63_ssnop_opcode.dpatch
