@@ -4,8 +4,6 @@
 12_makefile.dpatch
 20_ioc3.dpatch
 21_ip30.dpatch
-30_ip22-eisa-update.dpatch
-40_ip27-horribles.dpatch
 51_iomap.dpatch
 52_ip22-sercon.dpatch
 54_ip32-eth0.dpatch
