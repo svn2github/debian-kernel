@@ -25,20 +25,17 @@ exit 0
 
 diff -urN linux-mips/arch/mips/lib/Makefile new/arch/mips/lib/Makefile
 --- linux-mips/arch/mips/lib/Makefile	2006-01-10 11:21:15.000000000 +0000
-+++ new/arch/mips/lib/Makefile	2006-01-16 16:45:26.000000000 +0000
-@@ -2,7 +2,7 @@
- # Makefile for MIPS-specific library files..
- #
++++ new/arch/mips/lib/Makefile	2006-01-16 22:03:37.000000000 +0000
+@@ -4,5 +4,6 @@
  
--lib-y	+= csum_partial_copy.o memcpy.o promlib.o strlen_user.o strncpy_user.o \
--	   strnlen_user.o uncached.o
-+lib-y	+= csum_partial_copy.o iomap.o memcpy.o promlib.o strlen_user.o \
-+	   strncpy_user.o strnlen_user.o uncached.o
+ lib-y	+= csum_partial_copy.o memcpy.o promlib.o strlen_user.o strncpy_user.o \
+ 	   strnlen_user.o uncached.o
++obj-y	+= iomap.o
  
  EXTRA_AFLAGS := $(CFLAGS)
 diff -urN linux-mips/arch/mips/lib/iomap.c new/arch/mips/lib/iomap.c
 --- linux-mips/arch/mips/lib/iomap.c	1970-01-01 01:00:00.000000000 +0100
-+++ new/arch/mips/lib/iomap.c	2006-01-16 16:45:35.000000000 +0000
++++ new/arch/mips/lib/iomap.c	2006-01-16 22:02:48.000000000 +0000
 @@ -0,0 +1,78 @@
 +/*
 + *  iomap.c, Memory Mapped I/O routines for MIPS architecture.
@@ -120,7 +117,7 @@ diff -urN linux-mips/arch/mips/lib/iomap.c new/arch/mips/lib/iomap.c
 +EXPORT_SYMBOL(pci_iounmap);
 diff -urN linux-mips/include/asm-mips/io.h new/include/asm-mips/io.h
 --- linux-mips/include/asm-mips/io.h	2006-01-10 11:21:59.000000000 +0000
-+++ new/include/asm-mips/io.h	2006-01-16 16:45:35.000000000 +0000
++++ new/include/asm-mips/io.h	2006-01-16 22:02:48.000000000 +0000
 @@ -535,6 +535,34 @@
  }
  
