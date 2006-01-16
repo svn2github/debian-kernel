@@ -50,30 +50,6 @@ diff -urN --ignore-space-change kernel.org/Documentation/mips/AU1xxx_IDE.README 
  
  ADD NEW HARD DISC TO WHITE OR BLACK LIST
  ----------------------------------------
-diff -urN --ignore-space-change kernel.org/Makefile linux-mips/Makefile
---- kernel.org/Makefile	2006-01-03 03:21:10.000000000 +0000
-+++ linux-mips/Makefile	2006-01-10 11:30:59.000000000 +0000
-@@ -166,10 +166,7 @@
- # then ARCH is assigned, getting whatever value it gets normally, and 
- # SUBARCH is subsequently ignored.
- 
--SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
--				  -e s/arm.*/arm/ -e s/sa110/arm/ \
--				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
--				  -e s/ppc64/powerpc/ )
-+SUBARCH := mips
- 
- # Cross compiling and selecting different set of gcc/bin-utils
- # ---------------------------------------------------------------------------
-@@ -536,7 +533,7 @@
- CHECKFLAGS     += $(NOSTDINC_FLAGS)
- 
- # warn about C99 declaration after statement
--CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
-+#CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
- 
- # disable pointer signedness warnings in gcc 4.0
- CFLAGS += $(call cc-option,-Wno-pointer-sign,)
 diff -urN --ignore-space-change kernel.org/arch/mips/Kconfig linux-mips/arch/mips/Kconfig
 --- kernel.org/arch/mips/Kconfig	2006-01-03 03:21:10.000000000 +0000
 +++ linux-mips/arch/mips/Kconfig	2006-01-10 11:21:15.000000000 +0000
