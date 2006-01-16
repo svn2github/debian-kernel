@@ -13,8 +13,8 @@ fi
 patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
 
 case "$1" in
-    -patch) patch -p0 ${patch_opts} < $0;;
-    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
     *)
         echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
         exit 1;;
@@ -27,8 +27,8 @@ Index: drivers/net/Makefile
 RCS file: /home/cvs/linux/drivers/net/Makefile,v
 retrieving revision 1.107
 diff -u -r1.107 Makefile
---- drivers/net/Makefile        15 Nov 2004 11:49:28 -0000      1.107
-+++ drivers/net/Makefile        12 Jan 2005 19:58:47 -0000
+--- a/drivers/net/Makefile        15 Nov 2004 11:49:28 -0000      1.107
++++ b/drivers/net/Makefile        12 Jan 2005 19:58:47 -0000
 @@ -28,6 +28,8 @@
  obj-$(CONFIG_MYRI_SBUS) += myri_sbus.o
  obj-$(CONFIG_SUNGEM) += sungem.o sungem_phy.o

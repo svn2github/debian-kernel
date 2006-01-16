@@ -13,8 +13,8 @@ fi
 patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
 
 case "$1" in
-    -patch) patch -p0 ${patch_opts} < $0;;
-    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
     *)
         echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
         exit 1;;
@@ -27,8 +27,8 @@ Index: arch/mips/Makefile
 RCS file: /home/cvs/linux/arch/mips/Makefile,v
 retrieving revision 1.186
 diff -u -p -r1.186 Makefile
---- arch/mips/Makefile	18 Dec 2004 01:15:52 -0000	1.186
-+++ arch/mips/Makefile	10 Jan 2005 22:10:32 -0000
+--- a/arch/mips/Makefile	18 Dec 2004 01:15:52 -0000	1.186
++++ b/arch/mips/Makefile	10 Jan 2005 22:10:32 -0000
 @@ -118,7 +118,7 @@ if $(CC) $$gcc_abi -S -o /dev/null -xc /
  else \
  	gcc_abi=; gcc_isa=-$(5); \

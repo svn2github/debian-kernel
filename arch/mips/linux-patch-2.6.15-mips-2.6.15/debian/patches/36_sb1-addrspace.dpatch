@@ -13,8 +13,8 @@ fi
 patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
 
 case "$1" in
-    -patch) patch -p0 ${patch_opts} < $0;;
-    -unpatch) patch -R -p0 ${patch_opts} < $0;;
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
     *)
         echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
         exit 1;;
@@ -32,8 +32,8 @@ Index: include/asm-mips/addrspace.h
 RCS file: /home/cvs/linux/include/asm-mips/addrspace.h,v
 retrieving revision 1.18
 diff -u -p -r1.18 addrspace.h
---- include/asm-mips/addrspace.h    14 Jul 2005 12:05:08 -0000    1.18
-+++ include/asm-mips/addrspace.h    15 Sep 2005 21:46:56 -0000
+--- a/include/asm-mips/addrspace.h    14 Jul 2005 12:05:08 -0000    1.18
++++ b/include/asm-mips/addrspace.h    15 Sep 2005 21:46:56 -0000
 @@ -131,6 +131,8 @@
      || defined (CONFIG_CPU_R5000)					\
      || defined (CONFIG_CPU_NEVADA)					\
