@@ -23,22 +23,22 @@ esac
 
 exit 0
 
-diff -urN -X dontdiff a-orig/arch/mips/lib/Makefile a/arch/mips/lib/Makefile
---- a-orig/arch/mips/lib/Makefile	Mon Jan  5 17:27:29 2004
-+++ a/arch/mips/lib/Makefile	Wed Jan 12 01:10:23 2005
+diff -urN linux-mips/arch/mips/lib/Makefile new/arch/mips/lib/Makefile
+--- linux-mips/arch/mips/lib/Makefile	2006-01-10 11:21:15.000000000 +0000
++++ new/arch/mips/lib/Makefile	2006-01-16 16:45:26.000000000 +0000
 @@ -2,7 +2,7 @@
  # Makefile for MIPS-specific library files..
  #
  
--lib-y	+= csum_partial_copy.o dec_and_lock.o memcpy.o promlib.o strlen_user.o \
--	   strncpy_user.o strnlen_user.o uncached.o
-+lib-y	+= csum_partial_copy.o dec_and_lock.o iomap.o memcpy.o promlib.o \
-+	   strlen_user.o strncpy_user.o strnlen_user.o uncached.o
+-lib-y	+= csum_partial_copy.o memcpy.o promlib.o strlen_user.o strncpy_user.o \
+-	   strnlen_user.o uncached.o
++lib-y	+= csum_partial_copy.o iomap.o memcpy.o promlib.o strlen_user.o \
++	   strncpy_user.o strnlen_user.o uncached.o
  
  EXTRA_AFLAGS := $(CFLAGS)
-diff -urN -X dontdiff a-orig/arch/mips/lib/iomap.c a/arch/mips/lib/iomap.c
---- a-orig/arch/mips/lib/iomap.c	Thu Jan  1 09:00:00 1970
-+++ a/arch/mips/lib/iomap.c	Thu Jan 13 01:14:11 2005
+diff -urN linux-mips/arch/mips/lib/iomap.c new/arch/mips/lib/iomap.c
+--- linux-mips/arch/mips/lib/iomap.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/lib/iomap.c	2006-01-16 16:45:35.000000000 +0000
 @@ -0,0 +1,78 @@
 +/*
 + *  iomap.c, Memory Mapped I/O routines for MIPS architecture.
@@ -118,11 +118,11 @@ diff -urN -X dontdiff a-orig/arch/mips/lib/iomap.c a/arch/mips/lib/iomap.c
 +}
 +EXPORT_SYMBOL(pci_iomap);
 +EXPORT_SYMBOL(pci_iounmap);
-diff -urN -X dontdiff a-orig/include/asm-mips/io.h a/include/asm-mips/io.h
---- a-orig/include/asm-mips/io.h	Mon Dec 27 15:22:30 2004
-+++ a/include/asm-mips/io.h	Thu Jan 13 01:35:51 2005
-@@ -478,6 +478,34 @@
- #define memcpy_toio(a,b,c)	memcpy((void *)(a),(b),(c))
+diff -urN linux-mips/include/asm-mips/io.h new/include/asm-mips/io.h
+--- linux-mips/include/asm-mips/io.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/io.h	2006-01-16 16:45:35.000000000 +0000
+@@ -535,6 +535,34 @@
+ }
  
  /*
 + * Memory Mapped I/O
@@ -156,7 +156,4 @@ diff -urN -X dontdiff a-orig/include/asm-mips/io.h a/include/asm-mips/io.h
   * ISA space is 'always mapped' on currently supported MIPS systems, no need
   * to explicitly ioremap() it. The fact that the ISA IO space is mapped
   * to PAGE_OFFSET is pure coincidence - it does not mean ISA values
-
-
-
 

@@ -1,9 +1,8 @@
 #! /bin/sh -e
 ## 21_ip30.dpatch by Stanislaw Skowronek <skylark@linux-mips.org>
 ##
-## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Improved ioc3 driver, from
-## DP: ftp://ftp.linux-mips.org/pub/linux/mips/people/skylark/linux-mips-2.6.12-ip30-r25.patch.bz2
+## DP: ftp://ftp.linux-mips.org/pub/linux/mips/people/skylark/linux-mips-2.6.14-ip30-r27.patch.bz2
 
 if [ $# -lt 1 ]; then
     echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
@@ -23,10 +22,11 @@ esac
 
 exit 0
 
-diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfig
---- linux-2.6.12-ioc3/arch/mips/Kconfig	2005-07-09 13:35:08.000000000 +0200
-+++ linux-2.6.12-ip30/arch/mips/Kconfig	2005-07-10 15:42:33.000000000 +0200
-@@ -484,6 +484,21 @@
+
+diff -urN linux-mips/arch/mips/Kconfig new/arch/mips/Kconfig
+--- linux-mips/arch/mips/Kconfig	2006-01-10 11:21:15.000000000 +0000
++++ new/arch/mips/Kconfig	2006-01-16 17:28:08.000000000 +0000
+@@ -577,6 +577,21 @@
  	  workstations.  To compile a Linux kernel that runs on these, say Y
  	  here.
  
@@ -38,7 +38,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfi
 +	select DMA_IP30
 +	select HW_HAS_PCI
 +	select PCI_DOMAINS
-+	select QL_ISP_A64
++	select SYS_HAS_CPU_R10000
 +	select SYS_SUPPORTS_64BIT_KERNEL
 +	select SYS_SUPPORTS_BIG_ENDIAN
 +	help
@@ -48,7 +48,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfi
  config SGI_IP32
  	bool "Support for SGI IP32 (O2) (EXPERIMENTAL)"
  	depends on EXPERIMENTAL
-@@ -671,6 +686,9 @@
+@@ -815,6 +830,9 @@
  config DMA_IP27
  	bool
  
@@ -57,8 +57,8 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfi
 +
  config DMA_IP32
  	bool
- 
-@@ -847,7 +865,7 @@
+ 	select DMA_NEED_PCI_MAP_STATE
+@@ -1009,7 +1027,7 @@
  config MIPS_L1_CACHE_SHIFT
  	int
  	default "4" if MACH_DECSTATION
@@ -67,7 +67,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfi
  	default "5"
  
  config HAVE_STD_PC_SERIAL_PORT
-@@ -862,12 +880,12 @@
+@@ -1024,12 +1042,12 @@
  
  config ARC_MEMORY
  	bool
@@ -82,19 +82,27 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Kconfig linux-2.6.12-ip30/arch/mips/Kconfi
  	default y
  
  config ARC64
-@@ -1207,7 +1225,7 @@
+@@ -1576,7 +1594,7 @@
  
  config SMP
  	bool "Multi-Processing support"
--	depends on CPU_RM9000 || (SIBYTE_SB1250 && !SIBYTE_STANDALONE) || SGI_IP27
-+	depends on CPU_RM9000 || (SIBYTE_SB1250 && !SIBYTE_STANDALONE) || SGI_IP27 || SGI_IP30
+-	depends on CPU_RM9000 || ((SIBYTE_BCM1x80 || SIBYTE_BCM1x55 || SIBYTE_SB1250) && !SIBYTE_STANDALONE) || SGI_IP27 || MIPS_MT_SMP
++	depends on CPU_RM9000 || ((SIBYTE_BCM1x80 || SIBYTE_BCM1x55 || SIBYTE_SB1250) && !SIBYTE_STANDALONE) || SGI_IP27 || SGI_IP30 || MIPS_MT_SMP
  	---help---
  	  This enables support for systems with more than one CPU. If you have
  	  a system with only one CPU, like most personal computers, say N. If
-diff -urN linux-2.6.12-ioc3/arch/mips/Makefile linux-2.6.12-ip30/arch/mips/Makefile
---- linux-2.6.12-ioc3/arch/mips/Makefile	2005-07-08 13:12:04.000000000 +0200
-+++ linux-2.6.12-ip30/arch/mips/Makefile	2005-07-09 13:36:14.000000000 +0200
-@@ -601,6 +601,15 @@
+@@ -1601,6 +1619,7 @@
+ 	range 2 64
+ 	depends on SMP
+ 	default "64" if SGI_IP27
++	default "4" if SGI_IP30
+ 	default "2"
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+diff -urN linux-mips/arch/mips/Makefile new/arch/mips/Makefile
+--- linux-mips/arch/mips/Makefile	2006-01-10 11:30:59.000000000 +0000
++++ new/arch/mips/Makefile	2006-01-16 17:28:08.000000000 +0000
+@@ -632,6 +632,15 @@
  endif
  
  #
@@ -110,10 +118,10 @@ diff -urN linux-2.6.12-ioc3/arch/mips/Makefile linux-2.6.12-ip30/arch/mips/Makef
  # SGI-IP32 (O2)
  #
  # Set the load address to >= 80069000 if you want to leave space for symmon,
-diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips/kernel/setup.c
---- linux-2.6.12-ioc3/arch/mips/kernel/setup.c	2005-07-08 13:12:08.000000000 +0200
-+++ linux-2.6.12-ip30/arch/mips/kernel/setup.c	2005-07-09 13:36:14.000000000 +0200
-@@ -150,7 +150,6 @@
+diff -urN linux-mips/arch/mips/kernel/setup.c new/arch/mips/kernel/setup.c
+--- linux-mips/arch/mips/kernel/setup.c	2006-01-10 11:30:59.000000000 +0000
++++ new/arch/mips/kernel/setup.c	2006-01-16 17:28:08.000000000 +0000
+@@ -152,7 +152,6 @@
  
  	printk("Determined physical RAM map:\n");
  	print_memory_map();
@@ -121,7 +129,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  	for (;;) {
  		/*
  		 * "mem=XXX[kKmM]" defines a memory region from
-@@ -300,7 +299,7 @@
+@@ -302,7 +301,7 @@
  	 * Partially used pages are not usable - thus
  	 * we are rounding upwards.
  	 */
@@ -130,7 +138,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  
  #ifndef CONFIG_SGI_IP27
  	/* Find the highest page frame number we have available.  */
-@@ -422,11 +421,11 @@
+@@ -426,11 +425,11 @@
  		printk("Initial ramdisk at: 0x%p (%lu bytes)\n",
  		       (void *)initrd_start, initrd_size);
  
@@ -144,7 +152,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  			       sizeof(long) * 2,
  			       (unsigned long long)PFN_PHYS(max_low_pfn));
  			initrd_start = initrd_end = 0;
-@@ -434,7 +433,7 @@
+@@ -438,7 +437,7 @@
  		}
  
  		if (initrd_reserve_bootmem)
@@ -153,7 +161,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  	}
  #endif /* CONFIG_BLK_DEV_INITRD  */
  }
-@@ -448,10 +447,10 @@
+@@ -452,10 +451,10 @@
  	 * The 64bit code in 32bit object format trick can't represent
  	 * 64bit wide relocations for linker script symbols.
  	 */
@@ -168,7 +176,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  #else
  	code_resource.start = virt_to_phys(&_text);
  	code_resource.end = virt_to_phys(&_etext) - 1;
-@@ -524,6 +523,10 @@
+@@ -530,6 +529,10 @@
  	/* call board setup routine */
  	plat_setup();
  
@@ -179,9 +187,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/kernel/setup.c linux-2.6.12-ip30/arch/mips
  	strlcpy(command_line, arcs_cmdline, sizeof(command_line));
  	strlcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
  
-diff -urN linux-2.6.12-ioc3/arch/mips/mm/Makefile linux-2.6.12-ip30/arch/mips/mm/Makefile
---- linux-2.6.12-ioc3/arch/mips/mm/Makefile	2005-07-08 13:12:09.000000000 +0200
-+++ linux-2.6.12-ip30/arch/mips/mm/Makefile	2005-07-10 15:37:40.000000000 +0200
+diff -urN linux-mips/arch/mips/mm/Makefile new/arch/mips/mm/Makefile
+--- linux-mips/arch/mips/mm/Makefile	2006-01-10 11:21:16.000000000 +0000
++++ new/arch/mips/mm/Makefile	2006-01-16 17:28:08.000000000 +0000
 @@ -39,6 +39,7 @@
  obj-$(CONFIG_DMA_NONCOHERENT)	+= dma-noncoherent.o
  endif
@@ -190,9 +198,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/mm/Makefile linux-2.6.12-ip30/arch/mips/mm
  obj-$(CONFIG_DMA_IP32)		+= dma-ip32.o
  
  EXTRA_AFLAGS := $(CFLAGS)
-diff -urN linux-2.6.12-ioc3/arch/mips/mm/dma-ip30.c linux-2.6.12-ip30/arch/mips/mm/dma-ip30.c
---- linux-2.6.12-ioc3/arch/mips/mm/dma-ip30.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/mm/dma-ip30.c	2005-07-12 11:02:08.000000000 +0200
+diff -urN linux-mips/arch/mips/mm/dma-ip30.c new/arch/mips/mm/dma-ip30.c
+--- linux-mips/arch/mips/mm/dma-ip30.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/mm/dma-ip30.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,279 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
@@ -473,9 +481,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/mm/dma-ip30.c linux-2.6.12-ip30/arch/mips/
 +}
 +
 +EXPORT_SYMBOL(pci_dac_dma_sync_single_for_device);
-diff -urN linux-2.6.12-ioc3/arch/mips/mm/init.c linux-2.6.12-ip30/arch/mips/mm/init.c
---- linux-2.6.12-ioc3/arch/mips/mm/init.c	2005-03-18 21:40:38.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/mm/init.c	2005-07-11 18:16:03.000000000 +0200
+diff -urN linux-mips/arch/mips/mm/init.c new/arch/mips/mm/init.c
+--- linux-mips/arch/mips/mm/init.c	2006-01-10 11:21:16.000000000 +0000
++++ new/arch/mips/mm/init.c	2006-01-16 17:28:08.000000000 +0000
 @@ -160,8 +160,19 @@
  		zones_size[ZONE_NORMAL] = low - max_dma;
  	}
@@ -496,14 +504,14 @@ diff -urN linux-2.6.12-ioc3/arch/mips/mm/init.c linux-2.6.12-ip30/arch/mips/mm/i
  #ifdef CONFIG_HIGHMEM
  	if (cpu_has_dc_aliases) {
  		printk(KERN_WARNING "This processor doesn't support highmem.");
-@@ -262,13 +273,22 @@
+@@ -261,13 +272,22 @@
  }
- #endif /* !CONFIG_DISCONTIGMEM */
+ #endif /* !CONFIG_NEED_MULTIPLE_NODES */
  
-+#ifdef CONFIG_MIPS64
++#ifdef CONFIG_64BIT
 +unsigned long kernel_physaddr(unsigned long kva)
 +{
-+	if((kva & ~0xffffffffUL) == ~0xffffffffUL)
++	if(kva&0xffffffff00000000UL==0xffffffff00000000UL)
 +		return CPHYSADDR(kva);
 +	return XPHYSADDR(kva);
 +}
@@ -512,7 +520,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/mm/init.c linux-2.6.12-ip30/arch/mips/mm/i
  #ifdef CONFIG_BLK_DEV_INITRD
  void free_initrd_mem(unsigned long start, unsigned long end)
  {
- #ifdef CONFIG_MIPS64
+ #ifdef CONFIG_64BIT
  	/* Switch from KSEG0 to XKPHYS addresses */
 -	start = (unsigned long)phys_to_virt(CPHYSADDR(start));
 -	end = (unsigned long)phys_to_virt(CPHYSADDR(end));
@@ -521,29 +529,29 @@ diff -urN linux-2.6.12-ioc3/arch/mips/mm/init.c linux-2.6.12-ip30/arch/mips/mm/i
  #endif
  	if (start < end)
  		printk(KERN_INFO "Freeing initrd memory: %ldk freed\n",
-@@ -294,7 +314,7 @@
+@@ -293,7 +313,7 @@
  	addr = (unsigned long) &__init_begin;
  	while (addr < (unsigned long) &__init_end) {
- #ifdef CONFIG_MIPS64
+ #ifdef CONFIG_64BIT
 -		page = PAGE_OFFSET | CPHYSADDR(addr);
 +		page = PAGE_OFFSET | kernel_physaddr(addr);
  #else
  		page = addr;
  #endif
-diff -urN linux-2.6.12-ioc3/arch/mips/pci/Makefile linux-2.6.12-ip30/arch/mips/pci/Makefile
---- linux-2.6.12-ioc3/arch/mips/pci/Makefile	2005-07-09 13:35:08.000000000 +0200
-+++ linux-2.6.12-ip30/arch/mips/pci/Makefile	2005-07-09 13:36:14.000000000 +0200
-@@ -43,6 +43,7 @@
+diff -urN linux-mips/arch/mips/pci/Makefile new/arch/mips/pci/Makefile
+--- linux-mips/arch/mips/pci/Makefile	2006-01-10 11:21:16.000000000 +0000
++++ new/arch/mips/pci/Makefile	2006-01-16 17:28:08.000000000 +0000
+@@ -44,6 +44,7 @@
  obj-$(CONFIG_PMC_YOSEMITE)	+= fixup-yosemite.o ops-titan.o ops-titan-ht.o \
  				   pci-yosemite.o
  obj-$(CONFIG_SGI_IP27)		+= pci-ip27.o
 +obj-$(CONFIG_SGI_IP30)		+= pci-ip30.o
  obj-$(CONFIG_SGI_IP32)		+= fixup-ip32.o ops-mace.o pci-ip32.o
  obj-$(CONFIG_SIBYTE_SB1250)	+= fixup-sb1250.o pci-sb1250.o
- obj-$(CONFIG_SNI_RM200_PCI)	+= fixup-sni.o ops-sni.o
-diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci-ip30.c linux-2.6.12-ip30/arch/mips/pci/pci-ip30.c
---- linux-2.6.12-ioc3/arch/mips/pci/pci-ip30.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/pci/pci-ip30.c	2005-07-13 08:19:23.000000000 +0200
+ obj-$(CONFIG_SIBYTE_BCM1x80)	+= pci-bcm1480.o pci-bcm1480ht.o
+diff -urN linux-mips/arch/mips/pci/pci-ip30.c new/arch/mips/pci/pci-ip30.c
+--- linux-mips/arch/mips/pci/pci-ip30.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/pci/pci-ip30.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,484 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
@@ -1029,9 +1037,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci-ip30.c linux-2.6.12-ip30/arch/mips
 +	pci_disable_swapping_dma);
 +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SGI, PCI_DEVICE_ID_SGI_RAD1,
 +	pci_disable_swapping_dma);
-diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci.c linux-2.6.12-ip30/arch/mips/pci/pci.c
---- linux-2.6.12-ioc3/arch/mips/pci/pci.c	2004-12-16 13:55:01.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/pci/pci.c	2005-07-10 13:32:04.000000000 +0200
+diff -urN linux-mips/arch/mips/pci/pci.c new/arch/mips/pci/pci.c
+--- linux-mips/arch/mips/pci/pci.c	2006-01-10 11:21:16.000000000 +0000
++++ new/arch/mips/pci/pci.c	2006-01-16 17:28:08.000000000 +0000
 @@ -119,6 +119,10 @@
  	/* Scan all of the recorded PCI controllers.  */
  	for (next_busno = 0, hose = hose_head; hose; hose = hose->next) {
@@ -1043,18 +1051,18 @@ diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci.c linux-2.6.12-ip30/arch/mips/pci/
  		if (request_resource(&iomem_resource, hose->mem_resource) < 0)
  			goto out;
  		if (request_resource(&ioport_resource, hose->io_resource) < 0)
-@@ -131,6 +135,10 @@
- 		hose->bus = bus;
+@@ -135,6 +139,10 @@
  		hose->need_domain_info = need_domain_info;
- 		next_busno = bus->subordinate + 1;
+ 		if (bus) {
+ 			next_busno = bus->subordinate + 1;
++ 
++ 			if (hose->post_scan)
++ 				hose->post_scan(hose, bus);
 +
-+		if (hose->post_scan)
-+			hose->post_scan(hose, bus);
-+
- 		/* Don't allow 8-bit bus number overflow inside the hose -
- 		   reserve some space for bridges. */ 
- 		if (next_busno > 224) {
-@@ -161,6 +169,7 @@
+ 			/* Don't allow 8-bit bus number overflow inside the hose -
+ 			   reserve some space for bridges. */
+ 			if (next_busno > 224) {
+@@ -166,6 +174,7 @@
  	u16 cmd, old_cmd;
  	int idx;
  	struct resource *r;
@@ -1062,7 +1070,7 @@ diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci.c linux-2.6.12-ip30/arch/mips/pci/
  
  	pci_read_config_word(dev, PCI_COMMAND, &cmd);
  	old_cmd = cmd;
-@@ -169,6 +178,10 @@
+@@ -174,6 +183,10 @@
  		if (!(mask & (1<<idx)))
  			continue;
  
@@ -1073,9 +1081,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/pci/pci.c linux-2.6.12-ip30/arch/mips/pci/
  		r = &dev->resource[idx];
  		if (!r->start && r->end) {
  			printk(KERN_ERR "PCI: Device %s not available because of resource collisions\n", pci_name(dev));
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/Makefile linux-2.6.12-ip30/arch/mips/sgi-ip30/Makefile
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/Makefile	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/Makefile new/arch/mips/sgi-ip30/Makefile
+--- linux-mips/arch/mips/sgi-ip30/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/Makefile	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,8 @@
 +#
 +# Makefile for the IP30 specific kernel interface routines under Linux.
@@ -1085,9 +1093,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/Makefile linux-2.6.12-ip30/arch/m
 +obj-$(CONFIG_SMP)	+= ip30-smp.o ip30-smp-glue.o
 +
 +EXTRA_AFLAGS := $(CFLAGS)
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-err.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-err.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-err.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-err.c	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-err.c new/arch/mips/sgi-ip30/ip30-err.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-err.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-err.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,37 @@
 +/*
 + * ip30-err.c: HEART error handling for IP30 architecture.
@@ -1126,9 +1134,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-err.c linux-2.6.12-ip30/arch
 +			printk("    interrupt #%d\n",i);
 +	irq_exit();
 +}
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq-glue.S linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-irq-glue.S
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq-glue.S	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-irq-glue.S	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-irq-glue.S new/arch/mips/sgi-ip30/ip30-irq-glue.S
+--- linux-mips/arch/mips/sgi-ip30/ip30-irq-glue.S	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-irq-glue.S	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,54 @@
 +/*
 + * Copyright (C) 2004,5 Stanislaw Skowronek
@@ -1184,9 +1192,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq-glue.S linux-2.6.12-ip30
 +1:
 +	j	ret_from_irq
 +	END(ip30_irq)
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-irq.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-irq.c	2005-07-13 10:00:38.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-irq.c new/arch/mips/sgi-ip30/ip30-irq.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-irq.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-irq.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,307 @@
 +/*
 + * ip30-irq.c: Highlevel interrupt handling for IP30 architecture.
@@ -1495,9 +1503,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-irq.c linux-2.6.12-ip30/arch
 +	*HEART_IMR(pcpu)=0x0000000000000000;
 +	change_c0_status(ST0_IM, STATUSF_IP2|STATUSF_IP3|STATUSF_IP4|STATUSF_IP5|STATUSF_IP6);
 +}
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-power.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-power.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-power.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-power.c	2005-07-13 10:00:30.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-power.c new/arch/mips/sgi-ip30/ip30-power.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-power.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-power.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,124 @@
 +/*
 + * ip30-power.c: Software powerdown and reset handling for IP30 architecture.
@@ -1623,9 +1631,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-power.c linux-2.6.12-ip30/ar
 +}
 +
 +subsys_initcall(reboot_setup);
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-setup.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-setup.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-setup.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-setup.c	2005-07-11 18:07:34.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-setup.c new/arch/mips/sgi-ip30/ip30-setup.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-setup.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-setup.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,74 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
@@ -1701,9 +1709,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-setup.c linux-2.6.12-ip30/ar
 +#endif
 +	return 0;
 +}
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp-glue.S linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-smp-glue.S
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp-glue.S	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-smp-glue.S	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-smp-glue.S new/arch/mips/sgi-ip30/ip30-smp-glue.S
+--- linux-mips/arch/mips/sgi-ip30/ip30-smp-glue.S	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-smp-glue.S	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,17 @@
 +/*
 + * Copyright (C) 2005 Stanislaw Skowronek
@@ -1722,9 +1730,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp-glue.S linux-2.6.12-ip30
 +	move	gp, a0
 +	j	smp_bootstrap
 +	END(ip30_smp_bootstrap)
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-smp.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-smp.c	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-smp.c new/arch/mips/sgi-ip30/ip30-smp.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-smp.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-smp.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,142 @@
 +/*
 + * ip30-smp.c: SMP on IP30 architecture.
@@ -1868,9 +1876,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-smp.c linux-2.6.12-ip30/arch
 +	if(request_irq(IRQ_IPI_P(cpu),ip30_mailbox_irq,0,"SMP IPI",NULL))
 +		printk("IP30: IPI allocation for CPU%d failed.\n",cpu);
 +}
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-timer.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-timer.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-timer.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-timer.c	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-timer.c new/arch/mips/sgi-ip30/ip30-timer.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-timer.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-timer.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,47 @@
 +/*
 + * ip30-timer.c: Timer handling for IP30 architecture.
@@ -1919,9 +1927,9 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-timer.c linux-2.6.12-ip30/ar
 +{
 +	setup_irq(TIMER_IRQ, irq);
 +}
-diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-xtalk.c linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-xtalk.c
---- linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-xtalk.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/arch/mips/sgi-ip30/ip30-xtalk.c	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/arch/mips/sgi-ip30/ip30-xtalk.c new/arch/mips/sgi-ip30/ip30-xtalk.c
+--- linux-mips/arch/mips/sgi-ip30/ip30-xtalk.c	1970-01-01 01:00:00.000000000 +0100
++++ new/arch/mips/sgi-ip30/ip30-xtalk.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,174 @@
 +/*
 + * ip30-xtalk.c
@@ -2097,12 +2105,12 @@ diff -urN linux-2.6.12-ioc3/arch/mips/sgi-ip30/ip30-xtalk.c linux-2.6.12-ip30/ar
 +	while((i=ip30_xtalk_find(PCIBR_XTALK_MFGR,PCIBR_XTALK_PART,i))!=-1)
 +		bridge_probe(0, i, IP30_WIDGET_HEART);
 +}
-diff -urN linux-2.6.12-ioc3/drivers/char/Kconfig linux-2.6.12-ip30/drivers/char/Kconfig
---- linux-2.6.12-ioc3/drivers/char/Kconfig	2005-07-09 13:35:08.000000000 +0200
-+++ linux-2.6.12-ip30/drivers/char/Kconfig	2005-07-09 13:36:14.000000000 +0200
-@@ -397,6 +397,14 @@
- 	  Enable this if you have a SGI Origin or Octane machine. This module
- 	  provides serial port support for IOC3 chips on those systems.
+diff -urN linux-mips/drivers/char/Kconfig new/drivers/char/Kconfig
+--- linux-mips/drivers/char/Kconfig	2006-01-10 11:21:25.000000000 +0000
++++ new/drivers/char/Kconfig	2006-01-16 17:28:08.000000000 +0000
+@@ -390,6 +390,14 @@
+ 	  Documentation on the Zilog 85C350 serial communications controller
+ 	  is downloadable at <http://www.zilog.com/pdfs/serial/z85c30.pdf>.
  
 +config SGI_IP30_LEDS
 +	bool "SGI Octane LED support"
@@ -2115,7 +2123,7 @@ diff -urN linux-2.6.12-ioc3/drivers/char/Kconfig linux-2.6.12-ip30/drivers/char/
  config QTRONIX_KEYBOARD
  	bool "Enable Qtronix 990P Keyboard Support"
  	depends on MIPS && (MIPS_ITE8172 || MIPS_IVR)
-@@ -789,6 +797,17 @@
+@@ -782,6 +790,17 @@
  	  via the file /proc/rtc and its behaviour is set by various ioctls on
  	  /dev/rtc.
  
@@ -2132,22 +2140,22 @@ diff -urN linux-2.6.12-ioc3/drivers/char/Kconfig linux-2.6.12-ip30/drivers/char/
 +
  config GEN_RTC
  	tristate "Generic /dev/rtc emulation"
- 	depends on RTC!=y && !IA64 && !ARM
-diff -urN linux-2.6.12-ioc3/drivers/char/Makefile linux-2.6.12-ip30/drivers/char/Makefile
---- linux-2.6.12-ioc3/drivers/char/Makefile	2005-07-09 13:35:08.000000000 +0200
-+++ linux-2.6.12-ip30/drivers/char/Makefile	2005-07-09 13:36:14.000000000 +0200
+ 	depends on RTC!=y && !IA64 && !ARM && !M32R && !SPARC
+diff -urN linux-mips/drivers/char/Makefile new/drivers/char/Makefile
+--- linux-mips/drivers/char/Makefile	2006-01-10 11:21:25.000000000 +0000
++++ new/drivers/char/Makefile	2006-01-16 17:28:08.000000000 +0000
 @@ -64,6 +64,8 @@
  obj-$(CONFIG_EFI_RTC) += efirtc.o
  obj-$(CONFIG_SGI_DS1286) += ds1286.o
  obj-$(CONFIG_SGI_IP27_RTC) += ip27-rtc.o
 +obj-$(CONFIG_SGI_IP30_LEDS) += ip30-leds.o
 +obj-$(CONFIG_SGI_IP30_RTC) += ip30-rtc.o
- obj-$(CONFIG_SGI_IOC3_UART) += ioc3uart.o
  obj-$(CONFIG_DS1302) += ds1302.o
  obj-$(CONFIG_S3C2410_RTC) += s3c2410-rtc.o
-diff -urN linux-2.6.12-ioc3/drivers/char/ip30-leds.c linux-2.6.12-ip30/drivers/char/ip30-leds.c
---- linux-2.6.12-ioc3/drivers/char/ip30-leds.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/drivers/char/ip30-leds.c	2005-07-13 08:16:54.000000000 +0200
+ obj-$(CONFIG_RTC_VR41XX) += vr41xx_rtc.o
+diff -urN linux-mips/drivers/char/ip30-leds.c new/drivers/char/ip30-leds.c
+--- linux-mips/drivers/char/ip30-leds.c	1970-01-01 01:00:00.000000000 +0100
++++ new/drivers/char/ip30-leds.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,270 @@
 +/*
 + *	Driver for the LEDs in SGI Octane.
@@ -2419,9 +2427,9 @@ diff -urN linux-2.6.12-ioc3/drivers/char/ip30-leds.c linux-2.6.12-ip30/drivers/c
 +
 +module_init(leds_init);
 +module_exit(leds_exit);
-diff -urN linux-2.6.12-ioc3/drivers/char/ip30-rtc.c linux-2.6.12-ip30/drivers/char/ip30-rtc.c
---- linux-2.6.12-ioc3/drivers/char/ip30-rtc.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/drivers/char/ip30-rtc.c	2005-07-13 09:34:21.000000000 +0200
+diff -urN linux-mips/drivers/char/ip30-rtc.c new/drivers/char/ip30-rtc.c
+--- linux-mips/drivers/char/ip30-rtc.c	1970-01-01 01:00:00.000000000 +0100
++++ new/drivers/char/ip30-rtc.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,395 @@
 +/*
 + *	Driver for the Maxim/Dallas DS1687 real time clock in SGI Octane.
@@ -2818,10 +2826,23 @@ diff -urN linux-2.6.12-ioc3/drivers/char/ip30-rtc.c linux-2.6.12-ip30/drivers/ch
 +
 +module_init(rtc_init);
 +module_exit(rtc_exit);
-diff -urN linux-2.6.12-ioc3/drivers/video/Kconfig linux-2.6.12-ip30/drivers/video/Kconfig
---- linux-2.6.12-ioc3/drivers/video/Kconfig	2005-07-08 13:15:43.000000000 +0200
-+++ linux-2.6.12-ip30/drivers/video/Kconfig	2005-07-09 13:36:14.000000000 +0200
-@@ -552,6 +552,20 @@
+diff -urN linux-mips/drivers/usb/host/pci-quirks.c new/drivers/usb/host/pci-quirks.c
+--- linux-mips/drivers/usb/host/pci-quirks.c	2006-01-10 11:21:48.000000000 +0000
++++ new/drivers/usb/host/pci-quirks.c	2006-01-16 17:28:08.000000000 +0000
+@@ -152,6 +152,9 @@
+ 	unsigned long base = 0;
+ 	int i;
+ 
++	if (!pci_enable_device(pdev))
++		return;
++
+ 	if (!pio_enabled(pdev))
+ 		return;
+ 
+diff -urN linux-mips/drivers/video/Kconfig new/drivers/video/Kconfig
+--- linux-mips/drivers/video/Kconfig	2006-01-10 11:21:49.000000000 +0000
++++ new/drivers/video/Kconfig	2006-01-16 17:28:08.000000000 +0000
+@@ -525,6 +525,20 @@
  	  This is the amount of memory reserved for the framebuffer,
  	  which can be any value between 1MB and 8MB.
  
@@ -2842,22 +2863,22 @@ diff -urN linux-2.6.12-ioc3/drivers/video/Kconfig linux-2.6.12-ip30/drivers/vide
  config BUS_I2C
  	bool
  	depends on (FB = y) && VISWS
-diff -urN linux-2.6.12-ioc3/drivers/video/Makefile linux-2.6.12-ip30/drivers/video/Makefile
---- linux-2.6.12-ioc3/drivers/video/Makefile	2005-07-08 13:15:43.000000000 +0200
-+++ linux-2.6.12-ip30/drivers/video/Makefile	2005-07-09 13:36:14.000000000 +0200
-@@ -92,6 +92,8 @@
- obj-$(CONFIG_FB_S1D13XXX)	  += s1d13xxxfb.o
+diff -urN linux-mips/drivers/video/Makefile new/drivers/video/Makefile
+--- linux-mips/drivers/video/Makefile	2006-01-10 11:30:59.000000000 +0000
++++ new/drivers/video/Makefile	2006-01-16 17:28:08.000000000 +0000
+@@ -96,6 +96,8 @@
  obj-$(CONFIG_FB_IMX)              += imxfb.o
  obj-$(CONFIG_FB_SMIVGX)		  += smivgxfb.o
+ obj-$(CONFIG_FB_S3C2410)	  += s3c2410fb.o
 +obj-$(CONFIG_FB_IMPACTSR)         += impactsr.o
 +obj-$(CONFIG_FB_ODYSSEY)          += odyssey.o
  
  # Platform or fallback drivers go here
  obj-$(CONFIG_FB_VESA)             += vesafb.o
-diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/video/impactsr.c
---- linux-2.6.12-ioc3/drivers/video/impactsr.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/drivers/video/impactsr.c	2005-07-09 13:36:14.000000000 +0200
-@@ -0,0 +1,919 @@
+diff -urN linux-mips/drivers/video/impactsr.c new/drivers/video/impactsr.c
+--- linux-mips/drivers/video/impactsr.c	1970-01-01 01:00:00.000000000 +0100
++++ new/drivers/video/impactsr.c	2006-01-16 17:28:08.000000000 +0000
+@@ -0,0 +1,911 @@
 +/*
 + * linux/drivers/video/impactsr.c -- SGI Octane MardiGras (IMPACTSR) graphics
 + *
@@ -2905,6 +2926,7 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +#include <linux/dma-mapping.h>
 +#include <linux/spinlock.h>
 +#include <linux/font.h>
++#include <linux/platform_device.h>
 +
 +#include <asm/mach-ip30/xtalk.h>
 +#include <video/impactsr.h>
@@ -2929,7 +2951,6 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +	unsigned int num_ge, num_rss;
 +	/* locks to prevent simultaneous user and kernel access */
 +	int open_flag;
-+	int mmap_flag;
 +	spinlock_t lock;
 +};
 +
@@ -3135,6 +3156,8 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +		SetPageReserved(virt_to_page(PAR.kpool_virt[pool][i]));
 +		PAR.kpool_phys[pool][i]=dma_handle;
 +		PAR.pool_txtbl[pool][i]=PAR.kpool_phys[pool][i]>>PAGE_SHIFT;
++		if(!PAR.kpool_virt[pool][i])
++			printk(KERN_ERR "impactsr: Page allocation failed!\n");
 +	}
 +	impactsr_writetxtbl(p,pool);
 +	PAR.kpool_size[pool]=pages*PAGE_SIZE;
@@ -3496,7 +3519,6 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +		if (remap_pfn_range(vma, vma->vm_start, offset>>PAGE_SHIFT, size, vma->vm_page_prot))
 +			return -EAGAIN;
 +		vma->vm_file = file;
-+		PAR.mmap_flag = 1;
 +		return 0;
 +	case 0x1000000:
 +	case 0x2000000:
@@ -3507,7 +3529,7 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +	case 0xb000000:
 +		if(size>0x1000000)
 +			return EINVAL;
-+		pool=offset>>24;
++		pool=(offset>>24)&3;
 +		impactsr_resizekpool(&info,pool,size,offset&0x8000000);
 +		n=(size+PAGE_SIZE-1)>>PAGE_SHIFT;
 +		for(i=0;i<n;i++) {
@@ -3516,7 +3538,6 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +			start += PAGE_SIZE;
 +		}
 +		vma->vm_file = file;
-+		PAR.mmap_flag = 1;
 +		return 0;
 +	default:
 +		return -EINVAL;
@@ -3539,15 +3560,8 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +{
 +	unsigned long flags;
 +	spin_lock_irqsave(&PAR.lock,flags);
-+        if (user && PAR.open_flag) {
++        if (user && PAR.open_flag)
 +                PAR.open_flag--;
-+		if (PAR.open_flag == 0) {
-+			impactsr_resizekpool(&info,1,8192,0);
-+			impactsr_resizekpool(&info,2,8192,0);
-+			impactsr_resizekpool(&info,3,8192,0);
-+                        PAR.mmap_flag = 0;
-+		}
-+	}
 +	spin_unlock_irqrestore(&PAR.lock,flags);
 +	return 0;
 +}
@@ -3701,7 +3715,6 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +		return -ENODEV;
 +
 +	current_par.open_flag = 0;
-+	current_par.mmap_flag = 0;
 +	current_par.lock = SPIN_LOCK_UNLOCKED;
 +
 +	current_par.mmio_base = ip30_xtalk_swin(xwid);
@@ -3777,10 +3790,10 @@ diff -urN linux-2.6.12-ioc3/drivers/video/impactsr.c linux-2.6.12-ip30/drivers/v
 +module_exit(impactsr_exit);
 +
 +MODULE_LICENSE("GPL");
-diff -urN linux-2.6.12-ioc3/drivers/video/logo/Kconfig linux-2.6.12-ip30/drivers/video/logo/Kconfig
---- linux-2.6.12-ioc3/drivers/video/logo/Kconfig	2005-07-08 13:15:56.000000000 +0200
-+++ linux-2.6.12-ip30/drivers/video/logo/Kconfig	2005-07-09 13:36:14.000000000 +0200
-@@ -40,7 +40,7 @@
+diff -urN linux-mips/drivers/video/logo/Kconfig new/drivers/video/logo/Kconfig
+--- linux-mips/drivers/video/logo/Kconfig	2006-01-10 11:21:50.000000000 +0000
++++ new/drivers/video/logo/Kconfig	2006-01-16 17:28:08.000000000 +0000
+@@ -42,7 +42,7 @@
  
  config LOGO_SGI_CLUT224
  	bool "224-color SGI Linux logo"
@@ -3789,10 +3802,10 @@ diff -urN linux-2.6.12-ioc3/drivers/video/logo/Kconfig linux-2.6.12-ip30/drivers
  	default y
  
  config LOGO_SUN_CLUT224
-diff -urN linux-2.6.12-ioc3/drivers/video/odyssey.c linux-2.6.12-ip30/drivers/video/odyssey.c
---- linux-2.6.12-ioc3/drivers/video/odyssey.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/drivers/video/odyssey.c	2005-07-09 13:36:14.000000000 +0200
-@@ -0,0 +1,966 @@
+diff -urN linux-mips/drivers/video/odyssey.c new/drivers/video/odyssey.c
+--- linux-mips/drivers/video/odyssey.c	1970-01-01 01:00:00.000000000 +0100
++++ new/drivers/video/odyssey.c	2006-01-16 17:28:08.000000000 +0000
+@@ -0,0 +1,967 @@
 +/*
 + * linux/drivers/video/odyssey.c -- SGI Octane Odyssey graphics
 + *
@@ -3827,6 +3840,7 @@ diff -urN linux-2.6.12-ioc3/drivers/video/odyssey.c linux-2.6.12-ip30/drivers/vi
 +#include <linux/dma-mapping.h>
 +#include <linux/spinlock.h>
 +#include <linux/font.h>
++#include <linux/platform_device.h>
 +
 +#include <asm/mach-ip30/xtalk.h>
 +#include <video/odyssey.h>
@@ -4759,27 +4773,27 @@ diff -urN linux-2.6.12-ioc3/drivers/video/odyssey.c linux-2.6.12-ip30/drivers/vi
 +module_exit(odyssey_exit);
 +
 +MODULE_LICENSE("GPL");
-diff -urN linux-2.6.12-ioc3/include/asm-mips/addrspace.h linux-2.6.12-ip30/include/asm-mips/addrspace.h
---- linux-2.6.12-ioc3/include/asm-mips/addrspace.h	2005-07-08 13:16:45.000000000 +0200
-+++ linux-2.6.12-ip30/include/asm-mips/addrspace.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/asm-mips/addrspace.h new/include/asm-mips/addrspace.h
+--- linux-mips/include/asm-mips/addrspace.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/addrspace.h	2006-01-16 17:28:08.000000000 +0000
 @@ -51,6 +51,14 @@
  #define XPHYSADDR(a)            ((_ACAST64_(a)) &			\
  				 _LLCONST_(0x000000ffffffffff))
  
 +#ifndef __ASSEMBLY__
-+#ifdef CONFIG_MIPS64
++#ifdef CONFIG_64BIT
 +unsigned long kernel_physaddr(unsigned long);
 +#else
 +#define kernel_physaddr CPHYSADDR
 +#endif
 +#endif
 +
- #ifdef CONFIG_MIPS64
+ #ifdef CONFIG_64BIT
  
  /*
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/addrs.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/addrs.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/addrs.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/addrs.h	2005-07-10 14:51:01.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/addrs.h new/include/asm-mips/mach-ip30/addrs.h
+--- linux-mips/include/asm-mips/mach-ip30/addrs.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/addrs.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,33 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
@@ -4814,10 +4828,10 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/addrs.h linux-2.6.12-ip30
 +#define BWIN_SIZE	0x1000000000L
 +
 +#endif /* _ASM_SGI_IP30_ADDRS_H */
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/cpu-feature-overrides.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/cpu-feature-overrides.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/cpu-feature-overrides.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/cpu-feature-overrides.h	2005-07-09 13:36:14.000000000 +0200
-@@ -0,0 +1,28 @@
+diff -urN linux-mips/include/asm-mips/mach-ip30/cpu-feature-overrides.h new/include/asm-mips/mach-ip30/cpu-feature-overrides.h
+--- linux-mips/include/asm-mips/mach-ip30/cpu-feature-overrides.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/cpu-feature-overrides.h	2006-01-16 17:28:08.000000000 +0000
+@@ -0,0 +1,31 @@
 +#ifndef __ASM_MACH_IP30_CPU_FEATURE_OVERRIDES_H
 +#define __ASM_MACH_IP30_CPU_FEATURE_OVERRIDES_H
 +
@@ -4839,6 +4853,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/cpu-feature-overrides.h l
 +#define cpu_has_nofpuex		0
 +#define cpu_has_64bits		1
 +
++#define cpu_has_4kex		1
++#define cpu_has_4k_cache	1
++
 +#define cpu_has_subset_pcaches	1
 +
 +#define cpu_dcache_line_size()	32
@@ -4846,9 +4863,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/cpu-feature-overrides.h l
 +#define cpu_scache_line_size()	128
 +
 +#endif
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/heart.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/heart.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/heart.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/heart.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/heart.h new/include/asm-mips/mach-ip30/heart.h
+--- linux-mips/include/asm-mips/mach-ip30/heart.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/heart.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,213 @@
 +/*
 + * Copyright (C) 2004,5 Stanislaw Skowronek
@@ -5063,9 +5080,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/heart.h linux-2.6.12-ip30
 +#define HC_COR_MEM_ERR		((unsigned long) 0x1 << 0)
 +
 +#endif /* _HEART_H */
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/mangle-port.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/mangle-port.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/mangle-port.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/mangle-port.h	2005-07-10 22:18:15.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/mangle-port.h new/include/asm-mips/mach-ip30/mangle-port.h
+--- linux-mips/include/asm-mips/mach-ip30/mangle-port.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/mangle-port.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,16 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
@@ -5083,9 +5100,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/mangle-port.h linux-2.6.1
 +#define __swizzle_addr_q(port)	(port)
 +
 +#endif /* __ASM_MACH_IP27_MANGLE_PORT_H */
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/pcibr.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/pcibr.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/pcibr.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/pcibr.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/pcibr.h new/include/asm-mips/mach-ip30/pcibr.h
+--- linux-mips/include/asm-mips/mach-ip30/pcibr.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/pcibr.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,24 @@
 +/*
 + * Definitions for the built-in PCI bridge
@@ -5111,9 +5128,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/pcibr.h linux-2.6.12-ip30
 +extern unsigned int ip30_irq_in_bridge[64];
 +
 +#endif
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/racermp.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/racermp.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/racermp.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/racermp.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/racermp.h new/include/asm-mips/mach-ip30/racermp.h
+--- linux-mips/include/asm-mips/mach-ip30/racermp.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/racermp.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,28 @@
 +/*
 + * Copyright (C) 2005 Stanislaw Skowronek
@@ -5143,9 +5160,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/racermp.h linux-2.6.12-ip
 +#define MP_IDLEFLAG(x)	(*(volatile unsigned int *)(MPCONF(x)+0x58))
 +
 +#endif
-diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/xtalk.h linux-2.6.12-ip30/include/asm-mips/mach-ip30/xtalk.h
---- linux-2.6.12-ioc3/include/asm-mips/mach-ip30/xtalk.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/mach-ip30/xtalk.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/asm-mips/mach-ip30/xtalk.h new/include/asm-mips/mach-ip30/xtalk.h
+--- linux-mips/include/asm-mips/mach-ip30/xtalk.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/asm-mips/mach-ip30/xtalk.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,13 @@
 +/*
 + * Copyright (C) 2004,5 Stanislaw Skowronek
@@ -5160,9 +5177,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/mach-ip30/xtalk.h linux-2.6.12-ip30
 +int ip30_xtalk_find(unsigned mfgr, unsigned part, int last);
 +
 +#endif /* _XTALK_H */
-diff -urN linux-2.6.12-ioc3/include/asm-mips/pci/bridge.h linux-2.6.12-ip30/include/asm-mips/pci/bridge.h
---- linux-2.6.12-ioc3/include/asm-mips/pci/bridge.h	2004-08-30 00:34:25.000000000 +0200
-+++ linux-2.6.12-ip30/include/asm-mips/pci/bridge.h	2005-07-10 15:33:12.000000000 +0200
+diff -urN linux-mips/include/asm-mips/pci/bridge.h new/include/asm-mips/pci/bridge.h
+--- linux-mips/include/asm-mips/pci/bridge.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/pci/bridge.h	2006-01-16 17:28:08.000000000 +0000
 @@ -840,6 +840,17 @@
  	unsigned int 		irq_cpu;
  	dma64_addr_t		baddr;
@@ -5181,9 +5198,9 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/pci/bridge.h linux-2.6.12-ip30/incl
  };
  
  #define BRIDGE_CONTROLLER(bus) \
-diff -urN linux-2.6.12-ioc3/include/asm-mips/pci.h linux-2.6.12-ip30/include/asm-mips/pci.h
---- linux-2.6.12-ioc3/include/asm-mips/pci.h	2005-03-18 21:40:41.000000000 +0100
-+++ linux-2.6.12-ip30/include/asm-mips/pci.h	2005-07-10 13:00:19.000000000 +0200
+diff -urN linux-mips/include/asm-mips/pci.h new/include/asm-mips/pci.h
+--- linux-mips/include/asm-mips/pci.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/pci.h	2006-01-16 17:28:08.000000000 +0000
 @@ -39,6 +39,13 @@
  	   and XFree86. Eventually will be removed. */
  	unsigned int need_domain_info;
@@ -5196,12 +5213,12 @@ diff -urN linux-2.6.12-ioc3/include/asm-mips/pci.h linux-2.6.12-ip30/include/asm
 +	int (*pre_enable)(struct pci_controller *, struct pci_dev *, int);
 +
  	int iommu;
- };
  
-diff -urN linux-2.6.12-ioc3/include/linux/fb.h linux-2.6.12-ip30/include/linux/fb.h
---- linux-2.6.12-ioc3/include/linux/fb.h	2005-07-08 13:16:56.000000000 +0200
-+++ linux-2.6.12-ip30/include/linux/fb.h	2005-07-09 13:36:14.000000000 +0200
-@@ -116,6 +116,8 @@
+ 	/* Optional access methods for reading/writing the bus number
+diff -urN linux-mips/include/linux/fb.h new/include/linux/fb.h
+--- linux-mips/include/linux/fb.h	2006-01-10 11:22:03.000000000 +0000
++++ new/include/linux/fb.h	2006-01-16 17:28:08.000000000 +0000
+@@ -118,6 +118,8 @@
  #define FB_ACCEL_NEOMAGIC_NM2230 96	/* NeoMagic NM2230              */
  #define FB_ACCEL_NEOMAGIC_NM2360 97	/* NeoMagic NM2360              */
  #define FB_ACCEL_NEOMAGIC_NM2380 98	/* NeoMagic NM2380              */
@@ -5210,9 +5227,9 @@ diff -urN linux-2.6.12-ioc3/include/linux/fb.h linux-2.6.12-ip30/include/linux/f
  
  #define FB_ACCEL_SAVAGE4        0x80	/* S3 Savage4                   */
  #define FB_ACCEL_SAVAGE3D       0x81	/* S3 Savage3D                  */
-diff -urN linux-2.6.12-ioc3/include/linux/leds.h linux-2.6.12-ip30/include/linux/leds.h
---- linux-2.6.12-ioc3/include/linux/leds.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/linux/leds.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/linux/leds.h new/include/linux/leds.h
+--- linux-mips/include/linux/leds.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/linux/leds.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,29 @@
 +#ifndef LEDS_H
 +#define LEDS_H
@@ -5243,9 +5260,9 @@ diff -urN linux-2.6.12-ioc3/include/linux/leds.h linux-2.6.12-ip30/include/linux
 + */
 +
 +#endif
-diff -urN linux-2.6.12-ioc3/include/linux/miscdevice.h linux-2.6.12-ip30/include/linux/miscdevice.h
---- linux-2.6.12-ioc3/include/linux/miscdevice.h	2005-01-13 15:06:53.000000000 +0100
-+++ linux-2.6.12-ip30/include/linux/miscdevice.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/linux/miscdevice.h new/include/linux/miscdevice.h
+--- linux-mips/include/linux/miscdevice.h	2006-01-10 11:22:03.000000000 +0000
++++ new/include/linux/miscdevice.h	2006-01-16 17:28:08.000000000 +0000
 @@ -12,6 +12,7 @@
  #define APOLLO_MOUSE_MINOR 7
  #define PC110PAD_MINOR 9
@@ -5254,10 +5271,10 @@ diff -urN linux-2.6.12-ioc3/include/linux/miscdevice.h linux-2.6.12-ip30/include
  #define WATCHDOG_MINOR		130	/* Watchdog timer     */
  #define TEMP_MINOR		131	/* Temperature Sensor */
  #define RTC_MINOR 135
-diff -urN linux-2.6.12-ioc3/include/linux/pci_ids.h linux-2.6.12-ip30/include/linux/pci_ids.h
---- linux-2.6.12-ioc3/include/linux/pci_ids.h	2005-07-08 13:16:58.000000000 +0200
-+++ linux-2.6.12-ip30/include/linux/pci_ids.h	2005-07-09 13:36:14.000000000 +0200
-@@ -985,6 +985,7 @@
+diff -urN linux-mips/include/linux/pci_ids.h new/include/linux/pci_ids.h
+--- linux-mips/include/linux/pci_ids.h	2006-01-10 11:22:04.000000000 +0000
++++ new/include/linux/pci_ids.h	2006-01-16 17:28:08.000000000 +0000
+@@ -889,6 +889,7 @@
  
  #define PCI_VENDOR_ID_SGI		0x10a9
  #define PCI_DEVICE_ID_SGI_IOC3		0x0003
@@ -5265,9 +5282,9 @@ diff -urN linux-2.6.12-ioc3/include/linux/pci_ids.h linux-2.6.12-ip30/include/li
  #define PCI_DEVICE_ID_SGI_IOC4		0x100a
  #define PCI_VENDOR_ID_SGI_LITHIUM	0x1002
  
-diff -urN linux-2.6.12-ioc3/include/sound/rad1.h linux-2.6.12-ip30/include/sound/rad1.h
---- linux-2.6.12-ioc3/include/sound/rad1.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/sound/rad1.h	2005-07-25 07:10:34.000000000 +0200
+diff -urN linux-mips/include/sound/rad1.h new/include/sound/rad1.h
+--- linux-mips/include/sound/rad1.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/sound/rad1.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,111 @@
 +#ifndef _RAD1_H
 +#define _RAD1_H
@@ -5380,9 +5397,9 @@ diff -urN linux-2.6.12-ioc3/include/sound/rad1.h linux-2.6.12-ip30/include/sound
 +};
 +
 +#endif
-diff -urN linux-2.6.12-ioc3/include/video/impactsr.h linux-2.6.12-ip30/include/video/impactsr.h
---- linux-2.6.12-ioc3/include/video/impactsr.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/video/impactsr.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/video/impactsr.h new/include/video/impactsr.h
+--- linux-mips/include/video/impactsr.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/video/impactsr.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,138 @@
 +/*
 + *  linux/drivers/video/impactsr.h -- SGI Octane MardiGras (IMPACTSR) graphics
@@ -5522,9 +5539,9 @@ diff -urN linux-2.6.12-ioc3/include/video/impactsr.h linux-2.6.12-ip30/include/v
 +#define IMPACTSR_BLEND_ALPHA	0x0704c900
 +
 +#endif /* IMPACTSR_H */
-diff -urN linux-2.6.12-ioc3/include/video/odyssey.h linux-2.6.12-ip30/include/video/odyssey.h
---- linux-2.6.12-ioc3/include/video/odyssey.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/include/video/odyssey.h	2005-07-09 13:36:14.000000000 +0200
+diff -urN linux-mips/include/video/odyssey.h new/include/video/odyssey.h
+--- linux-mips/include/video/odyssey.h	1970-01-01 01:00:00.000000000 +0100
++++ new/include/video/odyssey.h	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,52 @@
 +/*
 + *  linux/drivers/video/odyssey.h -- SGI Octane Odyssey graphics
@@ -5578,9 +5595,9 @@ diff -urN linux-2.6.12-ioc3/include/video/odyssey.h linux-2.6.12-ip30/include/vi
 +#define ODY_LO_SET	15
 +
 +#endif /* ODYSSEY_H */
-diff -urN linux-2.6.12-ioc3/sound/core/oss/linear.c linux-2.6.12-ip30/sound/core/oss/linear.c
---- linux-2.6.12-ioc3/sound/core/oss/linear.c	2002-11-01 23:08:37.000000000 +0100
-+++ linux-2.6.12-ip30/sound/core/oss/linear.c	2005-07-24 19:46:55.000000000 +0200
+diff -urN linux-mips/sound/core/oss/linear.c new/sound/core/oss/linear.c
+--- linux-mips/sound/core/oss/linear.c	2006-01-10 11:22:06.000000000 +0000
++++ new/sound/core/oss/linear.c	2006-01-16 17:28:08.000000000 +0000
 @@ -26,6 +26,10 @@
  #include <sound/pcm.h>
  #include "pcm_plugin.h"
@@ -5592,9 +5609,9 @@ diff -urN linux-2.6.12-ioc3/sound/core/oss/linear.c linux-2.6.12-ip30/sound/core
  /*
   *  Basic linear conversion plugin
   */
-diff -urN linux-2.6.12-ioc3/sound/core/oss/mulaw.c linux-2.6.12-ip30/sound/core/oss/mulaw.c
---- linux-2.6.12-ioc3/sound/core/oss/mulaw.c	2005-01-13 15:07:10.000000000 +0100
-+++ linux-2.6.12-ip30/sound/core/oss/mulaw.c	2005-07-24 19:47:08.000000000 +0200
+diff -urN linux-mips/sound/core/oss/mulaw.c new/sound/core/oss/mulaw.c
+--- linux-mips/sound/core/oss/mulaw.c	2006-01-10 11:22:06.000000000 +0000
++++ new/sound/core/oss/mulaw.c	2006-01-16 17:28:08.000000000 +0000
 @@ -27,6 +27,10 @@
  #include <sound/pcm.h>
  #include "pcm_plugin.h"
@@ -5606,9 +5623,9 @@ diff -urN linux-2.6.12-ioc3/sound/core/oss/mulaw.c linux-2.6.12-ip30/sound/core/
  #define	SIGN_BIT	(0x80)		/* Sign bit for a u-law byte. */
  #define	QUANT_MASK	(0xf)		/* Quantization field mask. */
  #define	NSEGS		(8)		/* Number of u-law segments. */
-diff -urN linux-2.6.12-ioc3/sound/core/oss/plugin_ops.h linux-2.6.12-ip30/sound/core/oss/plugin_ops.h
---- linux-2.6.12-ioc3/sound/core/oss/plugin_ops.h	2003-08-15 17:14:41.000000000 +0200
-+++ linux-2.6.12-ip30/sound/core/oss/plugin_ops.h	2005-07-25 08:48:00.000000000 +0200
+diff -urN linux-mips/sound/core/oss/plugin_ops.h new/sound/core/oss/plugin_ops.h
+--- linux-mips/sound/core/oss/plugin_ops.h	2006-01-10 11:22:06.000000000 +0000
++++ new/sound/core/oss/plugin_ops.h	2006-01-16 17:28:08.000000000 +0000
 @@ -19,6 +19,20 @@
   *
   */
@@ -5796,9 +5813,9 @@ diff -urN linux-2.6.12-ioc3/sound/core/oss/plugin_ops.h linux-2.6.12-ip30/sound/
  put_u24s: as_u24(dst) = swab32(sample ^ 0x80); goto PUT_END;
  put_s32h: as_s32(dst) = sample; goto PUT_END;
  put_u32h: as_u32(dst) = sample ^ 0x80000000; goto PUT_END;
-diff -urN linux-2.6.12-ioc3/sound/core/oss/rate.c linux-2.6.12-ip30/sound/core/oss/rate.c
---- linux-2.6.12-ioc3/sound/core/oss/rate.c	2005-01-13 15:07:10.000000000 +0100
-+++ linux-2.6.12-ip30/sound/core/oss/rate.c	2005-07-24 19:47:17.000000000 +0200
+diff -urN linux-mips/sound/core/oss/rate.c new/sound/core/oss/rate.c
+--- linux-mips/sound/core/oss/rate.c	2006-01-10 11:22:06.000000000 +0000
++++ new/sound/core/oss/rate.c	2006-01-16 17:28:08.000000000 +0000
 @@ -25,6 +25,10 @@
  #include <sound/pcm.h>
  #include "pcm_plugin.h"
@@ -5810,9 +5827,9 @@ diff -urN linux-2.6.12-ioc3/sound/core/oss/rate.c linux-2.6.12-ip30/sound/core/o
  #define SHIFT	11
  #define BITS	(1<<SHIFT)
  #define R_MASK	(BITS-1)
-diff -urN linux-2.6.12-ioc3/sound/core/oss/route.c linux-2.6.12-ip30/sound/core/oss/route.c
---- linux-2.6.12-ioc3/sound/core/oss/route.c	2005-01-13 15:07:10.000000000 +0100
-+++ linux-2.6.12-ip30/sound/core/oss/route.c	2005-07-24 19:47:22.000000000 +0200
+diff -urN linux-mips/sound/core/oss/route.c new/sound/core/oss/route.c
+--- linux-mips/sound/core/oss/route.c	2006-01-10 11:22:06.000000000 +0000
++++ new/sound/core/oss/route.c	2006-01-16 17:28:08.000000000 +0000
 @@ -26,6 +26,10 @@
  #include <sound/pcm.h>
  #include "pcm_plugin.h"
@@ -5824,10 +5841,10 @@ diff -urN linux-2.6.12-ioc3/sound/core/oss/route.c linux-2.6.12-ip30/sound/core/
  /* The best possible hack to support missing optimization in gcc 2.7.2.3 */
  #if ROUTE_PLUGIN_RESOLUTION & (ROUTE_PLUGIN_RESOLUTION - 1) != 0
  #define div(a) a /= ROUTE_PLUGIN_RESOLUTION
-diff -urN linux-2.6.12-ioc3/sound/pci/Kconfig linux-2.6.12-ip30/sound/pci/Kconfig
---- linux-2.6.12-ioc3/sound/pci/Kconfig	2005-03-18 21:40:42.000000000 +0100
-+++ linux-2.6.12-ip30/sound/pci/Kconfig	2005-07-09 13:36:14.000000000 +0200
-@@ -525,4 +525,10 @@
+diff -urN linux-mips/sound/pci/Kconfig new/sound/pci/Kconfig
+--- linux-mips/sound/pci/Kconfig	2006-01-10 11:22:09.000000000 +0000
++++ new/sound/pci/Kconfig	2006-01-16 17:28:08.000000000 +0000
+@@ -547,4 +547,10 @@
  	  To compile this driver as a module, choose M here: the module
  	  will be called snd-hda-intel.
  
@@ -5838,10 +5855,10 @@ diff -urN linux-2.6.12-ioc3/sound/pci/Kconfig linux-2.6.12-ip30/sound/pci/Kconfi
 +	  Say 'Y' or 'M' to include support for SGI RAD1 Pro Audio in Octane.
 +
  endmenu
-diff -urN linux-2.6.12-ioc3/sound/pci/Makefile linux-2.6.12-ip30/sound/pci/Makefile
---- linux-2.6.12-ioc3/sound/pci/Makefile	2005-03-18 21:40:42.000000000 +0100
-+++ linux-2.6.12-ip30/sound/pci/Makefile	2005-07-09 13:36:14.000000000 +0200
-@@ -18,6 +18,7 @@
+diff -urN linux-mips/sound/pci/Makefile new/sound/pci/Makefile
+--- linux-mips/sound/pci/Makefile	2006-01-10 11:22:09.000000000 +0000
++++ new/sound/pci/Makefile	2006-01-16 17:28:08.000000000 +0000
+@@ -19,6 +19,7 @@
  snd-intel8x0-objs := intel8x0.o
  snd-intel8x0m-objs := intel8x0m.o
  snd-maestro3-objs := maestro3.o
@@ -5849,7 +5866,7 @@ diff -urN linux-2.6.12-ioc3/sound/pci/Makefile linux-2.6.12-ip30/sound/pci/Makef
  snd-rme32-objs := rme32.o
  snd-rme96-objs := rme96.o
  snd-sonicvibes-objs := sonicvibes.o
-@@ -40,6 +41,7 @@
+@@ -42,6 +43,7 @@
  obj-$(CONFIG_SND_INTEL8X0) += snd-intel8x0.o
  obj-$(CONFIG_SND_INTEL8X0M) += snd-intel8x0m.o
  obj-$(CONFIG_SND_MAESTRO3) += snd-maestro3.o
@@ -5857,9 +5874,9 @@ diff -urN linux-2.6.12-ioc3/sound/pci/Makefile linux-2.6.12-ip30/sound/pci/Makef
  obj-$(CONFIG_SND_RME32) += snd-rme32.o
  obj-$(CONFIG_SND_RME96) += snd-rme96.o
  obj-$(CONFIG_SND_SONICVIBES) += snd-sonicvibes.o
-diff -urN linux-2.6.12-ioc3/sound/pci/rad1.c linux-2.6.12-ip30/sound/pci/rad1.c
---- linux-2.6.12-ioc3/sound/pci/rad1.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-ip30/sound/pci/rad1.c	2005-07-25 08:33:37.000000000 +0200
+diff -urN linux-mips/sound/pci/rad1.c new/sound/pci/rad1.c
+--- linux-mips/sound/pci/rad1.c	1970-01-01 01:00:00.000000000 +0100
++++ new/sound/pci/rad1.c	2006-01-16 17:28:08.000000000 +0000
 @@ -0,0 +1,1147 @@
 +/*
 + * rad1.c - ALSA driver for SGI RAD1 (as found in Octane and Octane2)
