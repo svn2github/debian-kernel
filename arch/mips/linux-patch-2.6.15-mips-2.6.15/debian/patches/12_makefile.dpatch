@@ -22,15 +22,14 @@ esac
 
 exit 0
 
---- linux-2.6.12/Makefile	2005-06-17 21:48:29.000000000 +0200
-+++ linux_HEAD/Makefile	2005-07-11 10:20:48.000000000 +0200
-@@ -169,7 +169,8 @@ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$
- 
+--- linux-2.6.15/Makefile	2006-01-16 17:56:00.000000000 +0000
++++ new/Makefile	2006-01-16 17:57:29.000000000 +0000
+@@ -169,7 +169,7 @@
  SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
  				  -e s/arm.*/arm/ -e s/sa110/arm/ \
--				  -e s/s390x/s390/ -e s/parisc64/parisc/ )
-+				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
-+				  -e s/mips.*/mips/ )
+ 				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
+-				  -e s/ppc64/powerpc/ )
++				  -e s/ppc64/powerpc/ -e -e s/mips.*/mips/ )
  
  # Cross compiling and selecting different set of gcc/bin-utils
  # ---------------------------------------------------------------------------
