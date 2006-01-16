@@ -7,6 +7,7 @@
 18_gettimeofday.dpatch
 20_ioc3.dpatch
 21_ip30.dpatch
+22_fix_cmdline.dpatch
 25_cobalt-network.dpatch
 26_cobalt-ll-sc.dpatch
 32_swarm-cpu-probe.dpatch
