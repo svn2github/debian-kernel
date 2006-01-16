@@ -1,0 +1,100 @@
+#! /bin/sh -e
+## 26_cobalt-ll-sc.dpatch by Peter Horton <pdh@colonel-panic.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Work around broken ll/sc of some 64bit cobalt boxen.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+This patch adds detection of broken 64-bit mode LL/SC on Cobalt units.
+With this patch my Qube2700 boots a 64-bit build fine. The later units
+have some problems with the Tulip driver.
+
+--- linux-source-2.6.12/arch/mips/kernel/cpu-bugs64.c~	2005-06-17 21:48:29.000000000 +0200
++++ linux-source-2.6.12/arch/mips/kernel/cpu-bugs64.c	2005-09-13 23:11:41.000000000 +0200
+@@ -313,9 +313,69 @@ static inline void check_daddiu(void)
+ 	      );
+ }
+ 
++/*
++ * On R5000/RM5230/RM5231 all accesses to XKPHYS by LL(D) are forced
++ * to be uncached, bits 61-59 of the address are ignored.
++ *
++ * Apparently fixed on RM5230A/5231A.
++ */
++static void check_lld(void)
++{
++	struct cpuinfo_mips *c = &current_cpu_data;
++	unsigned long flags, value, match, phys, *addr;
++
++	switch (c->cputype) {
++	case CPU_R5000:
++	case CPU_NEVADA:
++		break;
++
++	default:
++		return;
++	}
++
++	printk("Checking for lld bug... ");
++
++	/* hope the stack is in the low 512MB */
++	phys = CPHYSADDR((unsigned long) &value);
++
++	/* write value to memory */
++	value = 0xfedcba9876543210;
++	addr = (unsigned long *) PHYS_TO_XKPHYS(K_CALG_UNCACHED, phys);
++	*addr = value;
++
++	/* stop spurious flushes */
++	local_irq_save(flags);
++
++	/* flip cached value */
++	value = ~value;
++
++	/* read value, supposedly from cache */
++	addr = (unsigned long *) PHYS_TO_XKPHYS(K_CALG_NONCOHERENT, phys);
++	__asm__ __volatile__("lld %0, %1" : "=r" (match) : "m" (*addr));
++
++	local_irq_restore(flags);
++
++	match ^= value;
++
++	switch ((long) match) {
++	case 0:
++		printk("no.\n");
++		break;
++	case -1:
++		printk("yes.\n");
++		break;
++	default:
++		printk("yikes yes! (%lx/%lx@%p)\nPlease report to <linux-mips@linux-mips.org>.", value, match, &value);
++	}
++
++	if (!match)
++		c->options &= ~MIPS_CPU_LLSC;
++}
++
+ void __init check_bugs64(void)
+ {
+ 	check_mult_sh();
+ 	check_daddi();
+ 	check_daddiu();
++	check_lld();
+ }
