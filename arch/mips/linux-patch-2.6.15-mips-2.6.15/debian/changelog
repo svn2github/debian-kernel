@@ -1,4 +1,4 @@
-linux-patch-2.6.12-mips (2.6.12-0) UNRELEASED; urgency=low
+linux-patch-2.6.15-mips (2.6.15-0) UNRELEASED; urgency=low
 
   * Initial mips/mipsel 2.6 kernel.
 
