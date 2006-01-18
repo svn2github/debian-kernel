@@ -1,0 +1,79 @@
+#! /bin/sh -e
+## 66_uaccess_ro_fix.dpatch by Stuart Anderson <anderson@netsweng.com>
+##
+## DP: Fix compiler error in fs/compat_ioctl.o
+## DP: Upstream status: vetoed by Ralf but needed to build.  Being worked on
+##       http://www.linux-mips.org/archives/linux-mips/2006-01/msg00200.html
+
+#   CC      fs/compat_ioctl.o
+# fs/compat_ioctl.c: In function 'fd_ioctl_trans':
+# fs/compat_ioctl.c:1831: error: read-only variable '__gu_val' used as 'asm' output
+# fs/compat_ioctl.c:1831: error: read-only variable '__gu_val' used as 'asm' output
+# fs/compat_ioctl.c:1831: error: read-only variable '__gu_val' used as 'asm' output
+# fs/compat_ioctl.c:1831: error: read-only variable '__gu_val' used as 'asm' output
+# make[1]: *** [fs/compat_ioctl.o] Error 1
+
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+diff -urN linux-mips/include/asm-mips/uaccess.h new/include/asm-mips/uaccess.h
+--- linux-mips/include/asm-mips/uaccess.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/uaccess.h	2006-01-18 14:28:43.000000000 +0000
+@@ -210,17 +210,35 @@
+ 
+ #define __get_user_nocheck(x,ptr,size)					\
+ ({									\
+-	__typeof(*(ptr)) __gu_val =  (__typeof(*(ptr))) 0;		\
+ 	long __gu_err = 0;						\
+ 									\
+ 	switch (size) {							\
+-	case 1: __get_user_asm("lb", ptr); break;			\
+-	case 2: __get_user_asm("lh", ptr); break;			\
+-	case 4: __get_user_asm("lw", ptr); break;			\
+-	case 8: __GET_USER_DW(ptr); break;				\
++	case 1: {							\
++		s8 __gu_val =  (s8) 0;					\
++		__get_user_asm("lb", ptr); 				\
++		(x) = (__typeof__(*(ptr))) __gu_val;			\
++		break;							\
++		}							\
++	case 2:	{							\
++		s16 __gu_val =  (s16) 0;				\
++		__get_user_asm("lh", ptr);				\
++		(x) = (__typeof__(*(ptr))) __gu_val;			\
++		break;							\
++		}							\
++	case 4:	{							\
++		s32 __gu_val = (s32) 0;					\
++		__get_user_asm("lw", ptr);				\
++		(x) = (__typeof__(*(ptr))) __gu_val;			\
++		break;							\
++		}							\
++	case 8:	{							\
++		s64 __gu_val = (s64) 0;					\
++		__GET_USER_DW(ptr);					\
++		(x) = (__typeof__(*(ptr))) __gu_val;			\
++		break;							\
++		}							\
+ 	default: __get_user_unknown(); break;				\
+ 	}								\
+-	(x) = (__typeof__(*(ptr))) __gu_val;				\
+ 	__gu_err;							\
+ })
+ 
