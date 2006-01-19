@@ -37,7 +37,7 @@ exit 0
 
 
 --- /dev/null
-+++ b/include/asm-mips/mach/cpu-feature-overrides.h
++++ b/include/asm-mips/cobalt/cpu-feature-overrides.h
 @@ -0,0 +1,56 @@
 +/*
 + * This file is subject to the terms and conditions of the GNU General Public
