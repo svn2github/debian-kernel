@@ -1,0 +1,43 @@
+#! /bin/sh -e
+## 27_cobalt-def_fix.dpatch by Martin Michlmayr <tbm@cyrius.com>
+
+## DP: Fix a CPU definition for Cobalt
+## DP: Upstream status: submitted to linux-mips
+
+# Fixes a bug in 26_cobalt-ll-sc.dpatch
+
+# If cpu_icache_snoops_remote_store is not set, Cobalt will crash
+# immediately when starting the kernel.
+
+# Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- a/include/asm-mips/mach-cobalt/cpu-feature-overrides.h~	2006-01-19 19:21:35.000000000 +0000
++++ b/include/asm-mips/mach-cobalt/cpu-feature-overrides.h	2006-01-19 19:21:41.000000000 +0000
+@@ -45,7 +45,7 @@
+ #define cpu_has_smartmips	0
+ #define cpu_has_vtag_icache	0
+ #define cpu_has_ic_fills_f_dc	0
+-#define cpu_icache_snoops_remote_store	0
++#define cpu_icache_snoops_remote_store	1
+ #define cpu_has_dsp		0
+ 
+ #define cpu_has_mips32r1	0
+
