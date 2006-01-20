@@ -1,4 +1,4 @@
-00_linux-mips.dpatch
+01_linux-mips.dpatch
 10_arch-makefile.dpatch
 11_byteorder-proc.dpatch
 12_makefile.dpatch
