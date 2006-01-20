@@ -1,0 +1,39 @@
+#! /bin/sh -e
+## 23_cobalt_physaddr.dpatch by Martin Michlmayr <tbm@cyrius.com>
+##
+## DP: Fix kernel_physaddr for Cobalt
+
+## Apparently Cobalt doesn't like having 64-bit kvirt to phys translations
+## Depends on 21_ip30.dpatch and 22_fix_cmdline.dpatch
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- a/arch/mips/mm/init.c~	2006-01-20 18:59:34.000000000 +0000
++++ b/arch/mips/mm/init.c	2006-01-20 19:15:17.000000000 +0000
+@@ -291,7 +291,9 @@
+ #ifdef CONFIG_64BIT
+ unsigned long kernel_physaddr(unsigned long kva)
+ {
++#ifndef CONFIG_MIPS_COBALT
+ 	if(kva&0xffffffff00000000UL==0xffffffff00000000UL)
++#endif
+ 		return CPHYSADDR(kva);
+ 	return XPHYSADDR(kva);
+ }
+
