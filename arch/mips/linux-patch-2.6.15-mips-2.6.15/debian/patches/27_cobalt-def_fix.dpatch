@@ -31,7 +31,7 @@ esac
 exit 0
 
 --- a/include/asm-mips/mach-cobalt/cpu-feature-overrides.h~	2006-01-19 19:21:35.000000000 +0000
-+++ b/include/asm-mips/mach-cobalt/cpu-feature-overrides.h	2006-01-19 19:21:41.000000000 +0000
++++ b/include/asm-mips/cobalt/cpu-feature-overrides.h	2006-01-19 19:21:41.000000000 +0000
 @@ -45,7 +45,7 @@
  #define cpu_has_smartmips	0
  #define cpu_has_vtag_icache	0
