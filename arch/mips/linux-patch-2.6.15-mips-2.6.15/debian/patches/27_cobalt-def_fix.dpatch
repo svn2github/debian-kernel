@@ -1,15 +1,16 @@
 #! /bin/sh -e
 ## 27_cobalt-def_fix.dpatch by Martin Michlmayr <tbm@cyrius.com>
 
-## DP: Fix a CPU definition for Cobalt
-## DP: Upstream status: submitted to linux-mips
+## DP: Workaround a bug in Cobalt that'll cause a crash on boot
+## DP: Upstream status: is only a workaround, real solution in work
 
-# Fixes a bug in 26_cobalt-ll-sc.dpatch
+# Ralf Baechle writes:
+# > If cpu_icache_snoops_remote_store is not set, Cobalt will crash
+# > immediately when starting the kernel.
+# That's papering over the actual bug.  The CPU has no scache, so the
+# scache flushing functions aren't getting initialized and the NULL
+# pointer is eventually called as a function.
 
-# If cpu_icache_snoops_remote_store is not set, Cobalt will crash
-# immediately when starting the kernel.
-
-# Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
 
 if [ $# -lt 1 ]; then
     echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
