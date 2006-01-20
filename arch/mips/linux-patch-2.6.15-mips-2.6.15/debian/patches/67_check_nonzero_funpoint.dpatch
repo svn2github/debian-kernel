@@ -59,8 +59,8 @@ exit 0
  void machine_power_off(void)
  {
 -	_machine_power_off();
-+	if (pm_power_off)
-+		pm_power_off();
++	if (_machine_power_off)
++		_machine_power_off();
  }
 -
 
