@@ -34,6 +34,7 @@ esac
 
 exit 0
 
+--- a/include/asm-mips/cobalt/cpu-feature-overrides.h	2006-01-19 22:19:28.000000000 +0000
 +++ b/include/asm-mips/cobalt/cpu-feature-overrides.h	2006-01-19 22:19:28.000000000 +0000
 @@ -0,0 +1,56 @@
 +/*
