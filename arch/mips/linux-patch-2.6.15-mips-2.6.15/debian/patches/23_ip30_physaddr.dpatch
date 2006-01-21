@@ -22,8 +22,8 @@ esac
 
 exit 0
 
---- arch/mips/mm/init.c~	2006-01-21 18:07:20.000000000 +0000
-+++ arch/mips/mm/init.c	2006-01-21 18:07:31.000000000 +0000
+--- a/arch/mips/mm/init.c~	2006-01-21 18:07:20.000000000 +0000
++++ b/arch/mips/mm/init.c	2006-01-21 18:07:31.000000000 +0000
 @@ -291,7 +291,7 @@
  #ifdef CONFIG_64BIT
  unsigned long kernel_physaddr(unsigned long kva)
