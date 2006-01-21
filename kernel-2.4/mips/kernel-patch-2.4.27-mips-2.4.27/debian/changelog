@@ -1,3 +1,9 @@
+kernel-patch-2.4.27-mips (2.4.27-11.040815-2) unstable; urgency=medium
+
+  * Enable built-in cramfs support for all kernels, needed for d-i.
+
+ -- Thiemo Seufer <ths@debian.org>  Fri, 07 Oct 2005 00:21:12 +0200
+
 kernel-patch-2.4.27-mips (2.4.27-11.040815-1) unstable; urgency=high
 
   * Update to debian kernel source 2.4.27-11 for security fixes.
