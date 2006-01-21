@@ -1,0 +1,20 @@
+Source: linux-fusion
+Section: devel
+Priority: optional
+Maintainer: Sven Luther <luther@debian.org>
+Build-Depends: debhelper (>> 4.0.0)
+Standards-Version: 3.6.2
+
+Package: linux-fusion-modules-_KVERS_
+Architecture: any
+Provides: linux-fusion-modules
+Description: linux-fusion modules for Linux (kernel _KVERS_).
+ This package contains the set of loadable kernel modules for the
+ fusion message pasing system used by DirectFB.
+ .
+ This package contains the compiled kernel modules for _KVERS_
+ .
+ If you have compiled your own kernel, you will most likely need to build
+ your own linux-fusion-modules. The linux-fusion-source package has been
+ provided for use with the Debian's module-assistant or kernel-package
+ utilities to produce a version of linux-fusion-module for your kernel.
