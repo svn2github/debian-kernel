@@ -16,7 +16,6 @@
 28_cobalt_ide.dpatch
 30_sb1_pci_fix.dpatch
 31_sb1_remove_debug.dpatch
-32_swarm-cpu-probe.dpatch
 33_sb1_oprofile.dpatch
 40_o2_gbefb_compile_fix.dpatch
 41_o2_nevada.dpatch
