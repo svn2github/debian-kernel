@@ -31,3 +31,4 @@
 66_uaccess_ro_fix.dpatch
 67_check_nonzero_funpoint.dpatch
 68_fix_iomap_nonpci.dpatch
+69_add_mips3.dpatch
