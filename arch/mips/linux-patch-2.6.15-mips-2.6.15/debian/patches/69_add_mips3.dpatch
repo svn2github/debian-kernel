@@ -1,6 +1,7 @@
 #! /bin/sh -e
 ## 69_add_mips3.dpatch by Ralf Baechle <ralf@linux-mips.org>
 ##
+## DP: Fix damage done by cfbc9cac62f0438cefe171736729e786b45884b8.
 
 #commit 69ccd7750a75abcaf893e2d705dc82e9452376c8
 #Author: Ralf Baechle <ralf@linux-mips.org>
@@ -33,4 +34,17 @@ esac
 
 exit 0
 
+
+diff --git a/arch/mips/kernel/genex.S b/arch/mips/kernel/genex.S
+index 1bcbd91..13f22d1 100644
+--- a/arch/mips/kernel/genex.S
++++ b/arch/mips/kernel/genex.S
+@@ -237,6 +237,7 @@ NESTED(nmi_handler, PT_SIZE, sp)
+  	move	a0, sp
+ 	jal	nmi_exception_handler
+ 	RESTORE_ALL
++	.set	mips3
+ 	eret
+ 	.set	pop
+ 	END(nmi_handler)
 
