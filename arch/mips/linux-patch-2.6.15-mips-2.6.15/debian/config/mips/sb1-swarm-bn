@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.15
-# Mon Jan 23 21:43:07 2006
+# Mon Jan 23 22:02:23 2006
 #
 CONFIG_MIPS=y
 
@@ -1407,13 +1407,16 @@ CONFIG_USB_STORAGE=m
 #
 # USB Input Devices
 #
-# CONFIG_USB_HID is not set
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
 
 #
 # USB HID Boot Protocol drivers
 #
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
 # CONFIG_USB_AIPTEK is not set
 # CONFIG_USB_WACOM is not set
 # CONFIG_USB_ACECAD is not set
