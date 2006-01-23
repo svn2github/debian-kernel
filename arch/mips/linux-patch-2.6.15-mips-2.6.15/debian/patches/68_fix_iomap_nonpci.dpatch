@@ -36,8 +36,8 @@ exit 0
  
  lib-y	+= csum_partial_copy.o memcpy.o promlib.o strlen_user.o strncpy_user.o \
  	   strnlen_user.o uncached.o
--obj-$(CONFIG_PCI)	+= iomap.o
-+obj-y	+= iomap.o
+-obj-y	+= iomap.o
++obj-$(CONFIG_PCI)	+= iomap.o
  
  EXTRA_AFLAGS := $(CFLAGS)
 
