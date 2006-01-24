@@ -214,6 +214,7 @@ CONFIG_DEFAULT_IOSCHED="noop"
 #
 CONFIG_HW_HAS_PCI=y
 # CONFIG_PCI is not set
+# CONFIG_SGI_IOC3 is not set
 CONFIG_MMU=y
 
 #
