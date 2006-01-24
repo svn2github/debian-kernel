@@ -2,6 +2,7 @@
 ## 40_o2_gbefb_compile_fix.dpatch by Kumba <kumba@gentoo.org>
 ##
 ## DP: Fix SGI O2 Compile error in drivers/video/gbefb.c
+## Upstream status: accepted by linux-fbdev-devel (Antonino A. Daplas)
 
 # a sysfs function call uses the wrong parameter, and thus breaks a build
 # on SGI O2 with current git.
