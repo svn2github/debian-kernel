@@ -751,7 +751,7 @@ CONFIG_TULIP_MMIO=y
 #
 # Input device support
 #
-CONFIG_INPUT=m
+CONFIG_INPUT=y
 
 #
 # Userland interfaces
