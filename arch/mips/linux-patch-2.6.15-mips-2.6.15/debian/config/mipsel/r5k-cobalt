@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.15
-# Mon Jan 23 20:59:21 2006
+# Linux kernel version: 2.6.15-1-r5k-cobalt
+# Tue Jan 24 00:48:50 2006
 #
 CONFIG_MIPS=y
 
@@ -142,7 +142,7 @@ CONFIG_INIT_ENV_ARG_LIMIT=32
 #
 # General setup
 #
-CONFIG_LOCALVERSION="n"
+CONFIG_LOCALVERSION=""
 CONFIG_LOCALVERSION_AUTO=y
 CONFIG_SWAP=y
 CONFIG_SYSVIPC=y
@@ -206,6 +206,7 @@ CONFIG_DEFAULT_IOSCHED="anticipatory"
 CONFIG_HW_HAS_PCI=y
 CONFIG_PCI=y
 # CONFIG_PCI_LEGACY_PROC is not set
+# CONFIG_SGI_IOC3 is not set
 CONFIG_MMU=y
 
 #
