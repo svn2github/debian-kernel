@@ -1,0 +1,41 @@
+mips:
+
+  - IP22 R4K
+      - boots
+      - initrd: untested
+
+  - IP22 R5K
+      - untested
+
+  - IP32:
+      - boots
+      - initrd: untested
+
+  - SWARM:
+      - boots
+      - initrd: untested
+
+mipsel:
+
+  - Cobalt:
+      - boots
+      - initrd: works
+
+  - SWARM:
+      - untested
+
+  - DECstation R3K:
+      - fails to boot
+
+  - DECstation R4K:
+      - untested
+
+
+Questions:
+
+  - IP32
+      - enable PCI?  Which drivers?
+
+  - IP27:
+      - enable it?
+
