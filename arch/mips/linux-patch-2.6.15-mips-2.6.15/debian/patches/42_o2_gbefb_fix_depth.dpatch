@@ -1,0 +1,51 @@
+#! /bin/sh -e
+## 42_o2_gbefb_fix_depth.dpatch by Kaj-Michael Lang <milang@tal.org>
+##
+## DP: IP32 gbefb depth change fix
+## Upstream status: submitted to linux-fbdev-devel (Antonino A. Daplas)
+
+# The gbefb driver does not update the framebuffer layers visual
+# setting when depth is changed with fbset, resulting in strange
+# colors (very dark blue in 16-bit, almost black in 24-bit).
+# The attached patch fixes that.
+
+# Signed-off-by: Kaj-Michael Lang <milang@tal.org>
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+
+--- a/drivers/video/gbefb.c
++++ b/drivers/video/gbefb.c
+@@ -656,12 +656,15 @@ static int gbefb_set_par(struct fb_info 
+ 	switch (bytesPerPixel) {
+ 	case 1:
+ 		SET_GBE_FIELD(WID, TYP, val, GBE_CMODE_I8);
++		info->fix.visual = FB_VISUAL_PSEUDOCOLOR;	
+ 		break;
+ 	case 2:
+ 		SET_GBE_FIELD(WID, TYP, val, GBE_CMODE_ARGB5);
++		info->fix.visual = FB_VISUAL_TRUECOLOR;
+ 		break;
+ 	case 4:
+ 		SET_GBE_FIELD(WID, TYP, val, GBE_CMODE_RGB8);
++		info->fix.visual = FB_VISUAL_TRUECOLOR;
+ 		break;
+ 	}
+ 	SET_GBE_FIELD(WID, BUF, val, GBE_BMODE_BOTH);
+
