@@ -33,19 +33,9 @@ exit 0
 Index: linux.git/include/asm-mips/mach-generic/ide.h
 ===================================================================
 --- linux.git.orig/include/asm-mips/mach-generic/ide.h	2006-01-24 22:07:36.000000000 +0000
-+++ linux.git/include/asm-mips/mach-generic/ide.h	2006-01-24 22:10:43.000000000 +0000
-@@ -20,17 +20,9 @@
- #include <linux/stddef.h>
- #include <asm/processor.h>
++++ linux.git/include/asm-mips/mach-generic/ide.h	2006-01-24 23:41:19.000000000 +0000
+@@ -30,7 +30,7 @@
  
--#ifndef MAX_HWIFS
--# ifdef CONFIG_BLK_DEV_IDEPCI
--#define MAX_HWIFS	10
--# else
--#define MAX_HWIFS	6
--# endif
--#endif
--
  #define IDE_ARCH_OBSOLETE_DEFAULTS
  
 -static __inline__ int ide_probe_legacy(void)
@@ -53,7 +43,7 @@ Index: linux.git/include/asm-mips/mach-generic/ide.h
  {
  #ifdef CONFIG_PCI
  	struct pci_dev *dev;
-@@ -38,11 +30,11 @@
+@@ -38,11 +38,11 @@
  	    (dev = pci_get_class(PCI_CLASS_BRIDGE_ISA << 8, NULL)) != NULL) {
  		pci_dev_put(dev);
  
@@ -67,7 +57,7 @@ Index: linux.git/include/asm-mips/mach-generic/ide.h
  #else
  	return 0;
  #endif
-@@ -50,30 +42,26 @@
+@@ -50,30 +50,26 @@
  
  static __inline__ int ide_default_irq(unsigned long base)
  {
@@ -114,7 +104,7 @@ Index: linux.git/include/asm-mips/mach-generic/ide.h
  		switch (index) {
  		case 0:
  			return 0x1f0;
-@@ -87,11 +75,8 @@
+@@ -87,11 +83,8 @@
  			return 0x1e0;
  		case 5:
  			return 0x160;
