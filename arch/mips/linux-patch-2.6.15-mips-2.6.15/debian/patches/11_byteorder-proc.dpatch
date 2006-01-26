@@ -4,6 +4,9 @@
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Add byteorder info to /proc/cpuinfo
 
+## Got removed rom mainline ages ago.  It's only being carried around
+## in distribution kernels for legacy reasons.
+
 if [ $# -lt 1 ]; then
     echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
     exit 1
@@ -41,3 +44,4 @@ diff -u -p -u -r1.27.2.17 proc.c
  	seq_printf(m, "wait instruction\t: %s\n", cpu_wait ? "yes" : "no");
  	seq_printf(m, "microsecond timers\t: %s\n",
  	              cpu_has_counter ? "yes" : "no");
+
