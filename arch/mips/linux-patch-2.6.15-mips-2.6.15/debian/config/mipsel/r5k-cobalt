@@ -680,7 +680,7 @@ CONFIG_MII=y
 # Tulip family network device support
 #
 CONFIG_NET_TULIP=y
-# CONFIG_DE2104X is not set
+CONFIG_DE2104X=y
 CONFIG_TULIP=y
 CONFIG_TULIP_MWI=y
 CONFIG_TULIP_MMIO=y
