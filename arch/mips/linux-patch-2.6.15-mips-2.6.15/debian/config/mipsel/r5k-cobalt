@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.15-1-r5k-cobalt
-# Tue Jan 24 00:48:50 2006
+# Linux kernel version: 2.6.15
+# Fri Jan 27 22:02:48 2006
 #
 CONFIG_MIPS=y
 
@@ -730,7 +730,15 @@ CONFIG_TULIP_MMIO=y
 # CONFIG_WAN is not set
 # CONFIG_FDDI is not set
 # CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPP_MPPE=m
+CONFIG_PPPOE=m
 # CONFIG_SLIP is not set
 # CONFIG_NET_FC is not set
 # CONFIG_SHAPER is not set
@@ -1417,7 +1425,7 @@ CONFIG_CRYPTO_TEST=m
 #
 # Library routines
 #
-# CONFIG_CRC_CCITT is not set
+CONFIG_CRC_CCITT=m
 # CONFIG_CRC16 is not set
 CONFIG_CRC32=y
 CONFIG_LIBCRC32C=m
