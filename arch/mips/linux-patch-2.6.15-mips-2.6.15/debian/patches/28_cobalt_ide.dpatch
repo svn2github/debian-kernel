@@ -2,7 +2,6 @@
 ## 28_cobalt_ide.dpatch by Peter Horton
 
 ## DP: Fix long IDE detection delay by not scanning non-existent channels.
-## DP: Not quite the right fix according to Alan Cox but it works(tm).
 
 # Fix long delay during Cobalt boot whilst scanning non-existent
 # interfaces. The logic is copied from i386 i.e. we only scan 2 legacy
