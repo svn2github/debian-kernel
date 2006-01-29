@@ -1,8 +1,8 @@
 #! /bin/sh -e
 ## 12_makefile.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
 ##
-## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fix Makefile for compiles with modern toolchains.
+## Upstream status: accepted
 
 if [ $# -lt 1 ]; then
     echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
