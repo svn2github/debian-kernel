@@ -1,0 +1,50 @@
+#! /bin/sh -e
+## 24_cobalt_cache_line.dpatch by Peter Horton
+
+## DP: Fix Cobalt PCI cache line sizes
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+Correct cache line sizes.
+
+P.
+
+Index: linux.git/arch/mips/pci/fixup-cobalt.c
+===================================================================
+--- linux.git.orig/arch/mips/pci/fixup-cobalt.c	2006-01-29 12:35:50.000000000 +0000
++++ linux.git/arch/mips/pci/fixup-cobalt.c	2006-01-29 12:36:59.000000000 +0000
+@@ -52,7 +52,7 @@
+ 	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &lt);
+ 	if (lt < 64)
+ 		pci_write_config_byte(dev, PCI_LATENCY_TIMER, 64);
+-	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, 7);
++	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, 8);
+ }
+ 
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1,
+@@ -69,7 +69,7 @@
+ 	 * host bridge.
+ 	 */
+ 	pci_write_config_byte(dev, PCI_LATENCY_TIMER, 64);
+-	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, 7);
++	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, 8);
+ 
+ 	/*
+ 	 * The code described by the comment below has been removed
+

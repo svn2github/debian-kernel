@@ -10,10 +10,12 @@
 21_ip30.dpatch
 22_fix_cmdline.dpatch
 23_ip30_physaddr.dpatch
+24_cobalt_cache_line.dpatch
 25_cobalt-network.dpatch
 26_cobalt-ll-sc.dpatch
 27_cobalt-def_fix.dpatch
 28_cobalt_ide.dpatch
+29_cobalt_tulip2.dpatch
 30_sb1_pci_fix.dpatch
 31_sb1_remove_debug.dpatch
 32_sb1_probe_ide.dpatch
