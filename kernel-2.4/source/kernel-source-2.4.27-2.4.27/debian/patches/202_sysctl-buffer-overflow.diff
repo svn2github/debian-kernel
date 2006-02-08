@@ -1,0 +1,18 @@
+--- kernel-source-2.4.27/kernel/sysctl.c.orig	2004-08-07 17:26:06.000000000 -0600
++++ kernel-source-2.4.27/kernel/sysctl.c	2006-01-16 15:56:36.000000000 -0700
+@@ -1348,14 +1348,12 @@
+ 		if (get_user(len, oldlenp))
+ 			return -EFAULT;
+ 		if (len) {
+-			l = strlen(table->data);
++			l = strlen(table->data)+1;
+ 			if (len > l) len = l;
+ 			if (len >= table->maxlen)
+ 				len = table->maxlen;
+ 			if(copy_to_user(oldval, table->data, len))
+ 				return -EFAULT;
+-			if(put_user(0, ((char *) oldval) + len))
+-				return -EFAULT;
+ 			if(put_user(len, oldlenp))
+ 				return -EFAULT;
+ 		}

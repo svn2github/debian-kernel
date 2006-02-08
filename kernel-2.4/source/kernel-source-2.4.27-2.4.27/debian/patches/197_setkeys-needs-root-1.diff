@@ -1,0 +1,23 @@
+From: Andrew Morton <akpm@osdl.org>
+Date: Tue, 18 Oct 2005 04:41:48 +0000 (+0900)
+Subject:     [PATCH] loadkeys requires root priviledges
+X-Git-Tag: v2.4.32-rc2
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commitdiff;h=2afb6d8ea04e81a1547e8e51b7550a8fd69b9fce
+
+  [PATCH] loadkeys requires root priviledges
+  
+  Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+--- a/drivers/char/vt.c
++++ b/drivers/char/vt.c
+@@ -276,6 +276,9 @@ do_kdgkb_ioctl(int cmd, struct kbsentry 
+ 	char *first_free, *fj, *fnw;
+ 	int i, j, k;
+ 
++	if (!capable(CAP_SYS_TTY_CONFIG))
++		return -EPERM;
++
+ 	/* we mostly copy too much here (512bytes), but who cares ;) */
+ 	if (copy_from_user(&tmp, user_kdgkb, sizeof(struct kbsentry)))
+ 		return -EFAULT;

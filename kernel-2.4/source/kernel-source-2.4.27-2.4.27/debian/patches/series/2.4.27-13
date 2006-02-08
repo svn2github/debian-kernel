@@ -1,5 +1,15 @@
++ 150_private_fragment_queues-1.diff
++ 150_private_fragment_queues-2.diff
++ 194_xfs-bad-inodes.diff
 + 196_sysctl-unregistration-oops.diff
++ 197_setkeys-needs-root-1.diff
++ 197_setkeys-needs-root-2.diff
 + 198_fs-lock-lease-log-spam.diff
 + 199_net-ipv6-flowlabel-refcnt.diff
++ 199_ptrace-fix_self-attach_rule.diff
 + 200_net_sdla_xfer_leak.diff
-+ 194_xfs-bad-inodes.diff
++ 202_sysctl-buffer-overflow.diff
++ 203_proc_pid_cmdline_race.diff
++ 204_arch-ia64-ptrace-getregs-putregs.diff
++ 205_arch-ia64-ptrace-restore_sigcontext.diff
++ 206_s390-sacf-fix.diff

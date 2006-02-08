@@ -1,6 +1,9 @@
 kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
 
   *** Note this release introduces an ABI Change for CVE-2005-2709 ***
+  *** and CAN-2005-0449                                            ***
+
+  [ Simon Horman ]
 
   * Errata for 2.4.27-12
     - [SECURITY] IPV4: Fix DST leak in icmp_push_reply(). Remote DoS.
@@ -17,13 +20,17 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     discovered using coverty, which is actually CVE-2004-2607
     129_net_sdla_coverty.diff, included in 2.4.27-8
 
+  * Errata for 2.4.27-6
+    [SECURITY] 111-smb-client-overflow-fix-[1,2].diff also fixes an information
+    leak.  See CVE-2004-0949.
+
   * [SECURITY] VFS: local denial-of-service with file leases. See CVE-2005-3857
     198_fs-lock-lease-log-spam.diff
 
   * [SECURITY] Fix a potential local root exploit in the
     /proc/sys/net/ipv4/conf interface.  See CVE-2005-2709
-    ABI Change
     196_sysctl-unregistration-oops.diff
+    ****CHANGES ABI****
 
   * [SECURITY] Fix refcnt of struct ip6_flowlabel; Local DoS
     From 2.6.14
@@ -38,8 +45,49 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
   * [XFS] fix handling of bad inodes
     This patch is needed for 194_xfs-inode-race.diff which was included in
     2.4.27-12
+    CVE-NOMATCH
     194_xfs-bad-inodes.diff
     (closes: #343970)
+
+  [ Dann Frazier / Simon Horman ]
+
+  * [SECURITY] Require root privilege to write the current
+    function key string entry of other user's terminals.
+    See CVE-2005-3257
+    setkeys-needs-root-1.diff, setkeys-needs-root-2.
+
+  * [SECURITY] Keep fragment queues private to each user
+    See CAN-2005-0449 and
+    http://oss.sgi.com/archives/netdev/2005-01/msg01048.html
+    150_private_fragment_queues-1.diff, 150_private_fragment_queues-2.diff
+    ****CHANGES ABI****
+
+  * [SECURITY] Use the thread group ID to check if it a self-attach.  Fixes
+    a local DoS (crash).  See CVE-2005-3783
+    199_ptrace-fix_self-attach_rule.diff
+
+  * [SECURITY] Fix a potential overflow in sysctl buffer termination code.
+    202_sysctl-buffer-overflow.diff
+
+  * [SECURITY] Fix a potential overflow in sysctl buffer termination code.
+    202_sysctl-buffer-overflow.diff
+
+  * [SECURITY] Fix a race condition that allows local users to view the
+    environment variables of another process.
+    203_proc_pid_cmdline_race.diff
+
+  * Fix unchecked user-memory accesses in ptrage_getregs() and ptrace_setregs.
+    This is a dependency for the CAN-2005-1761 fix.
+    204_arch-ia64-ptrace-getregs-putregs.diff
+
+  * [SECURITY] Fix to prevent users from using ptrace to set the pl field
+    of the ar.rsc reginster to any value, leading to the ability to overwrite
+    kernel memory.  See CAN-2005-1761.
+    205_arch-ia64-ptrace-restore_sigcontext.diff
+
+  * [SECURITY] s390: Fix for local root exploit: Force user process back to
+    home space mode in space switch event exception handler. See CAN-2004-0887.
+    206_s390-sacf-fix.diff
 
  -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 12:05:39 +0900
 
