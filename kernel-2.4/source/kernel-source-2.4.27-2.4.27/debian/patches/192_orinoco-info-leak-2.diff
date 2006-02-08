@@ -1,0 +1,11 @@
+--- a/drivers/net/wireless/hermes.c
++++ b/drivers/net/wireless/hermes.c
+@@ -2312,6 +2312,8 @@ orinoco_stat_gather(struct net_device *d
+ 	}
+ }
+ 
++#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
++
+ static int
+ orinoco_xmit(struct sk_buff *skb, struct net_device *dev)
+ {

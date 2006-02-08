@@ -1,5 +1,6 @@
 + 150_private_fragment_queues-1.diff
 + 150_private_fragment_queues-2.diff
++ 192_orinoco-info-leak-2.diff
 + 194_xfs-bad-inodes.diff
 + 196_sysctl-unregistration-oops.diff
 + 197_setkeys-needs-root-1.diff
