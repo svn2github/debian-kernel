@@ -69,9 +69,6 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
   * [SECURITY] Fix a potential overflow in sysctl buffer termination code.
     202_sysctl-buffer-overflow.diff
 
-  * [SECURITY] Fix a potential overflow in sysctl buffer termination code.
-    202_sysctl-buffer-overflow.diff
-
   * [SECURITY] Fix a race condition that allows local users to view the
     environment variables of another process.
     203_proc_pid_cmdline_race.diff
