@@ -1,3 +1,13 @@
+kernel-image-2.4.27-i386 (2.4.27-13) UNRELEASED; urgency=low
+
+  *** Note this release introduces an ABI Change for CVE-2005-2709 ***
+  *** and CAN-2005-0449                                            ***
+
+  * Build against kernel-tree-2.4.27-13
+  * Increment ABI to -3
+
+ -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 19:29:29 +0900
+
 kernel-image-2.4.27-i386 (2.4.27-12) unstable; urgency=low
 
   * Build against kernel-tree-2.4.27-12
