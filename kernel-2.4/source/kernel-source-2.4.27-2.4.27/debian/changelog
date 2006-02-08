@@ -70,7 +70,7 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
 
   * [SECURITY] Use the thread group ID to check if it a self-attach.  Fixes
     a local DoS (crash).  See CVE-2005-3783
-    199_ptrace-fix_self-attach_rule.diff
+    201_ptrace-fix_self-attach_rule.diff
 
   * [SECURITY] Fix a potential overflow in sysctl buffer termination code.
     202_sysctl-buffer-overflow.diff
@@ -92,7 +92,7 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     home space mode in space switch event exception handler. See CAN-2004-0887.
     206_s390-sacf-fix.diff
 
- -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 18:40:23 +0900
+ -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 19:52:59 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
