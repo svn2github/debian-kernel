@@ -1,5 +1,5 @@
---- a/drivers/net/wireless/hermes.c
-+++ b/drivers/net/wireless/hermes.c
+--- a/drivers/net/wireless/orinoco.c
++++ b/drivers/net/wireless/orinoco.c
 @@ -2312,6 +2312,8 @@ orinoco_stat_gather(struct net_device *d
  	}
  }
