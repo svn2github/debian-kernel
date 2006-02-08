@@ -1,3 +1,12 @@
+kernel-patch-powerpc-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
+
+  *** Note 2.6 kernels are recommended for powerpc ***
+
+  *** Note this release introduces an ABI Change for CVE-2005-2709 ***
+  *** and CAN-2005-0449                                            ***
+
+  * Build against kernel-tree-2.4.27-13
+
 kernel-patch-powerpc-2.4.27 (2.4.27-12) unstable; urgency=low
 
   * Dropped the apus subarch, as it is covered by 2.6.14
