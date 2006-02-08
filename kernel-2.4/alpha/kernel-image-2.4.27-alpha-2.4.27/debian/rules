@@ -62,7 +62,7 @@ build-stamp: unpack-stamp
 	PATH=$$PWD/bin:$$PATH; \
 	for i in $(flavours); do \
 		cd build-$$i; \
-		make-kpkg --append_to_version $(debnum)-$$i build; \
+		make-kpkg --stem kernel --append_to_version $(debnum)-$$i build; \
 		cd ..; \
 	done
 
@@ -88,13 +88,13 @@ binary-arch: install
 	dh_testdir
 
 	cd kernel-source-$(version); \
-		make-kpkg $(appvan) kernel-headers
+		make-kpkg --stem kernel $(appvan) kernel-headers
 	mv kernel-source-$(version)/debian/files debian
 
 	for i in $(flavours); do \
 		cp -al build-$$i install-$$i; \
 		cd install-$$i; \
-		make-kpkg --append_to_version $(debnum)-$$i --initrd \
+		make-kpkg --stem kernel --append_to_version $(debnum)-$$i --initrd \
 			kernel-image; \
 		cd ..; \
 		cat install-$$i/debian/files >> debian/files; \
