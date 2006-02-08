@@ -1,0 +1,246 @@
+# Debian
+# Date: Fri, 14 Oct 2005 16:20:27 +0900
+# Maintainer: Horms <horms@debian.org>
+# Changes: Mnone
+# Reported: http://lists.debian.org/debian-kernel/2005/10/msg00410.html
+# Notes: Does not seem to related to 2.6
+# Security: CAN-NOMATCH
+# Notes: Required by 194_xfs-inode-race.diff
+#
+# Upstream
+# Fixed-In: 2.4.29-pre1
+# ChangeLog: http://www.kernel.org/pub/linux/kernel/v2.4/ChangeLog-2.4.29
+# Patch: # http://linux.bkbits.net:8080/linux-2.4/cset@1.1448.45.8?nav=index.html|src/|src/fs|src/fs/xfs|src/fs/xfs/linux-2.4|related/fs/xfs/linux-2.4/xfs_vnode.h
+
+
+diff -Naru a/fs/xfs/linux-2.4/xfs_iops.c b/fs/xfs/linux-2.4/xfs_iops.c
+--- a/fs/xfs/linux-2.4/xfs_iops.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/linux-2.4/xfs_iops.c	2006-02-07 18:59:35 -08:00
+@@ -173,8 +173,9 @@
+ 				 */
+ 				teardown.d_inode = ip = LINVFS_GET_IP(vp);
+ 				teardown.d_name = dentry->d_name;
+-				remove_inode_hash(ip);
+-				make_bad_inode(ip);
++
++				vn_mark_bad(vp);
++
+ 				if (S_ISDIR(mode))
+ 					VOP_RMDIR(dvp, &teardown, NULL, err2);
+ 				else
+diff -Naru a/fs/xfs/linux-2.4/xfs_super.c b/fs/xfs/linux-2.4/xfs_super.c
+--- a/fs/xfs/linux-2.4/xfs_super.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/linux-2.4/xfs_super.c	2006-02-07 18:59:35 -08:00
+@@ -129,8 +129,7 @@
+ 	vnode_t			*vp = LINVFS_GET_VP(inode);
+ 
+ 	if (vp->v_type == VNON) {
+-		remove_inode_hash(inode);
+-		make_bad_inode(inode);
++		vn_mark_bad(vp);
+ 	} else if (S_ISREG(inode->i_mode)) {
+ 		inode->i_op = &linvfs_file_inode_operations;
+ 		inode->i_fop = &linvfs_file_operations;
+@@ -211,20 +210,16 @@
+ 		bhv_insert(VN_BHV_HEAD(vp), inode_bhv);
+ 	}
+ 
+-	vp->v_type = IFTOVT(ip->i_d.di_mode);
+-
+-	/* Have we been called during the new inode create process,
+-	 * in which case we are too early to fill in the Linux inode.
+-	 */
+-	if (vp->v_type == VNON)
+-		return;
+-
+-	xfs_revalidate_inode(XFS_BHVTOM(bdp), vp, ip);
+-
+-	/* For new inodes we need to set the ops vectors,
+-	 * and unlock the inode.
++	/*
++	 * We need to set the ops vectors, and unlock the inode, but if
++	 * we have been called during the new inode create process, it is
++	 * too early to fill in the Linux inode.  We will get called a
++	 * second time once the inode is properly set up, and then we can
++	 * finish our work.
+ 	 */
+-	if (unlock && (inode->i_state & I_NEW)) {
++	if (ip->i_d.di_mode != 0 && unlock && (inode->i_state & I_NEW)) {
++		vp->v_type = IFTOVT(ip->i_d.di_mode);
++		xfs_revalidate_inode(XFS_BHVTOM(bdp), vp, ip);
+ 		xfs_set_inodeops(inode);
+ 		unlock_new_inode(inode);
+ 	}
+diff -Naru a/fs/xfs/linux-2.4/xfs_vnode.c b/fs/xfs/linux-2.4/xfs_vnode.c
+--- a/fs/xfs/linux-2.4/xfs_vnode.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/linux-2.4/xfs_vnode.c	2006-02-07 18:59:35 -08:00
+@@ -186,8 +186,7 @@
+ 	 * returning NULL here is OK.
+ 	 */
+ 	if (inode->i_state & I_NEW) {
+-		remove_inode_hash(inode);
+-		make_bad_inode(inode);
++		vn_mark_bad(vp);
+ 		unlock_new_inode(inode);
+ 		iput(inode);
+ 		return NULL;
+diff -Naru a/fs/xfs/linux-2.4/xfs_vnode.h b/fs/xfs/linux-2.4/xfs_vnode.h
+--- a/fs/xfs/linux-2.4/xfs_vnode.h	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/linux-2.4/xfs_vnode.h	2006-02-07 18:59:35 -08:00
+@@ -594,6 +594,23 @@
+ 		(LINVFS_GET_IP(vp)->i_ctime = (__int32_t)(tvp)->tv_sec)
+ 
+ /*
++ * Dealing with bad inodes
++ */
++static inline void vn_mark_bad(struct vnode *vp)
++{
++	struct inode *inode = LINVFS_GET_IP(vp);
++
++	remove_inode_hash(inode);
++	make_bad_inode(inode);
++}
++
++static inline int VN_BAD(struct vnode *vp)
++{
++	return is_bad_inode(LINVFS_GET_IP(vp));
++}
++
++
++/*
+  * Some useful predicates.
+  */
+ #define	VN_MAPPED(vp)	((LINVFS_GET_IP(vp)->i_mapping->i_mmap != NULL) || \
+diff -Naru a/fs/xfs/xfs_iget.c b/fs/xfs/xfs_iget.c
+--- a/fs/xfs/xfs_iget.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/xfs_iget.c	2006-02-07 18:59:35 -08:00
+@@ -457,8 +457,7 @@
+ 			error = xfs_iget_core(vp, mp, tp, ino,
+ 						lock_flags, ipp, bno);
+ 			if (error) {
+-				remove_inode_hash(inode);
+-				make_bad_inode(inode);
++				vn_mark_bad(vp);
+ 				if (inode->i_state & I_NEW)
+ 					unlock_new_inode(inode);
+ 				iput(inode);
+@@ -582,12 +581,8 @@
+ 
+ 	vn_trace_entry(vp, "xfs_iput_new", (inst_t *)__return_address);
+ 
+-	/* We shouldn't get here without this being true, but just in case */
+-	if (inode->i_state & I_NEW) {
+-		remove_inode_hash(inode);
+-		make_bad_inode(inode);
++	if (inode->i_state & I_NEW)
+ 		unlock_new_inode(inode);
+-	}
+ 	if (lock_flags)
+ 		xfs_iunlock(ip, lock_flags);
+ 	VN_RELE(vp);
+diff -Naru a/fs/xfs/xfs_vfsops.c b/fs/xfs/xfs_vfsops.c
+--- a/fs/xfs/xfs_vfsops.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/xfs_vfsops.c	2006-02-07 18:59:35 -08:00
+@@ -1053,6 +1053,11 @@
+ 			continue;
+ 		}
+ 
++		if (VN_BAD(vp)) {
++			ip = ip->i_mnext;
++			continue;
++		}
++
+ 		if (XFS_FORCED_SHUTDOWN(mp) && !(flags & SYNC_CLOSE)) {
+ 			XFS_MOUNT_IUNLOCK(mp);
+ 			kmem_free(ipointer, sizeof(xfs_iptr_t));
+diff -Naru a/fs/xfs/xfs_vnodeops.c b/fs/xfs/xfs_vnodeops.c
+--- a/fs/xfs/xfs_vnodeops.c	2006-02-07 18:59:35 -08:00
++++ b/fs/xfs/xfs_vnodeops.c	2006-02-07 18:59:35 -08:00
+@@ -1611,7 +1611,7 @@
+ 	 * If the inode is already free, then there can be nothing
+ 	 * to clean up here.
+ 	 */
+-	if (ip->i_d.di_mode == 0) {
++	if (ip->i_d.di_mode == 0 || VN_BAD(vp)) {
+ 		ASSERT(ip->i_df.if_real_bytes == 0);
+ 		ASSERT(ip->i_df.if_broot_bytes == 0);
+ 		return VN_INACTIVE_CACHE;
+@@ -3808,11 +3808,17 @@
+ 	vnode_t		*vp;
+ 
+ 	vp = BHV_TO_VNODE(bdp);
++	ip = XFS_BHVTOI(bdp);
+ 
+ 	vn_trace_entry(vp, __FUNCTION__, (inst_t *)__return_address);
+ 
+ 	ASSERT(!VN_MAPPED(vp));
+-	ip = XFS_BHVTOI(bdp);
++
++	/* bad inode, get out here ASAP */
++	if (VN_BAD(vp)) {
++		xfs_ireclaim(ip);
++		return 0;
++	}
+ 
+ 	if ((ip->i_d.di_mode & S_IFMT) == S_IFREG) {
+ 		if (ip->i_d.di_size > 0) {
+@@ -3890,8 +3896,12 @@
+ 	int		sync_mode)
+ {
+ 	xfs_ihash_t	*ih = ip->i_hash;
++	vnode_t		*vp = XFS_ITOV_NULL(ip);
+ 	int		error;
+ 
++	if (vp && VN_BAD(vp))
++		return 0;
++
+ 	/* The hash lock here protects a thread in xfs_iget_core from
+ 	 * racing with us on linking the inode back with a vnode.
+ 	 * Once we have the XFS_IRECLAIM flag set it will not touch
+@@ -3899,8 +3909,7 @@
+ 	 */
+ 	write_lock(&ih->ih_lock);
+ 	if ((ip->i_flags & XFS_IRECLAIM) ||
+-	    (!(ip->i_flags & XFS_IRECLAIMABLE) &&
+-	      (XFS_ITOV_NULL(ip) == NULL))) {
++	    (!(ip->i_flags & XFS_IRECLAIMABLE) && vp == NULL)) {
+ 		write_unlock(&ih->ih_lock);
+ 		if (locked) {
+ 			xfs_ifunlock(ip);
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/28 14:46:52+10:00 hch@sgi.com 
+#   [XFS] fix handling of bad inodes
+#   
+#   SGI Modid: xfs-linux:xfs-kern:179634a
+#   Signed-off-by: Nathan Scott <nathans@sgi.com>
+# 
+# fs/xfs/linux-2.4/xfs_iops.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +3 -2
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/linux-2.4/xfs_super.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +10 -15
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/linux-2.4/xfs_vnode.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +1 -2
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/linux-2.4/xfs_vnode.h
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +17 -0
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/xfs_iget.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +2 -7
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/xfs_vfsops.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +5 -0
+#   [XFS] fix handling of bad inodes
+# 
+# fs/xfs/xfs_vnodeops.c
+#   2004/09/28 14:46:45+10:00 hch@sgi.com +13 -4
+#   [XFS] fix handling of bad inodes
+# 

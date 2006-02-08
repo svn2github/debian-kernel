@@ -35,7 +35,13 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     See CVE-2004-2607
     200_net_sdla_xfer_leak.diff
 
- -- Simon Horman <horms@verge.net.au>  Fri,  6 Jan 2006 14:58:06 +0900
+  * [XFS] fix handling of bad inodes
+    This patch is needed for 194_xfs-inode-race.diff which was included in
+    2.4.27-12
+    194_xfs-bad-inodes.diff
+    (closes: #343970)
+
+ -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 12:05:39 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
