@@ -1,3 +1,12 @@
+kernel-patch-2.4.27-mips (2.4.27-13.040815-1) UNRELEASED; urgency=low
+
+  * Call make-kpkg with --stem kernel, as the default is now linux
+  * Uptade to ebian kernel source 2.4.27-13
+  * Build dependancy on kernel-tree-2.4.27-N instead of
+    a versioned build dependancy on kernel-source-2.4.27
+
+ -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 15:52:30 +0900
+
 kernel-patch-2.4.27-mips (2.4.27-11.040815-3) unstable; urgency=medium
 
   * Update to debian kernel source 2.4.27-12 for security fixes.

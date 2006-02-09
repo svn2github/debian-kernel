@@ -26,6 +26,8 @@ ifneq ($(debnum),)
 appvan := --append_to_version $(debnum)
 endif
 
+make-kpkg := make-kpkg --stem kernel
+
 flavours := $(shell \
 	find config -maxdepth 1 -type f ! -name default -printf '%f\n' \
 )
@@ -71,7 +73,7 @@ build-stamp: unpack-stamp
 	PATH=$$PWD/bin:$$PATH; \
 	for i in $(flavours); do \
 		cd build-$$i; \
-		make-kpkg --append_to_version $(debnum)-$$i build; \
+		$(make-kpkg) --append_to_version $(debnum)-$$i build; \
 		cd ..; \
 	done
 
@@ -100,13 +102,13 @@ binary-arch: install
 
 	cd kernel-source-$(version); \
 		HEADER_CLEAN_HOOK=$(CURDIR)/header-install.out \
-		make-kpkg $(appvan) kernel-headers
+		$(make-kpkg) $(appvan) kernel-headers
 	mv kernel-source-$(version)/debian/files debian
 
 	for i in $(flavours); do \
 		cp -a build-$$i install-$$i; \
 		cd install-$$i; \
-		make-kpkg --append_to_version $(debnum)-$$i \
+		$(make-kpkg) --append_to_version $(debnum)-$$i \
 			--initrd kernel-image; \
 		cd ..; \
 		cat install-$$i/debian/files >> debian/files; \

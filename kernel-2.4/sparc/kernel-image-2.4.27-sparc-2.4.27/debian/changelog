@@ -1,3 +1,9 @@
+kernel-image-2.4.27-sparc (2.4.27-13) UNRELEASED; urgency=low
+
+  * Call make-kpkg with --stem kernel, as the default is now linux
+
+ -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 16:12:13 +0900
+
 kernel-image-2.4.27-sparc (2.4.27-12) unstable; urgency=low
 
   * [ Simon Horman ]

@@ -69,7 +69,7 @@ export APPEND_TO_VERSION=-$(flavour)
 export CONCURRENCY_LEVEL=8
 # Don't know why i have to force this here, apparently make-kpkg doesn't 
 # get passed the -r command of the dpkg-buildpackage invocation :/
-MAKEKPKG=make-kpkg --rootcmd fakeroot
+MAKEKPKG=make-kpkg --stem kernel --rootcmd fakeroot
 
 # the configure target is responsible for setting up the build arena,
 # i.e. unpacking the Debian kernel source, applying the PowerPC patch,

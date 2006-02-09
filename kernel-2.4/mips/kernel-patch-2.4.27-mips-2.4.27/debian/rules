@@ -52,6 +52,8 @@ endif
 
 NUM_CPUS := $(shell grep '^processor[:space:]*' /proc/cpuinfo | wc -l)
 
+make-kpkg := make-kpkg --stem kernel
+
 source-unpack-stamp:
 	rm -rf build-tmp
 	mkdir build-tmp
@@ -81,7 +83,7 @@ build: source-patch-stamp
 	dh_testdir
 
 	# build the mips-tools
-	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cd $(kdir) && $(make-kpkg) clean && $(make-kpkg) debian
 	cd $(kdir)/arch/mips/boot \
 		&& $(CC) $(MT_CFLAGS) -o elf2ecoff elf2ecoff.c
 
@@ -98,10 +100,10 @@ binary-headers: source-patch-stamp
 	dh_testdir
 	dh_testroot
 ifneq ($(subarches),)
-	cd $(kdir) && make-kpkg clean && make-kpkg debian
+	cd $(kdir) && $(make-kpkg) clean && $(make-kpkg) debian
 	cp debian/changelog debian/control $(kdir)/debian/
 	echo official > $(kdir)/debian/official
-	cd $(kdir) && MAKEFLAGS="CC=$(CC)" make-kpkg kernel_headers
+	cd $(kdir) && MAKEFLAGS="CC=$(CC)" $(make-kpkg) kernel_headers
 	cp build-tmp/kernel-headers-$(basever)_$(debver)_$(arch).deb ..
 endif
 
@@ -114,11 +116,11 @@ ifneq ($(subarches),)
 	# Messes up version detection with kernel-package - but that's good
 	$(foreach sub,$(subarches), \
 		echo "Building subarch $(sub)" && \
-		( cd $(kdir) && make-kpkg clean && make-kpkg debian ) && \
+		( cd $(kdir) && $(make-kpkg) clean && $(make-kpkg) debian ) && \
 		cp debian/changelog debian/control $(kdir)/debian/ && \
 		echo official > $(kdir)/debian/official && \
 		cp config/$(arch)/$(sub) $(kdir)/.config && \
-		( cd $(kdir) && CONCURRENCY_LEVEL=$(NUM_CPUS) MAKEFLAGS="CC=$(CC)" make-kpkg \
+		( cd $(kdir) && CONCURRENCY_LEVEL=$(NUM_CPUS) MAKEFLAGS="CC=$(CC)" $(make-kpkg) \
 		  --subarch $(sub) --append-to-version=-$(sub) kernel_image ) && \
 		cp build-tmp/kernel-image-$(basever)-$(sub)_$(debver)_$(arch).deb .. && ) :
 endif
