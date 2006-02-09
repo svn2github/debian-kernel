@@ -91,7 +91,8 @@ binary-indep: install binary-kernel-patch debian/kernel-tree-$(upstream).substva
 	home=$(patch_home)/debian sh $(patch_home)/apply/debian
 	yes "" | make oldconfig  # make-kpkg needs a config these days
 	$(make-kpkg) kernel-doc
-	$(make-kpkg) kernel-source
+	chmod u+x $(PWD)/debian/source-clean-hook
+	SOURCE_CLEAN_HOOK=$(PWD)/debian/source-clean-hook $(make-kpkg) kernel-source
 # Clean up after yourself
 	home=$(patch_home)/debian sh $(patch_home)/apply/debian $(upstream)
 

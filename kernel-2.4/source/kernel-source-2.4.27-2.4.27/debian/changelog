@@ -60,6 +60,9 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
   * Make sure a config exists before make-kpkg is called else the build will
     stall
 
+  * Clean debian/ dir from kernel-source which seems to appearn with newer
+    make-kpkg
+
   [ Dann Frazier / Simon Horman ]
 
   * [SECURITY] Require root privilege to write the current
@@ -97,7 +100,7 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     home space mode in space switch event exception handler. See CAN-2004-0887.
     206_s390-sacf-fix.diff
 
- -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 16:55:40 +0900
+ -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 18:28:47 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
