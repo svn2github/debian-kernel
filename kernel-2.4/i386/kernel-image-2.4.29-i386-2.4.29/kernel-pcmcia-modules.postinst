@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -e
-
-depmod -a -F /boot/System.map-@version@ @version@
-
-#DEBHELPER#
