@@ -1,7 +1,0 @@
-Patch-name: ia64 architecture
-Patch-id: ia64-2_4_27
-Path-strip-level: 1
-
-Patch-file: ia64-2.4.27.patch
-Architecture: ia64
-Kernel-version: 2.4.27
