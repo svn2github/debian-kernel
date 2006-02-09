@@ -89,6 +89,7 @@ binary-indep: install binary-kernel-patch debian/kernel-tree-$(upstream).substva
 
 # Patch kernel with the Debian patch!
 	home=$(patch_home)/debian sh $(patch_home)/apply/debian
+	yes "" | make oldconfig  # make-kpkg needs a config these days
 	$(make-kpkg) kernel-doc
 	$(make-kpkg) kernel-source
 # Clean up after yourself
