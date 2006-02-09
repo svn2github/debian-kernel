@@ -1,7 +1,0 @@
-Notes for building the patch packages
--------------------------------------
-
- - Be sure to delete the include/asm symlink before attempting to make a
-   large kernel diff!  Otherwise patch behaves very badly...
- - debian/rules now gets everything it needs from debian/changelog,
-   but control has a way to go.
