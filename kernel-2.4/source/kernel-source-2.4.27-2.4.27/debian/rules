@@ -13,6 +13,7 @@
 release := $(shell dpkg-parsechangelog | awk '/^Version: / { print $$2 }')
 upstream := $(shell echo "$(release)" | sed 's/:\?\([0-9\.]\+\)-[0-9].*/\1/')
 patch_home := debian/kernel-patch-debian-$(upstream)/usr/src/kernel-patches/all/$(upstream)
+make-kpkg := make-kpkg --stem kernel
 
 # Helpful things for developers
 patch:
@@ -50,7 +51,7 @@ ifneq ($(shell cat version.Debian),$(upstream))
 endif
 endif
 
-	make-kpkg clean
+	$(make-kpkg) clean
 	rm -f .config* version.Debian stamp-*
 	rm -rf Documentation/man
 
@@ -88,8 +89,8 @@ binary-indep: install binary-kernel-patch debian/kernel-tree-$(upstream).substva
 
 # Patch kernel with the Debian patch!
 	home=$(patch_home)/debian sh $(patch_home)/apply/debian
-	make-kpkg kernel-doc
-	make-kpkg kernel-source
+	$(make-kpkg) kernel-doc
+	$(make-kpkg) kernel-source
 # Clean up after yourself
 	home=$(patch_home)/debian sh $(patch_home)/apply/debian $(upstream)
 

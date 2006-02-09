@@ -55,6 +55,8 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     (closes: #344036)
     192_orinoco-info-leak-2.diff
 
+  * Call make-kpkg with --stem kernel, as the default is now linux
+
   [ Dann Frazier / Simon Horman ]
 
   * [SECURITY] Require root privilege to write the current
@@ -92,7 +94,7 @@ kernel-source-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
     home space mode in space switch event exception handler. See CAN-2004-0887.
     206_s390-sacf-fix.diff
 
- -- Simon Horman <horms@debian.org>  Wed,  8 Feb 2006 19:52:59 +0900
+ -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 15:16:19 +0900
 
 kernel-source-2.4.27 (2.4.27-12) unstable; urgency=low
 
