@@ -1,7 +1,7 @@
 Source: kernel-patch-powerpc-2.4.27
 Section: devel
 Priority: optional
-Build-Depends: debhelper (>=4), bzip2, kernel-package, kernel-tree-2.4.27-13, m4
+Build-Depends: debhelper (>=4), bzip2, kernel-package (>=10.035), kernel-tree-2.4.27-13, m4
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>
 Standards-Version: 3.6.1

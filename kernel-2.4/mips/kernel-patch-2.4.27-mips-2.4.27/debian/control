@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Debian kernel team <debian-kernel@lists.debian.org>
 Uploaders: Guido Guenther <agx@debian.org>, Karsten Merker <merker@debian.org>, Thiemo Seufer <ths@debian.org>
-Build-Depends: kernel-tree-2.4.27-13, kernel-package, debhelper (>=4.1.0), modutils, console-tools, dpatch, bzip2, gcc-3.3
+Build-Depends: kernel-tree-2.4.27-13, kernel-package (>=10.035), debhelper (>=4.1.0), modutils, console-tools, dpatch, bzip2, gcc-3.3
 Standards-Version: 3.6.1
 
 Package: kernel-headers-2.4.27

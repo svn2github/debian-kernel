@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: William Irwin <wli@debian.org>, Sven Luther <luther@debian.org>, Jens Schmalzing <jensen@debian.org>, Jeff Bailey <jbailey@debian.org>, Dann Frazier <dannf@debian.org>, Simon Horman <horms@debian.org>, Joshua Kwan <joshk@triplehelix.org>
 Standards-Version: 3.6.1
-Build-Depends: debhelper (>= 2), modutils, kernel-tree-2.4.27-13, kernel-package (>= 8.105), gcc-3.3
+Build-Depends: debhelper (>= 2), modutils, kernel-tree-2.4.27-13, kernel-package (>= 10.035), gcc-3.3
 
 Package: kernel-headers-2.4.27-3
 Architecture: i386

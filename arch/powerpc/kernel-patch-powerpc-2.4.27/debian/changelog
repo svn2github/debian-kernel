@@ -7,8 +7,10 @@ kernel-patch-powerpc-2.4.27 (2.4.27-13) UNRELEASED; urgency=low
 
   * Build against kernel-tree-2.4.27-13
   * Call make-kpkg with --stem kernel, as the default is now linux
+  * Add versioned dependancy on kernel-package 10.035, 
+    as 10.034 exhibits #352152
 
- -- Simon Horman <horms@debian.org>  Thu,  9 Feb 2006 16:09:40 +0900
+ -- Simon Horman <horms@debian.org>  Mon, 13 Feb 2006 10:38:52 +0900
 
 kernel-patch-powerpc-2.4.27 (2.4.27-12) unstable; urgency=low
 
