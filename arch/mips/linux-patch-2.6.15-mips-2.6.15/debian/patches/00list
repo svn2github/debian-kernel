@@ -24,7 +24,6 @@
 41_o2_nevada.dpatch
 51_iomap.dpatch
 52_ip22-sercon.dpatch
-54_ip32-eth0.dpatch
 55_o32-kcore.dpatch
 61_uaccess_breakage.dpatch
 62_remove_stray_mips3_in_32bit.dpatch
