@@ -3,13 +3,10 @@
 11_byteorder-proc.dpatch
 12_makefile.dpatch
 15_interrupt.dpatch
-17_fpu-emulator.dpatch
 18_gettimeofday.dpatch
-19_fix_dec_esp.dpatch
 20_ioc3.dpatch
 21_ip30.dpatch
 22_fix_cmdline.dpatch
-23_ip30_physaddr.dpatch
 25_cobalt-network.dpatch
 27_cobalt-def_fix.dpatch
 28_cobalt_ide.dpatch
