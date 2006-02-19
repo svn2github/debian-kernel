@@ -22,6 +22,7 @@
 33_sb1_oprofile.dpatch
 40_o2_gbefb_compile_fix.dpatch
 41_o2_nevada.dpatch
+42_o2_gbefb_fix_depth.dpatch
 51_iomap.dpatch
 52_ip22-sercon.dpatch
 55_o32-kcore.dpatch

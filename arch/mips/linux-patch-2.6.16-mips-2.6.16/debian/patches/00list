@@ -2,7 +2,6 @@
 10_arch-makefile.dpatch
 11_byteorder-proc.dpatch
 12_makefile.dpatch
-15_interrupt.dpatch
 18_gettimeofday.dpatch
 20_ioc3.dpatch
 21_ip30.dpatch
@@ -14,6 +13,6 @@
 32_sb1_probe_ide.dpatch
 42_o2_gbefb_fix_depth.dpatch
 51_iomap.dpatch
+52_fix_iomap_nonpci.dpatch
 61_uaccess_breakage.dpatch
 65_fix_gcc4_opt.dpatch
-68_fix_iomap_nonpci.dpatch
