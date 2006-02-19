@@ -1,26 +1,14 @@
-#! /bin/sh -e
-## 32_sb1_probe_ide.dpatch by Peter Horton <pdh@colonel-panic.org>
-##
-## DP: Make sure we scan SWARM IDE interface for devices.
-## DP: Upstream status: submitted to linux-mips list
+From: Peter Horton <pdh@colonel-panic.org>
 
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
+[PATCH] Make sure we scan SWARM IDE interface for devices
 
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+Signed-off-by: Peter Horton <pdh@colonel-panic.org>
+Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
 
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
+---
 
-exit 0
+ swarm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 Index: linux.git/drivers/ide/mips/swarm.c
 ===================================================================
