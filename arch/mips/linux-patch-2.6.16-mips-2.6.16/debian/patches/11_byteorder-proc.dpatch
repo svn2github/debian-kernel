@@ -7,6 +7,9 @@
 ## Got removed rom mainline ages ago.  It's only being carried around
 ## in distribution kernels for legacy reasons.
 
+# Status: asked Ryan Murray (mips buildd maintainer) if it's okay to drop
+# it
+
 if [ $# -lt 1 ]; then
     echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
     exit 1
