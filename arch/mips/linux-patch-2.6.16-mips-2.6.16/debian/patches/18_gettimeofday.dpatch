@@ -1,30 +1,13 @@
-#! /bin/sh -e
-## 18_gettimeofday.dpatch by Dave Johnson <djohnson+linuxmips@sw.starentnetworks.com>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: gettimeofday jumps backwards then forwards.
+# DP: Fix for gettimeofday jumping backwards, then forwards.
+# DP: Patch author: Dave Johnson <djohnson+linuxmips@sw.starentnetworks.com>
+# DP: Upstream status: submitted to linux-mips list
 
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
+From: Dave Johnson <djohnson+linuxmips@sw.starentnetworks.com>
 
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+[MIPS] Fix for gettimeofday jumping backwards, then forwards.
 
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
-
-exit 0
-
-Below are 2 fixes I made to 2.6.12 to do with time jumping around
-as reported by gettimeofday().  One is SB1250 specific and one appears
-generic.
+Below are 2 fixes to do with time jumping around as reported by
+gettimeofday().  One is SB1250 specific and one appears generic.
 
 The symptom is revealed by running multile copies (1 per cpu) of a
 simple test program that calls gettimeofday() as fast as possible
@@ -78,8 +61,6 @@ Time jumps backwards 1msec then forwards 1msec a few usec
 later.  Usually lasts < 2us but I've seen it as long as 5us if the
 system is under load.
 
---
-
 First problem I found is that sb1250_gettimeoffset() simply reads the
 current cpu 0 timer remaining value, however once this counter reaches
 0 and the interrupt is raised, it immediately resets and begins to
@@ -98,8 +79,6 @@ timer unrelated to the existing periodic interrupt timers. It runs at
 do_gettimeoffset() for sb1250 and allowed use of the generic
 fixed_rate_gettimeoffset() using mips_hpt_*() and timerhi/timerlo.
 
---
-
 The second problem is that more of timer_interrupt() needs to be
 protected by xtime_lock:
 
@@ -108,12 +87,8 @@ protected by xtime_lock:
 * writing timerhi/lo in timer_interrupt() will mess up
   fixed_rate_gettimeoffset() which reads timerhi/lo.
 
---
-
 With both changes do_gettimeofday() works correctly on both cpu 0 and
 cpu 1.
-
---
 
 Other changes/cleanups:
 
@@ -124,7 +99,18 @@ than the desired interval not the interval itself.
 M_SCD_TIMER_INIT and M_SCD_TIMER_CNT had the wrong field width (should
 be 23 bits not 20 bits)
 
-============
+Signed-off-by: Dave Johnson <djohnson+linuxmips@sw.starentnetworks.com>
+Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
+
+---
+
+ arch/mips/kernel/time.c              |    6 +-
+ arch/mips/sibyte/sb1250/time.c       |   77 ++++++++++++++++++++++++++---------
+ arch/mips/sibyte/swarm/setup.c       |    7 +++
+ include/asm-mips/sibyte/sb1250.h     |    2
+ include/asm-mips/sibyte/sb1250_scd.h |    5 +-
+ 5 files changed, 73 insertions(+), 24 deletions(-)
+
 
 diff -urN linux-mips/arch/mips/kernel/time.c new/arch/mips/kernel/time.c
 --- linux-mips/arch/mips/kernel/time.c	2006-01-10 11:21:15.000000000 +0000
@@ -341,3 +327,4 @@ diff -urN linux-mips/include/asm-mips/sibyte/sb1250_scd.h new/include/asm-mips/s
  #define V_SCD_TIMER_CNT(x)         _SB_MAKEVALUE(x,S_SCD_TIMER_CNT)
  #define G_SCD_TIMER_CNT(x)         _SB_GETVALUE(x,S_SCD_TIMER_CNT,M_SCD_TIMER_CNT)
  
+
