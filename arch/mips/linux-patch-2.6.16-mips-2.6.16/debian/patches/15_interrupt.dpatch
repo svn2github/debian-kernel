@@ -1,0 +1,61 @@
+#! /bin/sh -e
+## 15_interrupt.dpatch by Ed Martini <martini@c2micro.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Catch runaway assembler directive.
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+In include/asm-mips/interrupt.h, the definition for local_irq_restore is 
+inconsistent in its use of .reorder/.noreorder assembler directives.  
+Other asm macros in interrupt.h are wrapped with '.set push' and '.set pop'.
+
+It doesn't seem to be a problem with the 2.96 mipsel-linux- assembler, 
+but it caused me a problem with my 4.0-based toolchain.  (As it was the 
+local_irq_restore left the assembler in 'reorder' mode and a stack 
+pointer post-inc was reordered out of the return delay slot where it 
+belonged.)  Luckily we have a sharp compiler guy who figured it out.  
+Thanks.
+
+As usual, there may be a reason for this, but it took me a whole day to 
+find it, and I thought I'd point it out.
+
+Ed Martini
+
+diff -urN linux-mips/include/asm-mips/interrupt.h new/include/asm-mips/interrupt.h
+--- linux-mips/include/asm-mips/interrupt.h	2006-01-10 11:21:59.000000000 +0000
++++ new/include/asm-mips/interrupt.h	2006-01-16 16:35:39.000000000 +0000
+@@ -114,6 +114,7 @@
+ 
+ __asm__ (
+ 	"	.macro	local_irq_restore flags				\n"
++	"	.set	push						\n"
+ 	"	.set	noreorder					\n"
+ 	"	.set	noat						\n"
+ #if defined(CONFIG_CPU_MIPSR2) && defined(CONFIG_IRQ_CPU)
+@@ -141,8 +142,7 @@
+ 	"	mtc0	\\flags, $12					\n"
+ #endif
+ 	"	irq_disable_hazard					\n"
+-	"	.set	at						\n"
+-	"	.set	reorder						\n"
++	"	.set	pop						\n"
+ 	"	.endm							\n");
+ 
+ #define local_irq_restore(flags)					\

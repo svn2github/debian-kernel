@@ -1,0 +1,108 @@
+#! /bin/sh -e
+## 29_cobalt_tulip2.dpatch by Peter Horton
+
+## DP: TULIP_MWI fix for Cobalt
+
+# When you build with this new patch you need to enable TULIP_MWI *and*
+# TULIP_MWI_DC21143 for the patch to take effect (if the patch is working
+# you should get a line that says "eth?: CSR0 01a04800" in /var/log/debug
+# after booting).
+
+# P.
+
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+
+Index: linux.git/drivers/net/tulip/tulip_core.c
+===================================================================
+--- linux.git.orig/drivers/net/tulip/tulip_core.c	2006-01-29 21:43:40.000000000 +0000
++++ linux.git/drivers/net/tulip/tulip_core.c	2006-01-29 21:56:50.000000000 +0000
+@@ -294,6 +294,8 @@
+ 	if (tp->mii_cnt  ||  (tp->mtable  &&  tp->mtable->has_mii))
+ 		iowrite32(0x00040000, ioaddr + CSR6);
+ 
++	printk(KERN_DEBUG "%s: CSR0 %08x\n", dev->name, tp->csr0);
++
+ 	/* Reset the chip, holding bit 0 set at least 50 PCI cycles. */
+ 	iowrite32(0x00000001, ioaddr + CSR0);
+ 	udelay(100);
+@@ -1155,8 +1157,10 @@
+ 	/* if we have any cache line size at all, we can do MRM */
+ 	csr0 |= MRM;
+ 
++#ifndef CONFIG_TULIP_MWI_DC21143
+ 	/* ...and barring hardware bugs, MWI */
+ 	if (!(tp->chip_id == DC21143 && tp->revision == 65))
++#endif
+ 		csr0 |= MWI;
+ 
+ 	/* set or disable MWI in the standard PCI command bit.
+@@ -1182,7 +1186,7 @@
+ 	 */
+ 	switch (cache) {
+ 	case 8:
+-		csr0 |= MRL | (1 << CALShift) | (16 << BurstLenShift);
++		csr0 |= MRL | (1 << CALShift) | (8 << BurstLenShift);
+ 		break;
+ 	case 16:
+ 		csr0 |= MRL | (2 << CALShift) | (16 << BurstLenShift);
+Index: linux.git/drivers/net/tulip/tulip.h
+===================================================================
+--- linux.git.orig/drivers/net/tulip/tulip.h	2006-01-29 21:43:40.000000000 +0000
++++ linux.git/drivers/net/tulip/tulip.h	2006-01-29 21:52:01.000000000 +0000
+@@ -262,7 +262,15 @@
+ #define RX_RING_SIZE	128 
+ #define MEDIA_MASK     31
+ 
+-#define PKT_BUF_SZ		1536	/* Size of each temporary Rx buffer. */
++/* MWI can fail on 21143 rev 65 if the receive buffer ends
++   on a cache line boundary. Ensure it doesn't ...
++*/
++
++#ifdef CONFIG_TULIP_MWI_DC21143
++#define PKT_BUF_SZ		(1536 + 4)	/* Size of each temporary Rx buffer. */
++#else
++#define PKT_BUF_SZ		1536		/* Size of each temporary Rx buffer. */
++#endif
+ 
+ #define TULIP_MIN_CACHE_LINE	8	/* in units of 32-bit words */
+ 
+Index: linux.git/drivers/net/tulip/Kconfig
+===================================================================
+--- linux.git.orig/drivers/net/tulip/Kconfig	2006-01-29 21:48:09.000000000 +0000
++++ linux.git/drivers/net/tulip/Kconfig	2006-01-29 21:50:28.000000000 +0000
+@@ -57,6 +57,16 @@
+ 
+ 	  If unsure, say N.
+ 
++config TULIP_MWI_DC21143
++	bool "Enable MWI workaround on dc21143 controllers"
++	depends on TULIP_MWI
++	help
++	  This enables a workaround for MWI ("New bus configuration") on DC21143
++	  controllers.  Normally MWI is disabled on these chips because of
++	  hardware errata.
++
++	  If unsure, say N.
++
+ config TULIP_MMIO
+ 	bool "Use PCI shared mem for NIC registers"
+ 	depends on TULIP
+

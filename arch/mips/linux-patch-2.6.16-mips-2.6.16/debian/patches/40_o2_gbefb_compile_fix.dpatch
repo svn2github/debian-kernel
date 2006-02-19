@@ -1,0 +1,41 @@
+#! /bin/sh -e
+## 40_o2_gbefb_compile_fix.dpatch by Kumba <kumba@gentoo.org>
+##
+## DP: Fix SGI O2 Compile error in drivers/video/gbefb.c
+## Upstream status: in Linus' git (commit d30864392823d5f38002fa32950689e651ee11da)
+
+# a sysfs function call uses the wrong parameter, and thus breaks a build
+# on SGI O2 with current git.
+
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+diff -Naurp linux-2.6.15.1.orig/drivers/video/gbefb.c linux-2.6.15.1/drivers/video/gbefb.c
+--- linux-2.6.15.1.orig/drivers/video/gbefb.c	2006-01-02 22:21:10.000000000 -0500
++++ linux-2.6.15.1/drivers/video/gbefb.c	2006-01-18 23:22:29.000000000 -0500
+@@ -1244,7 +1244,7 @@ static int __devexit gbefb_remove(struct
+ 			  (void *)gbe_tiles.cpu, gbe_tiles.dma);
+ 	release_mem_region(GBE_BASE, sizeof(struct sgi_gbe));
+ 	iounmap(gbe);
+-	gbefb_remove_sysfs(dev);
++	gbefb_remove_sysfs(&p_dev->dev);
+ 	framebuffer_release(info);
+ 
+ 	return 0;
+

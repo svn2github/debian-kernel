@@ -1,0 +1,37 @@
+#! /bin/sh -e
+## 22_fix_cmdline.dpatch by Martin Michlmayr <tbm@cyrius.com>
+##
+## DP: Don't overwrite CONFIG_CMDLINE (fix bogus change from 21_ip30.dpatch)
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+
+--- old/arch/mips/kernel/setup.c	2005-12-25 13:55:22.000000000 +0000
++++ new/arch/mips/kernel/setup.c	2005-12-25 13:55:28.000000000 +0000
+@@ -523,10 +523,6 @@
+ 	/* call board setup routine */
+ 	plat_setup();
+ 
+-#ifdef CONFIG_CMDLINE
+-	if (strlen(CONFIG_CMDLINE))
+-		strlcpy(arcs_cmdline, CONFIG_CMDLINE, sizeof(command_line));
+-#endif
+ 	strlcpy(command_line, arcs_cmdline, sizeof(command_line));
+ 	strlcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
+ 

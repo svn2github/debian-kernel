@@ -1,0 +1,35 @@
+#! /bin/sh -e
+## 23_ip30_physaddr.dpatch by Martin Michlmayr <tbm@cyrius.com>
+##
+## DP: Fix kernel_physaddr (introduced in 21_ip30.dpatch)
+
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- a/arch/mips/mm/init.c~	2006-01-21 18:07:20.000000000 +0000
++++ b/arch/mips/mm/init.c	2006-01-21 18:07:31.000000000 +0000
+@@ -291,7 +291,7 @@
+ #ifdef CONFIG_64BIT
+ unsigned long kernel_physaddr(unsigned long kva)
+ {
+-	if(kva&0xffffffff00000000UL==0xffffffff00000000UL)
++	if((kva&0xffffffff00000000UL)==0xffffffff00000000UL)
+ 		return CPHYSADDR(kva);
+ 	return XPHYSADDR(kva);
+ }

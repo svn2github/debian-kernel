@@ -1,0 +1,6 @@
+# Kernel flavours we build for mips
+r4k-ip22
+r10k-ip27
+r10k-ip30
+r5k-ip32
+sb1-swarm-bn

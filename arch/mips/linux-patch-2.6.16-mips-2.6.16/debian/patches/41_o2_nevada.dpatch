@@ -1,0 +1,56 @@
+#! /bin/sh -e
+## 41_o2_nevada.dpatch by Kumba <kumba@gentoo.org>
+##
+## DP: Nevada support for SGI O2
+## Upstream status: in git
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+--- 2.6.15/arch/mips/Kconfig	2006-01-10 11:21:15.000000000 +0000
++++ git/arch/mips/Kconfig	2006-01-19 22:17:56.000000000 +0000
+@@ -592,6 +592,7 @@
+ 	select SYS_HAS_CPU_R5000
+ 	select SYS_HAS_CPU_R10000 if BROKEN
+ 	select SYS_HAS_CPU_RM7000
++	select SYS_HAS_CPU_NEVADA
+ 	select SYS_SUPPORTS_64BIT_KERNEL
+ 	select SYS_SUPPORTS_BIG_ENDIAN
+ 	help
+--- 2.6.15/arch/mips/configs/ip32_defconfig	2006-01-10 11:21:15.000000000 +0000
++++ git/arch/mips/configs/ip32_defconfig	2006-01-19 22:17:56.000000000 +0000
+@@ -102,6 +102,7 @@
+ # CONFIG_CPU_RM9000 is not set
+ # CONFIG_CPU_SB1 is not set
+ CONFIG_SYS_HAS_CPU_R5000=y
++CONFIG_SYS_HAS_CPU_NEVADA=y
+ CONFIG_SYS_HAS_CPU_RM7000=y
+ CONFIG_SYS_SUPPORTS_64BIT_KERNEL=y
+ CONFIG_CPU_SUPPORTS_32BIT_KERNEL=y
+--- 2.6.15/include/asm-mips/mach-ip32/cpu-feature-overrides.h	2006-01-10 11:21:59.000000000 +0000
++++ git/include/asm-mips/mach-ip32/cpu-feature-overrides.h	2006-01-19 22:19:28.000000000 +0000
+@@ -18,7 +18,7 @@
+  * so, for 64bit IP32 kernel we just don't use ll/sc.
+  * This does not affect luserland.
+  */
+-#if defined(CONFIG_CPU_R5000) && defined(CONFIG_64BIT)
++#if (defined(CONFIG_CPU_R5000) || defined(CONFIG_CPU_NEVADA)) && defined(CONFIG_64BIT)
+ #define cpu_has_llsc		0
+ #else
+ #define cpu_has_llsc		1
+

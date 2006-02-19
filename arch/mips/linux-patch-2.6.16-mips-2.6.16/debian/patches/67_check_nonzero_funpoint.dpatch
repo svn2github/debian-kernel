@@ -1,0 +1,66 @@
+#! /bin/sh -e
+## 67_check_nonzero_funpoint.dpatch by Ralf Baechle <ralf@linux-mips.org>
+##
+## DP: Check function pointers are non-zero before calling.
+## DP: Upstream status: linux-mips git
+
+# Check function pointers are non-zero before calling.
+# author	Ralf Baechle <ralf@linux-mips.org>
+# 	Tue, 17 Jan 2006 21:14:01 +0000 (21:14 +0000)
+# committer	Ralf Baechle <ralf@linux-mips.org>
+# 	Tue, 17 Jan 2006 21:14:01 +0000 (21:14 +0000)
+# commit	6a9b4be47a31feca74dbe762048a0c391ad2cf9b
+# tree	c1506ec15bb1451736d9f55ce7e3600335b73207	tree
+# parent	2b2bf89aadc26d474525d07def1aa9c319cc47c6	commit | commitdiff
+# Check function pointers are non-zero before calling.
+
+# Several boards don't initialize the pointers, so let's play safe.
+
+# Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+
+
+if [ $# -lt 1 ]; then
+    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+    -patch) patch -p1 ${patch_opts} < $0;;
+    -unpatch) patch -R -p1 ${patch_opts} < $0;;
+    *)
+        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
+        exit 1;;
+esac
+
+exit 0
+
+
+--- a/arch/mips/kernel/reset.c	2006-01-10 11:21:15.000000000 +0000
++++ b/arch/mips/kernel/reset.c	2006-01-20 02:45:53.000000000 +0000
+@@ -23,16 +23,18 @@
+ 
+ void machine_restart(char *command)
+ {
+-	_machine_restart(command);
++	if (_machine_restart)
++		_machine_restart(command);
+ }
+ 
+ void machine_halt(void)
+ {
+-	_machine_halt();
++	if (_machine_halt)
++		_machine_halt();
+ }
+ 
+ void machine_power_off(void)
+ {
+-	_machine_power_off();
++	if (_machine_power_off)
++		_machine_power_off();
+ }
+-
+
