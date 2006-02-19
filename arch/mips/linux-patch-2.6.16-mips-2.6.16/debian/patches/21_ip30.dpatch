@@ -511,7 +511,7 @@ diff -urN linux-mips/arch/mips/mm/init.c new/arch/mips/mm/init.c
 +#ifdef CONFIG_64BIT
 +unsigned long kernel_physaddr(unsigned long kva)
 +{
-+	if(kva&0xffffffff00000000UL==0xffffffff00000000UL)
++	if((kva&0xffffffff00000000UL)==0xffffffff00000000UL)
 +		return CPHYSADDR(kva);
 +	return XPHYSADDR(kva);
 +}
