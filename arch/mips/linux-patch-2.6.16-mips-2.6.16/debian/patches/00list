@@ -13,5 +13,4 @@
 42_o2_gbefb_fix_depth.dpatch
 51_iomap.dpatch
 52_fix_iomap_nonpci.dpatch
-61_uaccess_breakage.dpatch
 65_fix_gcc4_opt.dpatch
