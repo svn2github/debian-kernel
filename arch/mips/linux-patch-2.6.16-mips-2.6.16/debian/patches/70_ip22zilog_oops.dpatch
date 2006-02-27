@@ -1,3 +1,7 @@
+## DP: ip22zilog: Fix oops on runlevel change with serial console
+## DP: Patch author: Martin Michlmayr <tbm@cyrius.com>
+## DP: Upstream status: submitted to serial sub-system maintainer
+
 [serial] ip22zilog: Fix oops on runlevel change with serial console
 
 Incorrect uart_write_wakeup() calls cause reference to a NULL tty

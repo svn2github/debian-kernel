@@ -2,6 +2,7 @@
 ## 27_cobalt-def_fix.dpatch by Martin Michlmayr <tbm@cyrius.com>
 
 ## DP: Initialize scache flushing functions when CPU has no scache
+## DP: Patch author: Martin Michlmayr <tbm@cyrius.com>
 ## DP: Upstream status: submitted to linux-mips
 
 # [PATCH] Initialize scache flushing functions when CPU has no scache

@@ -1,8 +1,7 @@
-#! /bin/sh -e
-## 68_fix_iomap_nonpci.dpatch by Maciej W. Rozycki <macro@linux-mips.org>
-##
 ## DP: Only include iomap on systems with PCI
-## DP: Upstream status: depends on iomap which is not in linux-mips git
+## DP: Patch author: Maciej W. Rozycki <macro@linux-mips.org>
+## DP: Upstream status: temporary fix to get iomap to compile on
+##     DECstation; the real solution is to fix iomap
 
 ## DECstation fails to compile without this path:
 ## tbm>   CC      arch/mips/lib/iomap.o

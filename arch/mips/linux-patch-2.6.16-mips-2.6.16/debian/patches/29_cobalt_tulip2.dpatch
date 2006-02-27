@@ -1,14 +1,15 @@
-#! /bin/sh -e
-## 29_cobalt_tulip2.dpatch by Peter Horton
-
 ## DP: TULIP_MWI fix for Cobalt
+## DP: Patch author: Peter Horton <pdh@colonel-panic.org>
+## DP: Upstream status: submitted to netdev
 
-# When you build with this new patch you need to enable TULIP_MWI *and*
-# TULIP_MWI_DC21143 for the patch to take effect (if the patch is working
-# you should get a line that says "eth?: CSR0 01a04800" in /var/log/debug
-# after booting).
+This patch works around the MWI bug on the DC21143 rev 65 Tulip by ensuring
+that the receive buffers don't end on a cache line boundary (as documented
+in the errata).
 
-# P.
+This patch is required for the MIPs based Cobalt Qube/RaQ as supporting the
+extra PCI commands seems to reduce the chance of a hard lockup between the
+Tulip and the PCI bridge.
+
 
 
 if [ $# -lt 1 ]; then

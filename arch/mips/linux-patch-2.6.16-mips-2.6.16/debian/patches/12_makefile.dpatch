@@ -1,6 +1,3 @@
-#! /bin/sh -e
-## 12_makefile.dpatch by Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>
-##
 ## DP: Accept various mips sub-types in SUBARCH
 ## Upstream status: in kbuild git tree
 
