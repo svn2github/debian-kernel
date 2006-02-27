@@ -14,3 +14,4 @@
 51_iomap.dpatch
 52_fix_iomap_nonpci.dpatch
 65_fix_gcc4_opt.dpatch
+70_ip22zilog_oops.dpatch
