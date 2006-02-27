@@ -1,5 +1,7 @@
 ## DP: Fix Makefile for compiles with modern toolchains.
 ## DP: Patch author: Thiemo Seufer <ths@networkno.de>
+## DP: Upstream status: Thiemo will go through the Makefile and completely
+##     redo it.  Until this happens, this patch is needed for Debian.
 
 From: Thiemo Seufer <ths@networkno.de>
 
