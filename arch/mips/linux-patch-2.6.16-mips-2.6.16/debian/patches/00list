@@ -10,7 +10,6 @@
 28_cobalt_ide.dpatch
 29_cobalt_tulip2.dpatch
 32_sb1_probe_ide.dpatch
-42_o2_gbefb_fix_depth.dpatch
 51_iomap.dpatch
 52_fix_iomap_nonpci.dpatch
 65_fix_gcc4_opt.dpatch
