@@ -10,24 +10,6 @@
 #tree	f771061d0c33cbae06f7e40721762efea0140332	tree
 #parent	91b06e616c62c7aef213cafb1435e94158d18901	commit | commitdiff
 
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
-
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
-
-exit 0
-
 --- linux-2.6.15/Makefile	2006-01-16 17:56:00.000000000 +0000
 +++ new/Makefile	2006-01-16 17:57:29.000000000 +0000
 @@ -169,7 +169,7 @@

@@ -2,7 +2,6 @@
 # DP: Patch author: Peter Horton <pdh@colonel-panic.org>
 # DP: Upstream status: submitted to linux-ide
 
-
 From: Peter Horton <pdh@colonel-panic.org>
 
 [PATCH] Make sure we scan SWARM IDE interface for devices
@@ -10,13 +9,7 @@ From: Peter Horton <pdh@colonel-panic.org>
 Signed-off-by: Peter Horton <pdh@colonel-panic.org>
 Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
 
----
 
- swarm.c |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: linux.git/drivers/ide/mips/swarm.c
-===================================================================
 --- linux.git.orig/drivers/ide/mips/swarm.c	2006-01-23 22:48:58.000000000 +0000
 +++ linux.git/drivers/ide/mips/swarm.c	2006-01-24 08:32:45.000000000 +0000
 @@ -127,6 +127,7 @@

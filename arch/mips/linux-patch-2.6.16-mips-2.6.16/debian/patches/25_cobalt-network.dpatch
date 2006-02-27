@@ -3,24 +3,6 @@
 ## DP: Basically got rejected as it by Jeff Garzik but needed for now.
 ## DP: Has been used by the HPPA folks for years
 
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
-
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
-
-exit 0
-
 From: Jim Gifford <maillist@jg555.com>
 
 I have been working on getting the RaQ2 to build using 64 bit. I ran 

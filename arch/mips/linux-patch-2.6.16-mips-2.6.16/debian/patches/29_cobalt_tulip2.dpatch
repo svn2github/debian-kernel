@@ -10,29 +10,6 @@ This patch is required for the MIPs based Cobalt Qube/RaQ as supporting the
 extra PCI commands seems to reduce the chance of a hard lockup between the
 Tulip and the PCI bridge.
 
-
-
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
-
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
-
-exit 0
-
-
-Index: linux.git/drivers/net/tulip/tulip_core.c
-===================================================================
 --- linux.git.orig/drivers/net/tulip/tulip_core.c	2006-01-29 21:43:40.000000000 +0000
 +++ linux.git/drivers/net/tulip/tulip_core.c	2006-01-29 21:56:50.000000000 +0000
 @@ -294,6 +294,8 @@

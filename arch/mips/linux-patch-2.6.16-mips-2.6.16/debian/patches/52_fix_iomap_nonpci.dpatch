@@ -10,25 +10,6 @@
 #
 #  Yes, R3000 does not define _CACHE_CACHABLE_COW.
 
-
-if [ $# -lt 1 ]; then
-    echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-    exit 1
-fi
-
-[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
-patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
-
-case "$1" in
-    -patch) patch -p1 ${patch_opts} < $0;;
-    -unpatch) patch -R -p1 ${patch_opts} < $0;;
-    *)
-        echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
-        exit 1;;
-esac
-
-exit 0
-
 --- a/arch/mips/lib/Makefile~	2006-01-23 12:42:02.000000000 +0000
 +++ b/arch/mips/lib/Makefile	2006-01-23 12:42:11.000000000 +0000
 @@ -4,6 +4,6 @@
