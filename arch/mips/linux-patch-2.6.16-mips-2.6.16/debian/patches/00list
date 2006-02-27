@@ -1,7 +1,6 @@
 10_arch-makefile.dpatch
 12_makefile.dpatch
 18_gettimeofday.dpatch
-22_fix_cmdline.dpatch
 25_cobalt-network.dpatch
 27_cobalt-def_fix.dpatch
 28_cobalt_ide.dpatch
