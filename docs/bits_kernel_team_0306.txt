@@ -68,9 +68,14 @@ although it should mostly work there.
 
 Documentation
 ~~~~~~~~~~~~~
-The Debian Linux kernel handbook contains lots of information about the
-Debian Linux Image and how the various parts are built [5]. You'll also
-find very practical chapters like "Filing a bug against a kernel package".
+
+The Debian Linux kernel handbook [5] contains lots of information
+about the Debian Linux kernel packages, recommended procedures, and
+other Debian-specific kernel-related information. There you'll also
+find some practical chapters like "Filing a bug against a kernel
+package". The kernel-handbook is currently a "work in progress", so
+any contributions, suggestions and corrections are very welcome. They
+should be submitted to the kernel-handbook mailing list [6].
 
 Cheers,
 
@@ -84,3 +89,4 @@ Debian Kernel Team
 [3] http://wiki.debian.org/DebianKernelSargeUpdateStatus
 [4] http://wiki.debian.org/DebianKernelWoodyUpdateStatus
 [5] http://kernel-handbook.alioth.debian.org/
+[6] kernel-handbook@lists.alioth.debian.org
