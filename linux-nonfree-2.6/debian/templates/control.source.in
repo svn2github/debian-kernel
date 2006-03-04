@@ -4,4 +4,4 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Andres Salomon <dilinger@debian.org>, Bastian Blank <waldi@debian.org>
 Standards-Version: 3.6.1.0
-Build-Depends: gcc (>= 4:4.0) [!arm !sparc !alpha !m68k], gcc-3.3 [arm sparc alpha m68k], binutils-hppa64 [hppa], gcc-4.0-hppa64 [hppa], debhelper (>= 4.1.0), module-init-tools
+Build-Depends: debhelper (>= 4.1.0), module-init-tools
