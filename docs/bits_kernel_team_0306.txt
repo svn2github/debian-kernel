@@ -93,4 +93,4 @@ Debian Kernel Team
 [3] http://wiki.debian.org/DebianKernelSargeUpdateStatus
 [4] http://wiki.debian.org/DebianKernelWoodyUpdateStatus
 [5] http://kernel-handbook.alioth.debian.org/
-[6] kernel-handbook@lists.alioth.debian.org
+[6] kernel-handbook-general@lists.alioth.debian.org
