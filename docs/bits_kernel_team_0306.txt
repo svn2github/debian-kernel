@@ -68,7 +68,6 @@ although it should mostly work there.
 
 Documentation
 ~~~~~~~~~~~~~
-
 The Debian Linux kernel handbook [5] contains lots of information
 about the Debian Linux kernel packages, recommended procedures, and
 other Debian-specific kernel-related information. There you'll also
