@@ -7,8 +7,8 @@ and what you should expect for etch.
 linux-2.6
 ~~~~~~~~~
 The common source package linux-2.6 builds the various kernel images and
-headers. All archs are supported with the current exception of
-mips/mipsel. The shift to a unified package since the linux-2.6.12 release
+headers. All archs are supported with mips/mipsel joining in the next
+release. The shift to a unified package since the linux-2.6.12 release
 allows to ride latest upstream. The most user visible change is the
 renaming of kernel-image-2.6-$flavour into linux-image-2.6-$flavour. The
 old version being left as transitioning package for upgrades from sarge.
