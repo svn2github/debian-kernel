@@ -4,7 +4,7 @@ Half-way between the sarge release and the etch freeze the Debian kernel
 team takes a look back at what already happened after the sarge release
 and what you should expect for etch.
 
-Linux-2.6
+linux-2.6
 ~~~~~~~~~
 As of 2.6, we have a unified source package from which kernel images
 and headers for every architecture are built.  This change to a unified
