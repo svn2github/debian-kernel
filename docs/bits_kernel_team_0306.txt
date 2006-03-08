@@ -57,8 +57,7 @@ scanning and testing all CVEs (Common Vulnerabilities and Exposures, a unique
 ID for security issues) which get issued against the Linux kernel.  The second
 round of the sarge Debian kernel is prepared [3] and has been submitted to the
 stable security team. You won't believe it, but there is even a round for woody
-prepared [4].  These have also been submitted to the security team, but it is
-unclear if these updates will be included in an official Debian update.
+prepared [4].
 
 End of line
 ~~~~~~~~~~~
