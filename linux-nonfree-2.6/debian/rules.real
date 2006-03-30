@@ -18,13 +18,13 @@ binary-indep: install-source
 
 build: $(STAMPS_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
 
-$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAMVERSION).tar.bz2: SOURCE_DIR=$(BUILD_DIR)/source
-$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAMVERSION).tar.bz2: DIR = $(BUILD_DIR)/linux-nonfree-source-$(UPSTREAMVERSION)
-$(BUILD_DIR)/linux-nonfree-source-$(UPSTREAMVERSION).tar.bz2: $(STAMPS_DIR)/source
+$(BUILD_DIR)/linux-source-nonfree-$(UPSTREAMVERSION).tar.bz2: SOURCE_DIR=$(BUILD_DIR)/source
+$(BUILD_DIR)/linux-source-nonfree-$(UPSTREAMVERSION).tar.bz2: DIR = $(BUILD_DIR)/linux-source-nonfree-$(UPSTREAMVERSION)
+$(BUILD_DIR)/linux-source-nonfree-$(UPSTREAMVERSION).tar.bz2: $(STAMPS_DIR)/source
 	rm -rf '$@' '$(DIR)'
 	cp -al '$(SOURCE_DIR)' '$(DIR)'
 	chmod -R u+rw,go=rX '$(DIR)'
-	cd '$(BUILD_DIR)'; tar -cjf 'linux-nonfree-source-$(UPSTREAMVERSION).tar.bz2' 'linux-nonfree-source-$(UPSTREAMVERSION)'
+	cd '$(BUILD_DIR)'; tar -cjf 'linux-source-nonfree-$(UPSTREAMVERSION).tar.bz2' 'linux-source-nonfree-$(UPSTREAMVERSION)'
 	rm -rf '$(DIR)'
 
 srcfiles := $(filter-out debian, $(wildcard *))
@@ -83,8 +83,8 @@ install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): $(STAMPS_DIR)/build-$(ARCH)-$(SUB
 	cd $(SOURCE_DIR); env -u MAKEFLAGS ARCH=$(KERNEL_ARCH) make install DIR=$(HEADERS_DIR) MODLIB=$(DIR) INSTALL_MOD_DIR=nonfree
 	$(MAKE) -f debian/rules.real install-base
 
-install-source: DH_OPTIONS = -plinux-nonfree-source-$(VERSION)
-install-source: $(BUILD_DIR)/linux-nonfree-source-$(UPSTREAMVERSION).tar.bz2
+install-source: DH_OPTIONS = -plinux-source-nonfree-$(VERSION)
+install-source: $(BUILD_DIR)/linux-source-nonfree-$(UPSTREAMVERSION).tar.bz2
 	dh_testdir
 	dh_testroot
 	dh_install '$<' /usr/src

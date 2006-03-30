@@ -1,4 +1,4 @@
-Package: linux-nonfree-source-@version@
+Package: linux-source-nonfree-@version@
 Architecture: all
 Section: non-free/devel
 Priority: optional
