@@ -1,6 +1,14 @@
 Package: linux-modules-nonfree-@upstreamversion@@abiname@@localversion@
 Section: non-free/base
 Priority: optional
-Description: Non-free modules for the Linux kernel version @version@
- This package the nonfree modules for the Linux kernel version @version@.
+Description: Non-free modules for Linux kernel @upstreamversion@ on @class@ machines
+ This package provides the nonfree loadable modules for the Linux kernel version
+ @upstreamversion@ on @longclass@ machines.
+
+Package: linux-modules-nonfree-@major@@localversion@
+Section: non-free/base
+Priority: optional
+Description: Non-free modules for Linux kernel @major@ on @class@ machines
+ This package depends on the latest nonfree modules for Linux kernel @major@ on
+ @longclass@ machines.
 

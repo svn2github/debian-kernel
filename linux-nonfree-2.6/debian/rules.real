@@ -70,7 +70,8 @@ install-base:
 
 install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): REAL_VERSION = $(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)
 install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): PACKAGE_NAME = linux-modules-nonfree-$(REAL_VERSION)
-install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DH_OPTIONS = -p$(PACKAGE_NAME)
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): PACKAGE_LATEST_NAME = linux-modules-nonfree-$(MAJOR)$(LOCALVERSION)
+install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): DH_OPTIONS = -p$(PACKAGE_NAME) -p$(PACKAGE_LATEST_NAME)
 install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): BASE_DIR = /lib/modules/$(REAL_VERSION)
 install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): SOURCE_DIR = $(BUILD_DIR)/build-$(ARCH)-$(SUBARCH)-$(FLAVOUR)
 install-modules-$(ARCH)-$(SUBARCH)-$(FLAVOUR): PACKAGE_DIR = $(CURDIR)/debian/$(PACKAGE_NAME)
