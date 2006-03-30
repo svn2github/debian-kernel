@@ -2,6 +2,6 @@ Source: linux-nonfree-@major@
 Section: non-free/devel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Uploaders: Andres Salomon <dilinger@debian.org>, Bastian Blank <waldi@debian.org>
-Standards-Version: 3.6.1.0
-Build-Depends: debhelper (>= 4.1.0), module-init-tools
+Uploaders: Bastian Blank <waldi@debian.org>
+Standards-Version: 3.6.2
+Build-Depends: debhelper (>= 4.1.0)
