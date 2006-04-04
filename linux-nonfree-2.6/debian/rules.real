@@ -5,9 +5,7 @@ DEB_BUILD_ARCH    := $(shell dpkg-architecture -a$(ARCH) -qDEB_BUILD_ARCH)
 
 export DH_OPTIONS
 
-HEADERS_DIR = /usr/src/linux-headers-$(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)
-
-include debian/rules.defs
+include /usr/src/linux-support-$(UPSTREAMVERSION)$(ABINAME)/modules/rules.real.include
 
 #
 # Targets
