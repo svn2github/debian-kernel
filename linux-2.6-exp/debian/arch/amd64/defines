@@ -1,0 +1,12 @@
+[base]
+flavours:
+kernel-arch: x86_64
+kernel-header-dirs: x86_64 i386
+subarches:
+ xen
+ xen-vserver
+
+[image]
+depends: e2fsprogs (>= 1.35-7)
+suggests: grub | lilo (>= 19.1)
+

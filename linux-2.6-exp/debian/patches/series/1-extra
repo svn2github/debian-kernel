@@ -1,0 +1,6 @@
++ vserver-version.patch *_xen-vserver
++ vserver-vs2.0.2-rc13.patch *_xen-vserver
++ vserver-vs2.0.2-rc14-update.patch *_xen-vserver
++ vserver-xen-clash.patch *_xen-vserver
++ xen-tree-merge-22448.patch *_xen *_xen-vserver
++ xen-tls.patch *_xen *_xen-vserver
