@@ -1,6 +1,0 @@
-BUILD_DIR = debian/build
-STAMPS_DIR = debian/stamps
-TEMPLATES_DIR = debian/templates
-
-SUPPORT_DIR = /usr/src/linux-support-$(VERSION)$(PARENT_ABINAME)
-export PYTHONPATH = $(SUPPORT_DIR)/lib/python
