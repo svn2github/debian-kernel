@@ -38,9 +38,9 @@ FILES = %w{
 	drivers/net/tokenring/smctr.h
 	drivers/net/tokenring/smctr_firmware.h
 
-	drivers/usb/media/dabusb.c
-	drivers/usb/media/dabusb.h
-	drivers/usb/media/dabfirmware.h
+	drivers/media/video/dabusb.c
+	drivers/media/video/dabusb.h
+	drivers/media/video/dabfirmware.h
 
 	drivers/usb/misc/emi62.c
 	drivers/usb/misc/emi62_fw_m.h
