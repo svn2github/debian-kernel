@@ -140,8 +140,10 @@ if test -z "$release"; then
     fi
 fi
 
-if dpkg --compare-versions 2.6.16-1-powerpc ge 2.6.16; then
+if dpkg --compare-versions $release ge 2.6.16; then
   post_2_6_16=Yes
+else
+  post_2_6_16=
 fi
 
 test -z "$verbose" || echo === Release version seems to be $release.
@@ -388,4 +390,4 @@ fi
 
 # clean up
 test -z "$verbose" || echo === Cleaning up...
-rm -rf $work
+#rm -rf $work
