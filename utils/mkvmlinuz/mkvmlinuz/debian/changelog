@@ -1,4 +1,4 @@
-mkvmlinuz (20) unstable; urgency=low
+mkvmlinuz (20) UNRELEASABLE; urgency=low
 
   * Ported to 2.6.16 powerpc kernels. Added powerpc64 support.
 
