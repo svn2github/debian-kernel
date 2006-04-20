@@ -140,6 +140,10 @@ if test -z "$release"; then
     fi
 fi
 
+if dpkg --compare-versions 2.6.16-1-powerpc ge 2.6.16; then
+  post_2_6_16=Yes
+fi
+
 test -z "$verbose" || echo === Release version seems to be $release.
 
 # if no object file directory was specified, try to find one
@@ -179,44 +183,58 @@ work=$(mktemp -d)
 test -z "$verbose" || echo === Doing build in $work.
 
 # utilities
-ADDNOTE=$objdir/utils/addnote
-HACKOFF=$objdir/utils/hack-coff
-MKNOTE=$objdir/utils/mknote
-MKPREP=$objdir/utils/mkprep
-MKBUGBOOT=$objdir/utils/mkbugboot
+if test "$post_2_6_16"; then
+  ADDNOTE=$objdir/addnote
+  ADDRAMDISK=$objdir/addRamDisk
+  objs=$objdir
+  STRIP="strip -s -R .comment"
+  GZIP="gzip --force --best"
+else
+  ADDNOTE=$objdir/utils/addnote
+  HACKOFF=$objdir/utils/hack-coff
+  MKNOTE=$objdir/utils/mknote
+  MKPREP=$objdir/utils/mkprep
+  MKBUGBOOT=$objdir/utils/mkbugboot
+  libs=$objdir/lib
+  objs=$objdir/obj
+  GZIP=gzip
+  STRIP=strip
+fi
 LD=ld
 OBJCOPY=objcopy
 MV=mv
-STRIP=strip
 
-GZIP="--force --best"
-
-# libraries and common object files
-libs=$objdir/lib
-objs=$objdir/obj
-case "$arch","$release" in
-    apus,*|miboot,*)
+case "$arch","$post_2_6_16","$release" in
+    apus,Yes,*|miboot,Yes,*|prep,Yes,*|ppcbug,Yes,*)
 	;;
-    prep,2.6*|ppcbug,2.6*)
+    chrp,Yes,*|pmac,Yes,*)
+	dummy_kernel=$objs/mkvmlinuz-kernel-vmlinux.strip.o
+	dummy_initrd=$objs/mkvmlinuz-kernel-initrd.o
+	OBJS="$objs/crt0.o $objs/string.o $objs/prom.o $objs/stdio.o $objs/main.o $objs/div64.o"
+	OBJS="$OBJS $objs/infblock.o $objs/infcodes.o $objs/inffast.o $objs/inflate.o $objs/inftrees.o $objs/infutil.o"
+	;;
+    apus,,*|miboot,,*|*,Yes,*)
+	;;
+    prep,,2.6*|ppcbug,,2.6*)
 	test -d $objs/simple && objs=$objs/simple
 	if test -r $objs/legacy.o; then prepmap=legacy; else prepmap=prepmap; fi
 	OBJS="$objs/head.o $objs/relocate.o $objs/$prepmap.o $objs/misc.o $objs/misc-prep.o $objs/mpc10x_memory.o"
 	LIBS="$libs/common.a $libs/ppc.a $libs/of.a"
 	dummy=$objs/dummy.o
 	;;
-    pmac,2.6*)
+    pmac,,2.6*)
 	test -d $objs/openfirmware && objs=$objs/openfirmware
 	OBJS="$objs/start.o $objs/misc.o $objs/common.o $objs/newworldmain.o"
 	LIBS="$libs/lib.a $libs/ppc.a $libs/of.a $libs/common.a"
 	dummy=$objs/dummy.o
 	;;
-    *,2.6*)
+    *,,2.6*)
 	test -d $objs/openfirmware && objs=$objs/openfirmware
 	OBJS="$objs/start.o $objs/misc.o $objs/common.o $objs/${arch}main.o"
 	LIBS="$libs/lib.a $libs/ppc.a $libs/of.a $libs/common.a"
 	dummy=$objs/dummy.o
 	;;
-    chrp,2.4*)
+    chrp,,2.4*)
 	test -d $objs/chrp && objs=$objs/chrp
 	OBJS="$objs/start.o $objs/main.o $objs/misc.o"
 	OBJS="$OBJS $objs/../common/string.o $objs/../common/ofcommon.o"
@@ -226,15 +244,6 @@ case "$arch","$release" in
 esac
 
 # off we go...
-
-# create the compressed kernel image file
-test -z "$verbose" || echo === Creating compressed kernel image vmlinux.gz...
-if test -n "$elf"; then
-    do_cmd $STRIP $kernel -o $work/vmlinux
-else
-    do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
-fi
-do_cmd gzip $work/vmlinux
 
 # create the compressed initrd image file
 if test -n "$initrd"; then
@@ -253,27 +262,47 @@ if test -n "$initrd"; then
 	    ;;
     	No)
 	    do_cmd cp -p $initrd $work/initrd
-	    do_cmd gzip $work/initrd
+	    do_cmd $GZIP $work/initrd
 	    ;;
     esac
 fi
 
+# create the compressed kernel image file
+test -z "$verbose" || echo === Creating compressed kernel image vmlinux.gz...
+if test -n "$elf"; then
+    if test -n "$initrd" && test "$post_2_6_16"; then 
+      do_cmd $STRIP $kernel -o $work/vmlinux-strip
+      $ADDRAMDISK $work/initrd.gz $work/vmlinux-strip $work/vmlinux
+    else
+      do_cmd $STRIP $kernel -o $work/vmlinux
+    fi
+else
+    do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
+fi
+do_cmd $GZIP $work/vmlinux
+
 # create the raw ELF image file; this is not needed for the miBoot image
 if test -z "$elf"; then
     test -z "$verbose" || echo === Putting everything into ELF image file image.o...
-    do_cmd $OBJCOPY -R .comment $dummy $work/image.o
-    do_cmd $OBJCOPY $work/image.o $work/image.o \
+    if test "$post_2_6_16"; then
+      do_cmd $OBJCOPY $dummy_kernel \
+    	--add-section=.kernel:vmlinux.strip= $work/vmlinux.gz \
+	--set-section-flags=.kernel:contents,alloc,load,readonly,data
+    else
+      do_cmd $OBJCOPY -R .comment $dummy $work/image.o
+      do_cmd $OBJCOPY $work/image.o $work/image.o \
 	--add-section=.image=$work/vmlinux.gz \
 	--set-section-flags=.image=contents,alloc,load,readonly,data
-    if test -n "$sysmap"; then
+      if test -n "$sysmap"; then
 	do_cmd $OBJCOPY $work/image.o $work/image.o \
 	    --add-section=.sysmap=$sysmap \
 	    --set-section-flags=.sysmap=contents,alloc,load,readonly,data
-    fi
-    if test -n "$initrd"; then
+      fi
+      if test -n "$initrd"; then
 	do_cmd $OBJCOPY $work/image.o $work/image.o \
 	    --add-section=.ramdisk=$work/initrd.gz \
 	    --set-section-flags=.ramdisk=contents,alloc,load,readonly,data
+      fi
     fi
 else
 	do_cmd $MV $work/vmlinux.gz $work/vmlinuz.$arch.tmp
@@ -284,8 +313,12 @@ vmlinuz=$work/vmlinuz.$arch
 LD_ARGS="-T $objdir/boot/ld.script"
 OBJCOPY_ARGS="-R .comment"
 test -z "$verbose" || echo === Creating bootable kernel image file vmlinuz.$arch...
-case "$arch","$release" in
-    chrp,2.6*)
+case "$arch","$post_2_6_16","$release" in
+    chrp,Yes,*|pmac,Yes,*)
+	do_cmd $LD $LD_ARGS -T $obj/zImage.lds -o $vmlinuz $OBJS
+	do_cmd $ADDNOTE $vmlinuz
+    	;;
+    chrp,,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/crt0.o $OBJS $work/image.o $LIBS
@@ -293,14 +326,14 @@ case "$arch","$release" in
 	do_cmd cp -p $objdir/boot/note $work
 	do_cmd $ADDNOTE $vmlinuz
 	;;
-    chrp,2.4*)
+    chrp,,2.4*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	do_cmd $LD -o $vmlinuz $LD_ARGS $objs/../common/crt0.o $OBJS $work/image.o $LIBS
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $ADDNOTE $vmlinuz
 	;;
-    coff,2.6*)
+    coff,,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00500000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O aixcoff-rs6000 -R .stab -R .stabstr $OBJCOPY_ARGS"
@@ -308,7 +341,7 @@ case "$arch","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	do_cmd $HACKOFF $vmlinuz
 	;;
-    pmac,2.6*)
+    pmac,,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x01000000; fi
 	LD_ARGS="$LD_ARGS -e _start -Ttext $linkaddr"
 	OBJCOPY_ARGS="--add-section=.note=$work/note $OBJCOPY_ARGS"
@@ -316,7 +349,7 @@ case "$arch","$release" in
 	do_cmd $MKNOTE > $work/note
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	;;
-    ppcbug,2.6*)
+    ppcbug,,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
@@ -324,7 +357,7 @@ case "$arch","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
 	do_cmd $MKBUGBOOT $vmlinuz.tmp $vmlinuz
 	;;
-    prep,2.6*)
+    prep,,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
@@ -332,7 +365,7 @@ case "$arch","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
 	do_cmd $MKPREP -pbp $vmlinuz.tmp $vmlinuz
 	;;
-    miboot,2.6*|apus,2.6*)
+    miboot,,2.6*|apus,,2.6*)
         do_cmd $MV $vmlinuz.tmp $vmlinuz
 	;;
     *)

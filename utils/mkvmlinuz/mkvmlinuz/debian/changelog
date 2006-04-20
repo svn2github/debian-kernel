@@ -1,3 +1,9 @@
+mkvmlinuz (20) unstable; urgency=low
+
+  * Ported to 2.6.16 powerpc kernels. Added powerpc64 support.
+
+ -- Sven Luther <luther@debian.org>  Thu, 20 Apr 2006 18:42:41 +0000
+
 mkvmlinuz (19) unstable; urgency=low
 
   * Added debconf dependency. (Closes: #342372)
