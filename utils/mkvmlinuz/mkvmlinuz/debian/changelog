@@ -1,3 +1,10 @@
+mkvmlinuz (21) unstable; urgency=low
+
+  * Fixed commented out cleanup call, now doesn't fill /tmp with cruft
+    anymore. Thanks to Colin Watson for noticing this. (Closes: #365978)
+
+ -- Sven Luther <luther@debian.org>  Mon,  8 May 2006 19:32:16 +0000
+
 mkvmlinuz (20) unstable; urgency=low
 
   * Ported to 2.6.16 powerpc kernels.

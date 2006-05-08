@@ -390,4 +390,4 @@ fi
 
 # clean up
 test -z "$verbose" || echo === Cleaning up...
-#rm -rf $work
+rm -rf $work
