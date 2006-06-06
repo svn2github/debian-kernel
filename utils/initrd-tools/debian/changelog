@@ -1,3 +1,11 @@
+initrd-tools (0.1.85) UNRELEASED; urgency=high
+
+  * Fix mkinitrd creation on /dev/i2o/hdx. (closes: #318120) Thanks Ingo
+    Steuwer <steuwer@univention.de> for the patch and Robert Millan 
+    <rmillan@ackstorm.es> for test.
+
+ -- maximilian attems <maks@sternwelten.at>  Tue,  6 Jun 2006 12:15:29 +0200
+
 initrd-tools (0.1.84.1) unstable; urgency=high
 
   * NMU

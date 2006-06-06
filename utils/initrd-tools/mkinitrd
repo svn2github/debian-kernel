@@ -690,6 +690,9 @@ qla6322/; t
 	98)
 		echo ubd
 		;;
+	80)
+		echo i2o_block
+		;;
 	*)
 		type=
 		case $(awk '
