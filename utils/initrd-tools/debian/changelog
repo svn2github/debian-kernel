@@ -1,3 +1,11 @@
+initrd-tools (0.1.84.1) unstable; urgency=high
+
+  * NMU
+  * Use LD_ASSUME_KERNEL=2.4.1 since glibc has been changed to refuse to
+    work with kernel 2.4(.0). Closes: #364338
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 23 Apr 2006 18:59:54 -0400
+
 initrd-tools (0.1.84) unstable; urgency=low
 
   [ Simon Horman ]

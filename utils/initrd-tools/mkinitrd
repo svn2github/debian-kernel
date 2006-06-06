@@ -840,7 +840,7 @@ xldd() {
 	if [ $oldstyle ]; then
 		x=$(
 			LD_LIBRARY_PATH=$INITRD_LD_LIBRARY_PATH \
-			LD_ASSUME_KERNEL=2.4 ldd "$i"
+			LD_ASSUME_KERNEL=2.4.1 ldd "$i"
 		)
 	else
 		x=$(
