@@ -271,7 +271,7 @@ fi
 
 # create the compressed kernel image file
 test -z "$verbose" || echo === Creating compressed kernel image vmlinux.gz...
-if test -n "$elf"; then
+if test -n "$elf" || test -n "$post_2_6_16"; then
     do_cmd $STRIP $kernel -o $work/vmlinux
 else
     do_cmd $OBJCOPY -O binary $kernel $work/vmlinux
@@ -281,12 +281,12 @@ do_cmd $GZIP $work/vmlinux
 # create the raw ELF image file; this is not needed for the miBoot image
 if test -z "$elf"; then
     test -z "$verbose" || echo === Putting everything into ELF image file image.o...
-    if test "$post_2_6_16"; then
-      do_cmd $OBJCOPY $dummy_kernel $work/image.o \
+    if test -n "$post_2_6_16"; then
+      do_cmd $OBJCOPY $dummy_kernel $work/dummy_kernel.o \
     	--add-section=.kernel:vmlinux.strip=$work/vmlinux.gz \
 	--set-section-flags=.kernel:vmlinux.strip=contents,alloc,load,readonly,data
       if test -n "$initrd"; then
-	do_cmd $OBJCOPY $work/image.o $work/image.o \
+	do_cmd $OBJCOPY $dummy_initrd $work/dummy_initrd.o \
 	    --add-section=.kernel:initrd=$work/initrd.gz \
 	    --set-section-flags=.kernel:initrd=contents,alloc,load,readonly,data
       fi
@@ -313,7 +313,7 @@ fi
 # link everything into the final image file and make it bootable
 vmlinuz=$work/vmlinuz.$arch
 if test "$post_2_6_16"; then
-  LD_ARGS="-T $objs/zImage.lds"
+  LD_ARGS="-m elf32ppc -T $objs/zImage.lds"
 else
   LD_ARGS="-T $objdir/boot/ld.script"
 fi
@@ -321,7 +321,11 @@ OBJCOPY_ARGS="-R .comment"
 test -z "$verbose" || echo === Creating bootable kernel image file vmlinuz.$arch...
 case "$arch","$post_2_6_16","$release" in
     chrp,Yes,*|pmac,Yes,*)
-	do_cmd $LD $LD_ARGS -o $vmlinuz $OBJS $work/image.o
+	if test -n "$initrd"; then
+		do_cmd $LD $LD_ARGS -o $vmlinuz $OBJS $work/dummy_kernel.o $work/dummy_initrd.o
+	else
+		do_cmd $LD $LD_ARGS -o $vmlinuz $OBJS $work/dummy_kernel.o 
+	fi
 	do_cmd $ADDNOTE $vmlinuz
     	;;
     chrp,,2.6*)
