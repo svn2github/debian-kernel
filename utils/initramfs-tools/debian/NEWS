@@ -1,0 +1,26 @@
+initramfs-tools (0.61) unstable; urgency=low
+
+  * This release moves the initramfs-tools confdir from /etc/mkinitramfs to
+    /etc/initramfs-tools. Packages are encouraged to ship files as scripts
+    under /usr/share/initramfs-tools.
+
+    Local tests behaved fine, but be warned that this could potentially
+    cause boot troubles on upgrade.
+
+ -- maximilian attems <maks@sternwelten.at>  Wed, 21 Jun 2006 09:16:01 +0200
+
+initramfs-tools (0.10) breezy; urgency=low
+
+  * This release includes hardware auto detection in the initramfs.
+    This means two things in particular that are important:
+
+    1) the resulting initramfs will be huge.  Like 10 megs huge.
+       I will shrink it down once it's correct.  If you're on an 
+       arch that doesn't like >4mb initramfs', then this won't boot.
+
+    2) Your network drivers are loaded in the initramfs, so hotplug
+       won't see a network event, so ifup won't be run.  This will
+       be fixed shortly in hotplug.
+
+ -- Jeff Bailey <jbailey@ubuntu.com>  Fri, 17 Jun 2005 15:17:06 +0000
+

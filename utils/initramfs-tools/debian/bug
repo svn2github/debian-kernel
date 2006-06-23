@@ -1,0 +1,15 @@
+#!/bin/sh
+
+exec >&3
+
+echo "-- /proc/cmdline"
+cat /proc/cmdline
+echo
+
+echo "-- /proc/filesystems"
+grep -v nodev /proc/filesystems
+echo
+
+echo "-- lsmod"
+lsmod
+echo

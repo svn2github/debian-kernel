@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+	upgrade)
+	if [ -n "$2" ] && dpkg --compare-versions "$2" lt "0.61"; then
+		if [ -d /etc/initramfs-tools ]; then
+			echo
+			echo "Warning: /etc/initramfs-tools already exists."
+			echo "         Please remove it for upgrade."
+			echo
+			exit 1
+		fi
+		if [ -d /etc/mkinitramfs ]; then
+			mv /etc/mkinitramfs /etc/initramfs-tools
+		fi
+	fi
+	;;
+esac
+
+[ -f /etc/initramfs-tools/initramfs.conf ] && . /etc/initramfs-tools/initramfs.conf
+if [ -z ${RESUME} ]; then
+       exit 0
+else
+       mkdir -p /etc/initramfs-tools/conf.d
+       echo "RESUME=${RESUME}" > /etc/initramfs-tools/conf.d/resume
+       sed -i -e "s/RESUME=.*/#RESUME=/" /etc/initramfs-tools/initramfs.conf
+fi
+
+#DEBHELPER#

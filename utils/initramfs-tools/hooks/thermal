@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+# Hooks for loading thermal bits into the initramfs
+
+. /usr/share/initramfs-tools/hook-functions
+
+case "$DPKG_ARCH" in
+# copy the right modules
+powerpc|ppc64)
+	manual_add_modules therm_pm72
+	;;
+i386|amd64|ia64)
+	manual_add_modules fan
+	manual_add_modules thermal
+	;;
+esac
