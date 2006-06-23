@@ -1,0 +1,11 @@
+
+initramfs-tools uses bzr for it's devlopment:
+
+# Debian repository
+bzr branch http://arch.debian.org/arch/kernel/trunk/initramfs-tools/
+
+# old jbailey repo
+bzr branch http://people.ubuntu.com/~jbailey/bzrtree/initramfs-tools           
+                                                                               
+# Update your branch                                                           
+bzr pull                                                                       
