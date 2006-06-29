@@ -20,6 +20,9 @@ build-stamp: configure-stamp mkvmlinuz.8
 	dh_testdir
 	touch build-stamp
 
+	# TODO
+	make -C boot
+
 %.8:	debian/%.sgml
 	/usr/bin/docbook-to-man $< > $@
 
@@ -45,6 +48,8 @@ install: build
 	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/tmp/usr/sbin
 	$(INSTALL_DATA) mkvmlinuz.8 $(CURDIR)/debian/tmp/usr/share/man/man8
 	$(INSTALL_DATA) output $(CURDIR)/debian/tmp/etc/mkvmlinuz
+	$(INSTALL_EXEC) boot/addnote boot/addRamDisk $(CURDIR)/debian/tmp/usr/lib/mkvmlinuz
+	$(INSTALL_DATA) boot/*.o boot/zImage.lds $(CURDIR)/debian/tmp/usr/lib/mkvmlinuz
 
 # Build architecture-independent files here.
 binary-indep: build install
