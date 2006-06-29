@@ -159,7 +159,7 @@ if test -z "$objdir"; then
 	:
     elif objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
 	:
-    elif test -n "$post_2_6_16" && ( objdir=/usr/lib/mkvmlinuz; test -d $objdir ); then
+    elif test -n "$post_2_6_16" && test "$arch" = "chrp" && ( objdir=/usr/lib/mkvmlinuz; test -d $objdir ); then
 	:
     else
 	objdir="$PWD"

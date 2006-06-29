@@ -1,7 +1,7 @@
 mkvmlinuz (23) UNRELEASED; urgency=low
 
-  * Added arch/powerpc/boot object files in /usr/lib/mkvmlinuz, so mkvmlinuz
-    will work even if the used kernel has no mkvmlinuz support.
+  * Fallback arch/powerpc/boot object files, for 2.6.16+ CHRP kernels
+    without mkvmlinuz support. 
 
  -- Sven Luther <luther@debian.org>  Thu, 29 Jun 2006 23:38:07 +0200
 
