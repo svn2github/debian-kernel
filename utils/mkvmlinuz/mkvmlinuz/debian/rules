@@ -20,7 +20,6 @@ build-stamp: configure-stamp mkvmlinuz.8
 	dh_testdir
 	touch build-stamp
 
-	# TODO
 	make -C boot
 
 %.8:	debian/%.sgml
@@ -34,6 +33,8 @@ clean:
 
 	rm -f mkvmlinuz.8
 
+	make -C boot clean
+
 	dh_clean 
 
 install: build
@@ -42,14 +43,14 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/tmp/usr/sbin
-	$(INSTALL_EXEC) debian/kernel-image.postinst $(CURDIR)/debian/tmp/etc/kernel/postinst.d/mkvmlinuz
-	$(INSTALL_EXEC) debian/kernel-image.postrm $(CURDIR)/debian/tmp/etc/kernel/postrm.d/mkvmlinuz
-	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/tmp/usr/sbin
-	$(INSTALL_DATA) mkvmlinuz.8 $(CURDIR)/debian/tmp/usr/share/man/man8
-	$(INSTALL_DATA) output $(CURDIR)/debian/tmp/etc/mkvmlinuz
-	$(INSTALL_EXEC) boot/addnote boot/addRamDisk $(CURDIR)/debian/tmp/usr/lib/mkvmlinuz
-	$(INSTALL_DATA) boot/*.o boot/zImage.lds $(CURDIR)/debian/tmp/usr/lib/mkvmlinuz
+	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/mkvmlinuz/usr/sbin
+	$(INSTALL_EXEC) debian/kernel-image.postinst $(CURDIR)/debian/mkvmlinuz/etc/kernel/postinst.d/mkvmlinuz
+	$(INSTALL_EXEC) debian/kernel-image.postrm $(CURDIR)/debian/mkvmlinuz/etc/kernel/postrm.d/mkvmlinuz
+	$(INSTALL_EXEC) mkvmlinuz $(CURDIR)/debian/mkvmlinuz/usr/sbin
+	$(INSTALL_DATA) mkvmlinuz.8 $(CURDIR)/debian/mkvmlinuz/usr/share/man/man8
+	$(INSTALL_DATA) output $(CURDIR)/debian/mkvmlinuz/etc/mkvmlinuz
+	$(INSTALL_EXEC) boot/addnote $(CURDIR)/debian/mkvmlinuz/usr/lib/mkvmlinuz
+	$(INSTALL_DATA) boot/*.o boot/zImage.lds $(CURDIR)/debian/mkvmlinuz/usr/lib/mkvmlinuz
 
 # Build architecture-independent files here.
 binary-indep: build install

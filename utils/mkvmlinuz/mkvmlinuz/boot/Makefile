@@ -11,7 +11,7 @@ obj := $(addsuffix .o, $(basename $(src)))
  
 progs := addnote
 
-all: $(obj)
+all: $(obj) $(progs)
 
 $(patsubst %.c,%.o, $(filter %.c, $(src))): %.o: %.c
 	$(GCC) $(CFLAGS) -c -o $@ $<
