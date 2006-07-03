@@ -159,8 +159,8 @@ if test -z "$objdir"; then
 	:
     elif objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
 	:
-    elif objdir=/usr/lib/mkvmlinuz; test -d $objdir && test -n "$post_2_6_16" && test "$arch" = "chrp"; then
-	:
+    elif objdir=/usr/lib/mkvmlinuz; test -d $objdir && test "$arch" = "chrp"; then
+    	post_2_6_16=Yes
     else
 	objdir="$PWD"
     fi

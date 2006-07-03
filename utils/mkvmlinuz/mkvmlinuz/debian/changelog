@@ -1,7 +1,7 @@
 mkvmlinuz (23) UNRELEASED; urgency=low
 
-  * Fallback arch/powerpc/boot object files, for 2.6.16+ CHRP kernels
-    without mkvmlinuz support. 
+  * Fallback arch/powerpc/boot object files for chrp kernels without mkvmlinuz
+    support. This uses the 2.6.16+ code, but should work with any 2.6 kernel.
 
  -- Sven Luther <luther@debian.org>  Thu, 29 Jun 2006 23:38:07 +0200
 
