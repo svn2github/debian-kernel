@@ -8,7 +8,7 @@ Standards-Version: 3.6.0
 
 Package: mkvmlinuz
 Architecture: powerpc
-Depends: binutils, debconf | debconf-2.0
+Depends: bash, binutils, debconf | debconf-2.0
 Description: create a kernel to boot a PowerPC machine from Open Firmware
  .
  This little program takes a PowerPC Linux kernel as an uncompressed
