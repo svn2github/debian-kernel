@@ -25,3 +25,7 @@ output=/boot/vmlinuz-$release
 #else
 #output=/boot/vmlinuz-initrd-$release.$arch
 #fi
+
+# Let's define also the name of the symlink here.
+# An empty $linkname means no symlink created.
+linkname=/boot/vmlinuz

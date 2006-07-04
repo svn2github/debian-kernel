@@ -1,9 +1,11 @@
-mkvmlinuz (23) UNRELEASED; urgency=low
+mkvmlinuz (23) unstable; urgency=low
 
   * Fallback arch/powerpc/boot object files for chrp kernels without mkvmlinuz
     support. This uses the 2.6.16+ code, but should work with any 2.6 kernel.
+  * Now supports the creation of a /boot/vmlinuz symlink to the last created
+    vmlinuz kernel.
 
- -- Sven Luther <luther@debian.org>  Thu, 29 Jun 2006 23:38:07 +0200
+ -- Sven Luther <luther@debian.org>  Tue,  4 Jul 2006 22:04:50 +0200
 
 mkvmlinuz (22) unstable; urgency=high
 

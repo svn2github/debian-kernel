@@ -384,14 +384,34 @@ case "$arch","$post_2_6_16","$release" in
 	echo Sorry, I do not know how to handle PowerPC sub-architecture $arch in version $release.
 esac
 
-# move bootable kernel image to its final location
+# move bootable kernel image to its final location and creating symlinks.
 if test -e $vmlinuz; then
+    if test -n "$linkname"; then
+    	oldlink="`readlink $linkname`"
+    fi
     test -z "$verbose" || echo === Moving bootable kernel image file to $output...
     if test -e $output; then
 	echo Output file $output exists, attempting to back it up...
 	mv $output $output.old 2> /dev/null
+	if test -n "$linkname" && test "$oldlink" = "`basename $output`"; then
+	    oldlink=$output.old
+	fi
     fi
     cat $vmlinuz > $output
+    if test -n "$linkname"; then
+	test -z "$verbose" || echo Creating symlink : $linkname -\> $output
+	if test -L "$linkname"; then
+	    unlink $linkname
+	fi
+	ln -sf "`basename $output`" $linkname
+    	if test -n "$oldlink"; then
+	    test -z "$verbose" || echo Creating backup symlink : $linkname.old -\> $oldlink
+	    if test -L "$linkname.old"; then
+	    	unlink $linkname.old
+	    fi
+	    ln -sf $oldlink $linkname.old
+        fi
+    fi
 fi
 
 # clean up
