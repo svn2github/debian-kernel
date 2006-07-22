@@ -1,0 +1,7 @@
+$(BUILD_STAMP):
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6 CONFIG_SQUASHFS=m
+	touch $@
+
+install:
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6 modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
+

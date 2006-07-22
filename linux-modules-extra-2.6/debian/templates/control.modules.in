@@ -1,0 +1,18 @@
+Package: @module@-modules-@upstreamversion@@abiname@@localversion@
+Section: admin
+Priority: optional
+Description: @desc@ modules for Linux kernel @upstreamversion@ on @class@ machines
+ This package provides the @desc@ modules for the Linux kernel version
+ @upstreamversion@ on @longclass@ machines.
+ .
+ @longdesc@
+
+Package: @module@-modules-@major@@localversion@
+Section: admin
+Priority: optional
+Description: @desc@ modules for Linux kernel @major@ on @class@ machines
+ This package depends on the @desc@ modules for latest Linux kernel @major@ on
+ @longclass@ machines.
+ .
+ @longdesc@
+

@@ -1,0 +1,5 @@
+linux-modules-extra-2.6 (2.6.17-1) UNRELEASED; urgency=low
+
+  * Initial release.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 24 Jun 2006 14:35:41 +0200

@@ -1,0 +1,9 @@
+[base]
+desc: Unionfs
+longdesc:
+ The unionfs driver provides a unification file system for the Linux
+ kernel. It allows to virtually merge the contents of several
+ directories and/or stack them, so that apparent file changes in the
+ unionfs end in file changes in only one of the source directories.
+subarches: none
+
