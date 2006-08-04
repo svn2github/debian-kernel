@@ -42,7 +42,8 @@ $(BUILD_STAMP):
 
 install-base:
 	dh_installchangelogs
-	dh_installdocs
+	dh_installdocs $(MODULE)/copyright
+	dh_installmodules
 	dh_compress
 	dh_fixperms
 	dh_installdeb
