@@ -46,7 +46,8 @@ $(BUILD_STAMP):
 
 install-base:
 	dh_installchangelogs
-	dh_installdocs $(MODULE)/copyright
+	dh_installdocs
+	$(foreach PACKAGE, $(PACKAGES), install -m 644 $(MODULE)/copyright debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/copyright;)
 	dh_installmodules
 	dh_compress
 	dh_fixperms
@@ -61,13 +62,14 @@ install install-real: PACKAGE_NAME = $(MODULE)-modules-$(REAL_VERSION)
 install: PACKAGE_DIR = $(CURDIR)/debian/$(PACKAGE_NAME)
 
 install-real: PACKAGE_LATEST_NAME = $(MODULE)-modules-$(MAJOR)$(LOCALVERSION)
-install-real: DH_OPTIONS = -p$(PACKAGE_NAME) -p$(PACKAGE_LATEST_NAME)
+install-real: PACKAGES = $(PACKAGE_NAME) $(PACKAGE_LATEST_NAME)
+install-real: DH_OPTIONS = $(foreach PACKAGE, $(PACKAGES), -p$(PACKAGE))
 
 install: $(BUILD_STAMP)
 install:
 	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
 
 install-real:
-	$(MAKE) -f debian/rules.real install install-base
+	$(MAKE) -f debian/rules.real install install-base PACKAGES="$(PACKAGES)"
 
 -include $(MODULE)/rules
