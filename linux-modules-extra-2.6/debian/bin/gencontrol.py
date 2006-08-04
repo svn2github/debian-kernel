@@ -54,7 +54,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             return
         if subarch not in config_entry.get('subarches', [subarch]):
             return
-        if subarch in config_entry.get('not-subarches', [subarch]):
+        if subarch in config_entry.get('not-subarches', []):
             return
 
         modules = self.templates["control.modules"]
