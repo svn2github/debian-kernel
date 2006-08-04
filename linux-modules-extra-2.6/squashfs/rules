@@ -1,5 +1,7 @@
+export CONFIG_SQUASHFS=m
+
 $(BUILD_STAMP):
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6 CONFIG_SQUASHFS=m
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6 $(JOBS_ARG)
 	touch $@
 
 install:

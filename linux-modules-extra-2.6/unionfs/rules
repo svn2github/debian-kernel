@@ -1,7 +1,7 @@
 export CONFIG_UNION_FS=m
 
 $(BUILD_STAMP):
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/linux-2.6 $(JOBS_ARG)
 	touch $@
 
 install:

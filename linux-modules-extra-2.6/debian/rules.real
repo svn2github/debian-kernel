@@ -8,6 +8,10 @@ BUILD_STAMP = $(STAMPS_DIR)/build_$(ARCH)_$(SUBARCH)_$(FLAVOUR)_$(MODULE)
 SETUP_STAMP = $(STAMPS_DIR)/setup_$(ARCH)_$(SUBARCH)_$(FLAVOUR)_$(MODULE)
 SOURCE_STAMP = $(STAMPS_DIR)/source_$(MODULE)
 
+ifdef DEBIAN_KERNEL_JOBS
+  JOBS_ARG = -j$(DEBIAN_KERNEL_JOBS)
+endif
+
 #
 # Targets
 #
@@ -37,7 +41,7 @@ $(SETUP_STAMP):
 
 $(BUILD_STAMP): $(SETUP_STAMP)
 $(BUILD_STAMP):
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) $(JOBS_ARG)
 	touch $@
 
 install-base:
