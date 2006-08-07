@@ -8,7 +8,7 @@ from debian_linux.debian import *
 class gencontrol(debian_linux.gencontrol.gencontrol):
     def __init__(self, configdir):
         super(gencontrol, self).__init__(configdir)
-        self.process_config_version(config.config_parser({}, [sys.argv[1] + "/version"]))
+        self.process_changelog()
         self.config = config_reader_modules(self.config)
 
     def do_main_makefile(self, makefile, makeflags, extra):
@@ -89,10 +89,14 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         makefile.append(("build-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_build))
         makefile.append(("setup-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_setup))
 
-    def process_config_version(self, config):
-        entry = config['version',]
-        self.process_version(parse_version(entry['source']))
-        self.vars['abiname'] = self.abiname = entry['abiname']
+    def process_changelog(self):
+        changelog = read_changelog()
+        version = changelog[0]['Version']
+        self.process_version(version)
+        if version['modifier'] is not None:
+            self.abiname = self.vars['abiname'] = ''
+        else:
+            self.abiname = self.vars['abiname'] = '-%s' % self.config['abi',]['abiname']
 
 class config_reader_modules(config.config_reader):
     schema_base = {
