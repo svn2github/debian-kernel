@@ -11,6 +11,9 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         self.process_config_version(config.config_parser({}, [sys.argv[1] + "/version"]))
         self.config = config_reader_modules(self.config)
 
+    def do_main_makefile(self, makefile, makeflags, extra):
+        makefile.append(("binary-indep:", []))
+
     def do_main_packages(self, packages, extra):
         vars = self.vars
 

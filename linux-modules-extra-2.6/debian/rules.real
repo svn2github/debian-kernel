@@ -21,7 +21,6 @@ endif
 # Targets
 #
 binary-arch: install-real
-binary-indep:
 build: $(BUILD_STAMP)
 setup: $(SETUP_STAMP)
 
