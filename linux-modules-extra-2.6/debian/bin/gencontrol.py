@@ -44,6 +44,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         vars.update(config_entry)
         vars['module'] = module
         makeflags['MODULE'] = module
+        makeflags['MODULESOURCE'] = "%s-source" % module
 
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
