@@ -3,29 +3,24 @@ kernel-related packages:
 
 General kernel work:
 
-  - William Lee Irwin III
-  - Christoph Hellwig
-  - Maximilian Attems
+Security support:
+  - Dann Frazier
+  - Moritz Muehlenhoff
 
 Kernel packages, sorted by architecture:
 
   * alpha
     - Norbert Tretkowski
   * amd64
-    - Goswin von Brederlow
     - Frederik Schueler
   * arm
-    - N.N.
+    - Martin Michlmayr
   * hppa
-    - Matthew Wilcox
     - Kyle McMartin
   * i386
-    - Andres Salomon
-    - Simon Horman
-    - Joshua Kwan
+  - Maximilian Attems
   * ia64
-    - Matthew Wilcox
-    - dann frazier
+    - Dann Frazier
   * m68k
     - Christian T. Steigies
   * mips
@@ -34,21 +29,20 @@ Kernel packages, sorted by architecture:
     - Thiemo Seufer
   * powerpc
     - Sven Luther
-    - Jens Schmalzing
   * s390
     - Bastian Blank
   * sparc
-    - Joshua Kwan
-    - Ben Collins
+    - Jurij Smakov
 
 Kernel-related packages:
 
-  * initrd-tools
-    - Jeff Bailey
-  * cramfs
-    - Francesco P. Lovergine
+  * initramfs-tools:
+    - Maximilian Attems
+  * mkvmlinuz
+    - Sven Luther
   * module-init-tools
     - Marco d'Itri 
-  * mkvmlinuz
-    - Jens Schmalzing
-
+  * udev
+    - Marco d'Itri
+  * yaird
+    - Jonas Smedegaard
