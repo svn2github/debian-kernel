@@ -18,10 +18,10 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         vars = self.vars
 
         packages['source']['Build-Depends'].extend(
-            ['linux-support-%s%s' % (self.version['upstream'], self.abiname)]
+            ['linux-support-%s%s' % (self.version['linux']['upstream'], self.abiname)]
         )
         packages['source']['Build-Depends'].extend(
-            ['linux-headers-%s%s-all-%s [%s]' % (self.version['upstream'], self.abiname, arch, arch)
+            ['linux-headers-%s%s-all-%s [%s]' % (self.version['linux']['upstream'], self.abiname, arch, arch)
             for arch in self.config['base',]['arches']],
         )
 
@@ -91,12 +91,12 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
 
     def process_changelog(self):
         changelog = read_changelog()
-        version = changelog[0]['Version']
-        self.process_version(version)
-        if version['modifier'] is not None:
-            self.abiname = self.vars['abiname'] = ''
+        self.version = changelog[0]['Version']
+        if self.version['linux']['modifier'] is not None:
+            self.abiname = ''
         else:
-            self.abiname = self.vars['abiname'] = '-%s' % self.config['abi',]['abiname']
+            self.abiname = '-%s' % self.config['abi',]['abiname']
+        self.vars = self.process_version_linux(self.version, self.abiname)
 
 class config_reader_modules(config.config_reader):
     schema_base = {
