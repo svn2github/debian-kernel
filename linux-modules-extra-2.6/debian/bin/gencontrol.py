@@ -11,6 +11,12 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         self.process_changelog()
         self.config = config_reader_modules(self.config)
 
+    def do_main_setup(self, vars, makeflags, extra):
+        super(gencontrol, self).do_main_setup(vars, makeflags, extra)
+        makeflags.update({
+            'SOURCEVERSION': self.version['linux']['source'],
+        })
+
     def do_main_makefile(self, makefile, makeflags, extra):
         makefile.append(("binary-indep:", []))
 
