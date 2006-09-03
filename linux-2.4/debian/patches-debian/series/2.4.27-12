@@ -1,7 +1,0 @@
-+ 184_arch-x86_64-ia32-ptrace32-oops.diff
-+ 185_net-sockglue-cap.diff
-+ 186_linux-zlib-fixes-2.diff
-+ 187_zisofs-2.diff
-+ 188_fix-dst-leak-in-icmp_push_reply.diff
-+ 189_ipv6-skb-leak.diff
-+ 180_fs-isofs-ignored-parameters.diff
