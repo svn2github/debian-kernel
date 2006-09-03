@@ -1,7 +1,0 @@
-+ 070_ide_scan_pcibus.diff
-- 066_dep_fw_loader.diff
-+ 071_dep_fw_loader-2.diff
-+ 072_6300esb_sata.diff
-+ 073_tg3_hw_autoneg.diff
-+ 074_fealnx_ampersand.diff
-+ 075_lvm_ioctl.diff
