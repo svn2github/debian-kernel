@@ -79,8 +79,6 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
                 package['Architecture'] = [arch]
                 packages.append(package)
 
-        packages.extend(modules)
-
         makeflags_string = ' '.join(["%s='%s'" % i for i in makeflags.iteritems()])
 
         cmds_binary_arch = []
