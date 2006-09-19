@@ -1,7 +1,7 @@
 [base]
 modules:
  redhat-cluster
- spca5xx
- squashfs
- unionfs
+# spca5xx
+# squashfs
+# unionfs
 

@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.17+2.6.18-rc7-1) UNRELEASED; urgency=low
+
+  * 
+
+ -- Bastian Blank <waldi@debian.org>  Wed, 20 Sep 2006 00:42:30 +0200
+
 linux-modules-extra-2.6 (2.6.17-2) unstable; urgency=low
 
   * Add spca5xx modules.
