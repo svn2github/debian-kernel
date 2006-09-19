@@ -1,0 +1,11 @@
+[base]
+arches:
+ amd64
+ i386
+ powerpc
+desc: Philips USB Webcam Driver for Linux
+longdesc:
+ Free Philips USB Webcam driver for Linux that supports VGA resolution, newer
+ kernels and replacing the old pwcx module.
+ .
+ Homepage: http://saillard.org/linux/pwc/
