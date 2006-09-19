@@ -12,8 +12,8 @@ ifdef DEBIAN_KERNEL_JOBS
   JOBS_ARG = -j$(DEBIAN_KERNEL_JOBS)
 endif
 
-MODULVERSION = $(shell dpkg -s $(MODULESOURCE) | perl -ne 'print $$1 if m/^Version: (.*)$$/;')
-ifeq (,$(MODULVERSION))
+MODULEVERSION = $(shell dpkg -s $(MODULESOURCE) | perl -ne 'print $$1 if m/^Version: (.*?)(-[^-]+)?$$/;')
+ifeq (,$(MODULEVERSION))
 $(error Was not able to retreive version of $(MODULESOURCE))
 endif
 
@@ -66,14 +66,18 @@ install install-real: PACKAGE_NAME = $(MODULE)-modules-$(REAL_VERSION)
 install: PACKAGE_DIR = $(CURDIR)/debian/$(PACKAGE_NAME)
 
 install-real: PACKAGE_LATEST_NAME = $(MODULE)-modules-$(MAJOR)$(LOCALVERSION)
-install-real: PACKAGES = $(PACKAGE_NAME) $(PACKAGE_LATEST_NAME)
-install-real: DH_OPTIONS = $(foreach PACKAGE, $(PACKAGES), -p$(PACKAGE))
 
 install: $(BUILD_STAMP)
 install:
 	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
 
 install-real:
-	$(MAKE) -f debian/rules.real install install-base PACKAGES="$(PACKAGES)" GENCONTROL_ARGS="-v$(MODULVERSION)+$(SOURCEVERSION)"
+	$(MAKE) -f debian/rules.real install
+	$(MAKE) -f debian/rules.real install-base \
+		GENCONTROL_ARGS="-v$(VERSION_SOURCE)+$(MODULEVERSION)-$(VERSION_DEBIAN)" \
+		PACKAGE="$(PACKAGE_NAME)" DH_OPTIONS="-p$(PACKAGE_NAME)"
+	$(MAKE) -f debian/rules.real install-base \
+		GENCONTROL_ARGS="-v2:$(VERSION_SOURCE)-$(VERSION_DEBIAN)" \
+		PACKAGE="$(PACKAGE_LATEST_NAME)" DH_OPTIONS="-p$(PACKAGE_LATEST_NAME)"
 
 -include $(MODULE)/rules
