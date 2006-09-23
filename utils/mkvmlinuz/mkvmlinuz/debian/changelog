@@ -1,8 +1,9 @@
 mkvmlinuz (24) unstable; urgency=low
 
   * Adapted uncompressor object list to 2.6.18.
+  * Re-enabled -prep support.
 
- -- Sven Luther <sven@tael.powerlinux.fr>  Sat, 23 Sep 2006 21:36:49 +0200
+ -- Sven Luther <sven@tael.powerlinux.fr>  Sat, 23 Sep 2006 21:51:52 +0200
 
 mkvmlinuz (23) unstable; urgency=low
 

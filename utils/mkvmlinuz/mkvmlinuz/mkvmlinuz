@@ -371,7 +371,7 @@ case "$arch","$post_2_6_16","$release" in
 	do_cmd $MKNOTE > $work/note
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz
 	;;
-    ppcbug,,2.6*)
+    ppcbug,*,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
@@ -379,7 +379,7 @@ case "$arch","$post_2_6_16","$release" in
 	do_cmd $OBJCOPY $OBJCOPY_ARGS $vmlinuz $vmlinuz.tmp
 	do_cmd $MKBUGBOOT $vmlinuz.tmp $vmlinuz
 	;;
-    prep,,2.6*)
+    prep,*,2.6*)
     	if [ -z "$linkaddr" ]; then linkaddr=0x00800000; fi
 	LD_ARGS="$LD_ARGS -Ttext $linkaddr -Bstatic"
 	OBJCOPY_ARGS="-O elf32-powerpc $OBJCOPY_ARGS -R .stab -R .stabstr -R .sysmap"
