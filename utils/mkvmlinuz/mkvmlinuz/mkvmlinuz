@@ -146,6 +146,12 @@ else
   post_2_6_16=
 fi
 
+if dpkg --compare-versions $release ge 2.6.18; then
+  post_2_6_18=Yes
+else
+  post_2_6_18=
+fi
+
 test -z "$verbose" || echo === Release version seems to be $release.
 
 # if no object file directory was specified, try to find one
@@ -215,7 +221,11 @@ case "$arch","$post_2_6_16","$release" in
 	dummy_kernel=$objs/mkvmlinuz-kernel-vmlinux.strip.o
 	dummy_initrd=$objs/mkvmlinuz-kernel-initrd.o
 	OBJS="$objs/crt0.o $objs/string.o $objs/prom.o $objs/stdio.o $objs/main.o $objs/div64.o"
-	OBJS="$OBJS $objs/infblock.o $objs/infcodes.o $objs/inffast.o $objs/inflate.o $objs/inftrees.o $objs/infutil.o"
+	if test "$post_2_6_18"; then
+		OBJS="$OBJS $objs/inffast.o $objs/inflate.o $objs/inftrees.o"
+	else
+		OBJS="$OBJS $objs/infblock.o $objs/infcodes.o $objs/inffast.o $objs/inflate.o $objs/inftrees.o $objs/infutil.o"
+	fi
 	;;
     apus,,*|miboot,,*|*,Yes,*)
 	;;

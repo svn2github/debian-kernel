@@ -1,3 +1,9 @@
+mkvmlinuz (24) unstable; urgency=low
+
+  * Adapted uncompressor object list to 2.6.18.
+
+ -- Sven Luther <sven@tael.powerlinux.fr>  Sat, 23 Sep 2006 21:36:49 +0200
+
 mkvmlinuz (23) unstable; urgency=low
 
   * Fallback arch/powerpc/boot object files for chrp kernels without mkvmlinuz
