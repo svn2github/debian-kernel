@@ -12,7 +12,7 @@ ifdef DEBIAN_KERNEL_JOBS
   JOBS_ARG = -j$(DEBIAN_KERNEL_JOBS)
 endif
 
-MODULEVERSION = $(shell dpkg -s $(MODULESOURCE) | perl -ne 'print $$1 if m/^Version: (.*?)(-[^-]+)?$$/;')
+MODULEVERSION = $(shell dpkg -s $(MODULESOURCE) | perl -ne 'print $$2 if m/^Version: (\d+:)?(.*?)(-[^-]+)?$$/;')
 ifeq (,$(MODULEVERSION))
 $(error Was not able to retreive version of $(MODULESOURCE))
 endif
