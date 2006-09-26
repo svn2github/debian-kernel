@@ -36,7 +36,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             packages['source']['Build-Depends'].append('%s-source' % module)
 
     def do_flavour(self, packages, makefile, arch, subarch, flavour, vars, makeflags, extra):
-        config_entry = self.config.merge('base', None, arch, subarch, flavour)
+        config_entry = self.config.merge('base', arch, subarch, flavour)
         if config_entry.get('modules', True) is False:
             return
 
@@ -103,7 +103,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             self.abiname = '-%s' % self.config['abi',]['abiname']
         self.vars = self.process_version_linux(self.version, self.abiname)
 
-class config_reader_modules(config.config_reader):
+class config_reader_modules(config.config_reader_arch):
     schema_base = {
         'modules': config.schema_item_list(),
     }
@@ -148,13 +148,6 @@ class config_reader_modules(config.config_reader):
             s = self.get(real, {})
             s.update(config_file[section])
             self[real] = s
-
-    def merge(self, section, module, *args):
-        ret = {}
-        ret.update(super(config_reader_modules, self).merge(section, *args))
-        if module:
-            ret.update(super(config_reader_modules, self).merge(section, module, *args))
-        return ret
 
 if __name__ == '__main__':
     gencontrol(sys.argv[1] + "/arch")()
