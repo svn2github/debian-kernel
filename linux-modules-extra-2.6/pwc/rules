@@ -1,5 +1,0 @@
-$(SOURCE_STAMP): TAR = /usr/src/$(MODULE)-source.tar.bz2
-
-install:
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=updates/$(MODULE)
-
