@@ -1,8 +1,8 @@
-linux-modules-extra-2.6 (2.6.18-1) UNRELEASED; urgency=low
+linux-modules-extra-2.6 (2.6.18-1) unstable; urgency=low
 
-  * 
+  * Update to 2.6.18.
 
- -- Bastian Blank <waldi@debian.org>  Tue, 26 Sep 2006 13:01:00 +0200
+ -- Bastian Blank <waldi@debian.org>  Thu,  5 Oct 2006 10:25:57 +0200
 
 linux-modules-extra-2.6 (2.6.17-2) unstable; urgency=low
 
