@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>
-Build-Depends: docbook-to-man, debhelper (>= 4.0.0)
+Build-Depends: docbook-to-man, debhelper (>= 4.1.16)
 Standards-Version: 3.6.0
 
 Package: mkvmlinuz

@@ -1,0 +1,41 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans#
+#    Developers do not need to manually edit POT or PO files.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sv\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-10-31 08:09+0100\n"
+"PO-Revision-Date: 2006-10-31 08:08+0100\n"
+"Last-Translator:  Daniel Nylander <yeager@lidkoping.net>\n"
+"Language-Team: Swedish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+#, fuzzy
+msgid "Bootloader to use:"
+msgstr "välj din bootladdare."
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+#, fuzzy
+msgid ""
+"Your PowerPC sub-architecture supports more than one bootloader, please "
+"select the one you want to use."
+msgstr ""
+"Din PowerPC-arkitektur stöder fler än en bootladdare, vänligen välj en som "
+"du vill använda."

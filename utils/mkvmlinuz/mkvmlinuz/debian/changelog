@@ -1,3 +1,11 @@
+mkvmlinuz (25) UNRELEASED; urgency=low
+
+  * Switch to po-debconf for debconf templates. Closes: 298972
+  * Debconf translations:
+    - Add Swedish. Closes: #331020
+
+ -- Christian Perrier <bubulle@debian.org>  Tue, 31 Oct 2006 07:53:01 +0100
+
 mkvmlinuz (24) unstable; urgency=low
 
   * Adapted uncompressor object list to 2.6.18.

@@ -32,6 +32,8 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	rm -f mkvmlinuz.8
+	
+	debconf-updatepo
 
 	make -C boot clean
 
