@@ -11,12 +11,12 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: sv\n"
+"Project-Id-Version: mkvmlinuz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-10-31 08:09+0100\n"
-"PO-Revision-Date: 2006-10-31 08:08+0100\n"
-"Last-Translator:  Daniel Nylander <yeager@lidkoping.net>\n"
-"Language-Team: Swedish\n"
+"PO-Revision-Date: 2006-11-01 07:39+0100\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,17 +25,12 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../mkvmlinuz.templates:1001
-#, fuzzy
 msgid "Bootloader to use:"
-msgstr "välj din bootladdare."
+msgstr "Välj din starthanterare:"
 
 #. Type: select
 #. Description
 #: ../mkvmlinuz.templates:1001
-#, fuzzy
-msgid ""
-"Your PowerPC sub-architecture supports more than one bootloader, please "
-"select the one you want to use."
-msgstr ""
-"Din PowerPC-arkitektur stöder fler än en bootladdare, vänligen välj en som "
-"du vill använda."
+msgid "Your PowerPC sub-architecture supports more than one bootloader, please select the one you want to use."
+msgstr "Din PowerPC-underarkitektur har stöd för fler än en starthanterare, välj en som du vill använda."
+

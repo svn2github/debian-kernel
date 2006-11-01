@@ -2,8 +2,9 @@ mkvmlinuz (25) UNRELEASED; urgency=low
 
   * Switch to po-debconf for debconf templates. Closes: 298972
   * Debconf translations:
-    - Add Swedish. Closes: #331020
-    - Add Vietnamese.
+    - Add Swedish (updated during the l10n update campaign)
+      Closes: #331020
+    - Add Vietnamese. Sent during the l10n update campaign
 
  -- Christian Perrier <bubulle@debian.org>  Tue, 31 Oct 2006 07:53:01 +0100
 
