@@ -5,6 +5,7 @@ mkvmlinuz (25) UNRELEASED; urgency=low
     - Add Swedish (updated during the l10n update campaign)
       Closes: #331020
     - Add Vietnamese. Sent during the l10n update campaign
+    - Add Czech. Sent during the l10n update campaign
 
  -- Christian Perrier <bubulle@debian.org>  Tue, 31 Oct 2006 07:53:01 +0100
 
