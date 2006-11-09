@@ -1,0 +1,10 @@
+export BUILD_SHEEP=m
+
+$(BUILD_STAMP):
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/kmod $(JOBS_ARG)
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/netdriver $(JOBS_ARG)
+	touch $@
+
+install:
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/kmod modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR)/netdriver modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
