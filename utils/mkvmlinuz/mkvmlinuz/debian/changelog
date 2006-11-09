@@ -1,4 +1,4 @@
-mkvmlinuz (25) UNRELEASED; urgency=low
+mkvmlinuz (25) unstable; urgency=low
 
   * Switch to po-debconf for debconf templates. Closes: 298972
   * Debconf translations:
