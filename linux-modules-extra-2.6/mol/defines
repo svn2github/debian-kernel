@@ -1,7 +1,10 @@
 [base]
 arches:
  powerpc
-flavours: powerpc powerpc-smp powerpc-miboot
+flavours:
+ powerpc
+ powerpc-smp
+ powerpc-miboot
 desc: Mac-on-Linux emulator 
 longdesc:
  Mac-on-Linux is basically an emulator capable of running
