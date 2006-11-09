@@ -1,5 +1,6 @@
 mkvmlinuz (25) unstable; urgency=low
 
+  [ Christian Perrier ]
   * Switch to po-debconf for debconf templates. Closes: 298972
   * Debconf translations:
     - Add Swedish (updated during the l10n update campaign)
@@ -12,7 +13,7 @@ mkvmlinuz (25) unstable; urgency=low
     - Add Russian. Sent during the l10n update campaign
     - Add Brazilian Portuguese. Sent during the l10n update campaign
 
- -- Christian Perrier <bubulle@debian.org>  Tue, 31 Oct 2006 07:53:01 +0100
+ -- Sven Luther <luther@debian.org>  Thu,  9 Nov 2006 22:13:12 +0100
 
 mkvmlinuz (24) unstable; urgency=low
 
