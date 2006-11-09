@@ -10,6 +10,7 @@ mkvmlinuz (25) UNRELEASED; urgency=low
     - Add French. Sent during the l10n update campaign
     - Add German. Sent during the l10n update campaign
     - Add Russian. Sent during the l10n update campaign
+    - Add Brazilian Portuguese. Sent during the l10n update campaign
 
  -- Christian Perrier <bubulle@debian.org>  Tue, 31 Oct 2006 07:53:01 +0100
 
