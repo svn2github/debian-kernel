@@ -67,6 +67,10 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             return
         if subarch in config_entry.get('not-subarches', []):
             return
+        if flavour not in config_entry.get('flavours', [flavour]):
+            return
+        if flavour in config_entry.get('not-flavours', []):
+            return
 
         modules = self.templates["control.modules"]
         modules = self.process_packages(modules, vars)
