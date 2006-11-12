@@ -1,0 +1,125 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          ipw3945d
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Starts Intel regulatory daemon (ipw3945d) 
+# Description:       Starts the binary userspace regulatory daemon, required
+#                    for operation of Intel/PRO Wireless 3945ABG cards
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+DAEMON_OWNER="Debian-ipw3945d:Debian-ipw3945d"
+DAEMON_BINARY="/sbin/ipw3945d"
+SYS_CMD_PERM="744"
+DAEMON_PID_DIR="/var/run/ipw3945d"
+DAEMON_PID_FILE="${DAEMON_PID_DIR}/ipw3945d.pid"
+DAEMON_LOG_FILE="/var/log/ipw3945d/ipw3945d.log"
+
+# Occasionally we will be started by a modprobe hook very early,
+# when the filesystem might not be mounted rw yet. In this case
+# daemon will fail to start, as it will be unable to write its
+# pid file. This function may be used to check for it.
+can_write_pid() {
+  check="${DAEMON_PID_DIR}/can_write"
+  if touch "${check}" > /dev/null 2>&1; then
+    res=0
+    rm -f "${check}"
+  else
+    res=1
+  fi
+  return "${res}"
+}
+
+# If the driver is loaded, some entries in the /sys tree should
+# appear. If they are not there, it might be that we just
+# need to wait a bit for them to appear and then adjust their
+# permissions and ownership appropriately.
+have_sys_entries() {
+  res=1
+  for delay in 0 1 2 4
+  do
+    sleep "${delay}"
+    cmd="$(echo /sys/bus/pci/drivers/ipw3945/*/cmd)"
+    if test -e "${cmd}"; then
+      chown "${DAEMON_OWNER}" ${cmd}
+      chmod "${SYS_CMD_PERM}" ${cmd}
+      res=0
+      break
+    fi
+  done
+  return "${res}"
+}
+
+# Check for a stale pid file and remove it, if present. If there is
+# a non-zero argument, the removal is silent (no warning emitted)
+remove_stale_pid() {
+  if test -e "${DAEMON_PID_FILE}"; then
+    pid=$(cat "${DAEMON_PID_FILE}")
+    msg="Removing stale pid file ${DAEMON_PID_FILE} (pid ${pid} not running)."
+    if ! kill -0 "${pid}" > /dev/null 2>&1; then
+      test -n "${1}" || log_warning_msg "${msg}"
+      rm -f "${DAEMON_PID_FILE}"
+    fi
+  fi
+}
+
+start_daemon() {
+  if have_sys_entries; then
+    remove_stale_pid
+    log_daemon_msg "Starting ipw3945 regulatory daemon" "ipw3945d"
+    start-stop-daemon --start --quiet --chuid "${DAEMON_OWNER}"                \
+                      --exec "${DAEMON_BINARY}" --pidfile "${DAEMON_PID_FILE}" \
+                      --oknodo -- --pid-file=${DAEMON_PID_FILE} --quiet        \
+		      --log-file=${DAEMON_LOG_FILE} > /dev/null 2>&1
+    code=$?
+    log_end_msg ${code}
+  else
+    log_warning_msg "Not starting ipw3945 regulatory daemon, driver not loaded."
+  fi
+}
+
+stop_daemon () {
+  log_daemon_msg "Stopping ipw3945 regulatory daemon" "ipw3945d"
+  start-stop-daemon --stop --quiet --pidfile "${DAEMON_PID_FILE}" \
+                    --signal HUP > /dev/null 2>&1
+  # Daemon does not clean up its pid file when exiting on a signal
+  remove_stale_pid quietly
+  log_end_msg 0
+}
+
+test -x "${DAEMON_BINARY}" || exit 0
+
+case "$1" in
+  start)
+    start_daemon
+    ;;
+  stop)
+    stop_daemon
+    ;;
+  restart|force-reload)
+    stop_daemon
+    start_daemon
+    ;;
+  # The modprobe-* targets are supposed to be used
+  # from modprobe hooks only.
+  modprobe-start)
+    can_write_pid || exit 0
+    start_daemon
+    ;;
+  modprobe-stop)
+    stop_daemon
+    # This target must always exit with code 1 due
+    # to the way it is called from the modprobe hook.
+    exit 1
+    ;;
+  *)
+    echo "Usage: ${0} {start|stop|restart|force-reload}"
+    exit 1
+    ;;
+esac
+exit 0

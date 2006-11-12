@@ -1,0 +1,6 @@
+ipw3945d (1.7.22-1) unstable; urgency=low
+
+  * Initial upload to Debian. Closes: #391686
+
+ -- Jurij Smakov <jurij@debian.org>  Fri, 10 Nov 2006 19:31:57 -0800
+

@@ -1,0 +1,22 @@
+Source: ipw3945d
+Section: non-free/net
+Priority: extra
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Jurij Smakov <jurij@debian.org>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5)
+
+Package: ipw3945d
+Architecture: i386 amd64
+Depends: adduser, lsb-base (>= 3.1), ${shlibs:Depends}, ${misc:Depends}
+Recommends: firmware-ipw3945
+Description: Binary userspace regulatory daemon for Intel PRO/Wireless 3945ABG cards
+ The regulatory daemon is responsible for controlling and configuring 
+ aspects of the hardware required to operate the device within 
+ compliance of various regulatory agencies.  This includes controlling 
+ which channels are allowed to do active/passive scanning, transmit 
+ power levels, which channels are allowed to be transmitted on, and 
+ support for IEEE 802.11h standard. It is required for operation of the
+ card when used with the ipw3945 Linux kernel driver.
+ .
+ Upstream URL: http://bughost.org/ipw3945/

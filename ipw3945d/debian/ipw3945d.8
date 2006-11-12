@@ -1,0 +1,51 @@
+.\"  This manual page is Copyright (C) 2006 Jurij Smakov <jurij@debian.org>.
+.\"  Freely distributable under the terms of the GPLv2, as published by the
+.\"  Free Software Foundation.
+.TH IPW3945D "8" "October 2006" "ipw3945d 1.7.22" "System Administration Utilities"
+.SH NAME
+ipw3945d \- regulatory daemon for Intel/PRO Wireless 3945ABG cards
+.SH SYNOPSIS
+.B /sbin/ipw3945d
+.RB [\fIOPTIONS\fR]
+.SH DESCRIPTION
+ipw3945d is a binary userspace regulatory daemon, responsible for controlling
+and configuring aspects of the hardware required to operate the device within 
+compliance of various regulatory agencies. This includes controlling which
+channels are allowed to do active/passive scanning, transmit power levels,
+which channels are allowed to be transmitted on, and support for IEEE 802.11h
+standard. It is required for operation of the card when used with the ipw3945
+Linux kernel driver.
+.SH OPTIONS
+.TP
+\fB\-\-quiet\fR
+Load silently (unless errors occur).
+.TP
+\fB\-\-timeout\fR=\fIVALUE\fR
+Wait up to VALUE seconds for driver to load.
+Default 0 (do not wait).
+A value of -1 means to wait forever.
+.TP
+\fB\-\-log\-file\fR=\fINAME\fR
+Specify log file (default is no log).
+.TP
+\fB\-\-pid\-file\fR=\fINAME\fR
+Specify pid file location
+(default \fB/var/run/ipw3945d.pid\fR).
+.TP
+\fB\-\-version\fR
+Display version information.
+.TP
+\fB\-\-foreground\fR
+Do not fork to background.
+.TP
+\fB\-\-kill\fR
+Kill any running ipw3945d instance and exit.
+.TP
+\fB\-\-help\fR
+Display a help message.
+.TP
+\fB\-\-isrunning\fR
+Check if already running.  Returns 0 if yes.
+.SH COPYRIGHT
+.B ipw3945d 
+is Copyright (C) 2005-2006 Intel Corporation. All rights reserved.
