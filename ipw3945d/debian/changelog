@@ -1,6 +1,6 @@
 ipw3945d (1.7.22-1) unstable; urgency=low
 
-  * Initial upload to Debian. Thanks to Loic Minier for valueable
+  * Initial upload to Debian. Thanks to Loic Minier for valuable
     comments and testing. Closes: #391686
 
  -- Jurij Smakov <jurij@debian.org>  Sun, 12 Nov 2006 16:16:28 -0800
