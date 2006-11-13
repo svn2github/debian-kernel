@@ -113,9 +113,6 @@ case "$1" in
     ;;
   modprobe-stop)
     stop_daemon
-    # This target must always exit with code 1 due
-    # to the way it is called from the modprobe hook.
-    exit 1
     ;;
   *)
     echo "Usage: ${0} {start|stop|restart|force-reload}"
