@@ -1,4 +1,5 @@
 #!/bin/sh
+#DEBHELPER#
 if [ "${1}" = "purge" ]; then
   rm -rf /var/run/ipw3945d
   rm -rf /var/log/ipw3945d
