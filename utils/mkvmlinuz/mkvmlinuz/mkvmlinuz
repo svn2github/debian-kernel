@@ -140,13 +140,13 @@ if test -z "$release"; then
     fi
 fi
 
-if dpkg --compare-versions $release ge 2.6.16; then
+if dpkg --compare-versions $release ge 2.6.16 && test "$arch" != "prep" ; then
   post_2_6_16=Yes
 else
   post_2_6_16=
 fi
 
-if dpkg --compare-versions $release ge 2.6.18; then
+if dpkg --compare-versions $release ge 2.6.18 && "$arch" != "prep" ; then
   post_2_6_18=Yes
 else
   post_2_6_18=
