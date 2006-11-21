@@ -146,7 +146,7 @@ else
   post_2_6_16=
 fi
 
-if dpkg --compare-versions $release ge 2.6.18 && "$arch" != "prep" ; then
+if dpkg --compare-versions $release ge 2.6.18 && test "$arch" != "prep" ; then
   post_2_6_18=Yes
 else
   post_2_6_18=
