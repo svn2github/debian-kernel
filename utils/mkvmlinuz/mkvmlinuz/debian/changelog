@@ -2,7 +2,7 @@ mkvmlinuz (27) unstable; urgency=low
 
   * Corrected typo. (Closes: 399768)
 
- -- Sven Luther <sven@tael.powerlinux.fr>  Tue, 21 Nov 2006 22:43:28 +0100
+ -- Sven Luther <luther@debian.org>  Tue, 21 Nov 2006 22:43:28 +0100
 
 mkvmlinuz (26) unstable; urgency=low
 
