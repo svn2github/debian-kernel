@@ -1,3 +1,12 @@
+ipw3945d (1.7.22-2) unstable; urgency=low
+  
+  * Following the suggestion by Malte Schirmacher, add one second
+    delay after starting the daemon to make sure that it's fully up
+    and running before an attempt to bring up an interface is made.
+    Closes: #399607
+
+ -- Jurij Smakov <jurij@debian.org>  Tue, 21 Nov 2006 09:30:00 -0800
+
 ipw3945d (1.7.22-1) unstable; urgency=low
 
   * Initial upload to Debian. Thanks to Loic Minier for valuable
