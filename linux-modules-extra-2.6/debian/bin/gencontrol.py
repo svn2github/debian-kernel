@@ -32,9 +32,6 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             for arch in self.config['base',]['arches']],
         )
 
-        for module in iter(self.config['base',]['modules']):
-            packages['source']['Build-Depends'].append('%s-source' % module)
-
     def do_flavour(self, packages, makefile, arch, subarch, flavour, vars, makeflags, extra):
         config_entry = self.config.merge('base', arch, subarch, flavour)
         if config_entry.get('modules', True) is False:
@@ -51,10 +48,10 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
 
     def do_module(self, module, packages, makefile, arch, subarch, flavour, vars, makeflags, extra):
         config_entry = self.config['base', module]
+        config_entry_relations = self.config.get(('relations', module), {})
         vars.update(config_entry)
         vars['module'] = module
         makeflags['MODULE'] = module
-        makeflags['MODULESOURCE'] = "%s-source" % module
 
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
@@ -71,6 +68,15 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             return
         if flavour in config_entry.get('not-flavours', []):
             return
+
+        relations = package_relation_list(config_entry_relations.get('source', '%s-source' % module))
+        if config_entry.get('arches', None) or config_entry.get('not-arches', None):
+            for group in relations:
+                for item in group:
+                    item.arches = [arch]
+        makeflags['MODULESOURCE'] = relations[0][0].name
+
+        packages['source']['Build-Depends'].extend(relations)
 
         modules = self.templates["control.modules"]
         modules = self.process_packages(modules, vars)
