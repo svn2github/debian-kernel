@@ -4,5 +4,5 @@ modules:
  redhat-cluster
  spca5xx
  squashfs
-# unionfs
+ unionfs
 
