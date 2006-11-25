@@ -4,10 +4,10 @@ linux-modules-extra-2.6 (2.6.18-2) UNRELEASED; urgency=low
   * Add mol modules.
 
   [ Bastian Blank ]
-  * Update to 2.6.18-2.
-  * Disable unionfs because its broken.
+  * Update to 2.6.18-3.
+  * Depend on linux-modules instead of linux-image.
 
- -- Bastian Blank <waldi@debian.org>  Thu,  9 Nov 2006 10:45:24 +0100
+ -- Bastian Blank <waldi@debian.org>  Sat, 25 Nov 2006 18:06:45 +0100
 
 linux-modules-extra-2.6 (2.6.18-1) unstable; urgency=low
 
