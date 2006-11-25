@@ -1,8 +1,7 @@
 [base]
 modules:
- mol
+# mol
  redhat-cluster
  spca5xx
  squashfs
  unionfs
-
