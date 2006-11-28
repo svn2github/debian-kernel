@@ -1,4 +1,4 @@
-linux-modules-extra-2.6 (2.6.18-2) UNRELEASED; urgency=low
+linux-modules-extra-2.6 (2.6.18-2) unstable; urgency=low
 
   [ Gaudenz Steinlin ]
   * Add mol modules.
@@ -7,7 +7,7 @@ linux-modules-extra-2.6 (2.6.18-2) UNRELEASED; urgency=low
   * Update to 2.6.18-3.
   * Depend on linux-modules instead of linux-image.
 
- -- Bastian Blank <waldi@debian.org>  Sat, 25 Nov 2006 18:06:45 +0100
+ -- Bastian Blank <waldi@debian.org>  Tue, 28 Nov 2006 15:10:49 +0100
 
 linux-modules-extra-2.6 (2.6.18-1) unstable; urgency=low
 
