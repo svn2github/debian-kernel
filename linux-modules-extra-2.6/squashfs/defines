@@ -1,4 +1,5 @@
 [base]
+not-arches: arm
 desc: Squash filesystem
 longdesc:
  Squashfs is a highly compressed read-only filesystem for Linux. It uses zlib
