@@ -2,7 +2,7 @@ Some basic instructions :
 
   Initial checkout :
   
-    svn co svn+ssh://<user>@svn.debian.org/svn/kernel/trunk
+    svn co svn+ssh://<user>@svn.debian.org/svn/kernel/dists/trunk
 
   Updating a checked out repository :
 
