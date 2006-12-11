@@ -1,0 +1,8 @@
+install:
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=nonfree/$(MODULE)
+
+	for FILE in $(CURDIR)/$(DIR)/debian/*modules-_KVERS_*; \
+	do \
+		install -D -m 644 $$FILE $(CURDIR)/debian/`basename $$FILE | sed -e "s/_KVERS_/$(VERSION_SOURCE)$(ABINAME)-$(FLAVOUR)/" -e "s/\.modules.in//"` || exit 1; \
+	done
+

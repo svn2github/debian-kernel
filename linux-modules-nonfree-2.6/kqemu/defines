@@ -1,0 +1,6 @@
+[base]
+arches:
+  amd64
+  i386
+desc: QEMU Accelerator
+

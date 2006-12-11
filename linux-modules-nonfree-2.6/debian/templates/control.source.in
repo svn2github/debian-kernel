@@ -1,0 +1,7 @@
+Source: linux-modules-nonfree-@major@
+Section: non-free/devel
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Daniel Baumann <daniel@debian.org>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
