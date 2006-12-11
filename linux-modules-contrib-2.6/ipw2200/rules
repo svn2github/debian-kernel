@@ -1,0 +1,11 @@
+install:
+	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=contrib/$(MODULE)
+
+	sed -e "s/@KERNEL@/$(VERSION_SOURCE)$(ABINAME)-$(FLAVOUR)/g" \
+		< $(CURDIR)/$(DIR)/debian/postrm.modules.in \
+		> $(CURDIR)/debian/ipw2200-modules-$(VERSION_SOURCE)$(ABINAME)-$(FLAVOUR).postrm
+
+	sed -e "s/@KERNEL@/$(VERSION_SOURCE)$(ABINAME)-$(FLAVOUR)/g" \
+		< $(CURDIR)/$(DIR)/debian/preinst.modules.in \
+		> $(CURDIR)/debian/ipw2200-modules-$(VERSION_SOURCE)$(ABINAME)-$(FLAVOUR).preinst
+

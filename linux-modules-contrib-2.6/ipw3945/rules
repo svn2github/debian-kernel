@@ -1,0 +1,3 @@
+$(BUILD_STAMP):
+	$(MAKE) -C $(CURDIR)/$(DIR) modules KSRC=$(HEADERS_DIR)
+	touch $@

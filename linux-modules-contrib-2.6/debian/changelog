@@ -1,0 +1,20 @@
+linux-modules-contrib-2.6 (2.6.18-3) UNRELEASED; urgency=low
+
+  * Setting maintainer to kernel-team, moving myself to co-maintainer.
+
+ -- Daniel Baumann <daniel@debian.org>  Mon, 11 Nov 2006 20:21:00 +0100
+
+linux-modules-contrib-2.6 (2.6.18-2) unstable; urgency=low
+
+  * Build for 2.6.18-3.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed, 29 Nov 2006 00:27:00 +0100
+
+linux-modules-contrib-2.6 (2.6.18-1) unstable; urgency=low
+
+  * Initial release:
+    - ipw2100 modules (amd64 and i386 only).
+    - ipw2200 modules (amd64 and i386 only).
+    - ipw3945 modules (amd64 and i386 only).
+
+ -- Daniel Baumann <daniel@debian.org>  Tue, 28 Nov 2006 13:55:00 +0100

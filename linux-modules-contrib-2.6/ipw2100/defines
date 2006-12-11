@@ -1,0 +1,6 @@
+[base]
+arches:
+  amd64
+  i386
+desc: Intel PRO/Wireless 2100 (ipw2100) driver
+

@@ -1,0 +1,6 @@
+[base]
+arches:
+  amd64
+  i386
+desc: Intel PRO/Wireless 2200 and 2915ABG (ipw2200) driver
+
