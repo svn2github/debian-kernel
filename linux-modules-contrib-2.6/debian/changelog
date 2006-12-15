@@ -1,6 +1,7 @@
 linux-modules-contrib-2.6 (2.6.18-3) UNRELEASED; urgency=low
 
   * Setting maintainer to kernel-team, moving myself to co-maintainer.
+  * Build for 2.6.18-4.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 11 Nov 2006 20:21:00 +0100
 
