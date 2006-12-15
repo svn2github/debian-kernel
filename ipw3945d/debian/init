@@ -78,7 +78,7 @@ start_daemon() {
 		      --log-file=${DAEMON_LOG_FILE} > /dev/null 2>&1
     code=$?
     log_end_msg ${code}
-    sleep 1
+    sleep 3
   else
     log_warning_msg "Not starting ipw3945 regulatory daemon, driver not loaded."
   fi
