@@ -1,3 +1,17 @@
+ipw3945d (1.7.22-3) unstable; urgency=low
+
+  * Add a workaround to prevent the daemon from being started
+    twice. That may happen when it is started before the /var/run
+    directory is cleaned up, so the pid file is lost. Now we
+    check for such conditions and stop the daemon first, if it
+    is running without a proper pid file. Thanks to Dieter Roels
+    for help with debugging and testing. Closes: #401558
+  * Increase the delay after start from one to three seconds to
+    finally get rid of all the timing issues (ifup would still
+    fail occasionally with one second delay).
+
+ -- Jurij Smakov <jurij@debian.org>  Tue, 12 Dec 2006 23:09:45 -0800
+	
 ipw3945d (1.7.22-2) unstable; urgency=low
   
   * Following the suggestion by Malte Schirmacher, add one second

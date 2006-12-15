@@ -56,7 +56,8 @@ have_sys_entries() {
 }
 
 # Check for a stale pid file and remove it, if present. If there is
-# a non-zero argument, the removal is silent (no warning emitted)
+# a non-zero argument, the removal is silent (no warning emitted).
+# Also, try stopping the daemon if it is running without a pid file.
 remove_stale_pid() {
   if test -e "${DAEMON_PID_FILE}"; then
     pid=$(cat "${DAEMON_PID_FILE}")
@@ -65,6 +66,12 @@ remove_stale_pid() {
       test -n "${1}" || log_warning_msg "${msg}"
       rm -f "${DAEMON_PID_FILE}"
     fi
+  else
+    # Under some rare circumstances it is possible that daemon
+    # is running, but pid file is missing (bug #401558). So, if we 
+    # don't have a pid file, we try to kill it by name just in case.
+    start-stop-daemon --stop --quiet --exec /sbin/ipw3945d \
+                      --signal HUP > /dev/null 2>&1
   fi
 }
 
