@@ -10,7 +10,7 @@ ipw3945d (1.7.22-3) unstable; urgency=low
     finally get rid of all the timing issues (ifup would still
     fail occasionally with one second delay).
 
- -- Jurij Smakov <jurij@debian.org>  Tue, 12 Dec 2006 23:09:45 -0800
+ -- Jurij Smakov <jurij@debian.org>  Thu, 14 Dec 2006 20:50:40 -0800
 	
 ipw3945d (1.7.22-2) unstable; urgency=low
   
