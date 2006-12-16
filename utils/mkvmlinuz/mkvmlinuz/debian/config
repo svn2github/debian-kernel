@@ -7,7 +7,7 @@ set -e
 case $(grep ^machine /proc/cpuinfo) in
     *PReP*Blackhawk*) arch=ppcbug ;;
     *PReP*) arch=prep ;;
-    *CHRP*Pegasos*) arch=chrp_pegasos ;;
+    *CHRP*Pegasos*|*EFIKA*CHRP*) arch=chrp_pegasos ;;
     *CHRP*) arch=chrp ;;
     *Amiga*) arch=apus ;;
     *iSeries*) arch=iseries ;;

@@ -1,6 +1,19 @@
+mkvmlinuz (29) unstable; urgency=high
+
+  * Added Efika support.
+
+ -- Sven Luther <luther@debian.org>  Sat, 16 Dec 2006 02:18:19 +0100
+
+mkvmlinuz (28) unstable; urgency=low
+
+  * Added support for 2.6.19 kernels.
+  * Added portuguese translation. (Closes: #401384)
+
+ -- Sven Luther <luther@debian.org>  Tue,  5 Dec 2006 17:20:48 +0100
+
 mkvmlinuz (27) unstable; urgency=low
 
-  * Corrected typo. (Closes: 399768)
+  * Corrected typo. (Closes: #399768)
 
  -- Sven Luther <luther@debian.org>  Tue, 21 Nov 2006 22:43:28 +0100
 
