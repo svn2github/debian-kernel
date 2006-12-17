@@ -4,7 +4,7 @@ linux-modules-nonfree-2.6 (2.6.18-3) UNRELEASED; urgency=low
   * Build for 2.6.18-4.
   * rules.real:
     - Adjusting install-base:, now the module copyright file is installed
-      instead of the wrong one of the conglomeration package.
+      instead of the wrong one of the conglomeration package (Closes: #403525).
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 11 Nov 2006 20:21:00 +0100
 
