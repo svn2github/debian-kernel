@@ -51,7 +51,7 @@ $(BUILD_STAMP):
 install-base:
 	dh_installchangelogs
 	dh_installdocs
-	$(foreach PACKAGE, $(PACKAGES), install -m 644 $(MODULE)/copyright debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/copyright;)
+	install -D -m 644 $(MODULE)/copyright debian/$(MODULE)-modules-$(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)/usr/share/doc/$(MODULE)-modules-$(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)/copyright
 	dh_installmodules
 	dh_compress
 	dh_fixperms
