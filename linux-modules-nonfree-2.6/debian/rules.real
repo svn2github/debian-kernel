@@ -48,10 +48,11 @@ $(BUILD_STAMP):
 	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) $(JOBS_ARG)
 	touch $@
 
+install-base: DH_OPTIONS = -p$(PACKAGE)
 install-base:
 	dh_installchangelogs
 	dh_installdocs
-	install -D -m 644 $(MODULE)/copyright debian/$(MODULE)-modules-$(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)/usr/share/doc/$(MODULE)-modules-$(UPSTREAMVERSION)$(ABINAME)$(LOCALVERSION)/copyright
+	install -D -m 644 $(MODULE)/copyright debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)/copyright
 	dh_installmodules
 	dh_compress
 	dh_fixperms
@@ -75,9 +76,9 @@ install-real:
 	$(MAKE) -f debian/rules.real install
 	$(MAKE) -f debian/rules.real install-base \
 		GENCONTROL_ARGS="-v$(VERSION_SOURCE)+$(MODULEVERSION)-$(VERSION_DEBIAN)" \
-		PACKAGE="$(PACKAGE_NAME)" DH_OPTIONS="-p$(PACKAGE_NAME)"
+		PACKAGE="$(PACKAGE_NAME)"
 	$(MAKE) -f debian/rules.real install-base \
 		GENCONTROL_ARGS="-v2:$(VERSION_SOURCE)-$(VERSION_DEBIAN)" \
-		PACKAGE="$(PACKAGE_LATEST_NAME)" DH_OPTIONS="-p$(PACKAGE_LATEST_NAME)"
+		PACKAGE="$(PACKAGE_LATEST_NAME)"
 
 -include $(MODULE)/rules
