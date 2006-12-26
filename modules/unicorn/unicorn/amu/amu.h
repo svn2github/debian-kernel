@@ -30,7 +30,7 @@ unsigned char g_NEAR_LOS = 0, g_NEAR_LOF = 0, g_NEAR_LCDNI = 0, g_NEAR_LCDI = 0;
 unsigned char g_FAR_LOS = 0, g_FAR_LOF = 0, g_FAR_LCDNI = 0, g_FAR_LCDI = 0;
 unsigned char g_Mode = AMSW_ANSI | AMSW_UAWG | AMSW_G_DMT | AMSW_G_LITE;
 unsigned long g_ShowtimeCounter = 0;				  
-bool L3_flag = FALSE;	// bool var to acknowledge answer to orderly shutdown request
+BOOLEAN L3_flag = FALSE;	// bool var to acknowledge answer to orderly shutdown request
 
 T_AMSW_Identification               g_Identification;
 T_AMSW_NT_NearEndLineOperData       g_NearEndLineOperData;
@@ -47,7 +47,7 @@ T_AMSW_Ber g_Ber;
 T_AMSW_VersionMS g_VersionMS;
 
 void AMUTask(unsigned long Arg1, unsigned long , unsigned long , unsigned long );
-unsigned long FM_Polling(bool pm_poll);
+unsigned long FM_Polling(BOOLEAN pm_poll);
 unsigned long PM_Polling(void);
 
 #endif   // _AMU_H_

@@ -4,8 +4,10 @@
   ST70134A or ST70136 Analog Front End (AFE).
   This file contains the ATM interface and SAR routines.
 */
-#include <linux/config.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,18)
+#	include <linux/config.h>
+#endif
 #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #include <linux/modversions.h>
 #endif
@@ -101,7 +103,7 @@ static const char driver_name[] = "UNICORN";
 struct unicorn_atmdrv *unicorn_atmdrv = NULL;
 
 // driver parameters
-unsigned char *mac_address=NULL;
+char mac_address[ETH_ALEN*2 + 1] = { 0x0 };
 #if DEBUG
 #ifdef ATM_DRIVER
 unsigned long DebugLevel=0; // ATM_D,DATA_D
@@ -1293,10 +1295,10 @@ extern int unicorn_timer(void)
        return 0;
 }
 
-MODULE_PARM(mac_address, "s");
+module_param_string(mac_address, mac_address, sizeof(mac_address), 0);
 #if DEBUG
 #ifdef ATM_DRIVER
-MODULE_PARM(DebugLevel, "i");
+module_param(DebugLevel, ulong, 0);
 #endif
 #endif
 

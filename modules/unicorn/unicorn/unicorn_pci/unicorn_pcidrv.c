@@ -4,8 +4,10 @@
   ST70134A, ST70136 or ST20174 Analog Front End (AFE).
   This file contains the PCI specific routines.
 */
-#include <linux/config.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,18)
+#	include <linux/config.h>
+#endif
 #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #include <linux/modversions.h>
 #endif
@@ -647,7 +649,9 @@ static void obc_interrupt(struct unicorn_dev *dev)
 //----------------------------------------------------------------------
 //	Interrupt Service Routine (ISR) for IRQ Irq	
 //----------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,19))
+static irqreturn_t unicorn_isr(int irq, void *context)
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
 static irqreturn_t unicorn_isr(int irq, void *context, struct pt_regs *regs)
 #else
 static void unicorn_isr(int irq, void *context, struct pt_regs *regs)
@@ -2157,38 +2161,25 @@ int unicorn_get_adsl_linkspeed(struct unicorn_dev *dev,
 }
 
 /* module parameters for MSW */
-MODULE_PARM(ActivationMode, "i");
-//MODULE_PARM(ActivationTaskTimeout, "i");
-MODULE_PARM(ActTimeout, "i");
-MODULE_PARM(AutoActivation, "i");
-//MODULE_PARM(BreakOnEntry, "i");
-MODULE_PARM(DownstreamRate, "i");
-MODULE_PARM(eocTrace, "i");
-//MODULE_PARM(ExchangeDelay, "i");
-MODULE_PARM(FmPollingRate, "i");
-//MODULE_PARM(g_RefGain, "i");
-MODULE_PARM(g_TeqMode, "i");
-MODULE_PARM(InitTimeout, "i");
-MODULE_PARM(Interoperability, "i");
-MODULE_PARM(LCD_Trig, "i");
-MODULE_PARM(LOS_LOF_Trig, "i");
-MODULE_PARM(LoopbackMode, "i");
-MODULE_PARM(MswDebugLevel, "i");
-MODULE_PARM(RetryTime, "i");
-MODULE_PARM(setINITIALDAC, "i");
-//MODULE_PARM(TrainingDelay, "i");
-//MODULE_PARM(TruncateMode, "i");
-MODULE_PARM(useAFE, "i");
-//MODULE_PARM(useRFC019v, "i");
-//MODULE_PARM(useRFC029v, "i");
-//MODULE_PARM(useRFC033v, "i");
-//MODULE_PARM(useRFC040v, "i");
-MODULE_PARM(useRFC041v, "i");
-//MODULE_PARM(useRFCFixedRate, "i");
-//MODULE_PARM(useVCXO, "i");
-//MODULE_PARM(_no_TS652, "i");
+module_param(ActivationMode, ulong, 0);
+module_param(ActTimeout, ulong, 0);
+module_param(AutoActivation, ulong, 0);
+module_param(DownstreamRate, ulong, 0);
+module_param(eocTrace, ulong, 0);
+module_param(FmPollingRate, ulong, 0);
+module_param(g_TeqMode, ushort, 0);
+module_param(InitTimeout, ulong, 0);
+module_param(Interoperability, ulong, 0);
+module_param(LCD_Trig, ulong, 0);
+module_param(LOS_LOF_Trig, ulong, 0);
+module_param(LoopbackMode, ulong, 0);
+module_param(MswDebugLevel, ulong, 0);
+module_param(RetryTime, ulong, 0);
+module_param(setINITIALDAC, ulong, 0);
+module_param(useAFE, ulong, 0);
+module_param(useRFC041v, ulong, 0);
 #if DEBUG
-MODULE_PARM(DebugLevel, "i");
+module_param(DebugLevel, ulong, 0);
 #endif
 
 static int __init

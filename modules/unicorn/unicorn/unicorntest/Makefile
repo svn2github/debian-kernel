@@ -18,4 +18,4 @@ clean:
 	rm -f unicorntest *.o
 
 install: all  
-	$(INSTALL) -s -c unicorntest $(DESTDIR)$(BINDIR)
+	$(INSTALL) -c unicorntest $(DESTDIR)$(BINDIR)

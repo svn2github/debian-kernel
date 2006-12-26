@@ -18,7 +18,9 @@
 #define DMT_IN_PIN0_MASK		0x0001	// GP_IN0  bit 0
 #define DMT_IN_PIN1_MASK		0x0002	// GP_IN1  bit 1
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 unsigned short initializeBoard(void);
 unsigned long powerUp_Modem_Chipset (unsigned long Chipset);
@@ -26,6 +28,8 @@ unsigned long powerDown_Modem_Chipset (unsigned long Chipset);
 unsigned long pull_Modem_Chipset_out_of_reset(unsigned long Chipset);
 unsigned long put_Modem_Chipset_in_reset(unsigned long Chipset); 
 
+#ifdef __cplusplus
 }	// extern "C"
+#endif
 
 #endif

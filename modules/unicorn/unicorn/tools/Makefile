@@ -24,5 +24,5 @@ clean:
 	rm -f unicorn_status unicorn_status.cgi oam_ping *.o
 
 install: all  
-	$(INSTALL) -s -c unicorn_status $(DESTDIR)$(BINDIR)
-	$(INSTALL) -s -c oam_ping $(DESTDIR)$(BINDIR)
+	$(INSTALL) -c unicorn_status $(DESTDIR)$(BINDIR)
+	$(INSTALL) -c oam_ping $(DESTDIR)$(BINDIR)

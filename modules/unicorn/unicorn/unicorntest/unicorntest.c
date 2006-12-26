@@ -540,10 +540,10 @@ void printGuiString(void)
 	printf(" ----------------------------------------------------------\n\n");
 }
 
-bool InterpretCmdString (char *cmd,ADSL_DEVICE *device)
+BOOLEAN InterpretCmdString (char *cmd,ADSL_DEVICE *device)
 {
 	int err;
-	static bool MSW_INIT = FALSE;
+	static BOOLEAN MSW_INIT = FALSE;
 	int i;
 
 	if (strcmp(cmd,"HELP") == 0)

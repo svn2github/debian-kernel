@@ -47,9 +47,9 @@
 #define HAVE_LC_MESSAGES 1
 #define HAVE_STPCPY 1
 /* #undef HAVE_LIBSM */
-#define PACKAGE_LOCALE_DIR "/usr/local/share/locale"
-#define PACKAGE_DATA_DIR "/usr/local/share/bewan_adsl_status"
-#define PACKAGE_SOURCE_DIR "/home/fisaksen/src/unicorn/adsl_status"
+#define PACKAGE_LOCALE_DIR "/usr/share/locale"
+#define PACKAGE_DATA_DIR "/usr/share/bewan_adsl_status"
+#define PACKAGE_SOURCE_DIR "/local/home/rzr/home/src/unicorn/unicorn/unicorn/adsl_status"
 
 /* Define if you have the __argz_count function.  */
 #define HAVE___ARGZ_COUNT 1

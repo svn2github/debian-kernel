@@ -4,8 +4,10 @@
   Analog Front End (AFE).
   This file contains the USB specific routines.
 */
-#include <linux/config.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,18)
+#	include <linux/config.h>
+#endif
 #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #include <linux/modversions.h>
 #endif
@@ -380,7 +382,7 @@ static void atm_send_complete(struct unicorn_dev *dev)
 //----------------------------------------------------------------------
 //	ATM US transfer complete
 //----------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void AtmUsXferComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void AtmUsXferComplete(struct urb *urb)
@@ -430,7 +432,7 @@ static void StartAtmUsXfer(struct unicorn_dev *dev,int turn,unsigned char *buffe
 //----------------------------------------------------------------------
 //	ATM DS transfer complete
 //----------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void AtmDsXferComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void AtmDsXferComplete(struct urb *urb)
@@ -890,7 +892,7 @@ static void ObcCmdCompletion(struct unicorn_dev *dev)
 //----------------------------------------------------------------------
 //	Interrupt In pipe completion routine
 //----------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void IntInComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void IntInComplete(struct urb *urb)
@@ -1374,7 +1376,7 @@ static ST_STATUS WaitForObcCmdComplete(struct unicorn_dev *dev)
 //-----------------------------------------------------------------------------
 // ObcWriteIsocComplete:
 //-----------------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void ObcWriteIsocComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void ObcWriteIsocComplete(struct urb *urb)
@@ -1400,7 +1402,7 @@ static void ObcWriteIsocComplete(struct urb *urb)
 //-----------------------------------------------------------------------------
 // ObcWriteIntComplete:
 //-----------------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void ObcWriteIntComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void ObcWriteIntComplete(struct urb *urb)
@@ -1427,7 +1429,7 @@ static void ObcWriteIntComplete(struct urb *urb)
 //-----------------------------------------------------------------------------
 // ObcReadIsocComplete:
 //-----------------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void ObcReadIsocComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void ObcReadIsocComplete(struct urb *urb)
@@ -1468,7 +1470,7 @@ static void ObcReadIsocComplete(struct urb *urb)
 //-----------------------------------------------------------------------------
 // ObcReadIntComplete:
 //-----------------------------------------------------------------------------
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19))
 static void ObcReadIntComplete(struct urb *urb,struct pt_regs *pt_regs)
 #else
 static void ObcReadIntComplete(struct urb *urb)
@@ -2289,39 +2291,32 @@ static struct usb_driver unicorn_usb_driver = {
 };
 
 /* module parameters for MSW */
-MODULE_PARM(ActivationMode, "i");
-//MODULE_PARM(ActivationTaskTimeout, "i");
-MODULE_PARM(ActTimeout, "i");
-MODULE_PARM(AutoActivation, "i");
-//MODULE_PARM(BreakOnEntry, "i");
-MODULE_PARM(DownstreamRate, "i");
-MODULE_PARM(eocTrace, "i");
-MODULE_PARM(ExchangeDelay, "i");
-MODULE_PARM(FmPollingRate, "i");
-MODULE_PARM(g_RefGain, "i");
-MODULE_PARM(g_TeqMode, "i");
-MODULE_PARM(InitTimeout, "i");
-MODULE_PARM(Interoperability, "i");
-MODULE_PARM(LCD_Trig, "i");
-MODULE_PARM(LOS_LOF_Trig, "i");
-MODULE_PARM(LoopbackMode, "i");
-MODULE_PARM(MswDebugLevel, "i");
-MODULE_PARM(RetryTime, "i");
-//MODULE_PARM(setINITIALDAC, "i");
-MODULE_PARM(TrainingDelay, "i");
-//MODULE_PARM(TruncateMode, "i");
-MODULE_PARM(useAFE, "i");
-MODULE_PARM(useRFC019v, "i");
-MODULE_PARM(useRFC029v, "i");
-//MODULE_PARM(useRFC033v, "i");
-MODULE_PARM(useRFC040v, "i");
-MODULE_PARM(useRFC041v, "i");
-//MODULE_PARM(useRFCFixedRate, "i");
-MODULE_PARM(useVCXO, "i");
-MODULE_PARM(_no_TS652, "i");
-//MODULE_PARM(FrameNumber, "i");
+module_param(ActivationMode, ulong, 0);
+module_param(ActTimeout, ulong, 0);
+module_param(AutoActivation, ulong, 0);
+module_param(DownstreamRate, ulong, 0);
+module_param(eocTrace, ulong, 0);
+module_param(ExchangeDelay, ulong, 0);
+module_param(FmPollingRate, ulong, 0);
+module_param(g_RefGain, ulong, 0);
+module_param(g_TeqMode, ushort, 0);
+module_param(InitTimeout, ulong, 0);
+module_param(Interoperability, ulong, 0);
+module_param(LCD_Trig, ulong, 0);
+module_param(LOS_LOF_Trig, ulong, 0);
+module_param(LoopbackMode, ulong, 0);
+module_param(MswDebugLevel, ulong, 0);
+module_param(RetryTime, ulong, 0);
+module_param(TrainingDelay, ulong, 0);
+module_param(useAFE, ulong, 0);
+module_param(useRFC019v, ulong, 0);
+module_param(useRFC029v, ulong, 0);
+module_param(useRFC040v, ulong, 0);
+module_param(useRFC041v, ulong, 0);
+module_param(useVCXO, ulong, 0);
+module_param(_no_TS652, ulong, 0);
 #if DEBUG
-MODULE_PARM(DebugLevel, "i");
+module_param(DebugLevel, ulong, 0);
 #endif
 
 //----------------------------------------------------------------------

@@ -5,8 +5,10 @@
   This file contain the rAPI(reduced API) functions.
   rAPI is the interface between the Modem SW and the Operating System (here Linux).
 */
-#include <linux/config.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,18)
+#	include <linux/config.h>
+#endif
 #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #include <linux/modversions.h>
 #endif
@@ -201,7 +203,7 @@ __cxa_pure_virtual(void)
 	WARN("__cxa_pure_virtual called\n");
 }
 
-#if __GNUC__ >= 3
+#if __GNUC__ >= 3 && defined(__cplusplus)
 extern void
  __builtin_delete(void *ptr)
 {
@@ -922,7 +924,7 @@ DWORD xt_start(
 #endif
 	// Hack to try to make it work on SMP !!!!
 	// Lock the threads to CPU #0
-	set_cpus_allowed(k->thread,CPU_MASK_CPU0);
+	//set_cpus_allowed(k->thread,CPU_MASK_CPU0);
 #endif
 	return SUCCESS;	
 }

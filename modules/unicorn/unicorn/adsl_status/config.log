@@ -23,7 +23,7 @@ configure:1244: checking how to run the C preprocessor
 configure:1324: checking for ANSI C header files
 configure:1478: checking for gtk-config
 configure:1513: checking for GTK - version >= 1.2.0
-configure:1614: gcc -o conftest -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include   conftest.c -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm  1>&5
+configure:1614: gcc -o conftest -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include   conftest.c -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm  1>&5
 configure:1700: checking for inttypes.h
 configure:1735: checking for stdint.h
 configure:1770: checking for unsigned long long

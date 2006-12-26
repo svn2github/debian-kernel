@@ -16,7 +16,7 @@ SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = ..
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -66,9 +66,9 @@ DATADIRNAME = share
 GENCAT = gencat
 GLIBC21 = yes
 GMSGFMT = /usr/bin/msgfmt
-GTK_CFLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
+GTK_CFLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 GTK_CONFIG = /usr/bin/gtk-config
-GTK_LIBS = -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
+GTK_LIBS = -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
 HAVE_LIB = @HAVE_LIB@
 INSTOBJEXT = .mo
 INTLBISON = bison
@@ -81,7 +81,7 @@ LIBINTL =
 LTLIB = @LTLIB@
 LTLIBICONV = 
 LTLIBINTL = 
-MAKEINFO = makeinfo
+MAKEINFO = /local/home/rzr/home/src/unicorn/unicorn/unicorn/adsl_status/missing makeinfo
 MKINSTALLDIRS = ./mkinstalldirs
 PACKAGE = bewan_adsl_status
 POSUB = po
@@ -90,7 +90,7 @@ USE_INCLUDED_LIBINTL = no
 USE_NLS = yes
 VERSION = 0.1
 
-INCLUDES =          -I../../amu -I../../include/ 	-I$(top_srcdir)/intl 	-I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
+INCLUDES =          -I../../amu -I../../include/ 	-I$(top_srcdir)/intl 	-I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 
 bin_PROGRAMS = bewan_adsl_status
@@ -98,7 +98,7 @@ bin_PROGRAMS = bewan_adsl_status
 bewan_adsl_status_SOURCES =  	main.c 	support.c support.h 	interface.c interface.h 	callbacks.c callbacks.h 	status.h 	status.c
 
 
-bewan_adsl_status_LDADD = -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm $(INTLLIBS)
+bewan_adsl_status_LDADD = -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm $(INTLLIBS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

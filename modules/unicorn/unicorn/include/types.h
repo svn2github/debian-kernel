@@ -29,9 +29,6 @@ typedef char *PSTR, FAR *LPSTR;
 typedef const char *PCSTR, FAR *LPCSTR;
 typedef void *PVOID, FAR *LPVOID;
 typedef int BOOLEAN;
-#ifndef __cplusplus
-typedef int bool;
-#endif
 
 
 #ifndef MAX

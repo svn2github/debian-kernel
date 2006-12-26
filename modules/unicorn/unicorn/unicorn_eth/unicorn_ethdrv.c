@@ -4,8 +4,10 @@
   ST70134A or ST70136 Analog Front End (AFE).
   This file contains the ethernet interface and SAR routines.
 */
-#include <linux/config.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,18)
+#	include <linux/config.h>
+#endif
 #if defined(CONFIG_MODVERSIONS) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #include <linux/modversions.h>
 #endif
@@ -140,12 +142,12 @@ struct atm_ext_skb_data {
 struct unicorn_ethdrv *unicorn_ethdrv = NULL;
 
 // driver parameters
-static char *if_name = NULL;
-static unsigned char *mac_address=NULL;
+static char if_name[IFNAMSIZ] = { 0x0 };
+static char mac_address[ETH_ALEN*2 + 1] = { 0x0 };
 static int VPI= ATM_VPI_UNSPEC;
 static int VCI= ATM_VCI_UNSPEC;
-static char *PROTOCOL = NULL;
-static char *ENCAPS = NULL;
+static char PROTOCOL[8] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+static char ENCAPS[11] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 #if DEBUG
 #ifdef ETH_DRIVER
 unsigned long DebugLevel=0; // ATM_D,DATA_D
@@ -1355,15 +1357,15 @@ unicorn_eth_tx_timeout(struct net_device *eth_dev)
 	WARN("\n");
 }
 
-MODULE_PARM(if_name,"s");
-MODULE_PARM(mac_address, "s");
-MODULE_PARM(VPI, "i");
-MODULE_PARM(VCI, "i");
-MODULE_PARM(PROTOCOL, "s");
-MODULE_PARM(ENCAPS, "s");
+module_param_string(if_name, if_name, sizeof(if_name), 0);
+module_param_string(mac_address, mac_address, sizeof(mac_address), 0);
+module_param(VPI, int, 0);
+module_param(VCI, int, 0);
+module_param_string(PROTOCOL, PROTOCOL, sizeof(PROTOCOL), 0);
+module_param_string(ENCAPS, ENCAPS, sizeof(ENCAPS), 0);
 #if DEBUG
 #ifdef ETH_DRIVER
-MODULE_PARM(DebugLevel, "i");
+module_param(DebugLevel, ulong, 0);
 #endif
 #endif
 

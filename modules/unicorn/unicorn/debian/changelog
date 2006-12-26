@@ -1,3 +1,10 @@
+unicorn (0.9.3-2) unstable; urgency=low
+
+  * Added gentoo patches for current kernel :
+     - bewan-adsl-0.9.3-patches-20061220.tar.gz
+
+ -- Philippe Coval <rzr@users.sf.net>  Wed, 27 Dec 2006 00:20:00 +0100
+
 unicorn (0.9.3-1) unstable; urgency=low
 
   * New upstream release
