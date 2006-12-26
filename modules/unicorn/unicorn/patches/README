@@ -1,0 +1,5 @@
+The usb-uhci and usb-ohci driver freezes with unicorn usb, because interrupt out
+one-shot transfers are not supported correctly.
+These patches applies to 2.4.21 pre/rc kernels and the kernel suppiled with Mandrake 9.1.
+The patch for Mandrake 9.1 should apply cleanly, however the patch for 2.4.21-xxx may fail.
+In this case, you can do the modification by hand.

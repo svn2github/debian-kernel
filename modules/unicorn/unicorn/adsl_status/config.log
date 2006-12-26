@@ -1,0 +1,89 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:589: checking for non-GNU ld
+configure:624: checking if the linker (/usr/bin/ld) is GNU ld
+configure:673: checking for a BSD compatible install
+configure:726: checking whether build environment is sane
+configure:783: checking whether make sets ${MAKE}
+configure:829: checking for working aclocal-1.4
+configure:842: checking for working autoconf
+configure:855: checking for working automake-1.4
+configure:868: checking for working autoheader
+configure:881: checking for working makeinfo
+configure:900: checking for strerror in -lcposix
+configure:944: checking for gcc
+configure:1057: checking whether the C compiler (gcc  ) works
+configure:1073: gcc -o conftest    conftest.c  1>&5
+configure:1099: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:1104: checking whether we are using GNU C
+configure:1132: checking whether gcc accepts -g
+configure:1167: checking for gcc option to accept ANSI C
+configure:1244: checking how to run the C preprocessor
+configure:1324: checking for ANSI C header files
+configure:1478: checking for gtk-config
+configure:1513: checking for GTK - version >= 1.2.0
+configure:1614: gcc -o conftest -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include   conftest.c -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm  1>&5
+configure:1700: checking for inttypes.h
+configure:1735: checking for stdint.h
+configure:1770: checking for unsigned long long
+configure:1821: checking for shared library run path origin
+configure:1870: checking host system type
+configure:1893: checking for ranlib
+configure:1921: checking for working const
+configure:1996: checking for inline
+configure:2036: checking for off_t
+configure:2069: checking for size_t
+configure:2104: checking for working alloca.h
+configure:2137: checking for alloca
+configure:2339: checking for unistd.h
+configure:2378: checking for getpagesize
+configure:2431: checking for working mmap
+configure:2603: checking whether we are using the GNU C Library 2.1 or newer
+configure:2641: checking whether integer division by zero raises SIGFPE
+configure:2739: checking for inttypes.h
+configure:2778: checking whether the inttypes.h PRIxNN macros are broken
+configure:3206: checking for msgfmt
+configure:3241: checking for gmsgfmt
+configure:3278: checking for xgettext
+configure:3315: checking for msgmerge
+configure:3378: checking for argz.h
+configure:3378: checking for limits.h
+configure:3378: checking for locale.h
+configure:3378: checking for nl_types.h
+configure:3378: checking for malloc.h
+configure:3378: checking for stddef.h
+configure:3378: checking for stdlib.h
+configure:3378: checking for string.h
+configure:3378: checking for unistd.h
+configure:3378: checking for sys/param.h
+configure:3419: checking for feof_unlocked
+configure:3419: checking for fgets_unlocked
+configure:3419: checking for getc_unlocked
+configure:3419: checking for getcwd
+configure:3419: checking for getegid
+configure:3419: checking for geteuid
+configure:3419: checking for getgid
+configure:3419: checking for getuid
+configure:3419: checking for mempcpy
+configure:3419: checking for munmap
+configure:3419: checking for putenv
+configure:3419: checking for setenv
+configure:3419: checking for setlocale
+configure:3419: checking for stpcpy
+configure:3419: checking for strcasecmp
+configure:3419: checking for strdup
+configure:3419: checking for strtoul
+configure:3419: checking for tsearch
+configure:3419: checking for __argz_count
+configure:3419: checking for __argz_stringify
+configure:3419: checking for __argz_next
+configure:3503: checking for iconv
+configure:3578: checking for iconv declaration
+configure:3627: checking for nl_langinfo and CODESET
+configure:3663: checking for LC_MESSAGES
+configure:3702: checking for bison
+configure:3735: checking version of bison
+configure:3764: checking whether NLS is requested
+configure:3788: checking whether included gettext is requested
+configure:3808: checking for GNU gettext in libc

@@ -1,0 +1,10 @@
+--- drivers/usb/usb-uhci.c.orig	2003-04-16 15:39:04.000000000 +0200
++++ drivers/usb/usb-uhci.c	2003-04-16 15:39:56.000000000 +0200
+@@ -2628,6 +2628,7 @@
+ 				// correct toggle after unlink
+ 				usb_dotoggle (urb->dev, usb_pipeendpoint (urb->pipe), usb_pipeout (urb->pipe));
+ 				clr_td_ioc(desc); // inactivate TD
++				break;
+ 			}
+ 		}
+ 	}

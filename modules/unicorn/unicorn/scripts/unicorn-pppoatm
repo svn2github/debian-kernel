@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# set to correct product (USB or PCI)
+UNICORN="unicorn_pci_atm"
+#UNICORN="unicorn_usb_atm"
+
+# default VPI, VCI and encapsulation
+VPI=8
+VCI=35
+
+# ANSI=1,G.lite=2,MULTI=3,G.dmt=4,
+MODULATION=1
+
+# pppd version 2.4.0b2 patched
+#PPPD="/usr/src/ppp-2.4.0b2/pppd/pppd"
+#PLUGIN="/usr/lib/pppd/plugins/pppoatm.so"
+
+# pppd version 2.4.1
+PPPD="/usr/sbin/pppd"
+PLUGIN="/usr/lib/pppd/2.4.1/pppoatm.so"
+
+RETVAL=0
+
+stop() {
+    killproc $PPPD >/dev/null 2>&1
+    /sbin/modprobe -r $UNICORN >/dev/null 2>&1
+}
+
+start() {
+    /sbin/modprobe pppoatm
+    [ ! "$?" = 0 ] && return $?
+    /sbin/modprobe $UNICORN ActivationMode=$MODULATION >/dev/null 2>&1
+    [ ! "$?" = 0 ] && return $?
+    sleep 10
+    $PPPD plugin $PLUGIN $VPI.$VCI
+    [ ! "$?" = 0 ] && return $?
+    return 0
+}
+
+echo -n "$1 $UNICORN $PROTOCOL $VPI.$VCI $ENCAPS"
+
+case "$1" in
+    stop)
+	stop
+	;;
+    
+    start)
+	start
+	;;	
+    
+    restart)
+	stop
+	start
+	;;
+    
+    *)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+RETVAL=$?
+if [ $RETVAL = 0 ]; then
+    echo_success
+else 
+    echo_failure
+fi
+echo
+exit $RETVAL

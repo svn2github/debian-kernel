@@ -1,0 +1,526 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR BeWAN systems
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2003-03-10 15:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/interface.c:215 strings.c:7
+msgid "BeWAN ADSL"
+msgstr ""
+
+#: src/interface.c:234 strings.c:8
+msgid "Actual bit rate (Kbps)"
+msgstr ""
+
+#: src/interface.c:252 strings.c:9
+msgid "Far End Fast Channel:"
+msgstr ""
+
+#: src/interface.c:264 strings.c:10
+msgid "Near End Interleaved Channel:"
+msgstr ""
+
+#: src/interface.c:276 strings.c:11
+msgid "Far End Interleaved Channel:"
+msgstr ""
+
+#: src/interface.c:288 strings.c:12
+msgid "Near End Fast Channel:"
+msgstr ""
+
+#: src/interface.c:348 strings.c:13
+msgid "Line State"
+msgstr ""
+
+#: src/interface.c:366 strings.c:14
+msgid "Start"
+msgstr ""
+
+#: src/interface.c:376 strings.c:15
+msgid "Stop"
+msgstr ""
+
+#: src/interface.c:399 src/interface.c:1853 strings.c:16 strings.c:81
+msgid "\n"
+msgstr ""
+
+#: src/interface.c:435 strings.c:18
+msgid "Remote report:"
+msgstr ""
+
+#: src/interface.c:447 strings.c:19
+msgid "Last failure:"
+msgstr ""
+
+#: src/interface.c:459 strings.c:20
+msgid "Time connected:"
+msgstr ""
+
+#: src/interface.c:471 strings.c:21
+msgid "Modem state:"
+msgstr ""
+
+#: src/interface.c:493 strings.c:22
+msgid "State"
+msgstr ""
+
+#: src/interface.c:509 strings.c:23
+msgid "Power"
+msgstr ""
+
+#: src/interface.c:537 strings.c:24
+msgid "SNR"
+msgstr ""
+
+#: src/interface.c:549 strings.c:25
+msgid "Echo+Noise"
+msgstr ""
+
+#: src/interface.c:561 strings.c:26
+msgid "Rx Path"
+msgstr ""
+
+#: src/interface.c:573 strings.c:27
+msgid "Operational Data"
+msgstr ""
+
+#: src/interface.c:591 strings.c:28
+msgid "UpStream"
+msgstr ""
+
+#: src/interface.c:649 strings.c:29
+msgid "Capacity Occupation (%)"
+msgstr ""
+
+#: src/interface.c:661 strings.c:30
+msgid "Noise Margin (dB)"
+msgstr ""
+
+#: src/interface.c:673 strings.c:31
+msgid "Output Power (dBm)"
+msgstr ""
+
+#: src/interface.c:685 strings.c:32
+msgid "DownStream"
+msgstr ""
+
+#: src/interface.c:743 strings.c:33
+msgid "Attenuation (dB)"
+msgstr ""
+
+#: src/interface.c:755 src/interface.c:1781 strings.c:34 strings.c:76
+msgid "Modulation:"
+msgstr ""
+
+#: src/interface.c:778 strings.c:35
+msgid "Line"
+msgstr ""
+
+#: src/interface.c:794 strings.c:36
+msgid "Fast Channel Error Counters"
+msgstr ""
+
+#: src/interface.c:812 src/interface.c:974 strings.c:37 strings.c:43
+msgid "Local"
+msgstr ""
+
+#: src/interface.c:866 src/interface.c:1028 strings.c:38 strings.c:44
+msgid "Distant"
+msgstr ""
+
+#: src/interface.c:920 src/interface.c:1082 strings.c:39 strings.c:45
+msgid "Forward Error Corrections (FEC)"
+msgstr ""
+
+#: src/interface.c:932 src/interface.c:1094 strings.c:40 strings.c:46
+msgid "Cyclic Redundancy Checks (CRC)"
+msgstr ""
+
+#: src/interface.c:944 src/interface.c:1106 strings.c:41 strings.c:47
+msgid "Cyclic Header Error Check (HEC)"
+msgstr ""
+
+#: src/interface.c:956 strings.c:42
+msgid "Interleaved Channel Error Counters"
+msgstr ""
+
+#: src/interface.c:1118 strings.c:48
+msgid "Errors"
+msgstr ""
+
+#: src/interface.c:1134 strings.c:49
+msgid "Near End Defects Detected"
+msgstr ""
+
+#: src/interface.c:1162 src/interface.c:1344 strings.c:50 strings.c:56
+msgid "Loss of Margin (LoM)"
+msgstr ""
+
+#: src/interface.c:1241 src/interface.c:1475 strings.c:51 strings.c:59
+msgid "Loss of Signal (LoS)"
+msgstr ""
+
+#: src/interface.c:1253 src/interface.c:1394 strings.c:52 strings.c:57
+msgid "Loss of Power (LoP)"
+msgstr ""
+
+#: src/interface.c:1265 src/interface.c:1406 strings.c:53 strings.c:58
+msgid "Loss of Frame (LoF)"
+msgstr ""
+
+#: src/interface.c:1277 src/interface.c:1487 strings.c:54 strings.c:60
+msgid "Loss of Cell Delineation (LoCD)"
+msgstr ""
+
+#: src/interface.c:1307 strings.c:55
+msgid "Far End Defects detected"
+msgstr ""
+
+#: src/interface.c:1499 strings.c:61
+msgid "Dying Gasp message received"
+msgstr ""
+
+#: src/interface.c:1511 strings.c:62
+msgid "Defects"
+msgstr ""
+
+#: src/interface.c:1527 strings.c:63
+msgid "ATM maintenance indicators (OAM-F5)"
+msgstr ""
+
+#: src/interface.c:1565 src/interface.c:1805 strings.c:64 strings.c:78
+msgid "VCI:"
+msgstr ""
+
+#: src/interface.c:1577 strings.c:65
+msgid "Reset Counters"
+msgstr ""
+
+#: src/interface.c:1587 strings.c:66
+msgid "Receive counters"
+msgstr ""
+
+#: src/interface.c:1605 strings.c:67
+msgid "Remote Defect Indication cells (RDI):"
+msgstr ""
+
+#: src/interface.c:1617 strings.c:68
+msgid "Alarm Indication Signal cells (AIS):"
+msgstr ""
+
+#: src/interface.c:1629 strings.c:69
+msgid "Far-end loopback cells (LB):"
+msgstr ""
+
+#: src/interface.c:1641 strings.c:70
+msgid "Near-end loopback cells (LB):"
+msgstr ""
+
+#: src/interface.c:1653 strings.c:71
+msgid "Continuity Check cells (CC):"
+msgstr ""
+
+#: src/interface.c:1725 strings.c:72
+msgid "Generate looback cells (OAM-F5 LB cells)"
+msgstr ""
+
+#: src/interface.c:1735 src/interface.c:1793 strings.c:73 strings.c:77
+msgid "VPI:"
+msgstr ""
+
+#: src/interface.c:1747 strings.c:74
+msgid "Test"
+msgstr ""
+
+#: src/interface.c:1763 strings.c:75
+msgid "Installed Profile"
+msgstr ""
+
+#: src/interface.c:1817 strings.c:79
+msgid "Encapsulation:"
+msgstr ""
+
+#: src/interface.c:1829 strings.c:80
+msgid "Protocol:"
+msgstr ""
+
+#: src/interface.c:1901 strings.c:83
+msgid "Config"
+msgstr ""
+
+#: src/interface.c:1917 strings.c:84
+msgid "ADSL Package Information"
+msgstr ""
+
+#: src/interface.c:1935 strings.c:85
+msgid "Package Name:"
+msgstr ""
+
+#: src/interface.c:1947 strings.c:86
+msgid "Package Version:"
+msgstr ""
+
+#: src/interface.c:1959 strings.c:87
+msgid "Firmware Version:"
+msgstr ""
+
+#: src/interface.c:1971 strings.c:88
+msgid "Manufacturer:"
+msgstr ""
+
+#: src/interface.c:1983 strings.c:89
+msgid "Copyright:"
+msgstr ""
+
+#: src/interface.c:2055 strings.c:90
+msgid "Far End Modem Identification"
+msgstr ""
+
+#: src/interface.c:2073 strings.c:91
+msgid "ITU Revision Number:"
+msgstr ""
+
+#: src/interface.c:2085 strings.c:92
+msgid "Vendor Specific Info:"
+msgstr ""
+
+#: src/interface.c:2097 strings.c:93
+msgid "Vendor Country Code:"
+msgstr ""
+
+#: src/interface.c:2142 strings.c:94
+msgid "Vendor Code:"
+msgstr ""
+
+#: src/interface.c:2175 strings.c:95
+msgid "Info"
+msgstr ""
+
+#: src/support.c:121
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr ""
+
+#: src/support.c:130
+#, c-format
+msgid "Error loading pixmap file: %s"
+msgstr ""
+
+#: src/status.c:123
+msgid "IDLE"
+msgstr ""
+
+#: src/status.c:124
+msgid "L3"
+msgstr ""
+
+#: src/status.c:125
+msgid "LISTENING"
+msgstr ""
+
+#: src/status.c:126
+msgid "ACTIVATING"
+msgstr ""
+
+#: src/status.c:127
+msgid "Ghs_HANDSHAKING"
+msgstr ""
+
+#: src/status.c:128
+msgid "ANSI_HANDSHAKING"
+msgstr ""
+
+#: src/status.c:129
+msgid "INITIALIZING"
+msgstr ""
+
+#: src/status.c:130
+msgid "RESTARTING"
+msgstr ""
+
+#: src/status.c:131
+msgid "FAST_RETRAIN"
+msgstr ""
+
+#: src/status.c:132
+msgid "SHOWTIME_L0"
+msgstr ""
+
+#: src/status.c:133
+msgid "SHOWTIME_LQ"
+msgstr ""
+
+#: src/status.c:134
+msgid "SHOWTIME_L1"
+msgstr ""
+
+#: src/status.c:135
+msgid "EXCHANGE"
+msgstr ""
+
+#: src/status.c:136
+msgid "TRUNCATE"
+msgstr ""
+
+#: src/status.c:137
+msgid "ESCAPE"
+msgstr ""
+
+#: src/status.c:138
+msgid "RETRY"
+msgstr ""
+
+#: src/status.c:139
+msgid "DISORDERLY"
+msgstr ""
+
+#: src/status.c:140 src/status.c:160 src/status.c:185 src/status.c:195
+msgid " "
+msgstr ""
+
+#: src/status.c:147
+msgid "Peer ATU Found"
+msgstr ""
+
+#: src/status.c:148
+msgid "Restart Request"
+msgstr ""
+
+#: src/status.c:149
+msgid "Activation Request"
+msgstr ""
+
+#: src/status.c:150
+msgid "Initializing"
+msgstr ""
+
+#: src/status.c:151
+msgid "Showtime"
+msgstr ""
+
+#: src/status.c:152
+msgid "L3 Executed"
+msgstr ""
+
+#: src/status.c:153
+msgid "L3 Rejected"
+msgstr ""
+
+#: src/status.c:154
+msgid "L1 Executed"
+msgstr ""
+
+#: src/status.c:155
+msgid "L1 Rejected"
+msgstr ""
+
+#: src/status.c:156
+msgid "L0 Rejected"
+msgstr ""
+
+#: src/status.c:157
+msgid "Restart Acceptable"
+msgstr ""
+
+#: src/status.c:158
+msgid "Suicide Request"
+msgstr ""
+
+#: src/status.c:159
+msgid "Restart Not Acceptable"
+msgstr ""
+
+#: src/status.c:167
+msgid "Uncompatible Line Conditions"
+msgstr ""
+
+#: src/status.c:168
+msgid "No Lock Possible"
+msgstr ""
+
+#: src/status.c:169
+msgid "Protocol Error"
+msgstr ""
+
+#: src/status.c:170
+msgid "Message Error"
+msgstr ""
+
+#: src/status.c:171
+msgid "Spurious ATU Detected"
+msgstr ""
+
+#: src/status.c:172
+msgid "Requested Bit Rate Too High"
+msgstr ""
+
+#: src/status.c:173
+msgid "Interleaved Profile Required for LITE"
+msgstr ""
+
+#: src/status.c:174
+msgid "Forced Silence"
+msgstr ""
+
+#: src/status.c:175
+msgid "Unselectable Operation Mode"
+msgstr ""
+
+#: src/status.c:176
+msgid "State Refused By Golden"
+msgstr ""
+
+#: src/status.c:177
+msgid "Activation Timeout"
+msgstr ""
+
+#: src/status.c:178
+msgid "Initialization Timeout"
+msgstr ""
+
+#: src/status.c:179
+msgid "Bringing Down Line due to persistent faults"
+msgstr ""
+
+#: src/status.c:180
+msgid "Retry"
+msgstr ""
+
+#: src/status.c:181
+msgid "Unknown"
+msgstr ""
+
+#: src/status.c:182
+msgid "Unknown failure"
+msgstr ""
+
+#: src/status.c:183 src/status.c:1093
+msgid "No hardware detected"
+msgstr ""
+
+#: src/status.c:184
+msgid "USB bandwidth unavailable"
+msgstr ""
+
+#: src/status.c:192
+msgid "ANSI"
+msgstr ""
+
+#: src/status.c:193
+msgid "G.lite"
+msgstr ""
+
+#: src/status.c:194
+msgid "G.dmt"
+msgstr ""

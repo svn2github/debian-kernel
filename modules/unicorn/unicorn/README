@@ -1,0 +1,441 @@
+INTRODUCTION:
+
+The software for the UNICORN ADSL PCI card consists of two loadable drivers, 
+the unicorn_atm.o and unicorn_pci.o. The unicorn driver is a standard Linux 
+ATM driver, that performs segmentation and reassembly (SAR) and flow control.
+The unicorn_pci driver contains the ADSL modem software and hardware related
+functions. It has been tested with the Linux 2.4.x kernels. Note that to use
+PPPoE, PPPoA or RFC2684 protocols, the kernel may need to be patched.
+
+COMPILATION:
+
+To compile the drivers, unzip and untar the file. In the unicorn directory you 
+will find the two subdirectories unicorn_atm and unicorn_bus.
+You may compile the drivers based on the include files in the kernel source
+or standard kernel include files. Set the variable KERNELDIR in the Makefile's
+to point to your kernel sources if the first option in chosen. 
+If you choose the latter, you may need to copy the contents of the kernel 
+source "include/net" directory into "/usr/include/net/".
+Go into these subdirectories and do a "make" and a "make install".
+If the compile option "USE_HW_TIMER" is set, the performance is increased, 
+but the CPU load increased. 
+Use the same compiler as you use when compiling the linux kernel. The driver has
+been tested using gcc-2.96, gcc-2.95.2, gcc-2.91.66, gcc 3.0.3 gcc 3.4, gcc 4.
+
+
+INSTALLATION:
+
+To start the ADSL software, do a "modprobe unicorn_pci". Check in the syslog that
+the drivers are started OK. The ADSL line should come up automatically. The status
+can also be checked using the "proc" interface (/proc/net/atm/UNICORN\:0". 
+SHOWTIME in the log or in the status means that ADSL connction is up and ATM cells
+may be transmitted and received.
+Depending on your network setup, you will need additional software as with any other
+ADSL ATM card. For bridged ethernet (RFC2684), the br2684.o module and brctl is needed.
+For PPPoE, any pppoe client over the bridged interface (nas0) should work 
+(Roaring Penguin pppoe client has been tested).
+The scripts directory contains some example startup scripts.
+
+Bridged (RFC2684) and PPP over Ethernet:
+Depending on your kernel, you may need to patch the kernel and enable the option
+"RFC1483/2684 Bridged protcols" under "Networking options". Also ATM support needs
+to be enabled.
+Also the user space daemon "brctl" is needed. Instructions on how to apply the
+patch and the brctl and patch sources can be found at http://www.zoftware.org/adsl-pppoe.
+
+PPP over ATM:
+For PPP over ATM, the module pppoatm.o is needed, together with the pppd plugin
+pppoatm.so and a version of pppd that supports plugins.
+Currently version ppp-2.4.0b2 supports PPPoATM plugins. A patched version ready for
+PPPoATM can be found at http://www.sourceforge.net/.
+
+PPPoATM specific pppd options:
+llc-encaps: use LLC encapsulation for PPPoATM
+vc-encaps: use VC multiplexing for PPPoATM (default)
+
+
+MODULE PARAMETERS:
+
+Some ADSL paramters can be controlled by setting the moule paramters.
+
+unicorn_pci.o:
+--------------
+
+ActTimeout: Timeout in ms on the duration of the activation state.
+
+ActivationMode: This parameter sets in what mode the ADSL modem should be activated.
+ANSI mode is 1, G.lite is 2, G.dmt is 4 and MULTI mode is 3.
+If you know what mode your DSLAM operates in, use this mode. If not select either
+ANSI or MULTI mode.
+
+DownstreamRate: The maximum downstream rate in Kbit/sec.
+
+AutoActivation: Set this to 1 if you your ADSL modem to start auotmatically (default 1).
+
+DebugLevel: To debug the driver, set this to a value different from 0 and enable DEBUG
+when compiling.
+
+MswDebugLevel: 0 - High level, all traces enabled, 1 - Medium level, info and warnings
+enabled, 2 - Low level, only warnings and errors are traced. 
+
+LCD_Trig: Persistency time (in msec) of Loss of Cell Deliniation defects before
+disorderly shutdown (15000 default).
+
+LCD_LOF_Trig: Persistency time (in msec) of Loss of Signal and Loss of Frame defects before
+disorderly shutdown (5000 default). 
+
+TrainingDelay: Delay in msec used in training sequence. Default 80.
+
+useRFCFixedRate: If 1, rate adaptive disabled. To use with ECI DSLAM in ITU mode.
+
+_no_TS652: If set to 1, enable gain table for use without TS652.
+
+unicorn_atm.o:
+--------------
+
+mac_address: If this is specified, the bridged ethernet (RFC2684) will use this
+mac (ethernet) address instead of a randomly generated address. Specified as a 
+12 character ASCII string of hexadecimal numbers.
+
+atmready_timeout: The time in seconds to wait for ADSL link up when opening the ATM
+socket (default 20 seconds).
+
+DebugLevel: Set this if you need to debug the driver.
+
+DIV:
+
+mswtest contains a simple program to start/stop and get statistics from the ADSL card.
+Depending on your distribution, you may need to install atm support (atm-2.4.0) to
+compile this program.
+
+RELEASE NOTES:
+
+Version 0.0.5: 
+- first working version.
+
+Version 0.0.6: 
+- Corrected an error when performing shutdown of the machine. 
+- The modem sw compiled with CPU option 386. 
+- Cleanups in the Makefile's.
+- Removed un-compiled code in the ATM driver.
+
+Version 0.0.7:
+- Internal version.
+
+Version 0.0.8:
+- Simplified the Makefile's.
+
+Version 0.0.9:
+- Locking the module (MOD_INC_USE_COUNT) in unicorn_atm_open to be sure that module is
+not removed while in use.
+- New version of modem software.
+
+Version 0.1.0:
+- New modem software (1.0.7D) with fixes for ECI DSLAMs.
+- The ActivationMode parameter values has changed. Please update your scripts !
+
+Version 0.1.1:
+- Added the _assert_fail function in linrapi.c to support certain versions of 
+libm.a.
+- Fixed a bug where timer structures were allocated but never released that may
+cause failures after several hours of operation.
+- Cleaned up and added debug code to memory allocation functions is linrapi.c.
+
+Version 0.1.2:
+- Initialize timer structure in xsm_create to avoid error when unloading driver.
+- Conditionally call complete_and_exit depending on kernel version.
+
+Version 0.1.3:
+- New modem software (1.0.7E) with fixes for ECI DSLAMs.
+- Test program (cmdtest) added.
+ 
+Version 0.2.0:
+- New modem software (1.0.7e-B-LINUX) that fixes the interoperability problems with ECI DSLAMs
+and works in G.dmt mode.
+- A kernel panic when halting the machine has been fixed.
+- The OBC semaphore in the PCI_xxx functions is only released after PCI bus read.
+- Added C++ support for gcc 3.0.
+
+Version 0.2.1:
+- Using xtime instead of get_fast_time(), since this function is not longer
+exported in kernel 2.4.18.
+
+Version 0.2.2:
+- Using del_timer instead of del_timer_sync. This version works with SMP enabled.
+- More tracing of MSW parameters.
+- Removed some compiler warnings in unicorn_atm.
+- New modem software (PCI_1.0.7f).
+
+Version 0.2.3:
+- Return an error in unicorn_atm_send if ADSL link is down. This avoids a kernel freeze with pppd.
+- Add a prefix to KERN_INFO log messages.
+- The "pilot tracking error" is a PRINT_WARNING instead of PRINT_ERROR.
+
+Version 0.2.4:
+- Set the PCI DMA access grant timeout to maximum to avoid a problem on ASUS motherboards.
+- Use the writel/readl macros to access PCI registers.
+- Modem software with UseVCXO to 0 as default in order to connect in ANSI mode.
+- Fix a problem detecting linux version.
+- Renamed the "cmdtest" folder to "unicorntest".
+
+Version 0.2.6:
+- The upstream cell rate calculation has been fixed. The actual link rate should now be quite close
+to the theoretical max. This is very important for low speed links.
+- New modem software (1.0.7i2).
+
+Version 0.2.7:
+- Ooops, forgot some debug code in unicorn_atmdrv.c.
+
+Version 0.2.8:
+- Undefined symbol fwrite when using a certain version of libm.a.
+
+Version 0.2.9:
+- Cleanups due to porting to PowerPC.
+- In timer_callback, restart timer before put_msg to avoid race condition (and kernel panic).
+- Make the driver ready for ST70136 AFE.
+- OBC timer increased to 250ms.
+
+Version 0.3.0:
+- Removed a syslog when calling xtm_stopmsgtimer with invalid timer.
+- Do not modify nice value, since the task_struct is dependent on the kernel version.
+
+Version 0.3.1:
+- Changed the values of the DMA max burst size.
+- Modifications to Makefile.
+
+
+Version 0.3.2:
+- The modem software used by default is the 1.07f version, since this has proved to
+be the most stable. This can be changed in the Makefile if needed.
+- There was a divide by zero panic if the HZ was greater than 1000.
+- Modifications to Makefile.
+
+Version 0.3.3:
+- Setting the PCI latency timer to 255 (correctly this time..).
+
+Version 0.3.4:
+- Remove #include <libiberty.h> from collect_tors.c
+- DBG macro changed to KERN_DEBUG log level.
+
+Version 0.3.5:
+- New modem software (1.0.8) that works with Alcatel DSLAM v 4.2.13.
+- Using mutex'es to protect access to OBC.
+- Compile options moved to Makefile's.
+
+Version 0.3.6:
+- Implemented retry in the OBC access functions.
+- Do not return error if not SHOWTIME in unicorn_atm_open (compile option).
+- The compile option USE_HW_TIMER not defined by default.
+
+Version 0.3.8:
+- First working version of USB driver. It only works with the "uhci" host controller driver.
+- Some small fixes in unicorn_atmdrv.c to correctly display the link speed.
+- Included the libm.a with the modem SW library, since this library is not installed on some recent Linux distributions.
+- Simplified the Makefile's and moved the binaries into the arc/i386 subfolder. 
+
+Version 0.3.9:
+- First version that works with usb-uhci driver. In this case FrameNumber=12 must be passed as module parameter.
+- Added a script to establish Routed IP over ATM connections. Note that this script has not been tested.
+
+Version 0.4.0:
+- Automatically detect the type of USB Host Controller driver and set FrameNumber accordingly.
+- New version (1.0.9) of modem software with new pilot tone detection algorithm.
+- Use INT instead of OBC ISOC usb pipes in SHOWTIME.
+
+Version 0.4.1:
+- The USB bandwidth needed reduced from 90% to about 30% (512Kbits downstream).
+- The driver is now ready for cards and adapters with new Analog Front Ends (20174).
+
+Version 0.4.2:
+- Licence added.
+
+Version 0.4.3:
+- The unicorn_usbdrv.c now compiles with kernel 2.4.20.
+
+Version 0.4.4:
+- Wrong fix in unicorn_usbdrv.c with kernel 2.4.20.
+- Removed a few warning printks that are not really errors.
+
+Version 0.4.5:
+- Another wrong fix in unicorn_usbdrv.c with kernel 2.4.20.
+- Ignoring errors in USB Interrupt Read if length is OK.
+
+Version 0.4.7:
+- Added support for AAL0 (raw) cells.
+- Added a few ioctl's for the status application (coming later).
+- The modem software library has been patched to remove strings containing "gcc2_copmpiled".
+The driver now loads correctly on RedHat 8.0.
+- The floating point library libm.a is no longer in the package. Please install it if with
+your distribution (Mandrake 9.0) it is not installed. It is normally in /usr/lib/.
+- There are two transmit queues with different priorities. This is in order to add support
+for CBR,VBR streams. This is very preliminary and if you have any comment, please contact me.
+
+Version 0.4.8:
+- New graphical application "bewan_adsl_status" that shows the adsl state.
+- Automatic detection of of adsl parameters using TR-037 or trial and error ("adsl-autoconfig").
+- New start/stop script ("unicorn-adsl") that is using adsl-autoconfig.
+
+Version 0.5.0:
+- The source for the graphical application "bewan_adsl_status" included.
+- New top-level Makefiles. To build the complete package, go to unicorn and type:
+make,make install, make -f Makefile.modules, make -f Makefile.modules install.
+- New modem software library compiled with GCC3.
+- Correctly handing module versioning.
+
+Version 0.5.1:
+- C++ stubs added that was needed if the modules are compiled with GCC 2.
+- Changes in the Makefile's, it now checks the PCI register and if there is a unicorn PCI card, 
+it builds the PCI module else the USB module is built. 
+
+Version 0.5.2:
+- French localization of bewan_adsl_status finished.
+- The unlock_kernel is now called before running the kernel thread.
+- Some changes in the Makefile's. If you have both PCI and USB adapters, you can force building
+the USB adapter by: make -f Makefile.modules pci install_pci
+
+Version 0.5.3:
+- Patches against the latest kernels in "patches" directory.
+- Small fix in adsl-autoconfig to not write the config file if VPI,VCI not found.
+- README for adsl-autoconfig added.
+
+Version 0.5.4:
+- Small modification in unicorntest.
+- Small modification in unicorn_atmdrv.c to make it compile on new kernels.
+
+Version 0.5.5:
+- Script unicorn-ipoatm, unciorn-adsl and adsl autoconfig modified to work with provider free.
+
+Version 0.6.0:
+- New driver with Ethernet (instead of ATM) interface added to project. This driver supports 
+RFC2684 routed (ipoatm), RFC2684 bridged (br2684,pppoe), and PPP over ATM with standard pppoe 
+dialers. Note that this driver is in developement and the bewan_adsl_status application
+and unicorntest does not work with this driver yet.
+
+Version 0.6.1:
+- Small modification in linrapi.c to make it compile with gcc 3.3.
+- Added /proc entry for the unicorn_eth driver.
+
+Version 0.6.2:
+- Do not wake up tosca thread when disabling tosca soft interrupts.
+
+Version 0.6.3:
+- Added lock in CopySoftIntrTable since there are problems on SMP machines.
+- The status application is now redimensioanable.
+
+Version 0.6.4:
+- Status and unicorntest application works with unicorn_eth drivers.
+- Verify encapsulation in unicorn_eth driver.
+
+Version 0.7.0:
+- The bus drivers are now statically linked with the net drivers to simplify things. 
+For example, the PCI ATM driver is now called "unicorn_pci_atm.o",and can be loaded by doing
+ "insmod unicorn_pci_atm.o".
+- Reorganized the files so that source files are not shared between PCI and USB drivers, except
+when identical
+- The Makefile's has been simplified. To compile and install all drivers and applications,
+it is enough to do "make install" as root.
+- The scripts has been simplified and will use the ethernet driver for PPPoE, Bridged and
+IP over ATM.
+
+Version 0.7.1:
+- Implemented OAM loopback in the drivers. This is necessary in order to work with Telecom Italia lines.
+
+Version 0.7.2:
+- Removed the 'autoconfig', since I don't think it is used and did not work with the
+new OAM loopback in the drivers.
+- Added a new 'tools' directory. This contains simple tools to get the status, get the status as a  
+cgi application and send OAM pings.
+- Force the threads to run on CPU #0 only. Hopefully this hack will make it work on SMP.
+- Some changes to the Makefile's.
+
+Version 0.7.3:
+- unicorntest compiled with DEBUG.
+- Remove old versions of the files unicorn_atm.o,unicorn_pci.o and unicorn_usb.o in lib/modules/.
+
+Version 0.7.4:
+- Fixes in the Makefiles.
+- Workaround for SMP disconnection.
+- Lock around TOSCA interrupts (for SMP).
+- Setting useAFE based on board id.
+- Minor changes in adsl parameters.
+
+Version 0.7.5:
+- Fixes for compile problems on newer kernels (versions 2.4.23, 2.6.0).
+
+Version 0.7.6:
+- Minor fixes for compile problem with gcc 2.95.
+
+Version 0.7.7:
+- Include the sources for libm.a, since this library is not installed
+with all distributions.
+- Use a mutex to serialize all the rAPI threads. This may fix a
+problem on SMP machines.
+
+Version 0.7.8:
+- New modem software with support for AFE 20174.
+
+Version 0.8.0:
+- New modem software for USB with support for AFE 20174 (fixed).
+
+Version 0.8.1:
+- Missing symbol unicorntest.c fixed.
+- Fixing compile problem on RH9, SUSE9 kernels.
+- highCarrierOff set to 230 instead of 240 (interopearbility).
+- Fixed an OOPS in oam_ping when pinging and not in SHOWTIME.
+
+Version 0.8.6:
+- The driver should build and work for kernel 2.6.
+- Retry isoc atm reads in case of error.
+
+Version 0.8.7:
+- Fixed a crash on low-bandwidth lines (< 320Kbits) by increasing the
+number of ISO packets in the urb's from 20 to 40.
+- Italian localization thanks to Stefano Palmeri. 
+ 
+Version 0.8.8:
+- New modem software (0.1.0.8) for PCI with bug fix for Globespan
+DSLAM.
+- Added cell counters in T_StateInfo record (for cgi for example).
+ 
+Version 0.8.9:
+- New modem software (0.1.0.10) for PCI with bug fix for Globespan
+DSLAM and other interoperability fixes.
+- Fixed a bug where changing USB bandwidth dynamically prevented the
+adapters with AFE 20174 to work on kernel 2.6.
+- Compile problem on kernel 2.6.9 fixed.
+
+Version 0.9.0:
+- Now compiles with gcc-3.4.
+- Compiles with SMP on 2.6. 
+
+Version 0.9.1:
+- Fix compile problem for kernel 2.6.11. 
+
+Version 0.9.2:
+- Include an option to change the modem SW library for PCI in case of 
+interoperability problems. To change the modem SW library to the old
+1.9.6.1 version, comment out the line NEW_MSW=1 in the PCI Makefile
+(in the unicorn_pci directory).
+
+Version 0.9.3:	
+- Added support for PCI cards with the 20174 AFE.
+- Added PCI modem SW library compiled with -mregparm=3 (modem_ant_PCI_LINUX.o.regparm3).
+This library should be used with kernels compiled with -mregparm=3 (Ex: Fedora Core 2).
+- Now works for kernel 2.6.14 and newer (skb_unlink parameter change)
+- Eliminated a few compiler warnings with gcc 4.
+- Modem SW library version 1.9.6.1 not longer included.
+- Replace call to "shutdown_atm_dev" with "atm_dev_deregister" (kernel 2.6.15).
+
+KERNEL 2.6 NOTES:
+To build the modules you may need to build them in the module
+directory (unicorn_usb/unicorn_pci) instead of using the top-level
+Makefile. The error appears when doing MODPOST.
+
+IMPORTANT USB NOTES:
+For USB to work correctly, I recommend using kernel 2.4.22 or later, since a lot of bugs has 
+been fixed in the UHCI and OHCI drivers since early 2.4 kernel releases.
+If you have a 2.4.21 kernel (Mandrake 9.1 or 2.4.21-xx) you need to patch the
+usb-uhci and usb-ohci drivers to avoid a freeze when starting the unicorn_usb_xxx module. 
+Copy the patches to the linux source directory and do:
+patch -p0 < usb-uhci.patch
+patch -p0 < usb-ohci.patch

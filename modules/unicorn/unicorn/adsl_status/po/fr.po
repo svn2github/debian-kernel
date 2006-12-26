@@ -1,0 +1,524 @@
+# bewan_adsl_status (fr).
+# Copyright (C) 2003 BeWAN systems.
+# Frode Isaksen <fisaksen@bewan.com>, 2003.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"PO-Revision-Date: 2003-04-02 16:31+0200\n"
+"Last-Translator: Frode Isaksen <fisaksen@bewan.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+#: src/interface.c:215 strings.c:7
+msgid "BeWAN ADSL"
+msgstr "BeWAN ADSL"
+
+#: src/interface.c:234 strings.c:8
+msgid "Actual bit rate (Kbps)"
+msgstr "Débit réel brut (Kbits/seconde)"
+
+#: src/interface.c:252 strings.c:9
+msgid "Far End Fast Channel:"
+msgstr "Chemin rapide local"
+
+#: src/interface.c:264 strings.c:10
+msgid "Near End Interleaved Channel:"
+msgstr "Chemin rapide distant"
+
+#: src/interface.c:276 strings.c:11
+msgid "Far End Interleaved Channel:"
+msgstr "Chemin intercalé local"
+
+#: src/interface.c:288 strings.c:12
+msgid "Near End Fast Channel:"
+msgstr "Chemin intercalé distant"
+
+#: src/interface.c:348 strings.c:13
+msgid "Line State"
+msgstr "État de la ligne"
+
+#: src/interface.c:366 strings.c:14
+msgid "Start"
+msgstr "Démarrer"
+
+#: src/interface.c:376 strings.c:15
+msgid "Stop"
+msgstr "Arréter"
+
+#: src/interface.c:399 src/interface.c:1853 strings.c:16 strings.c:81
+msgid "\n"
+msgstr "\n"
+
+#: src/interface.c:435 strings.c:18
+msgid "Remote report:"
+msgstr "Rapport distant:"
+
+#: src/interface.c:447 strings.c:19
+msgid "Last failure:"
+msgstr "Dernier échec:"
+
+#: src/interface.c:459 strings.c:20
+msgid "Time connected:"
+msgstr "Temps de connexion:"
+
+#: src/interface.c:471 strings.c:21
+msgid "Modem state:"
+msgstr "État du modem:"
+
+#: src/interface.c:493 strings.c:22
+msgid "State"
+msgstr "État"
+
+#: src/interface.c:509 strings.c:23
+msgid "Power"
+msgstr "Énergie"
+
+#: src/interface.c:537 strings.c:24
+msgid "SNR"
+msgstr "SNR"
+
+#: src/interface.c:549 strings.c:25
+msgid "Echo+Noise"
+msgstr "Echo+Noise"
+
+#: src/interface.c:561 strings.c:26
+msgid "Rx Path"
+msgstr "Rx Path"
+
+#: src/interface.c:573 strings.c:27
+msgid "Operational Data"
+msgstr "Données opérationelles"
+
+#: src/interface.c:591 strings.c:28
+msgid "UpStream"
+msgstr "Montant"
+
+#: src/interface.c:649 strings.c:29
+msgid "Capacity Occupation (%)"
+msgstr "Capacité d'occupation (%)"
+
+#: src/interface.c:661 strings.c:30
+msgid "Noise Margin (dB)"
+msgstr "Marge du bruit (dB)"
+
+#: src/interface.c:673 strings.c:31
+msgid "Output Power (dBm)"
+msgstr "Energie sortante (dBm)"
+
+#: src/interface.c:685 strings.c:32
+msgid "DownStream"
+msgstr "Descendant"
+
+#: src/interface.c:743 strings.c:33
+msgid "Attenuation (dB)"
+msgstr "Attenuation (dB)"
+
+#: src/interface.c:755 src/interface.c:1781 strings.c:34 strings.c:76
+msgid "Modulation:"
+msgstr "Modulation:"
+
+#: src/interface.c:778 strings.c:35
+msgid "Line"
+msgstr "Ligne"
+
+#: src/interface.c:794 strings.c:36
+msgid "Fast Channel Error Counters"
+msgstr "Compteurs d'erreurs du chemin rapide"
+
+#: src/interface.c:812 src/interface.c:974 strings.c:37 strings.c:43
+msgid "Local"
+msgstr "Local"
+
+#: src/interface.c:866 src/interface.c:1028 strings.c:38 strings.c:44
+msgid "Distant"
+msgstr "Distant"
+
+#: src/interface.c:920 src/interface.c:1082 strings.c:39 strings.c:45
+msgid "Forward Error Corrections (FEC)"
+msgstr "Contrôle d'erreurs en aval (FEC)"
+
+#: src/interface.c:932 src/interface.c:1094 strings.c:40 strings.c:46
+msgid "Cyclic Redundancy Checks (CRC)"
+msgstr "C. de redondance Cyclique (CRC)"
+
+#: src/interface.c:944 src/interface.c:1106 strings.c:41 strings.c:47
+msgid "Cyclic Header Error Check (HEC)"
+msgstr "Contrôle d'erreurs d'en tète (HEC)"
+
+#: src/interface.c:956 strings.c:42
+msgid "Interleaved Channel Error Counters"
+msgstr "Compteurs d'erreurs du chemin intercalé"
+
+#: src/interface.c:1118 strings.c:48
+msgid "Errors"
+msgstr "Erreurs"
+
+#: src/interface.c:1134 strings.c:49
+msgid "Near End Defects Detected"
+msgstr "Défauts détectés du modem local"
+
+#: src/interface.c:1162 src/interface.c:1344 strings.c:50 strings.c:56
+msgid "Loss of Margin (LoM)"
+msgstr "Perte de marge (LoM)"
+
+#: src/interface.c:1241 src/interface.c:1475 strings.c:51 strings.c:59
+msgid "Loss of Signal (LoS)"
+msgstr "Perte de signal (LoS)"
+
+#: src/interface.c:1253 src/interface.c:1394 strings.c:52 strings.c:57
+msgid "Loss of Power (LoP)"
+msgstr "Perte d'énergie (LoP)"
+
+#: src/interface.c:1265 src/interface.c:1406 strings.c:53 strings.c:58
+msgid "Loss of Frame (LoF)"
+msgstr "Perte de trame (LoF)"
+
+#: src/interface.c:1277 src/interface.c:1487 strings.c:54 strings.c:60
+msgid "Loss of Cell Delineation (LoCD)"
+msgstr "Perte de synchro cellule(LoCD)"
+
+#: src/interface.c:1307 strings.c:55
+msgid "Far End Defects detected"
+msgstr "Défauts détectés du modem distant"
+
+#: src/interface.c:1499 strings.c:61
+msgid "Dying Gasp message received"
+msgstr "Message: Dying Gasp"
+
+#: src/interface.c:1511 strings.c:62
+msgid "Defects"
+msgstr "Défauts"
+
+#: src/interface.c:1527 strings.c:63
+msgid "ATM maintenance indicators (OAM-F5)"
+msgstr "Indicateurs de maintenance ATM (OAM-F5)"
+
+#: src/interface.c:1565 src/interface.c:1805 strings.c:64 strings.c:78
+msgid "VCI:"
+msgstr "VCI:"
+
+#: src/interface.c:1577 strings.c:65
+msgid "Reset Counters"
+msgstr "RAZ compteurs"
+
+#: src/interface.c:1587 strings.c:66
+msgid "Receive counters"
+msgstr "Compteurs de réception"
+
+#: src/interface.c:1605 strings.c:67
+msgid "Remote Defect Indication cells (RDI):"
+msgstr "Cellules d'indication de défaut distant (RDI):"
+
+#: src/interface.c:1617 strings.c:68
+msgid "Alarm Indication Signal cells (AIS):"
+msgstr "Cellules d'indication d'alarme (AIS):"
+
+#: src/interface.c:1629 strings.c:69
+msgid "Far-end loopback cells (LB):"
+msgstr "Cellules de test en bouclage distant (LB):"
+
+#: src/interface.c:1641 strings.c:70
+msgid "Near-end loopback cells (LB):"
+msgstr "Cellules de test en bouclage local (LB):"
+
+#: src/interface.c:1653 strings.c:71
+msgid "Continuity Check cells (CC):"
+msgstr "Cellules de test de continuité (CC):"
+
+#: src/interface.c:1725 strings.c:72
+msgid "Generate looback cells (OAM-F5 LB cells)"
+msgstr "Envoyer de cellules de test en bouclage distant (LB)"
+
+#: src/interface.c:1735 src/interface.c:1793 strings.c:73 strings.c:77
+msgid "VPI:"
+msgstr "VPI:"
+
+#: src/interface.c:1747 strings.c:74
+msgid "Test"
+msgstr "Test"
+
+#: src/interface.c:1763 strings.c:75
+msgid "Installed Profile"
+msgstr "Profile installé"
+
+#: src/interface.c:1817 strings.c:79
+msgid "Encapsulation:"
+msgstr "Encapsulation:"
+
+#: src/interface.c:1829 strings.c:80
+msgid "Protocol:"
+msgstr "Protocole:"
+
+#: src/interface.c:1901 strings.c:83
+msgid "Config"
+msgstr "Config"
+
+#: src/interface.c:1917 strings.c:84
+msgid "ADSL Package Information"
+msgstr "Information sur les pilotes ADSL"
+
+#: src/interface.c:1935 strings.c:85
+msgid "Package Name:"
+msgstr "Nom:"
+
+#: src/interface.c:1947 strings.c:86
+msgid "Package Version:"
+msgstr "Version pilote:"
+
+#: src/interface.c:1959 strings.c:87
+msgid "Firmware Version:"
+msgstr "Version modem:"
+
+#: src/interface.c:1971 strings.c:88
+msgid "Manufacturer:"
+msgstr "Constructeur:"
+
+#: src/interface.c:1983 strings.c:89
+msgid "Copyright:"
+msgstr "Copyright:"
+
+#: src/interface.c:2055 strings.c:90
+msgid "Far End Modem Identification"
+msgstr "Identification du modem distant"
+
+#: src/interface.c:2073 strings.c:91
+msgid "ITU Revision Number:"
+msgstr "Numéro du révision ITU:"
+
+#: src/interface.c:2085 strings.c:92
+msgid "Vendor Specific Info:"
+msgstr "Info spécifique fournisseur:"
+
+#: src/interface.c:2097 strings.c:93
+msgid "Vendor Country Code:"
+msgstr "Code pays du fournisseur:"
+
+#: src/interface.c:2142 strings.c:94
+msgid "Vendor Code:"
+msgstr "Code du fournisseur:"
+
+#: src/interface.c:2175 strings.c:95
+msgid "Info"
+msgstr "Info"
+
+#: src/support.c:121
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr "Fichier pixmap introuvable: %s"
+
+#: src/support.c:130
+#, c-format
+msgid "Error loading pixmap file: %s"
+msgstr "Erreur de chargement du fichier pixmap: %s"
+
+#: src/status.c:123
+msgid "IDLE"
+msgstr "REPOS"
+
+#: src/status.c:124
+msgid "L3"
+msgstr "L3"
+
+#: src/status.c:125
+msgid "LISTENING"
+msgstr "EN ECOUTE"
+
+#: src/status.c:126
+msgid "ACTIVATING"
+msgstr "ACTIVATION"
+
+#: src/status.c:127
+msgid "Ghs_HANDSHAKING"
+msgstr "NEGOCIATION"
+
+#: src/status.c:128
+msgid "ANSI_HANDSHAKING"
+msgstr "NEGOCIATION"
+
+#: src/status.c:129
+msgid "INITIALIZING"
+msgstr "INITIALISATION"
+
+#: src/status.c:130
+msgid "RESTARTING"
+msgstr "REDEMARRAGE"
+
+#: src/status.c:131
+msgid "FAST_RETRAIN"
+msgstr "RECYCLE_RAPIDE"
+
+#: src/status.c:132
+msgid "SHOWTIME_L0"
+msgstr "CONNECTE_L0"
+
+#: src/status.c:133
+msgid "SHOWTIME_LQ"
+msgstr "CONNECTE_L0"
+
+#: src/status.c:134
+msgid "SHOWTIME_L1"
+msgstr "CONNECTE_L1"
+
+#: src/status.c:135
+msgid "EXCHANGE"
+msgstr "ECHANGE"
+
+#: src/status.c:136
+msgid "TRUNCATE"
+msgstr "TRONCATURE"
+
+#: src/status.c:137
+msgid "ESCAPE"
+msgstr "ECHAPPEMENT"
+
+#: src/status.c:138
+msgid "RETRY"
+msgstr "REESSAYE"
+
+#: src/status.c:139
+msgid "DISORDERLY"
+msgstr "EN DESORDRE"
+
+#: src/status.c:140 src/status.c:160 src/status.c:185 src/status.c:195
+msgid " "
+msgstr " "
+
+#: src/status.c:147
+msgid "Peer ATU Found"
+msgstr "Modem distant détecté"
+
+#: src/status.c:148
+msgid "Restart Request"
+msgstr "Redémarrage requis"
+
+#: src/status.c:149
+msgid "Activation Request"
+msgstr "Activation requise"
+
+#: src/status.c:150
+msgid "Initializing"
+msgstr "Initialisation"
+
+#: src/status.c:151
+msgid "Showtime"
+msgstr "Connecté"
+
+#: src/status.c:152
+msgid "L3 Executed"
+msgstr "L3 Executé"
+
+#: src/status.c:153
+msgid "L3 Rejected"
+msgstr "L3 Rejeté"
+
+#: src/status.c:154
+msgid "L1 Executed"
+msgstr "L1 Executé"
+
+#: src/status.c:155
+msgid "L1 Rejected"
+msgstr "L1 Rejeté"
+
+#: src/status.c:156
+msgid "L0 Rejected"
+msgstr "L0 Rejeté"
+
+#: src/status.c:157
+msgid "Restart Acceptable"
+msgstr "Redémerrage accepté"
+
+#: src/status.c:158
+msgid "Suicide Request"
+msgstr "Demande Suicide"
+
+#: src/status.c:159
+msgid "Restart Not Acceptable"
+msgstr "Redémarrage non accepté"
+
+#: src/status.c:167
+msgid "Uncompatible Line Conditions"
+msgstr "Conditions de ligne incompatibles"
+
+#: src/status.c:168
+msgid "No Lock Possible"
+msgstr "Aucun blocage possible"
+
+#: src/status.c:169
+msgid "Protocol Error"
+msgstr "Erreur de protocole"
+
+#: src/status.c:170
+msgid "Message Error"
+msgstr "Réception d'un message invalide"
+
+#: src/status.c:171
+msgid "Spurious ATU Detected"
+msgstr "Modem distant non valide"
+
+#: src/status.c:172
+msgid "Requested Bit Rate Too High"
+msgstr "Le débit demandé est trop élevé"
+
+#: src/status.c:173
+msgid "Interleaved Profile Required for LITE"
+msgstr "Un profil intercalé est requis par la norme LITE"
+
+#: src/status.c:174
+msgid "Forced Silence"
+msgstr "Forçage de silence"
+
+#: src/status.c:175
+msgid "Unselectable Operation Mode"
+msgstr "Mode d'opération non sélectionnable"
+
+#: src/status.c:176
+msgid "State Refused By Golden"
+msgstr "État refusé par Golden"
+
+#: src/status.c:177
+msgid "Activation Timeout"
+msgstr "Délai d'activation dépassé"
+
+#: src/status.c:178
+msgid "Initialization Timeout"
+msgstr "Délai d'initialisation dépassé"
+
+#: src/status.c:179
+msgid "Bringing Down Line due to persistent faults"
+msgstr "Défauts de ligne persistants"
+
+#: src/status.c:180
+msgid "Retry"
+msgstr "Réessaye"
+
+#: src/status.c:181
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: src/status.c:182
+msgid "Unknown failure"
+msgstr "Echec inconnu"
+
+#: src/status.c:183 src/status.c:1093
+msgid "No hardware detected"
+msgstr "Aucun matériel détecté"
+
+#: src/status.c:184
+msgid "USB bandwidth unavailable"
+msgstr "Bande passante USB non disponible"
+
+#: src/status.c:192
+msgid "ANSI"
+msgstr "ANSI"
+
+#: src/status.c:193
+msgid "G.lite"
+msgstr "G.lite"
+
+#: src/status.c:194
+msgid "G.dmt"
+msgstr "G.dmt"
