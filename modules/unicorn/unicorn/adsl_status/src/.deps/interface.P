@@ -2,7 +2,7 @@ interface.o: interface.c ../config.h /usr/include/sys/types.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/gnu/stubs.h /usr/include/bits/types.h \
   /usr/include/bits/wordsize.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/stddef.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/stddef.h \
   /usr/include/bits/typesizes.h /usr/include/time.h /usr/include/endian.h \
   /usr/include/bits/endian.h /usr/include/sys/select.h \
   /usr/include/bits/select.h /usr/include/bits/sigset.h \
@@ -15,13 +15,13 @@ interface.o: interface.c ../config.h /usr/include/sys/types.h \
   /usr/include/gtk-1.2/gdk/gdkkeysyms.h /usr/include/gtk-1.2/gtk/gtk.h \
   /usr/include/gtk-1.2/gdk/gdk.h /usr/include/gtk-1.2/gdk/gdktypes.h \
   /usr/include/glib-1.2/glib.h /usr/lib/glib/include/glibconfig.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/limits.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/syslimits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/limits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/syslimits.h \
   /usr/include/limits.h /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
   /usr/include/bits/posix2_lim.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/float.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/stdarg.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/float.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/stdarg.h \
   /usr/include/gtk-1.2/gdk/gdkcursors.h /usr/include/gtk-1.2/gdk/gdkrgb.h \
   /usr/include/gtk-1.2/gtk/gtkaccelgroup.h \
   /usr/include/gtk-1.2/gtk/gtkobject.h /usr/include/gtk-1.2/gtk/gtkarg.h \
@@ -127,7 +127,7 @@ interface.c :
 /usr/include/gnu/stubs.h :
 /usr/include/bits/types.h :
 /usr/include/bits/wordsize.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/stddef.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/stddef.h :
 /usr/include/bits/typesizes.h :
 /usr/include/time.h :
 /usr/include/endian.h :
@@ -155,15 +155,15 @@ interface.c :
 /usr/include/gtk-1.2/gdk/gdktypes.h :
 /usr/include/glib-1.2/glib.h :
 /usr/lib/glib/include/glibconfig.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/limits.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/syslimits.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/limits.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/syslimits.h :
 /usr/include/limits.h :
 /usr/include/bits/posix1_lim.h :
 /usr/include/bits/local_lim.h :
 /usr/include/linux/limits.h :
 /usr/include/bits/posix2_lim.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/float.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/stdarg.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/float.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/stdarg.h :
 /usr/include/gtk-1.2/gdk/gdkcursors.h :
 /usr/include/gtk-1.2/gdk/gdkrgb.h :
 /usr/include/gtk-1.2/gtk/gtkaccelgroup.h :

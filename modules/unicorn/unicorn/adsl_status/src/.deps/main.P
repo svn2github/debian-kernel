@@ -1,14 +1,14 @@
 main.o: main.c ../config.h /usr/include/gtk-1.2/gtk/gtk.h \
   /usr/include/gtk-1.2/gdk/gdk.h /usr/include/gtk-1.2/gdk/gdktypes.h \
   /usr/include/glib-1.2/glib.h /usr/lib/glib/include/glibconfig.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/limits.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/syslimits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/limits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/syslimits.h \
   /usr/include/limits.h /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/gnu/stubs.h /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
   /usr/include/bits/posix2_lim.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/float.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/stdarg.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/float.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/stdarg.h \
   /usr/include/gtk-1.2/gdk/gdkcursors.h /usr/include/gtk-1.2/gdk/gdkrgb.h \
   /usr/include/gtk-1.2/gtk/gtkaccelgroup.h \
   /usr/include/gtk-1.2/gtk/gtkobject.h /usr/include/gtk-1.2/gtk/gtkarg.h \
@@ -105,7 +105,7 @@ main.o: main.c ../config.h /usr/include/gtk-1.2/gtk/gtk.h \
   /usr/include/gtk-1.2/gtk/gtkvscale.h \
   /usr/include/gtk-1.2/gtk/gtkvseparator.h interface.h support.h \
   /usr/include/libintl.h \
-  /usr/lib/gcc/i486-linux-gnu/4.0.2/include/stddef.h \
+  /usr/lib/gcc/i486-linux-gnu/4.1.2/include/stddef.h \
   /usr/include/locale.h /usr/include/bits/locale.h status.h
 main.c :
 ../config.h :
@@ -114,8 +114,8 @@ main.c :
 /usr/include/gtk-1.2/gdk/gdktypes.h :
 /usr/include/glib-1.2/glib.h :
 /usr/lib/glib/include/glibconfig.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/limits.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/syslimits.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/limits.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/syslimits.h :
 /usr/include/limits.h :
 /usr/include/features.h :
 /usr/include/sys/cdefs.h :
@@ -124,8 +124,8 @@ main.c :
 /usr/include/bits/local_lim.h :
 /usr/include/linux/limits.h :
 /usr/include/bits/posix2_lim.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/float.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/stdarg.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/float.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/stdarg.h :
 /usr/include/gtk-1.2/gdk/gdkcursors.h :
 /usr/include/gtk-1.2/gdk/gdkrgb.h :
 /usr/include/gtk-1.2/gtk/gtkaccelgroup.h :
@@ -240,7 +240,7 @@ main.c :
 interface.h :
 support.h :
 /usr/include/libintl.h :
-/usr/lib/gcc/i486-linux-gnu/4.0.2/include/stddef.h :
+/usr/lib/gcc/i486-linux-gnu/4.1.2/include/stddef.h :
 /usr/include/locale.h :
 /usr/include/bits/locale.h :
 status.h :

@@ -67,7 +67,7 @@ MODULE_LICENSE("Proprietary");
 // Use alternative setting 1 on interface 0 to use ISOC transfers and optimal speed
 #define ALT_SETTING 1
 // Use alternative setting 4 on interface 0 to use ISOC transfers and least USB bandwidth used
-//#define ALT_SETTING 4
+// #define ALT_SETTING 4
 
 #define RETRY_UNDERRUN 1
 

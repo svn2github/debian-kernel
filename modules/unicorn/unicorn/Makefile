@@ -1,6 +1,7 @@
 #
 ## Makefile for UNICORN ADSL Modem
 #
+package?=unicorn
 
 # Version
 VERS=0x093
@@ -24,7 +25,7 @@ modules:
 	for i in $(DRVDIRS) ; do make -C $$i modules MODDIR=$(PWD)/$$i ; done
 
 clean: 
-	for i in $(DIRS) $(DRVDIRS); do (if [ -d $$i ]; then make -C $$i clean; fi); done
+	-for i in $(DIRS) $(DRVDIRS); do (if [ -d $$i ]; then make -C $$i clean; fi); done
 
 install: applis_install modules_install
 
@@ -37,3 +38,20 @@ modules_install:
 
 only_modules_install: 
 	for i in $(DRVDIRS) ; do make -C $$i modules_install ; done
+
+distclean: clean
+	-find . -name "*~" -exec rm -v {} \;
+	-find . -name "*.cmd" -exec rm -v {} \;
+#	-rm */config.sub */config.cache */config.h */config.guess */config.status */config.log
+#	-find adsl_status -name "Makefile" -exec rm -v {} \;
+#	-rm adsl_status/configure adsl_status/config.log
+#	-find . -name "*.cmd" -exec rm -v {} \;
+#	-find . -name ".*.cmd" -exec rm -v {} \;
+#	-rm adsl_status/missing
+
+bootstrap: distclean
+	cd adsl_status && aclocal && autoconf 
+
+export CC CXX LD
+
+#eof "$Id: unicorn/Makefile$"
