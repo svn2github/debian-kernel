@@ -1,4 +1,0 @@
-unicorn-source: script-not-executable ./usr/src/modules/unicorn/debian/unicorn-modules.postinst
-unicorn-source: arch-independent-package-contains-binary-or-object ./usr/src/modules/unicorn/arch/i386/modem_ant_PCI.o
-unicorn-source: arch-independent-package-contains-binary-or-object ./usr/src/modules/unicorn/arch/i386/modem_ant_USB.o
-
