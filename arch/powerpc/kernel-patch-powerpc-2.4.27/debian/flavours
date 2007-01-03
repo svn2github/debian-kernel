@@ -1,3 +1,0 @@
-# This file contains the arches, subarches and flavours we are handling.
-archs: powerpc
-subarchs powerpc: apus nubus

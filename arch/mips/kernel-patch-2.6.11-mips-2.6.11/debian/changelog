@@ -1,5 +1,0 @@
-kernel-patch-2.6.11-mips (2.6.11-1-0) UNRELEASED; urgency=low
-
-  * Initial mips/mipsel 2.6 kernel.
-
- -- Thiemo Seufer <ths@debian.org>  Mon, 04 Apr 2005 19:20:07 +0200

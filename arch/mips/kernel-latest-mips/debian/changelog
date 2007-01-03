@@ -1,5 +1,0 @@
-kernel-latest-mips (2.6.10-1-0) UNRELEASED; urgency=low
-
-  * Meta package for easier upgrading of mips/mipsel kernels.
-
- -- Thiemo Seufer <seufer@csv.ica.uni-stuttgart.de>  Sat, 15 Jan 2005 11:36:10 +0100
