@@ -2,11 +2,6 @@
 arches:
   amd64
   i386
-not-flavours:
-  xen
-  xen-686
-  xen-k7
-  xen-vserver
-  xen-vserver-686
 desc: QEMU Accelerator
+not-subarches: vserver xen-vserver
 
