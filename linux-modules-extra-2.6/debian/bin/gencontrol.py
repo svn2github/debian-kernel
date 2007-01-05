@@ -39,8 +39,16 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
 
         super(gencontrol, self).do_flavour(packages, makefile, arch, subarch, flavour, vars, makeflags, extra)
 
+        have_modules = False
+
         for module in iter(self.config['base',]['modules']):
-            self.do_module(module, packages, makefile, arch, subarch, flavour, vars.copy(), makeflags.copy(), extra)
+            if self.do_module_check(module, arch, subarch, flavour):
+                self.do_module(module, packages, makefile, arch, subarch, flavour, vars.copy(), makeflags.copy(), extra)
+                have_modules = True
+
+        if not have_modules:
+            for i in self.makefile_targets:
+                makefile.append("%s-%s-%s-%s:" % (i, arch, subarch, flavour))
 
     def do_flavour_makefile(self, makefile, arch, subarch, flavour, makeflags, extra):
         for i in self.makefile_targets:
@@ -55,19 +63,6 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
 
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
-
-        if arch not in config_entry.get('arches', [arch]):
-            return
-        if arch in config_entry.get('not-arches', []):
-            return
-        if subarch not in config_entry.get('subarches', [subarch]):
-            return
-        if subarch in config_entry.get('not-subarches', []):
-            return
-        if flavour not in config_entry.get('flavours', [flavour]):
-            return
-        if flavour in config_entry.get('not-flavours', []):
-            return
 
         relations = package_relation_list(config_entry_relations.get('source', '%s-source' % module))
         if config_entry.get('arches', None) or config_entry.get('not-arches', None):
@@ -103,6 +98,24 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         makefile.append(("binary-arch-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_binary_arch))
         makefile.append(("build-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_build))
         makefile.append(("setup-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_setup))
+
+    def do_module_check(self, module, arch, subarch, flavour):
+        config_entry = self.config['base', module]
+
+        if arch not in config_entry.get('arches', [arch]):
+            return False
+        if arch in config_entry.get('not-arches', []):
+            return False
+        if subarch not in config_entry.get('subarches', [subarch]):
+            return False
+        if subarch in config_entry.get('not-subarches', []):
+            return False
+        if flavour not in config_entry.get('flavours', [flavour]):
+            return False
+        if flavour in config_entry.get('not-flavours', []):
+            return False
+
+        return True
 
     def process_changelog(self):
         changelog = read_changelog()
