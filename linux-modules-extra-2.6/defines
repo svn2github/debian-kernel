@@ -2,6 +2,5 @@
 modules:
  mol
  redhat-cluster
- spca5xx
  squashfs
  unionfs
