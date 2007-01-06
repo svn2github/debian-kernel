@@ -1,0 +1,13 @@
+[base]
+arches:
+ amd64
+ i386
+ powerpc
+desc: gspca video for linux (v4l) driver
+longdesc:
+ The gpsca video for linux (v4l) driver, provides support for
+ webcams and digital cameras based on the spca5xx range of chips
+ manufactured by SunPlus, Sonix, Z-star, Vimicro, Conexant, Etoms,
+ Mars-semi, Pixart and Transvision.
+ .
+ Homepage: http://mxhaard.free.fr/index.html
