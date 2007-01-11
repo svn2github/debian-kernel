@@ -1,0 +1,10 @@
+$(BUILD_STAMP):
+	$(MAKE) -f debian/rules -C $(CURDIR)/$(DIR) build-stamp
+
+	touch $@
+
+install:
+	install -D -m 0644 $(CURDIR)/$(DIR)/src/p80211/p80211.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/extra/$(MODULE)/p80211.ko
+	install -D -m 0644 $(CURDIR)/$(DIR)/src/prism2/driver/prism2_pci.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/extra/$(MODULE)/prism2_pci.ko
+	install -D -m 0644 $(CURDIR)/$(DIR)/src/prism2/driver/prism2_plx.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/extra/$(MODULE)/prism2_plx.ko
+	install -D -m 0644 $(CURDIR)/$(DIR)/src/prism2/driver/prism2_usb.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/extra/$(MODULE)/prism2_usb.ko
