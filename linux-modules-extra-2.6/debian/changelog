@@ -2,7 +2,7 @@ linux-modules-extra-2.6 (2.6.18-6) unstable; urgency=low
 
   * Adding linux-wlan-ng modules as requested by maintainer (Closes: #387760).
 
- -- Daniel Baumann <daniel@debian.org>  Sat,  6 Jan 2007 17:58:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Thu, 11 Jan 2007 21:50:00 +0100
 
 linux-modules-extra-2.6 (2.6.18-5) unstable; urgency=low
 
