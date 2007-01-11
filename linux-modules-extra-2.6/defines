@@ -1,6 +1,7 @@
 [base]
 modules:
  gspca
+ linux-wlan-ng
  mol
  redhat-cluster
  squashfs
