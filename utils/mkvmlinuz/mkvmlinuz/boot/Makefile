@@ -1,4 +1,3 @@
-
 GCC	:= gcc -m32
 CFLAGS	:= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-builtin \
 	   -nostdinc -isystem $(shell $(GCC) -print-file-name=include) -fPIC
