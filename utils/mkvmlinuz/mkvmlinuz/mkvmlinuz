@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # usage information
 usage() {
@@ -177,6 +177,10 @@ if test -z "$objdir"; then
 	objdir="$PWD"
     fi
 fi
+if test \! -d "$objdir"; then
+    echo Object directory does not exist.
+    exit 1
+fi
 
 test -z "$verbose" || echo === Using object files from $objdir.
 
@@ -201,10 +205,12 @@ test -z "$verbose" || echo === Doing build in $work.
 # utilities
 if test "$post_2_6_16"; then
   ADDNOTE=$objdir/addnote
-  ADDRAMDISK=$objdir/addRamDisk
+  ADDRAMDISK=$objdir/addRamDisk # no longer exists
   objs=$objdir
   STRIP="strip -s -R .comment"
   GZIP="gzip --force --best"
+# The tools below no longer exist, so schedule them for removal along
+# with their calling occurrences afterwards.
 else
   ADDNOTE=$objdir/utils/addnote
   HACKOFF=$objdir/utils/hack-coff
@@ -215,6 +221,10 @@ else
   objs=$objdir/obj
   GZIP=gzip
   STRIP=strip
+fi
+if test \! -f "$ADDNOTE"; then
+    echo Missing utility in object directory.
+    exit 1
 fi
 LD=ld
 OBJCOPY=objcopy
@@ -337,7 +347,7 @@ else
   else
   	do_cmd $MV $work/vmlinux.gz $work/vmlinuz.$arch.tmp
   fi
-  
+
   # link everything into the final image file and make it bootable
   vmlinuz=$work/vmlinuz.$arch
   if test "$post_2_6_16"; then
@@ -440,7 +450,7 @@ if test -e $vmlinuz; then
     fi
   fi
 fi
-  
+
 # clean up
 test -z "$verbose" || echo === Cleaning up...
 rm -rf $work
