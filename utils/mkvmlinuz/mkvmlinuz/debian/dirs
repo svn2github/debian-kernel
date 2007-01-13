@@ -4,3 +4,4 @@ usr/share/man/man8
 etc/kernel/postinst.d
 etc/kernel/postrm.d
 usr/lib/mkvmlinuz
+usr/share/lintian/overrides

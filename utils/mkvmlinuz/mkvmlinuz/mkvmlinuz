@@ -60,7 +60,7 @@ case $arch in
 esac
 
 # use non-option arguments as release version and kernel image file if needed
-shift $((OPTIND-1))
+shift $(( $OPTIND - 1 ))
 if test -z "$release" -a -n "$1"; then
     release=$1
 fi

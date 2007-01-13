@@ -3,3 +3,5 @@
 set -e
 
 . /usr/share/debconf/confmodule
+
+#DEBHELPER#

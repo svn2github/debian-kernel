@@ -1,0 +1,2 @@
+mkvmlinuz: debconf-is-not-a-registry ./etc/kernel/postinst.d/mkvmlinuz
+mkvmlinuz: debconf-is-not-a-registry ./etc/kernel/postrm.d/mkvmlinuz
