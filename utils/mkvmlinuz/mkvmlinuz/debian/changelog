@@ -21,8 +21,10 @@ mkvmlinuz (30) unstable; urgency=low
       because we need a debconf setting from mkvmlinuz in kernel
       scripts.
   * Fix silent failure by adding some checks. (Closes: #381787)
+  * Portuguese translation is not Brazilian-specific as #401384
+    indicates: move debian/po/pt_BR.po to debian/po/pt.po.
 
- -- Aurélien GÉRÔME <ag@roxor.cx>  Sat, 13 Jan 2007 23:27:51 +0100
+ -- Aurélien GÉRÔME <ag@roxor.cx>  Sat, 13 Jan 2007 23:58:07 +0100
 
 mkvmlinuz (29) unstable; urgency=high
 
