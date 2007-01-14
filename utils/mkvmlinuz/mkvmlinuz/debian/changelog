@@ -22,8 +22,9 @@ mkvmlinuz (30) unstable; urgency=low
       scripts.
   * Fix silent failure by adding some checks. (Closes: #381787)
   * Add the XS-Vcs-Svn field.
+  * Add Portuguese translation thanks to Rui Branco. (Closes: #401384)
 
- -- Aurélien GÉRÔME <ag@roxor.cx>  Sun, 14 Jan 2007 11:01:52 +0100
+ -- Aurélien GÉRÔME <ag@roxor.cx>  Sun, 14 Jan 2007 14:29:13 +0100
 
 mkvmlinuz (29) unstable; urgency=high
 

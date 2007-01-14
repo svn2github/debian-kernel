@@ -1,0 +1,31 @@
+# Portuguese translation for mkvmlinuz's debconf messages
+# Rui Branco <ruipb@debianpt.org>, 2006.
+# 2006-12-03 - Rui Branco - Initial translation
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: mkvmlinuz 27\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-10-31 08:09+0100\n"
+"PO-Revision-Date: 2006-12-03 01:10+0000\n"
+"Last-Translator: Rui Branco <ruipb@debianpt.org>\n"
+"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+msgid "Bootloader to use:"
+msgstr "Gestor de arranque a utilizar:"
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+msgid ""
+"Your PowerPC sub-architecture supports more than one bootloader, please "
+"select the one you want to use."
+msgstr ""
+"A sua sub-arquitectura PowerPC suporta mais do que um gestor de arranque, "
+"por favor escolha aquele que quer utilizar."
