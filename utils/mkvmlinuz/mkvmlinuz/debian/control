@@ -5,6 +5,7 @@ Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>, Aurélien GÉRÔME <ag@roxor.cx>
 Build-Depends: docbook-to-man, debhelper (>= 4.1.16), po-debconf
 Standards-Version: 3.7.2
+XS-Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/trunk/utils/mkvmlinuz/
 
 Package: mkvmlinuz
 Architecture: powerpc

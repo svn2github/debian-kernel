@@ -23,8 +23,9 @@ mkvmlinuz (30) unstable; urgency=low
   * Fix silent failure by adding some checks. (Closes: #381787)
   * Portuguese translation is not Brazilian-specific: move
     debian/po/pt_BR.po to debian/po/pt.po. (Closes: #401384)
+  * Add the XS-Vcs-Svn field.
 
- -- Aurélien GÉRÔME <ag@roxor.cx>  Sat, 13 Jan 2007 23:58:07 +0100
+ -- Aurélien GÉRÔME <ag@roxor.cx>  Sun, 14 Jan 2007 11:01:52 +0100
 
 mkvmlinuz (29) unstable; urgency=high
 
