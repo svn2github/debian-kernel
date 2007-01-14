@@ -1,5 +1,5 @@
 GCC	:= gcc -m32
-CFLAGS	:= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-builtin \
+CFLAGS	:= -Wall -Wstrict-prototypes -O2 -g -fomit-frame-pointer -fno-builtin \
 	   -nostdinc -isystem $(shell $(GCC) -print-file-name=include) -fPIC
 AFLAGS	:= -D__ASSEMBLY__ $(CFLAGS) -traditional -nostdinc
 
