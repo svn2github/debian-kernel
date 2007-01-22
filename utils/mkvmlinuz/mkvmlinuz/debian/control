@@ -12,10 +12,10 @@ Architecture: powerpc
 Depends: bash (>= 3), binutils, debconf | debconf-2.0
 Description: create a kernel to boot a PowerPC machine from Open Firmware
  This little program takes a PowerPC Linux kernel as an uncompressed
- ELF image file (usually called vmlinux or such) and adds a boot code
- and possibly a ramdisk to create a compressed kernel image that can
- be booted directly from Open Firmware, thus eliminating the need for
- a second-stage bootloader such as yaboot or quik. This is especially
- useful on PowerPC sub-architectures which do not have a bootloader
- at all, but may also come handy to install kernels, netboot systems,
- and the likes.
+ ELF image file (usually called vmlinux or such) and adds boot code
+ and possibly a ramdisk to create a compressed kernel image that
+ can be booted directly from Open Firmware, thus eliminating the
+ need for a second-stage bootloader such as yaboot or quik. This is
+ especially useful on PowerPC sub-architectures which do not have a
+ bootloader at all, but may also come in handy for install kernels,
+ netboot systems, and the like.
