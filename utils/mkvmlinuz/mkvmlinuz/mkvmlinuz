@@ -205,12 +205,14 @@ test -z "$verbose" || echo === Doing build in $work.
 # utilities
 if test "$post_2_6_16"; then
   ADDNOTE=$objdir/addnote
+  if test \! -f "$ADDNOTE"; then
+      echo Missing utility in object directory.
+      exit 1
+  fi
   ADDRAMDISK=$objdir/addRamDisk # no longer exists
   objs=$objdir
   STRIP="strip -s -R .comment"
   GZIP="gzip --force --best"
-# The tools below no longer exist, so schedule them for removal along
-# with their calling occurrences afterwards.
 else
   ADDNOTE=$objdir/utils/addnote
   HACKOFF=$objdir/utils/hack-coff
@@ -221,10 +223,6 @@ else
   objs=$objdir/obj
   GZIP=gzip
   STRIP=strip
-fi
-if test \! -f "$ADDNOTE"; then
-    echo Missing utility in object directory.
-    exit 1
 fi
 LD=ld
 OBJCOPY=objcopy
