@@ -177,6 +177,10 @@ if test -z "$objdir"; then
 	objdir="$PWD"
     fi
 fi
+if test \! -d "$objdir"; then
+    echo Object directory does not exist.
+    exit 1
+fi
 
 test -z "$verbose" || echo === Using object files from $objdir.
 
