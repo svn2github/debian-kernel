@@ -171,6 +171,9 @@ if test -z "$objdir"; then
 	:
     elif objdir=/usr/lib/kernel-image-$release; test -d $objdir; then
 	:
+    # /usr/lib/mkvmlinuz is a copy of arch/powerpc/boot taken from 2.6.17.
+    # It is used as a fallback when a kernel package is not present
+    # or when it does not provide the tools.
     elif objdir=/usr/lib/mkvmlinuz; test -d $objdir && test "$arch" = "chrp"; then
     	post_2_6_16=Yes
     else
@@ -204,21 +207,34 @@ test -z "$verbose" || echo === Doing build in $work.
 
 # utilities
 if test "$post_2_6_16"; then
-  ADDNOTE=$objdir/addnote
+  ADDNOTE=$objdir/addnote # must be present in mkvmlinuz fallback tools
   if test \! -f "$ADDNOTE"; then
-      echo Missing utility in object directory.
+      echo "Missing utility: $ADDNOTE"
       exit 1
   fi
-  ADDRAMDISK=$objdir/addRamDisk # no longer exists
+  ADDRAMDISK=$objdir/addRamDisk # unseen in mkvmlinuz fallback tools
   objs=$objdir
   STRIP="strip -s -R .comment"
   GZIP="gzip --force --best"
 else
-  ADDNOTE=$objdir/utils/addnote
-  HACKOFF=$objdir/utils/hack-coff
-  MKNOTE=$objdir/utils/mknote
-  MKPREP=$objdir/utils/mkprep
-  MKBUGBOOT=$objdir/utils/mkbugboot
+  ADDNOTE=$objdir/utils/addnote # unseen in -prep kernel package, but present in -powerpc kernel package
+  if test \! -f "$ADDNOTE" && echo "$release"|grep -q -- '-powerpc$'; then
+  # addnote must exist if we use a -powerpc kernel package
+      echo "Missing utility: $ADDNOTE"
+      exit 1
+  fi
+  HACKOFF=$objdir/utils/hack-coff # unseen in kernel package tools
+  MKNOTE=$objdir/utils/mknote # unseen in kernel package tools
+  MKPREP=$objdir/utils/mkprep # must be present in kernel package tools
+  if test \! -f "$MKPREP"; then
+      echo "Missing utility: $MKPREP"
+      exit 1
+  fi
+  MKBUGBOOT=$objdir/utils/mkbugboot # must be present in kernel package tools
+  if test \! -f "$MKBUGBOOT"; then
+      echo "Missing utility: $MKBUGBOOT"
+      exit 1
+  fi
   libs=$objdir/lib
   objs=$objdir/obj
   GZIP=gzip
