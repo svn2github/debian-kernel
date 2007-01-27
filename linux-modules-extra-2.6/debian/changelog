@@ -2,7 +2,7 @@ linux-modules-extra-2.6 (2.6.18-6) unstable; urgency=low
 
   * Building against 2.6.18-4.
 
- -- Daniel Baumann <daniel@debian.org>  Wed, 24 Jan 2007 22:57:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Sat, 27 Jan 2007 20:26:00 +0100
 
 linux-modules-extra-2.6 (2.6.18-5) unstable; urgency=low
 
