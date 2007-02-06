@@ -100,10 +100,19 @@ stop_daemon () {
   log_end_msg 0
 }
 
+# Create a pid directory if one does not exist. This may happen if
+# user has chosen to mount /var/run as tmpfs.
+make_pid_dir () {
+  test -d "${DAEMON_PID_DIR}" && return
+  mkdir -p -m 0755 "${DAEMON_PID_DIR}"
+  chown "${DAEMON_OWNER}" "${DAEMON_PID_DIR}"
+}
+
 test -x "${DAEMON_BINARY}" || exit 0
 
 case "$1" in
   start)
+    make_pid_dir
     start_daemon
     ;;
   stop)
@@ -116,6 +125,7 @@ case "$1" in
   # The modprobe-* targets are supposed to be used
   # from modprobe hooks only.
   modprobe-start)
+    make_pid_dir
     can_write_pid || exit 0
     start_daemon
     ;;
