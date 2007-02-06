@@ -101,7 +101,7 @@ stop_daemon () {
 }
 
 # Create a pid directory if one does not exist. This may happen if
-# user has chosen to mount /var/run as tmpfs.
+# user has chosen to put /var/run on tmpfs.
 make_pid_dir () {
   test -d "${DAEMON_PID_DIR}" && return
   mkdir -p -m 0755 "${DAEMON_PID_DIR}"

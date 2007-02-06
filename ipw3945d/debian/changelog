@@ -2,6 +2,7 @@ ipw3945d (1.7.22-4) unstable; urgency=low
 
   * Create the PID directory when starting, if it does not exist.
     This may happen if user have chosen to put /var/run on tmpfs.
+    Thanks to Luca Capello. Closes: #408928
 
  -- Jurij Smakov <jurij@debian.org>  Mon,  5 Feb 2007 22:10:45 -0800
 
