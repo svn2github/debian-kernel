@@ -104,7 +104,7 @@ stop_daemon () {
 # user has chosen to put /var/run on tmpfs.
 make_pid_dir () {
   test -d "${DAEMON_PID_DIR}" && return
-  mkdir -p -m 0755 "${DAEMON_PID_DIR}"
+  mkdir -m 0755 "${DAEMON_PID_DIR}"
   chown "${DAEMON_OWNER}" "${DAEMON_PID_DIR}"
 }
 
