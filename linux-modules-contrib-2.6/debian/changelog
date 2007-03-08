@@ -1,3 +1,10 @@
+linux-modules-contrib-2.6 (2.6.18-5) unstable; urgency=low
+
+  * Bumping revision to be able to upload a rebuild to testing later:
+    http://lists.debian.org/debian-release/2007/03/msg00380.html
+
+ -- Daniel Baumann <daniel@debian.org>  Thu,  8 Mar 2007 23:58:00 +0100
+
 linux-modules-contrib-2.6 (2.6.18-4) unstable; urgency=low
 
   * Building against 2.6.18-4.
