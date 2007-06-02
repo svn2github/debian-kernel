@@ -1,0 +1,7 @@
+openais (0.81-1) UNRELEASED; urgency=low
+
+  * Initial Release (closes: #421816).
+    - Pull tarball from Ubuntu.
+
+ -- Bastian Blank <waldi@debian.org>  Thu, 31 May 2007 09:12:03 +0200
+

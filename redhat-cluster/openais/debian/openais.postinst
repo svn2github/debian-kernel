@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_version 2.0
+
+case "$1" in
+	configure)
+
+		if ! getent passwd Debian-ais > /dev/null ; then
+			echo 'Adding system-user for openais' 1>&2
+			adduser --system --group --home /var/lib/openais \
+			--no-create-home --disabled-login \
+			--force-badname Debian-ais > /dev/null
+		fi
+
+		chown Debian-ais:Debian-ais /var/lib/openais
+		chown Debian-ais:Debian-ais /var/log/openais	
+
+	;;
+esac
+
+
+# vim:tw=72
