@@ -2,25 +2,24 @@
 
 set -e
 
-. /usr/share/debconf/confmodule
-
-db_version 2.0
-
 case "$1" in
 	configure)
+		if [ -z "$2" ]; then
+			if ! getent passwd Debian-ais > /dev/null ; then
+				echo 'Adding system-user for openais'
+				adduser --system --group --home /var/lib/openais \
+					--no-create-home --disabled-login \
+					--force-badname Debian-ais > /dev/null
+			fi
 
-		if ! getent passwd Debian-ais > /dev/null ; then
-			echo 'Adding system-user for openais' 1>&2
-			adduser --system --group --home /var/lib/openais \
-			--no-create-home --disabled-login \
-			--force-badname Debian-ais > /dev/null
+			mkdir /var/lib/openais /var/log/openais
+			chmod 700 /var/lib/openais
+			chmod 2750 /var/log/openais
+			chown Debian-ais:adm /var/lib/openais /var/log/openais
 		fi
-
-		chown Debian-ais:Debian-ais /var/lib/openais
-		chown Debian-ais:Debian-ais /var/log/openais	
-
 	;;
 esac
 
+#DEBHELPER#
 
-# vim:tw=72
+exit 0
