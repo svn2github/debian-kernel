@@ -52,7 +52,7 @@ install: $(STAMPS_DIR)/build
 	dh_installdirs
 	dh_installdocs
 	dh_installexamples
-	dh_installinit -p openais -- start 59 S . start 7 0 6 .
+	dh_installinit -p openais -- start 59 S .
 	dh_installlogrotate
 	dh_strip
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
