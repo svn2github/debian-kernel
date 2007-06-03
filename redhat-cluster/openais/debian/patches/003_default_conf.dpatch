@@ -5,9 +5,9 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad openais-0.81~/conf/openais.conf openais-0.81/conf/openais.conf
---- openais-0.81~/conf/openais.conf	2006-09-01 12:12:25.000000000 +0200
-+++ openais-0.81/conf/openais.conf	2007-04-20 10:29:11.000000000 +0200
+diff -urNad openais~/conf/openais.conf openais/conf/openais.conf
+--- openais~/conf/openais.conf	2006-09-01 12:12:25.000000000 +0200
++++ openais/conf/openais.conf	2007-06-03 15:15:25.254761548 +0200
 @@ -4,6 +4,8 @@
  	version: 2
  	secauth: off
@@ -29,3 +29,13 @@ diff -urNad openais-0.81~/conf/openais.conf openais-0.81/conf/openais.conf
  	debug: off
  	timestamp: on
  	logger {
+@@ -29,3 +31,9 @@
+ amf {
+ 	mode: disabled
+ }
++
++aisexec {
++	user: Debian-ais
++	group: Debian-ais
++}
++
