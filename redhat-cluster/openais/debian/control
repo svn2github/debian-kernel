@@ -9,7 +9,7 @@ Build-Depends: dpatch, debhelper (>> 5)
 Package: openais
 Section: admin
 Architecture: any
-Depends: ${shlibs:Depends}, libopenais2 (= ${Source-Version}), lsb-base (>= 3.0-6)
+Depends: ${shlibs:Depends}, libopenais2 (= ${Source-Version}), lsb-base (>= 3.0-6), adduser
 Description: Standards-based cluster framework (daemon and modules)
  The openais project is a project to implement a production quality
  "Revised BSD" licensed implementation of the SA Forum's Application
