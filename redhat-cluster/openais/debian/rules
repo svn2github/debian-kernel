@@ -52,8 +52,6 @@ install: $(STAMPS_DIR)/build
 	dh_installdirs
 	dh_installdocs
 	dh_installexamples
-	dh_installinit -p openais -- start 59 S .
-	dh_installlogrotate
 	dh_strip
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	strip --remove-section=.comment --remove-section=.note --strip-unneeded debian/openais/usr/lib/openais/lcrso/*
