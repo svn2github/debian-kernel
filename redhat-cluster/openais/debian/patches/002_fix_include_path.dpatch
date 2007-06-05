@@ -1,0 +1,248 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 002_fix_include_path.dpatch by  <fabbione@gordian.int.fabbione.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad openais-0.81~/exec/clm.c openais-0.81/exec/clm.c
+--- openais-0.81~/exec/clm.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/clm.c	2007-05-03 16:18:18.000000000 +0200
+@@ -57,6 +57,7 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ 
++#include "swab.h"
+ #include "totem.h"
+ #include "../include/saAis.h"
+ #include "../include/saClm.h"
+diff -urNad openais-0.81~/exec/evs.c openais-0.81/exec/evs.c
+--- openais-0.81~/exec/evs.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/evs.c	2007-05-03 16:18:18.000000000 +0200
+@@ -49,6 +49,7 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ 
++#include "swab.h"
+ #include "totem.h"
+ #include "../include/saAis.h"
+ #include "../include/ipc_gen.h"
+@@ -56,7 +57,6 @@
+ #include "../include/list.h"
+ #include "../include/queue.h"
+ #include "../lcr/lcr_comp.h"
+-#include "../include/swab.h"
+ #include "totempg.h"
+ #include "main.h"
+ #include "ipc.h"
+diff -urNad openais-0.81~/exec/flow.c openais-0.81/exec/flow.c
+--- openais-0.81~/exec/flow.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/flow.c	2007-05-03 16:18:18.000000000 +0200
+@@ -46,6 +46,7 @@
+ #include <assert.h>
+ #include <pthread.h>
+ 
++#include "swab.h"
+ #include "flow.h"
+ #include "totem.h"
+ #include "totempg.h"
+diff -urNad openais-0.81~/exec/ipc.c openais-0.81/exec/ipc.c
+--- openais-0.81~/exec/ipc.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/ipc.c	2007-05-03 16:18:18.000000000 +0200
+@@ -58,6 +58,7 @@
+ #include <ucred.h>
+ #endif
+ 
++#include "swab.h"
+ #include "../include/saAis.h"
+ #include "../include/list.h"
+ #include "../include/queue.h"
+diff -urNad openais-0.81~/exec/lck.c openais-0.81/exec/lck.c
+--- openais-0.81~/exec/lck.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/lck.c	2007-05-03 16:18:18.000000000 +0200
+@@ -48,6 +48,7 @@
+ #include <signal.h>
+ #include <arpa/inet.h>
+ 
++#include "swab.h"
+ #include "service.h"
+ #include "../include/saAis.h"
+ #include "../include/saLck.h"
+diff -urNad openais-0.81~/exec/main.c openais-0.81/exec/main.c
+--- openais-0.81~/exec/main.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/main.c	2007-05-03 16:18:18.000000000 +0200
+@@ -56,6 +56,7 @@
+ #include <sched.h>
+ #include <time.h>
+ 
++#include "swab.h"
+ #include "../include/saAis.h"
+ #include "../include/list.h"
+ #include "../include/queue.h"
+diff -urNad openais-0.81~/exec/print.c openais-0.81/exec/print.c
+--- openais-0.81~/exec/print.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/print.c	2007-05-03 16:18:18.000000000 +0200
+@@ -56,6 +56,7 @@
+ #include <stdlib.h>
+ #include <pthread.h>
+ 
++#include "swab.h"
+ #include "print.h"
+ #include "totemip.h"
+ #include "../include/saAis.h"
+diff -urNad openais-0.81~/exec/service.c openais-0.81/exec/service.c
+--- openais-0.81~/exec/service.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/service.c	2007-05-03 16:18:18.000000000 +0200
+@@ -39,6 +39,7 @@
+ #include <assert.h>
+ 
+ #include "../lcr/lcr_ifact.h"
++#include "swab.h"
+ #include "service.h"
+ #include "mainconfig.h"
+ #include "util.h"
+diff -urNad openais-0.81~/exec/timer.c openais-0.81/exec/timer.c
+--- openais-0.81~/exec/timer.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/timer.c	2007-05-03 16:18:18.000000000 +0200
+@@ -56,6 +56,7 @@
+ #include <sched.h>
+ #include <time.h>
+ 
++#include "swab.h"
+ #include "../include/saAis.h"
+ #include "../include/list.h"
+ #include "../include/queue.h"
+diff -urNad openais-0.81~/exec/totem.h openais-0.81/exec/totem.h
+--- openais-0.81~/exec/totem.h	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totem.h	2007-05-03 16:18:18.000000000 +0200
+@@ -36,7 +36,6 @@
+ #ifndef TOTEM_H_DEFINED
+ #define TOTEM_H_DEFINED
+ #include "totemip.h"
+-#include "../include/swab.h"
+ 
+ #define MESSAGE_SIZE_MAX	1024*1024 /* (1MB) */
+ #define PROCESSOR_COUNT_MAX	384
+diff -urNad openais-0.81~/exec/totemconfig.c openais-0.81/exec/totemconfig.c
+--- openais-0.81~/exec/totemconfig.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemconfig.c	2007-05-03 16:18:18.000000000 +0200
+@@ -46,7 +46,8 @@
+ #include <arpa/inet.h>
+ #include <sys/param.h>
+ 
+-#include "../include/list.h"
++#include "swab.h"
++#include "list.h"
+ #include "util.h"
+ #include "totem.h"
+ #include "totemconfig.h"
+diff -urNad openais-0.81~/exec/totemip.c openais-0.81/exec/totemip.c
+--- openais-0.81~/exec/totemip.c	2007-03-06 17:18:44.000000000 +0100
++++ openais-0.81/exec/totemip.c	2007-05-03 16:18:18.000000000 +0200
+@@ -79,8 +79,8 @@
+ #define s6_addr16 __u6_addr.__u6_addr16
+ #endif
+ 
+-#include "totemip.h"
+ #include "swab.h"
++#include "totemip.h"
+ 
+ #define LOCALHOST_IPV4 "127.0.0.1"
+ #define LOCALHOST_IPV6 "::1"
+diff -urNad openais-0.81~/exec/totemip.h openais-0.81/exec/totemip.h
+--- openais-0.81~/exec/totemip.h	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemip.h	2007-05-03 16:18:18.000000000 +0200
+@@ -43,8 +43,6 @@
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ 
+-#include "../include/swab.h"
+-
+ #ifdef SO_NOSIGPIPE
+ #ifndef MSG_NOSIGNAL
+ #define MSG_NOSIGNAL 0
+diff -urNad openais-0.81~/exec/totemmrp.c openais-0.81/exec/totemmrp.c
+--- openais-0.81~/exec/totemmrp.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemmrp.c	2007-05-03 16:18:18.000000000 +0200
+@@ -53,6 +53,7 @@
+ #include <sys/time.h>
+ #include <sys/poll.h>
+ 
++#include "swab.h"
+ #include "totem.h"
+ #include "totemsrp.h"
+ #include "aispoll.h"
+diff -urNad openais-0.81~/exec/totemnet.c openais-0.81/exec/totemnet.c
+--- openais-0.81~/exec/totemnet.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemnet.c	2007-05-03 16:18:18.000000000 +0200
+@@ -60,6 +60,7 @@
+ #include "aispoll.h"
+ #include "totemnet.h"
+ #include "wthread.h"
++#include "swab.h"
+ #include "../include/queue.h"
+ #include "../include/sq.h"
+ #include "../include/list.h"
+diff -urNad openais-0.81~/exec/totemnet.h openais-0.81/exec/totemnet.h
+--- openais-0.81~/exec/totemnet.h	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemnet.h	2007-05-03 16:18:18.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ 
++#include "swab.h"
+ #include "totem.h"
+ #include "aispoll.h"
+ 
+diff -urNad openais-0.81~/exec/totempg.c openais-0.81/exec/totempg.c
+--- openais-0.81~/exec/totempg.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totempg.c	2007-05-03 16:18:18.000000000 +0200
+@@ -94,6 +94,7 @@
+ #include <pthread.h>
+ #include <errno.h>
+ 
++#include "swab.h"
+ #include "../include/hdb.h"
+ #include "../include/list.h"
+ #include "totempg.h"
+diff -urNad openais-0.81~/exec/totemsrp.c openais-0.81/exec/totemsrp.c
+--- openais-0.81~/exec/totemsrp.c	2007-05-03 16:12:34.000000000 +0200
++++ openais-0.81/exec/totemsrp.c	2007-05-03 16:18:18.000000000 +0200
+@@ -73,6 +73,7 @@
+ #include <sys/time.h>
+ #include <sys/poll.h>
+ 
++#include "swab.h"
+ #include "aispoll.h"
+ #include "totemsrp.h"
+ #include "totemrrp.h"
+@@ -81,7 +82,6 @@
+ #include "../include/sq.h"
+ #include "../include/list.h"
+ #include "../include/hdb.h"
+-#include "swab.h"
+ 
+ #include "crypto.h"
+ 
+diff -urNad openais-0.81~/lib/clm.c openais-0.81/lib/clm.c
+--- openais-0.81~/lib/clm.c	2007-05-03 15:13:29.000000000 +0200
++++ openais-0.81/lib/clm.c	2007-05-03 16:18:18.000000000 +0200
+@@ -45,6 +45,7 @@
+ #include <sys/select.h>
+ #include <sys/un.h>
+ 
++#include "../include/swab.h"
+ #include "../exec/totem.h"
+ #include "../include/saAis.h"
+ #include "../include/saClm.h"
+diff -urNad openais-0.81~/lib/evs.c openais-0.81/lib/evs.c
+--- openais-0.81~/lib/evs.c	2007-05-03 15:13:29.000000000 +0200
++++ openais-0.81/lib/evs.c	2007-05-03 16:18:18.000000000 +0200
+@@ -46,6 +46,7 @@
+ #include <sys/socket.h>
+ #include <errno.h>
+ 
++#include "../include/swab.h"
+ #include "../exec/totem.h"
+ #include "../include/saAis.h"
+ #include "../include/evs.h"
