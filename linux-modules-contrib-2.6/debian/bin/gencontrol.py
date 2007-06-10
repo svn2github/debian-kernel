@@ -14,8 +14,8 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
     def do_main_setup(self, vars, makeflags, extra):
         super(gencontrol, self).do_main_setup(vars, makeflags, extra)
         makeflags.update({
-            'VERSION_SOURCE': self.version['upstream'],
-            'VERSION_DEBIAN': self.version['debian'],
+            'VERSION_SOURCE': self.version.upstream,
+            'VERSION_DEBIAN': self.version.debian,
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
@@ -25,10 +25,10 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         vars = self.vars
 
         packages['source']['Build-Depends'].extend(
-            ['linux-support-%s%s' % (self.version['linux']['upstream'], self.abiname)]
+            ['linux-support-%s%s' % (self.version.linux_upstream, self.abiname)]
         )
         packages['source']['Build-Depends'].extend(
-            ['linux-headers-%s%s-all-%s [%s]' % (self.version['linux']['upstream'], self.abiname, arch, arch)
+            ['linux-headers-%s%s-all-%s [%s]' % (self.version.linux_upstream, self.abiname, arch, arch)
             for arch in self.config['base',]['arches']],
         )
 
@@ -118,9 +118,9 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         return True
 
     def process_changelog(self):
-        changelog = read_changelog()
-        self.version = changelog[0]['Version']
-        if self.version['linux']['modifier'] is not None:
+        changelog = Changelog(version = VersionLinux)
+        self.version = changelog[0].version
+        if self.version.linux_modifier is not None:
             self.abiname = ''
         else:
             self.abiname = '-%s' % self.config['abi',]['abiname']
