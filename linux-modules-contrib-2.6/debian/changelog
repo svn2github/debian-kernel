@@ -1,8 +1,9 @@
-linux-modules-contrib-2.6 (2.6.21-1) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.21-1) unstable; urgency=low
 
+  [ Bastian Blank ]
   * Update to 2.6.21-1.
 
- -- Bastian Blank <waldi@debian.org>  Sun, 10 Jun 2007 11:47:38 +0200
+ -- Daniel Baumann <daniel@debian.org>  Sun, 17 Jun 2007 21:05:00 +0100
 
 linux-modules-contrib-2.6 (2.6.18-5) unstable; urgency=low
 
