@@ -11,7 +11,7 @@ Description: @desc@ modules for Linux @upstreamversion@ on @class@
 Package: @module@-modules-@major@@localversion@
 Section: admin
 Priority: optional
-Depends: @module@-modules-@upstreamversion@@abiname@@localversion@
+Depends: @module@-modules-@upstreamversion@@abiname@@localversion@, linux-latest-modules-@upstreamversion@@abiname@@localversion@
 Description: @desc@ modules for Linux @major@ on @class@
  This package depends on the @desc@ modules for latest Linux kernel @major@ on
  @longclass@ machines.
