@@ -1,6 +1,5 @@
 [base]
 modules:
  gspca
- mol
  squashfs
  unionfs
