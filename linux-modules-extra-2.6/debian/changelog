@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.21-4) unstable; urgency=low
+
+  * Rebuild against new gspca upstream release.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed,  4 Jul 2007 20:20:00 +0200
+
 linux-modules-extra-2.6 (2.6.21-3) unstable; urgency=low
 
   [ Bastian Blank ]
