@@ -1,8 +1,12 @@
 linux-modules-contrib-2.6 (2.6.21-3) UNRELEASED; urgency=low
 
+  [ Bastian Blank ]
   * Adopt linux-latest-2.6 changes.
 
- -- Bastian Blank <waldi@debian.org>  Fri, 29 Jun 2007 16:41:45 +0200
+  [ Daniel Baumann ]
+  * (Temporarily) excluding ivtv on mips as adviced by the maintainer.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed,  4 Jul 2007 21:04:00 +0200
 
 linux-modules-contrib-2.6 (2.6.21-2) unstable; urgency=low
 

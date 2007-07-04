@@ -1,3 +1,5 @@
 [base]
+not-arches:
+  mips
 desc: driver for the iTVC15 family of MPEG codecs
 
