@@ -1,5 +1,0 @@
-[base]
-not-arches:
- amd64
- powerpc
-desc: drivers for wireless prism2 cards
