@@ -1,5 +1,6 @@
 [base]
 modules:
+ aufs
  gspca
  squashfs
  unionfs
