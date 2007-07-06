@@ -1,0 +1,5 @@
+[base]
+arches:
+  i386
+not-subarches: xen xen-vserver
+desc: QEMU Accelerator
