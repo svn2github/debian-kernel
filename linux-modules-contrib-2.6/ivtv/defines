@@ -1,5 +1,8 @@
 [base]
-not-arches:
-  mips
-desc: driver for the iTVC15 family of MPEG codecs
+arches:
+ amd64
+ i386
+ ia64
+ powerpc
+desc: iTVC15 family MPEG codecs
 

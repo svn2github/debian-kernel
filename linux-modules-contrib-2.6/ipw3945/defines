@@ -2,5 +2,5 @@
 arches:
   amd64
   i386
-desc: Intel PRO/Wireless 3945ABG (ipw3945) driver
+desc: Intel Wireless 3945
 
