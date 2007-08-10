@@ -1,6 +1,7 @@
-linux-modules-nonfree-2.6 (2.6.21-2) UNRELEASED; urgency=low
+linux-modules-nonfree-2.6 (2.6.22-1) UNRELEASED; urgency=low
 
   * Adopt linux-latest-2.6 changes.
+  * Update to 2.6.22-1.
 
  -- Bastian Blank <waldi@debian.org>  Fri, 29 Jun 2007 16:41:45 +0200
 
