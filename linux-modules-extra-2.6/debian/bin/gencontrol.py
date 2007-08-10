@@ -1,18 +1,18 @@
 #!/usr/bin/env python2.4
 import sys
 sys.path.append(sys.argv[1] + "/lib/python")
-import debian_linux.gencontrol
+from debian_linux.gencontrol import Gencontrol as Base
 from debian_linux import config
 from debian_linux.debian import *
 
-class gencontrol(debian_linux.gencontrol.gencontrol):
+class Gencontrol(Base):
     def __init__(self, configdir):
-        super(gencontrol, self).__init__(configdir)
+        super(Gencontrol, self).__init__(configdir)
         self.process_changelog()
-        self.config = config_reader_modules(self.config)
+        self.config = ConfigReader(self.config)
 
     def do_main_setup(self, vars, makeflags, extra):
-        super(gencontrol, self).do_main_setup(vars, makeflags, extra)
+        super(Gencontrol, self).do_main_setup(vars, makeflags, extra)
         makeflags.update({
             'VERSION_SOURCE': self.version.upstream,
             'VERSION_DEBIAN': self.version.debian,
@@ -37,7 +37,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         if config_entry.get('modules', True) is False:
             return
 
-        super(gencontrol, self).do_flavour(packages, makefile, arch, subarch, flavour, vars, makeflags, extra)
+        super(Gencontrol, self).do_flavour(packages, makefile, arch, subarch, flavour, vars, makeflags, extra)
 
         have_modules = False
 
@@ -64,7 +64,7 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
 
-        relations = package_relation_list(config_entry_relations.get('source', '%s-source' % module))
+        relations = PackageRelation(config_entry_relations.get('source', '%s-source' % module))
         if config_entry.get('arches', None) or config_entry.get('not-arches', None):
             for group in relations:
                 for item in group:
@@ -126,18 +126,21 @@ class gencontrol(debian_linux.gencontrol.gencontrol):
             self.abiname = '-%s' % self.config['abi',]['abiname']
         self.vars = self.process_version_linux(self.version, self.abiname)
 
-class config_reader_modules(config.config_reader_arch):
+class ConfigReader(config.ConfigReaderCore):
     schema_base = {
-        'modules': config.schema_item_list(),
+#        'base': {
+            'modules': config.SchemaItemList(),
+#        }
     }
 
     schema_module = {
-        'arches': config.schema_item_list(),
+#        'base': {
+            'arches': config.SchemaItemList(),
+#        }
     }
 
     def __init__(self, arch):
-        super(config_reader_modules, self).__init__(['.'])
-        self._read_base()
+        super(ConfigReader, self).__init__(['.'])
 
         for section in iter(arch):
             s1 = self.get(section, {})
@@ -145,8 +148,8 @@ class config_reader_modules(config.config_reader_arch):
             s2.update(s1)
             self[section] = s2
 
-    def _read_base(self):
-        config_file = config.config_parser(self.schema_base, self._get_files(self.config_name))
+    def _readBase(self):
+        config_file = config.ConfigParser(self.schema_base, self.getFiles(self.config_name))
 
         modules = config_file['base',]['modules']
 
@@ -162,7 +165,7 @@ class config_reader_modules(config.config_reader_arch):
             self._read_module(module)
 
     def _read_module(self, module):
-        config_file = config.config_parser(self.schema_base, self._get_files("%s/%s" % (module, self.config_name)))
+        config_file = config.ConfigParser(self.schema_base, self.getFiles("%s/%s" % (module, self.config_name)))
 
         for section in iter(config_file):
             real = list(section)
@@ -173,4 +176,4 @@ class config_reader_modules(config.config_reader_arch):
             self[real] = s
 
 if __name__ == '__main__':
-    gencontrol(sys.argv[1] + "/arch")()
+    Gencontrol(sys.argv[1] + "/arch")()
