@@ -2,8 +2,10 @@ linux-modules-contrib-2.6 (2.6.21-4) UNRELEASED; urgency=low
 
   * Restrict ivtv to am64, i386, ia64 and powerpc.
   * Update descriptions.
+  * Update to 2.6.22-1.
+  * Adopt linux-latest-2.6 changes. 
 
- -- Bastian Blank <waldi@debian.org>  Sat, 07 Jul 2007 08:53:30 +0200
+ -- Bastian Blank <waldi@debian.org>  Fri, 10 Aug 2007 16:39:36 +0200
 
 linux-modules-contrib-2.6 (2.6.21-3) unstable; urgency=low
 
