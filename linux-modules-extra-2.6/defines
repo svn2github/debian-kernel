@@ -3,5 +3,6 @@ modules:
  aufs
  gspca
  kqemu
+ mol
  squashfs
  unionfs
