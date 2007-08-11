@@ -8,6 +8,7 @@ linux-modules-contrib-2.6 (2.6.22-1) unstable; urgency=low
 
   [ Daniel Baumann ]
   * Removing ipw2100 and ipw2200.
+  * Temporarily disabling ivtv; doesn't build with 2.6.22.
 
  -- Daniel Baumann <daniel@debian.org>  Sat, 11 Aug 2007 17:50:00 +0200
 
