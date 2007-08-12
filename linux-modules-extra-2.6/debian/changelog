@@ -3,6 +3,7 @@ linux-modules-extra-2.6 (2.6.22-1) UNRELEASED; urgency=low
   [ Daniel Baumann ]
   * Added aufs modules.
   * Moving kqemu from linux-modules-non-free-2.6 to here.
+  * Removed squashfs overrides, not needed anymore.
   * Update to 2.6.22-1.
 
   [ Bastian Blank ]
