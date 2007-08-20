@@ -1,0 +1,31 @@
+Source: tgt
+Section: net
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Frederik Schüler <fs@debian.org>
+Build-Depends: debhelper (>= 5), libssl-dev
+Standards-Version: 3.7.2
+
+Package: tgt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Linux target framework user-space tools
+ Linux target framework (tgt) aims to simplify various SCSI target
+ driver (iSCSI, Fibre Channel, SRP, etc) creation and maintenance.
+ .
+ Tgt consists of kernel modules, user-space daemon, and user-space
+ tools. Some target drivers uses all of them and some use only
+ user-space daemon and tools (i.e. they completely runs in user space).
+ .
+ This package contains the user-space daemon and tools, a recent Linux
+ kernel is required for the modules.
+ .
+ Currently, tgt supports three target drivers:
+ .
+ - IBM VIO server (ibmvstgt)
+ - iSCSI
+ - Xen vscsifront/back
+ .
+ Note that tgt is under active development. Don't play with important
+ data.
+
