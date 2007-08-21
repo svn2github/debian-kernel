@@ -97,6 +97,14 @@ diff -urNad openais~/Makefile openais/Makefile
  
  	install -m 755 exec/aisexec $(DESTDIR)$(SBINDIR)
  	install -m 700 exec/keygen $(DESTDIR)$(SBINDIR)/ais-keygen
+@@ -189,6 +175,7 @@
+ 	install -m 644 exec/objdb.h $(DESTDIR)$(INCLUDEDIR_SERVICE)
+ 	install -m 644 exec/print.h $(DESTDIR)$(INCLUDEDIR_SERVICE)
+ 	install -m 644 exec/config.h $(DESTDIR)$(INCLUDEDIR_SERVICE)
++	install -m 644 exec/timer.h     $(DESTDIR)$(INCLUDEDIR_SERVICE)
+ 	install -m 644 include/swab.h $(DESTDIR)$(INCLUDEDIR_SERVICE)
+ 	install -m 644 man/*.3 $(DESTDIR)$(MANDIR)/man3
+ 	install -m 644 man/*.5 $(DESTDIR)$(MANDIR)/man5
 diff -urNad openais~/lcr/lcr_ifact.c openais/lcr/lcr_ifact.c
 --- openais~/lcr/lcr_ifact.c	2007-03-12 18:28:44.000000000 +0100
 +++ openais/lcr/lcr_ifact.c	2007-05-31 10:05:22.220462012 +0200
