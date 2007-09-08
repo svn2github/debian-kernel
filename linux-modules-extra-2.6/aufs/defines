@@ -1,2 +1,3 @@
 [base]
 desc: Another UnionFS
+not-subarches: vserver xen-vserver
