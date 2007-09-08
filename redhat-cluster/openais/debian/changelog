@@ -1,12 +1,4 @@
-openais (0.80.2-1) UNRELEASED; urgency=low
-
-  * New upstream release.
-  * Drop 002_fix_include_path.dpatch, fixed upstream.
-  * Do not install README.recovery, removed upstream.
-
- -- Frederik Schüler <fs@debian.org>  Tue, 21 Aug 2007 13:10:25 +0200
-
-openais (0.80.1-1) unstable; urgency=low
+openais (0.81-1) unstable; urgency=low
 
   * Initial Release (closes: #421816).
     - Pull tarball from Ubuntu.
