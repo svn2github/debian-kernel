@@ -5,6 +5,5 @@ $(BUILD_STAMP):
 	touch $@
 
 install:
-	install -D -m 0644 $(CURDIR)/$(DIR)/driver/ivtv.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/$(MODULE)/ivtv.ko
 	install -D -m 0644 $(CURDIR)/$(DIR)/driver/ivtv-fb.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/$(MODULE)/ivtv-fb.ko
 	install -D -m 0644 $(CURDIR)/$(DIR)/i2c-drivers/saa717x.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/$(MODULE)/saa717x.ko
