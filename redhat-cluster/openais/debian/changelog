@@ -1,3 +1,9 @@
+openais (0.81-2) UNRELEASED; urgency=low
+
+  * Drop unnecessary patches.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 22 Sep 2007 10:40:07 +0200
+
 openais (0.81-1) unstable; urgency=low
 
   * Initial Release (closes: #421816).
