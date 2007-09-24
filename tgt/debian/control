@@ -22,9 +22,9 @@ Description: Linux target framework user-space tools
  .
  Currently, tgt supports three target drivers:
  .
- - IBM VIO server (ibmvstgt)
- - iSCSI
- - Xen vscsifront/back
+  - IBM VIO server (ibmvstgt)
+  - iSCSI
+  - Xen vscsifront/back
  .
  Note that tgt is under active development. Don't play with important
  data.
