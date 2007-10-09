@@ -4,3 +4,4 @@ modules:
  gspca
  mol
  squashfs
+ unionfs
