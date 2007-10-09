@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.22-4) UNRELEASED; urgency=low
+
+  * Adding virtualbox-ose.
+
+ -- Daniel Baumann <daniel@debian.org>  Tue,  9 Oct 2007 13:47:00 +0200
+
 linux-modules-extra-2.6 (2.6.22-3) unstable; urgency=medium
 
   * Re-enabling vserver flavours for aufs.
