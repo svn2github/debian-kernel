@@ -4,7 +4,6 @@ modules:
  btrfs
  gspca
  iscsitarget
- kqemu
  mol
  squashfs
  unionfs
