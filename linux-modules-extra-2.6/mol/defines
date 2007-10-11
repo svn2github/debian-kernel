@@ -5,7 +5,7 @@ flavours:
  powerpc
  powerpc-smp
  powerpc-miboot
-desc: Mac-on-Linux emulator 
+desc: Mac-on-Linux emulator
 longdesc:
  Mac-on-Linux is basically an emulator capable of running
  MacOS on most Debian/PowerPC machines.  However, several

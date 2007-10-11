@@ -1,4 +1,3 @@
-
 $(BUILD_STAMP):
 	$(MAKE) -f $(DIR)/Makefile
 	touch $@
