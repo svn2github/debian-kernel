@@ -3,6 +3,7 @@ modules:
  aufs
  btrfs
  gspca
+ iscsitarget
  kqemu
  mol
  squashfs

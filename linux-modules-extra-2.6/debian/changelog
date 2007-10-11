@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.22-4) UNRELEASED; urgency=low
 
   * Adding btrfs.
+  * Adding iscsitarget.
   * Adding virtualbox-ose.
   * Re-enabling kqemu (on i386 only).
 
