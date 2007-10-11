@@ -1,6 +1,7 @@
 [base]
 modules:
  aufs
+ btrfs
  gspca
  kqemu
  mol
