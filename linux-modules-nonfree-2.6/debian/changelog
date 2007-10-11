@@ -1,10 +1,13 @@
 linux-modules-nonfree-2.6 (2.6.22-1) UNRELEASED; urgency=low
 
+  [ Bastian Blank ]
   * Adopt linux-latest-2.6 changes.
-  * Update to 2.6.22-1.
   * Remove kqemu.
 
- -- Bastian Blank <waldi@debian.org>  Fri, 10 Aug 2007 16:44:11 +0200
+  [ Daniel Baumann ]
+  * Update to 2.6.22-3.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 11 Oct 2007 20:35:00 +0200
 
 linux-modules-nonfree-2.6 (2.6.21-1) unstable; urgency=low
 
