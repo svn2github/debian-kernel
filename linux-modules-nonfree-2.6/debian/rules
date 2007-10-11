@@ -16,4 +16,3 @@ GENCONTROL = debian/bin/gencontrol.py
 
 maintainerclean:
 	-rm debian/control debian/control.md5sum debian/rules.gen
-
