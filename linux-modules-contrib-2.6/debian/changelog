@@ -1,4 +1,4 @@
-linux-modules-contrib-2.6 (2.6.22-3) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.22-3) unstable; urgency=low
 
   [ Steve Langasek ]
   * Re-enable ivtv
@@ -10,7 +10,7 @@ linux-modules-contrib-2.6 (2.6.22-3) UNRELEASED; urgency=low
   * Updated ivtv install override to match the new module name.
   * Added rt73.
 
- -- Daniel Baumann <daniel@debian.org>  Thu, 11 Oct 2007 20:32:00 +0200
+ -- Daniel Baumann <daniel@debian.org>  Thu, 25 Oct 2007 12:33:00 +0200
 
 linux-modules-contrib-2.6 (2.6.22-2) unstable; urgency=low
 
