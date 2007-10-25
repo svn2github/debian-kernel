@@ -7,6 +7,7 @@ linux-modules-contrib-2.6 (2.6.22-3) UNRELEASED; urgency=low
 
   [ Daniel Baumann ]
   * Update to 2.6.22-3.
+  * Updated ivtv install override to match the new module name.
   * Added rt73.
 
  -- Daniel Baumann <daniel@debian.org>  Thu, 11 Oct 2007 20:32:00 +0200
