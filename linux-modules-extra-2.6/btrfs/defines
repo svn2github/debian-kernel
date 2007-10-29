@@ -1,2 +1,10 @@
 [base]
+not-arches:
+ arm
+ hppa
+ ia64
+ mips
+ mipsel
+ powerpc
+ sparc
 desc: Snapshotting filesystem
