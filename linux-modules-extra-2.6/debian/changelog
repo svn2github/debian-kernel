@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.22-7) UNRELEASED; urgency=low
 
   * Adding rt2400.
+  * Adding rt2500.
 
  -- Daniel Baumann <daniel@debian.org>  Wed, 31 Oct 2007 12:08:00 +0100
 
