@@ -1,11 +1,7 @@
 
-initramfs-tools uses bzr for it's devlopment:
+initramfs-tools uses git for it's devlopment:
+git clone git://git.debian.org/git/kernel/initramfs-tools.git
 
-# Debian repository
-bzr branch http://arch.debian.org/arch/kernel/trunk/initramfs-tools/
+web interface:
+http://git.debian.org/?p=kernel/initramfs-tools.git
 
-# old jbailey repo
-bzr branch http://people.ubuntu.com/~jbailey/bzrtree/initramfs-tools           
-                                                                               
-# Update your branch                                                           
-bzr pull                                                                       
