@@ -3,6 +3,7 @@ linux-modules-extra-2.6 (2.6.22-7) UNRELEASED; urgency=low
   * Adding atl2.
   * Adding provides to control (Closes: #451955).
   * Re-enabling virtualbox-ose.
+  * Updating virtualbox-ose copyright file.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 26 Nov 2007 13:54:00 +0100
 
