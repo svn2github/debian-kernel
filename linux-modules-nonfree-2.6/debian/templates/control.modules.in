@@ -2,6 +2,7 @@ Package: @module@-modules-@upstreamversion@@abiname@@localversion@
 Section: non-free/admin
 Priority: optional
 Depends: linux-modules-@upstreamversion@@abiname@@localversion@
+Provides: @module@-modules
 Description: @desc@ modules for Linux @upstreamversion@ on @class@
  This package provides the @desc@ modules for the Linux kernel version
  @upstreamversion@ on @longclass@ machines.

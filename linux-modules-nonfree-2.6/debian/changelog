@@ -10,6 +10,7 @@ linux-modules-nonfree-2.6 (2.6.22-1) UNRELEASED; urgency=low
   * Adding nvidia-kernel-legacy-71xx.
   * Adding nvidia-kernel-legacy-96xx.
   * Adding unicorn.
+  * Adding provides to control.
 
  -- Daniel Baumann <daniel@debian.org>  Thu, 11 Oct 2007 20:35:00 +0200
 
