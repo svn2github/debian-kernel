@@ -3,6 +3,7 @@ modules:
  atl2
  aufs
  btrfs
+ drbd8
  gspca
  iscsitarget
  mol
