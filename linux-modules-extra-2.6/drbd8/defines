@@ -1,2 +1,5 @@
 [base]
+not-arches:
+ mips
+ mipsel
 desc: Driver for RAID 1 over tcp/ip
