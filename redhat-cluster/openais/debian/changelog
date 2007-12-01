@@ -1,8 +1,15 @@
-openais (0.81-2) UNRELEASED; urgency=low
+openais (0.82-1) UNRELEASED; urgency=low
 
+  [ Bastian Blank ]
   * Drop unnecessary patches.
 
- -- Bastian Blank <waldi@debian.org>  Sat, 22 Sep 2007 10:40:07 +0200
+  [ Frederik Schüler ]
+  * New upstream release (Closes: #453438)
+  * Add myself to uploaders.
+  * Rediff 001_makefile.dpatch
+  * Drop 002_fix_include_path.dpatch
+
+ -- Frederik Schüler <fs@debian.org>  Sat, 01 Dec 2007 19:55:14 +0100
 
 openais (0.81-1) unstable; urgency=low
 
