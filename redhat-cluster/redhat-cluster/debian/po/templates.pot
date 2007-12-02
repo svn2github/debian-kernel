@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: fabbione@ubuntu.com\n"
+"POT-Creation-Date: 2006-07-14 17:15+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../cman.templates:1001
+msgid "Cluster Manager Upgrade"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../cman.templates:1001
+msgid "An older version of cman installed on the system."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../cman.templates:1001
+msgid ""
+"The version that is going to be installed is *NOT* compatible with the old "
+"one and will break the cluster horribly if not upgraded properly."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../cman.templates:1001
+msgid ""
+"Check https://wiki.ubuntu.com/UpgradingClusterProcedure for the latest "
+"instructions on how to proceed."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../cman.templates:1001
+msgid "Continue with the upgrade?"
+msgstr ""

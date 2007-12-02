@@ -1,0 +1,3 @@
+Merge cman.init changes from upstream to handle xen.
+Review *.init. 
+check scsi_reserve stuff

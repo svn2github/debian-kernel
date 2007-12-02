@@ -1,0 +1,145 @@
+#!/bin/bash
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=cman
+DESC="cluster manager"
+
+test -x /usr/sbin/cman_tool || exit 0
+
+# ccsd
+
+CCSD_OPTS=""
+
+# cman
+
+CMAN_CLUSTER_TIMEOUT=120
+CMAN_QUORUM_TIMEOUT=0
+CMAN_SHUTDOWN_TIMEOUT=60
+
+set -e
+
+load_modules() {
+	modprobe configfs 2>&1 || true
+	modprobe dlm 2>&1 || true
+	modprobe lock_dlm 2>&1 || true
+}
+
+mount_configfs() {
+	if ! awk '{ print $2" "$3 }' /etc/mtab | grep "/sys/kernel/config configfs" > /dev/null ; then
+		mount -t configfs none /sys/kernel/config
+	fi
+}
+
+umount_configfs() {
+	if awk '{ print $2" "$3 }' /etc/mtab | grep "/sys/kernel/config configfs" > /dev/null ; then
+		umount /sys/kernel/config
+	fi
+}
+
+case "$1" in
+  start)
+	echo "Starting $DESC:"
+	echo -n " Loading kernel modules:"
+	load_modules
+	echo " done"
+	echo -n " Mounting config filesystem:"
+	mount_configfs
+	echo " done"
+	echo -n " Starting cluster configuration system:"
+	start-stop-daemon --start --quiet --pidfile /var/run/cluster/ccsd.pid --exec /usr/sbin/ccsd -- $CCSD_OPTS
+	sleep 1
+	echo " done"
+	echo -n " Joining cluster:"
+	cman_tool -t $CMAN_CLUSTER_TIMEOUT -w join $cman_join_opts
+	echo " done"
+	if [ $CMAN_QUORUM_TIMEOUT -gt 0 ]; then
+		echo -n " Waiting quorum timeout ($CMAN_QUORUM_TIMEOUT seconds):"
+		cman_tool -t $CMAN_QUORUM_TIMEOUT -q wait
+		echo " done"
+	fi
+	echo -n " Starting daemons:"
+	start-stop-daemon --start --quiet --pidfile /var/run/groupd.pid --exec /usr/sbin/groupd
+	echo -n " groupd"
+	start-stop-daemon --start --quiet --pidfile /var/run/fenced.pid --exec /usr/sbin/fenced
+	echo -n " fenced"
+	start-stop-daemon --start --quiet --pidfile /var/run/dlm_controld.pid --exec /usr/sbin/dlm_controld
+	echo -n " dlm_controld"
+	start-stop-daemon --start --quiet --pidfile /var/run/gfs_controld.pid --exec /usr/sbin/gfs_controld
+	echo " gfs_controld"
+	echo -n " Joining fence domain:"
+	fence_tool join
+	echo " done"
+	echo -n " Starting Quorum Disk daemon:"
+	start-stop-daemon --start --quiet --pidfile /var/run/qdiskd.pid --exec /usr/sbin/qdiskd -- -Q
+	echo " done"
+	;;
+  stop)
+	echo "Stopping $DESC"
+	echo -n " Stopping Quorum Disk daemon:"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/qdiskd.pid --exec /usr/sbin/qdiskd
+	rm -f /var/run/qdiskd.pid
+	echo " done"
+	echo -n " Leaving fence domain:"
+	fence_tool -w leave &
+	for sec in $(seq 1 10); do
+		if pidof fence_tool &> /dev/null; then
+			if [ "$sec" = 10 ]; then
+				kill $(pidof fence_tool) > /dev/null 2>&1
+			else
+				sleep 1
+			fi
+		fi
+	done
+	echo " done"
+	echo -n " Stopping daemons:"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gfs_controld.pid --exec /usr/sbin/gfs_controld
+	rm -f /var/run/gfs_controld.pid
+	echo -n " gfs_controld"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/dlm_controld.pid --exec /usr/sbin/dlm_controld
+	rm -f /var/run/dlm_controld.pid
+	echo -n " dlm_controld"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/fenced.pid --exec /usr/sbin/fenced
+	rm -f /var/run/fenced.pid
+	echo -n " fenced"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/groupd.pid --exec /usr/sbin/groupd
+	rm -f /var/run/groupd.pid
+	echo " groupd"
+	echo -n " Leaving the cluster:"
+	cman_tool -t $CMAN_SHUTDOWN_TIMEOUT -w leave || true
+	echo " done"
+	echo -n " Stopping cluster configuration system:"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/cluster/ccsd.pid --exec /usr/sbin/ccsd
+	rm -f /var/run/cluster/$NAME.pid
+	echo " done"
+	echo -n " Unmounting config filesystem:"
+	umount_configfs
+	echo " done"
+	;;
+  restart)
+	$0 stop 
+	sleep 1
+	$0 start
+	;;
+  remove)
+	echo -n "Stopping $DESC, removing node from cluster"
+	cman_tool leave remove
+	echo "."
+	;;
+  force-reload)
+	$0 force-stop
+	sleep 1
+	$0 start
+	;;
+  force-stop)
+	echo -n "Stopping $DESC, force"
+	cman_tool leave force
+	echo "."
+	;;
+  *)
+	N=/etc/init.d/$NAME
+	echo "Usage: $N {start|stop|remove|restart|force-reload|force-stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

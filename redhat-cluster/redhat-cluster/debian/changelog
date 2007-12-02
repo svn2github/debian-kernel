@@ -1,0 +1,6 @@
+redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
+
+  * First Debian release of the redhat cluster suite v2, based on the
+    packaging by Fabio M. Di Nitto <fabbione@fabbione.net>
+
+ -- Frederik Schüler <fs@debian.org>  Sun, 02 Dec 2007 17:14:52 +0100

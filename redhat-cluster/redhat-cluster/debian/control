@@ -1,0 +1,138 @@
+Source: redhat-cluster
+Section: admin
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>
+Standards-Version: 3.7.2.2
+Build-Depends: dpatch, debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.82-1), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.22-6), libvirt-dev (>= 0.3.0) [i386], libnss3-dev [i386], libnspr4-dev [i386]
+Build-Conflicts: libccs-dev, libcman-dev (<= 2.0), libdlm-dev (<= 2.0), libcman2, libdlm2
+
+Package: redhat-cluster-suite
+Section: admin
+Priority: optional
+Architecture: all
+Depends: cman, gfs-tools, gfs2-tools, gnbd-client, gnbd-server, rgmanager, clvm
+Description: red hat cluster suite (meta package)
+ The only scope for this package is to install the full Red Hat Cluster Suite
+ in one shot. It is safe to remove it.
+
+Package: cman
+Architecture: any
+Section: admin
+Pre-Depends: debconf | debconf-2.0
+Depends: ${shlibs:Depends}, ${misc:Depends}, openais (>= 0.82-0ubuntu1), gfs-modules
+Conflicts: magma, libmagma1, libmagma-dev, ccs, fence, libiddev-dev, fence-gnbd, gulm, libgulm1, libgulm-dev, magma-plugins
+Replaces: ccs, fence, fence-gnbd
+Description: cluster manager
+ CMAN is a symmetric general-purpose cluster manager. It consists of
+ a connection manager that handles cluster membership management,
+ messaging among the cluster nodes, event notification, quorum and
+ state transitions. Another part of CMAN is a service manager that
+ handles service groups.
+ .
+ This package contains only userspace tools for controlling the actual
+ cluster manager.
+
+Package: libcman2
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: cluster manager - libraries
+ cman provides a general purpose, openais based, cluster manager.
+ .
+ This package contains the client libraries.
+
+Package: libcman-dev
+Section: libdevel
+Architecture: any
+Depends: libcman2 (= ${Source-Version})
+Description: cluster manager - development files
+ cman provides a general purpose, openais based, cluster manager.
+ .
+ This package contains the files needed for developing applications.
+
+Package: libdlm2
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: distributed lock manager - library
+ DLM is a symmetric general-purpose distributed lock manager. It is
+ used for example by GFS and the distributed volume manager.
+ .
+ This is the client library for applications using the lock manager.
+ The lock manager itself is a kernel module.
+
+Package: libdlm-dev
+Section: libdevel
+Architecture: any
+Depends: libdlm2 (= ${Source-Version})
+Description: distributed lock manager - development files
+ DLM is a symmetric general-purpose distributed lock manager. It is
+ used for example by GFS and the distributed volume manager.
+ .
+ This package contains the files needed for developing applications
+ that use the lock manager.
+
+Package: gfs-tools
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, psmisc, gfs-modules, gfs2-tools
+Section: admin
+Description: global file system tools 
+ The Global File System allows a cluster of machines to concurrently access
+ shared storage hardware like SANs or iSCSI and network block devices. GFS
+ can be deployed to build high available services without the single point
+ of failure a file server would be.
+ .
+ This package contains userspace tools for creating and managing global
+ file systems. GFS itself is a set of kernel modules.
+ .
+ Note: the package requires gfs2-tools installed and it's known to work fine
+ even if GFS2 is highly experimental and *MUST NOT* be used in production
+ enviroment yet.
+
+Package: gfs2-tools
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, psmisc, gfs-modules
+Section: admin
+Description: global file system 2 tools (EXPERIMENTAL)
+ The Global File System 2 allows a cluster of machines to concurrently access
+ shared storage hardware like SANs or iSCSI and network block devices. GFS
+ can be deployed to build high available services without the single point
+ of failure a file server would be.
+ .
+ This package contains userspace tools for creating and managing global
+ file systems. GFS2 itself is a set of kernel modules.
+ .
+ GFS2 *MUST NOT* be used in production enviroment yet.
+
+Package: gnbd-client
+Section: admin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gfs-modules
+Recommends: fence-gnbd (= ${Source-Version})
+Description: global network block device - client tools
+ GNBD allows to usage block devices over the network. It is a modified
+ version of the linux network block device for the use within a cluster
+ environment.
+ .
+ This package contains userspace tools for running GNBD clients.
+
+Package: gnbd-server
+Section: admin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gfs-modules
+Recommends: fence-gnbd (= ${Source-Version})
+Description: global network block device - server tools
+ GNBD allows to usage block devices over the network. It is a modified
+ version of the linux network block device for the use within a cluster
+ environment.
+ .
+ This package contains userspace tools for running GNBD servers.
+
+Package: rgmanager
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, cman (= ${Source-Version}), iproute, iputils-arping, iputils-ping, nfs-kernel-server, nfs-common
+Conflicts: nfs-user-server
+Description: clustered resource group manager
+ Resource Group Manager provides high availability of critical server
+ applications in the event of planned or unplanned system downtime.
