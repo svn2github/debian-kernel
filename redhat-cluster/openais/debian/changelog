@@ -1,3 +1,9 @@
+openais (0.82-2) UNRELEASED; urgency=low
+
+  * Install openais/service/logsys.h
+
+ -- Frederik Schüler <fs@debian.org>  Sun, 02 Dec 2007 21:11:16 +0100
+
 openais (0.82-1) unstable; urgency=low
 
   [ Bastian Blank ]
