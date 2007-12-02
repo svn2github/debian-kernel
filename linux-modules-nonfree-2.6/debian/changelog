@@ -11,8 +11,9 @@ linux-modules-nonfree-2.6 (2.6.22-1) UNRELEASED; urgency=low
   * Adding nvidia-kernel-legacy-96xx.
   * Adding unicorn.
   * Adding provides to control.
+  * Adding Vcs fields in control.
 
- -- Daniel Baumann <daniel@debian.org>  Thu, 11 Oct 2007 20:35:00 +0200
+ -- Daniel Baumann <daniel@debian.org>  Sun,  2 Dec 2007 22:16:00 +0100
 
 linux-modules-nonfree-2.6 (2.6.21-1) unstable; urgency=low
 

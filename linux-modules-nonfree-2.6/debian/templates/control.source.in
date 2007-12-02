@@ -5,3 +5,5 @@ Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Daniel Baumann <daniel@debian.org>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
+Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/linux-modules-nonfree-2.6/
+Vcs-Svn: svn://svn.debian.org/kernel/dists/trunk/linux-modules-nonfree-2.6/
