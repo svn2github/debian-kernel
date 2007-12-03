@@ -6,6 +6,7 @@ modules:
  drbd8
  gspca
  iscsitarget
+ kqemu
  mol
  squashfs
  unionfs
