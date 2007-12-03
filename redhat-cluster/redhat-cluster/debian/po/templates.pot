@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: fabbione@ubuntu.com\n"
-"POT-Creation-Date: 2006-07-14 17:15+0200\n"
+"Report-Msgid-Bugs-To: Source: redhat-cluster@packages.debian.org\n"
+"POT-Creation-Date: 2007-12-03 02:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
-msgid "Cluster Manager Upgrade"
+msgid "Really upgrade Cluster Manager?"
 msgstr ""
 
 #. Type: boolean
@@ -40,12 +40,12 @@ msgstr ""
 #. Description
 #: ../cman.templates:1001
 msgid ""
-"Check https://wiki.ubuntu.com/UpgradingClusterProcedure for the latest "
+"Check https://wiki.debian.org/UpgradingClusterProcedure for the latest "
 "instructions on how to proceed."
 msgstr ""
 
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
-msgid "Continue with the upgrade?"
+msgid "Select OK if you wish to continue with the upgrade."
 msgstr ""

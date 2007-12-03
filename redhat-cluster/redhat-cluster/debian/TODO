@@ -1,3 +1,58 @@
 Merge cman.init changes from upstream to handle xen.
 Review *.init. 
 check scsi_reserve stuff
+
+broken init scripts
+
+E: gfs2-tools: init.d-script-does-not-implement-required-option /etc/init.d/gfs2-tools force-reload
+E: gfs-tools: init.d-script-does-not-implement-required-option /etc/init.d/gfs-tools force-reload
+W: rgmanager: init.d-script-missing-lsb-section /etc/init.d/rgmanager
+W: gnbd-server: init.d-script-missing-lsb-section /etc/init.d/gnbd-server
+W: gnbd-client: init.d-script-missing-lsb-section /etc/init.d/gnbd-client
+W: gfs2-tools: init.d-script-missing-lsb-section /etc/init.d/gfs2-tools
+W: gfs-tools: init.d-script-missing-lsb-section /etc/init.d/gfs-tools
+W: cman: init.d-script-missing-lsb-section /etc/init.d/cman
+
+overrides?
+
+E: cman: shlib-with-executable-bit usr/lib/openais/lcrso/service_cman.lcrso 0755
+W: rgmanager: executable-not-elf-or-script ./usr/share/cluster/ocf-shellfuncs
+
+
+upstream
+
+W: libdlm-dev: manpage-has-bad-whatis-entry usr/share/man/man3/libdlm.3.gz
+W: gnbd-server: manpage-has-bad-whatis-entry usr/share/man/man8/gnbd.8.gz
+W: gfs2-tools: manpage-has-bad-whatis-entry usr/share/man/man8/gfs2.8.gz
+W: gfs-tools: manpage-has-bad-whatis-entry usr/share/man/man8/gfs.8.gz
+W: cman: manpage-has-bad-whatis-entry usr/share/man/man5/cman.5.gz
+W: cman: manpage-has-bad-whatis-entry usr/share/man/man5/qdisk.5.gz
+W: cman: manpage-has-bad-whatis-entry usr/share/man/man8/fence.8.gz
+
+
+missing manpages
+
+W: rgmanager: binary-without-manpage usr/sbin/clunfslock
+W: rgmanager: binary-without-manpage usr/sbin/rg_test
+W: gnbd-server: binary-without-manpage usr/sbin/gnbd_clusterd
+W: gnbd-server: binary-without-manpage usr/sbin/gnbd_get_uid
+W: gnbd-client: binary-without-manpage usr/sbin/gnbd_monitor
+W: gnbd-client: binary-without-manpage usr/sbin/gnbd_recvd
+W: gfs2-tools: binary-without-manpage usr/sbin/gfs2_edit
+W: gfs2-tools: binary-without-manpage usr/sbin/gfs2_umount
+W: gfs2-tools: binary-without-manpage usr/sbin/umount.gfs2
+W: gfs-tools: binary-without-manpage usr/sbin/gfs_debug
+W: gfs-tools: binary-without-manpage usr/sbin/gfs_edit
+W: gfs-tools: binary-without-manpage sbin/mount.gfs
+W: gfs-tools: binary-without-manpage sbin/umount.gfs
+W: cman: binary-without-manpage usr/sbin/fence_baytech
+W: cman: binary-without-manpage usr/sbin/fence_cpint
+W: cman: binary-without-manpage usr/sbin/fence_ibmblade
+W: cman: binary-without-manpage usr/sbin/fence_rackswitch
+W: cman: binary-without-manpage usr/sbin/fence_rps10
+W: cman: binary-without-manpage usr/sbin/fence_rsb
+W: cman: binary-without-manpage usr/sbin/fence_scsi
+W: cman: binary-without-manpage usr/sbin/fence_scsi_test
+W: cman: binary-without-manpage usr/sbin/fence_vmware
+W: cman: binary-without-manpage usr/sbin/fence_xcat
+W: cman: binary-without-manpage usr/sbin/fence_zvm

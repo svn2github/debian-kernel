@@ -48,18 +48,23 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
-
+	
 	$(MAKE) install DESTDIR=$(BUILDROOT)/debian/tmp/
-
+	
 	# manual craft
 	install -d -m 0755 debian/tmp/etc/cluster
-	install -m 0640 debian/gnbd-server.config debian/tmp/etc/cluster/gnbdexports.conf
-	install -m 0640 debian/gnbd-client.config debian/tmp/etc/cluster/gnbdimports.conf
-
+	install -m 0640 debian/gnbdexports.conf debian/tmp/etc/cluster/gnbdexports.conf
+	install -m 0640 debian/gnbdimports.conf debian/tmp/etc/cluster/gnbdimports.conf
+	
 	mv debian/tmp/etc/udev/rules.d/51-dlm.rules debian/tmp/etc/udev/rules.d/45-dlm.rules
-
+	
 	dh_install --sourcedir=debian/tmp --list-missing
-
+	
+	mkdir -p debian/gfs-source/usr/src/modules/gfs
+	cp -a gfs-kernel/src/gfs/* debian/gfs-source/usr/src/modules/gfs/
+	cd debian/gfs-source/usr/src/ ; tar cjf gfs.tar.bz2 modules/gfs/
+	rm -rf debian/gfs-source/usr/src/modules
+		
 	dh_installdirs
 	dh_link
 	dh_installdocs
@@ -95,14 +100,14 @@ binary-indep: install
 	dh_md5sums -i
 	dh_builddeb -i
 
-binary: binary-arch binary-indep
+binary: binary-arch binary-indep 
 
 clean: unpatch
 	dh_testdir
 	dh_testroot
 	dh_clean
 
-	-$(MAKE) distclean
+	 [ ! -f make/defines.mk ] || $(MAKE) distclean
 
 	rm -rf *-stamp
 	rm -rf debian/patched

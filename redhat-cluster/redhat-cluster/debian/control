@@ -3,8 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>
-Standards-Version: 3.7.2.2
-Build-Depends: dpatch, debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.82-1), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.22-6), libvirt-dev (>= 0.3.0) [i386], libnss3-dev [i386], libnspr4-dev [i386]
+Standards-Version: 3.7.3.0
+Build-Depends: dpatch, debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.82-2), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.22-6), libvirt-dev (>= 0.3.0) [i386], libnss3-dev [i386], libnspr4-dev [i386], bzip2
 Build-Conflicts: libccs-dev, libcman-dev (<= 2.0), libdlm-dev (<= 2.0), libcman2, libdlm2
 
 Package: redhat-cluster-suite
@@ -20,7 +20,7 @@ Package: cman
 Architecture: any
 Section: admin
 Pre-Depends: debconf | debconf-2.0
-Depends: ${shlibs:Depends}, ${misc:Depends}, openais (>= 0.82-0ubuntu1), gfs-modules
+Depends: ${shlibs:Depends}, python, openais (>= 0.82-2), gfs-modules
 Conflicts: magma, libmagma1, libmagma-dev, ccs, fence, libiddev-dev, fence-gnbd, gulm, libgulm1, libgulm-dev, magma-plugins
 Replaces: ccs, fence, fence-gnbd
 Description: cluster manager
@@ -36,7 +36,7 @@ Description: cluster manager
 Package: libcman2
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}
 Description: cluster manager - libraries
  cman provides a general purpose, openais based, cluster manager.
  .
@@ -45,7 +45,7 @@ Description: cluster manager - libraries
 Package: libcman-dev
 Section: libdevel
 Architecture: any
-Depends: libcman2 (= ${Source-Version})
+Depends: libcman2 (= ${binary:Version})
 Description: cluster manager - development files
  cman provides a general purpose, openais based, cluster manager.
  .
@@ -54,7 +54,7 @@ Description: cluster manager - development files
 Package: libdlm2
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}
 Description: distributed lock manager - library
  DLM is a symmetric general-purpose distributed lock manager. It is
  used for example by GFS and the distributed volume manager.
@@ -65,7 +65,7 @@ Description: distributed lock manager - library
 Package: libdlm-dev
 Section: libdevel
 Architecture: any
-Depends: libdlm2 (= ${Source-Version})
+Depends: libdlm2 (= ${binary:Version})
 Description: distributed lock manager - development files
  DLM is a symmetric general-purpose distributed lock manager. It is
  used for example by GFS and the distributed volume manager.
@@ -75,7 +75,7 @@ Description: distributed lock manager - development files
 
 Package: gfs-tools
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, psmisc, gfs-modules, gfs2-tools
+Depends: ${shlibs:Depends}, psmisc, gfs-modules, gfs2-tools
 Section: admin
 Description: global file system tools 
  The Global File System allows a cluster of machines to concurrently access
@@ -92,7 +92,7 @@ Description: global file system tools
 
 Package: gfs2-tools
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, psmisc, gfs-modules
+Depends: ${shlibs:Depends}, psmisc, gfs-modules
 Section: admin
 Description: global file system 2 tools (EXPERIMENTAL)
  The Global File System 2 allows a cluster of machines to concurrently access
@@ -108,8 +108,8 @@ Description: global file system 2 tools (EXPERIMENTAL)
 Package: gnbd-client
 Section: admin
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, gfs-modules
-Recommends: fence-gnbd (= ${Source-Version})
+Depends: ${shlibs:Depends}, gfs-modules
+Recommends: fence-gnbd (= ${binary:Version})
 Description: global network block device - client tools
  GNBD allows to usage block devices over the network. It is a modified
  version of the linux network block device for the use within a cluster
@@ -120,8 +120,8 @@ Description: global network block device - client tools
 Package: gnbd-server
 Section: admin
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, gfs-modules
-Recommends: fence-gnbd (= ${Source-Version})
+Depends: ${shlibs:Depends}, gfs-modules
+Recommends: fence-gnbd (= ${binary:Version})
 Description: global network block device - server tools
  GNBD allows to usage block devices over the network. It is a modified
  version of the linux network block device for the use within a cluster
@@ -131,8 +131,15 @@ Description: global network block device - server tools
 
 Package: rgmanager
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, cman (= ${Source-Version}), iproute, iputils-arping, iputils-ping, nfs-kernel-server, nfs-common
+Depends: ${shlibs:Depends}, cman (= ${binary:Version}), iproute, iputils-arping, iputils-ping, nfs-kernel-server, nfs-common
 Conflicts: nfs-user-server
 Description: clustered resource group manager
  Resource Group Manager provides high availability of critical server
  applications in the event of planned or unplanned system downtime.
+
+Package: gfs-source
+Architecture: any
+Depends: bzip2
+Description: Global File System v1 - kernel module source
+ This package contains the source necessary for compiling the
+ Global File System version 1 kernel modules against the linux tree.

@@ -14,4 +14,6 @@ if [ -n "$2" ] && dpkg --compare-versions "$2" lt 2.0; then
 	fi
 fi
 
+#DEBHELPER#
+
 exit 0

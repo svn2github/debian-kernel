@@ -1,13 +1,13 @@
 Template: cman/upgrade-from-old
 Type: boolean
 Default: false
-_Description: Cluster Manager Upgrade
+_Description: Really upgrade Cluster Manager?
  An older version of cman installed on the system.
  .
  The version that is going to be installed is *NOT* compatible with the old
  one and will break the cluster horribly if not upgraded properly.
  .
- Check https://wiki.ubuntu.com/UpgradingClusterProcedure for the latest
+ Check https://wiki.debian.org/UpgradingClusterProcedure for the latest
  instructions on how to proceed.
  .
- Continue with the upgrade?
+ Select OK if you wish to continue with the upgrade.

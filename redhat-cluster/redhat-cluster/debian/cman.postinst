@@ -1,0 +1,21 @@
+#! /bin/sh
+
+set -e
+
+case $1 in
+	configure)
+		. /usr/share/debconf/confmodule
+		db_get cman/upgrade-from-old
+		if [ "$RET" != "true" ] ; then
+			exit 1
+		fi
+		;;
+	*)
+		echo "postinst called with unknown argument \`$1'" 1>&2
+		exit 1
+		;;
+esac
+
+#DEBHELPER#
+
+exit 0
