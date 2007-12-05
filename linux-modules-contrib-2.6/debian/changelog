@@ -1,8 +1,9 @@
-linux-modules-contrib-2.6 (2.6.22-5) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.23-1) UNRELEASED; urgency=low
 
   * Adding em8300.
   * Adding provides to control.
   * Adding Vcs fields in control.
+  * Updating to 2.6.23-1.
 
  -- Daniel Baumann <daniel@debian.org>  Sun,  2 Dec 2007 22:16:00 +0100
 
