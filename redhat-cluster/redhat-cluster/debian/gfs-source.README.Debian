@@ -1,0 +1,28 @@
+GFS for Debian
+------------------
+
+o How do i build this module the debian way?
+
+- Building with module-assistant
+
+$ m-a -t a-i gfs
+
+(for kernel source or headers in non-standard directory, add the option 
+-k /path/to/kernel/source with the correct path)
+
+- Building with make-kpkg
+
+$ cd /usr/src/
+$ ta jxvf gfs.tar.bz2
+$ cd /usr/src/kernel-source-2.6.23-1-amd64
+$ make-kpkg --added-modules=gfs modules
+
+- Building without make-kpkg
+
+$ cd /usr/src/
+$ tar jxvf gfs.tar.bz2
+$ cd modules/gfs
+$ fakeroot debian/rules kdist_image
+
+(no fakeroot needed if you run this as root)
+

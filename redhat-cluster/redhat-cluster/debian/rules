@@ -60,10 +60,29 @@ install: build
 	
 	dh_install --sourcedir=debian/tmp --list-missing
 	
-	mkdir -p debian/gfs-source/usr/src/modules/gfs
+	# install gfs v1 kernel source
+	mkdir -p debian/gfs-source/usr/src/modules/gfs/debian
+	
+	# copy the source
 	cp -a gfs-kernel/src/gfs/* debian/gfs-source/usr/src/modules/gfs/
+	
+	# prepare the debian dir
+	cd debian ; \
+	cp compat copyright gfs-modules-_KVERS_.postinst changelog rules \
+		control.modules.in gfs-source/usr/src/modules/gfs/debian
+	cp debian/gfs-source.README.Debian \
+		debian/gfs-source/usr/src/modules/gfs/debian/README.Debian
+	
+	# hack to fix changelog in the module source package
+	cat debian/changelog | sed -e "s/^redhat-cluster/gfs/" > \
+		debian/gfs-source/usr/src/modules/gfs/debian/changelog
+	
+	# tar it up
 	cd debian/gfs-source/usr/src/ ; tar cjf gfs.tar.bz2 modules/gfs/
 	rm -rf debian/gfs-source/usr/src/modules
+		
+	install -D -m 755 debian/modass.gfs-source \
+		debian/gfs-source/usr/share/modass/overrides/gfs-source
 		
 	dh_installdirs
 	dh_link
@@ -111,3 +130,36 @@ clean: unpatch
 
 	rm -rf *-stamp
 	rm -rf debian/patched
+
+# module assistant stuff
+PACKAGE=gfs-modules
+MA_DIR ?= /usr/share/modass
+-include $(MA_DIR)/include/generic.make
+-include $(MA_DIR)/include/common-rules.make
+
+kdist_clean: prep-deb-files
+	dh_clean
+	$(MAKE) -C $(KSRC) M=$(CURDIR) clean 
+
+kdist_config: prep-deb-files
+binary-modules: kdist_config
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	# build the module
+	make -C $(KSRC) M=$(CURDIR)/ modules USING_KBUILD=1
+	mkdir -p $(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/kernel/extra/
+	install -m644 -b gfs.ko $(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/kernel/extra/gfs.ko 
+	# this is broken, dunno why:
+	#     #make -C $(KSRC) M=$(CURDIR)/ modules_install INSTALL_MOD_PATH=$(CURDIR)/debian/$(PKGNAME) INSTALL_MOD_DIR=extra/
+	dh_installdocs
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_installmodules
+	dh_gencontrol -- -v$(VERSION)
+	dh_md5sums
+	dh_builddeb --destdir=$(DEB_DESTDIR)
+
+.PHONY: binary-modules kdist kdist_config kdist_image kdist_clean
