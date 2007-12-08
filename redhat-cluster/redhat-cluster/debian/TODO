@@ -1,11 +1,8 @@
-Merge cman.init changes from upstream to handle xen.
-Review *.init. 
-check scsi_reserve stuff
+Open packaging issues
+--------------------
+- add gnbd-source package containing the gnbd kernel module
+- make initscripts lsb-compliant
 
-broken init scripts
-
-E: gfs2-tools: init.d-script-does-not-implement-required-option /etc/init.d/gfs2-tools force-reload
-E: gfs-tools: init.d-script-does-not-implement-required-option /etc/init.d/gfs-tools force-reload
 W: rgmanager: init.d-script-missing-lsb-section /etc/init.d/rgmanager
 W: gnbd-server: init.d-script-missing-lsb-section /etc/init.d/gnbd-server
 W: gnbd-client: init.d-script-missing-lsb-section /etc/init.d/gnbd-client
@@ -13,13 +10,12 @@ W: gfs2-tools: init.d-script-missing-lsb-section /etc/init.d/gfs2-tools
 W: gfs-tools: init.d-script-missing-lsb-section /etc/init.d/gfs-tools
 W: cman: init.d-script-missing-lsb-section /etc/init.d/cman
 
-overrides?
+- lintian issues
 
 E: cman: shlib-with-executable-bit usr/lib/openais/lcrso/service_cman.lcrso 0755
 W: rgmanager: executable-not-elf-or-script ./usr/share/cluster/ocf-shellfuncs
 
-
-upstream
+- fix manpages (check with upstream)
 
 W: libdlm-dev: manpage-has-bad-whatis-entry usr/share/man/man3/libdlm.3.gz
 W: gnbd-server: manpage-has-bad-whatis-entry usr/share/man/man8/gnbd.8.gz
@@ -29,8 +25,7 @@ W: cman: manpage-has-bad-whatis-entry usr/share/man/man5/cman.5.gz
 W: cman: manpage-has-bad-whatis-entry usr/share/man/man5/qdisk.5.gz
 W: cman: manpage-has-bad-whatis-entry usr/share/man/man8/fence.8.gz
 
-
-missing manpages
+- write missing manpages (check with upstream)
 
 W: rgmanager: binary-without-manpage usr/sbin/clunfslock
 W: rgmanager: binary-without-manpage usr/sbin/rg_test
