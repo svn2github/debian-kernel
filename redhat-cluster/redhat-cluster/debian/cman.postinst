@@ -5,10 +5,10 @@ set -e
 case $1 in
 	configure)
 		. /usr/share/debconf/confmodule
-		db_get cman/upgrade-from-old
-		if [ "$RET" != "true" ] ; then
-			exit 1
-		fi
+		# FIXME db_get cman/upgrade-from-old
+		# FIXME if [ "$RET" != "true" ] ; then
+		# FIXME 	exit 1
+		# FIXME fi
 		;;
 	*)
 		echo "postinst called with unknown argument \`$1'" 1>&2

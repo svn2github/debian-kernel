@@ -139,7 +139,7 @@ Description: clustered resource group manager
 
 Package: gfs-source
 Architecture: any
-Depends: bzip2
+Depends: bzip2 dpatch
 Description: Global File System v1 - kernel module source
  This package contains the source necessary for compiling the
  Global File System version 1 kernel modules against the linux tree.
