@@ -20,7 +20,7 @@ SOMINOR=0
 configure: patch configure-stamp
 configure-stamp:
 	dh_testdir
-
+	
 	./configure --kernel_src=$(BUILDROOT) \
 		    --kernel_build=$(BUILDROOT) \
 		    --sbindir=/usr/sbin \
@@ -30,10 +30,10 @@ configure-stamp:
 		    --libexecdir=/usr/lib/openais \
 		    --release_major=$(SOMAJOR) \
 		    --release_minor=$(SOMINOR)
-
+	
 	# disable kernel modules
 	sed -i -e 's/-kernel.* \?=/& 1/g' make/defines.mk
-
+	
 	touch $@
 
 build: configure build-stamp
@@ -68,10 +68,12 @@ install: build
 	
 	# prepare the debian dir
 	cd debian ; \
-	cp compat copyright gfs-modules-_KVERS_.postinst changelog rules \
+	cp compat copyright gfs-modules-_KVERS_.postinst changelog \
 		control.modules.in gfs-source/usr/src/modules/gfs/debian
 	cp debian/gfs-source.README.Debian \
 		debian/gfs-source/usr/src/modules/gfs/debian/README.Debian
+	cp debian/gfs-source.rules \
+		debian/gfs-source/usr/src/modules/gfs/debian/rules
 	
 	# hack to fix changelog in the module source package
 	cat debian/changelog | sed -e "s/^redhat-cluster/gfs/" > \
@@ -131,35 +133,3 @@ clean: unpatch
 	rm -rf *-stamp
 	rm -rf debian/patched
 
-# module assistant stuff
-PACKAGE=gfs-modules
-MA_DIR ?= /usr/share/modass
--include $(MA_DIR)/include/generic.make
--include $(MA_DIR)/include/common-rules.make
-
-kdist_clean: prep-deb-files
-	dh_clean
-	$(MAKE) -C $(KSRC) M=$(CURDIR) clean 
-
-kdist_config: prep-deb-files
-binary-modules: kdist_config
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	# build the module
-	make -C $(KSRC) M=$(CURDIR)/ modules USING_KBUILD=1
-	mkdir -p $(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/kernel/extra/
-	install -m644 -b gfs.ko $(CURDIR)/debian/$(PKGNAME)/lib/modules/$(KVERS)/kernel/extra/gfs.ko 
-	# this is broken, dunno why:
-	#     #make -C $(KSRC) M=$(CURDIR)/ modules_install INSTALL_MOD_PATH=$(CURDIR)/debian/$(PKGNAME) INSTALL_MOD_DIR=extra/
-	dh_installdocs
-	dh_installchangelogs
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_installmodules
-	dh_gencontrol -- -v$(VERSION)
-	dh_md5sums
-	dh_builddeb --destdir=$(DEB_DESTDIR)
-
-.PHONY: binary-modules kdist kdist_config kdist_image kdist_clean
