@@ -2,7 +2,7 @@
 ## 00_fix_gfs2_quota.dpatch by  <fabbione@gordian.int.fabbione.net>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: patch taken from Ubuntu, description is missing.
 
 @DPATCH@
 diff -urNad redhat-cluster-suite-2.20071022~/gfs2/include/gfs2_ondisk.h redhat-cluster-suite-2.20071022/gfs2/include/gfs2_ondisk.h

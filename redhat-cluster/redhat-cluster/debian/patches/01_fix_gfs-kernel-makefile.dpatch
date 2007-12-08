@@ -2,7 +2,7 @@
 ## 01_fix_gfs-kernel-makefile.dpatch by Frederik Schüler <fs@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Remove unneeded include from Makefile
 
 @DPATCH@
 --- redhat-cluster-2.20071022/gfs-kernel/src/gfs/Makefile.old	2007-12-07 22:58:12.000000000 +0100
