@@ -1,10 +1,23 @@
 redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
 
+  * New upstream release. Closes: #426276
+    - Drop Magma. Closes: #374541
   * First Debian release of the redhat cluster suite v2, based on the
     packaging by Fabio M. Di Nitto <fabbione@fabbione.net>
+  * Acknowledge NMU. Closes: #377791
   * Update copyright file.
   * Fix maintainer scripts, add missing ones.
   * Fix debconf template.
   * Add gfs-source package containing the gfs1 kernel module
-
- -- Frederik Schüler <fs@debian.org>  Mon, 03 Dec 2007 11:23:01 +0100
+  * Provide module-assistant support in the gfs-source package.
+    Closes: #366498, #412412
+  * fix gnbd-* packages description. Closes: #319204 
+  * Lots of bugs fixed:
+    - Fix initscripts. Closes: #367171, #336260, #336259
+    - Provide manpages for cluster.conf, mkfs.gfs and fsck.gfs.
+      Closes: #406364, #270537
+    - Provide rgmanager package. Closes: #400204
+    - Rgmanager: add dependency on iputils-arping. Closes: #417813
+    - Call dh_strip during install. Closes: #437899
+    
+ -- Frederik Schüler <fs@debian.org>  Tue, 11 Dec 2007 02:34:52 +0100

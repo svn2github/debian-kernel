@@ -18,7 +18,7 @@ Description: global file system kernel module
  can be deployed to build high available services without the single point
  of failure a file server would be.
  .
- This package contains the compiled kernel module for _KVERS_
+ This package contains the compiled gfs kernel module for _KVERS_
  .
  If you compiled a custom kernel, you will most likely need to compile a
  custom version of this module as well. The gfs-source

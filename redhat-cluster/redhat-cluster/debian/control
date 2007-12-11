@@ -111,7 +111,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, gfs-modules
 Recommends: fence-gnbd (= ${binary:Version})
 Description: global network block device - client tools
- GNBD allows to usage block devices over the network. It is a modified
+ GNBD allows to use block devices over the network. It is a modified
  version of the linux network block device for the use within a cluster
  environment.
  .
@@ -123,7 +123,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, gfs-modules
 Recommends: fence-gnbd (= ${binary:Version})
 Description: global network block device - server tools
- GNBD allows to usage block devices over the network. It is a modified
+ GNBD allows to use block devices over the network. It is a modified
  version of the linux network block device for the use within a cluster
  environment.
  .

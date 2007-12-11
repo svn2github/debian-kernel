@@ -1,7 +1,9 @@
 Open packaging issues
 --------------------
-- add gnbd-source package containing the gnbd kernel module
+- add handling for missing cluster.conf (#420229, #381434, #367370)
+- add gnbd-source package containing the gnbd kernel module (#401073, #426769)
 - make initscripts lsb-compliant
+- redo description of gfs-source? (#380002)
 
 W: rgmanager: init.d-script-missing-lsb-section /etc/init.d/rgmanager
 W: gnbd-server: init.d-script-missing-lsb-section /etc/init.d/gnbd-server
