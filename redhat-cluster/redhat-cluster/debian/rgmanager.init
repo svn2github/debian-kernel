@@ -1,5 +1,17 @@
 #!/bin/sh
 
+### BEGIN INIT INFO
+# Provides:          cluster service manager
+# Required-Start:    $network cman 
+# Required-Stop:     $network cman
+# Should-Start:      gfs-tools gfs2-tools
+# Should-Stop:       gfs-tools gfs2-tools
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: start and stop the cluster service manager
+### END INIT INFO
+
+
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="cluster service manager"
 NAME=clurgmgrd

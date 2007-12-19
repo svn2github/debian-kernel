@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          global filesystem 
+# Required-Start:    cman
+# Required-Stop:     cman
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: mount and unmount GFS shares
+### END INIT INFO
 
 #
 # This script's behavior is modeled closely after the netfs script.  
