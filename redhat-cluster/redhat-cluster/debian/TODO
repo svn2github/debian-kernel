@@ -1,7 +1,6 @@
 Open packaging issues
 --------------------
 - make initscripts lsb-compliant
-- redo description of gfs-source? (#380002)
 
 W: rgmanager: init.d-script-missing-lsb-section /etc/init.d/rgmanager
 W: gnbd-server: init.d-script-missing-lsb-section /etc/init.d/gnbd-server

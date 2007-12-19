@@ -141,5 +141,6 @@ Package: redhat-cluster-source
 Architecture: any
 Depends: bzip2
 Description: Red Hat cluster suite - kernel modules source
- This package contains the source necessary for compiling the
- Red Hat cluster suite kernel modules against the linux tree.
+ This package contains the source necessary for compiling the Red Hat
+ cluster suite out-of-tree kernel modules gfs and gnbd against the 
+ linux tree.

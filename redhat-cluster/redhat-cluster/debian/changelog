@@ -23,6 +23,8 @@ redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
   * Enable XEN support on amd64 too.
   * Add gnbd kernel module source to redhat-cluster-source. 
     Closes: #401073, #426769
+  * Mention gfs and gnbd kernel modules in the redhat-cluster-modules source
+    and binary package descriptions. Closes: #380002
+  * 
 
-
- -- Frederik Schüler <fs@debian.org>  Wed, 19 Dec 2007 13:59:49 +0100
+ -- Frederik Schüler <fs@debian.org>  Wed, 19 Dec 2007 14:39:28 +0100
