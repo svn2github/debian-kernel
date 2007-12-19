@@ -1,13 +1,9 @@
 Open packaging issues
 --------------------
-- make initscripts lsb-compliant
 
-- lintian issues
+- update initscripts to use lsb functions
 
-E: cman: shlib-with-executable-bit usr/lib/openais/lcrso/service_cman.lcrso 0755
-W: rgmanager: executable-not-elf-or-script ./usr/share/cluster/ocf-shellfuncs
-
-- write missing manpages (check with upstream)
+- prod upstream to write missing manpages 
 
 W: rgmanager: binary-without-manpage usr/sbin/clunfslock
 W: rgmanager: binary-without-manpage usr/sbin/rg_test
@@ -33,3 +29,4 @@ W: cman: binary-without-manpage usr/sbin/fence_scsi_test
 W: cman: binary-without-manpage usr/sbin/fence_vmware
 W: cman: binary-without-manpage usr/sbin/fence_xcat
 W: cman: binary-without-manpage usr/sbin/fence_zvm
+

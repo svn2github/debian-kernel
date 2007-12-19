@@ -1,0 +1,18 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 04_fix-lcrso-file-permissions.dpatch by Frederik Schüler <fs@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: install usr/lib/openais/lcrso/service_cman.lcrso with mode 644
+
+@DPATCH@
+--- redhat-cluster-2.20071022/cman/daemon/Makefile.old	2007-12-19 20:26:44.000000000 +0100
++++ redhat-cluster-2.20071022/cman/daemon/Makefile	2007-12-19 20:27:11.000000000 +0100
+@@ -42,7 +42,7 @@
+ 
+ install: all
+ 	install -d ${libexecdir}/lcrso
+-	install -s ${TARGET} ${libexecdir}/lcrso
++	install -s -m 644 ${TARGET} ${libexecdir}/lcrso
+ 
+ uninstall:
+ 	rm -f ${libexecdir}/lcrso/${TARGET}
