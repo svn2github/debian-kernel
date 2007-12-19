@@ -107,6 +107,9 @@ binary-arch: install
 	dh_testdir
 	dh_testroot
 	dh_strip -a
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	strip --remove-section=.comment --remove-section=.note --strip-unneeded debian/cman/usr/lib/openais/lcrso/service_cman.lcrso
+endif
 	dh_compress -a
 	dh_fixperms -a
 	dh_installdeb -a
