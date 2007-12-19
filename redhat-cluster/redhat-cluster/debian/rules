@@ -7,10 +7,10 @@ include /usr/share/dpatch/dpatch.make
 
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
-ifneq (,$(findstring $(DEB_HOST_ARCH), i386))
+xen_arches = amd64 i386
+ifneq (,$(filter $(DEB_HOST_ARCH), $(xen_arches))) 
   BUILD_XEN = --enable_xen
 endif
-
 
 BUILDROOT := $(shell pwd)
 

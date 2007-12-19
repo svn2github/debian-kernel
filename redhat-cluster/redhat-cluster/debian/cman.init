@@ -16,6 +16,8 @@ CMAN_CLUSTER_TIMEOUT=120
 CMAN_QUORUM_TIMEOUT=0
 CMAN_SHUTDOWN_TIMEOUT=60
 
+CONF=/etc/cluster/cluster.conf
+
 set -e
 
 load_modules() {
@@ -36,8 +38,23 @@ umount_configfs() {
 	fi
 }
 
+check_cluster_conf() {
+
+	if [ ! -e $CONF -o ! -s $CONF ] ; then
+		echo ""
+		echo "$CONF does not exist or is empty."
+		echo "See /usr/share/doc/gfs-tools/examples/min-gfs.txt"
+		echo "for instructions on how to setup a minimal cluster."
+		echo "$DESC will not be started."
+		exit 0
+	fi
+
+}
+
 case "$1" in
   start)
+	check_cluster_conf
+
 	echo "Starting $DESC:"
 	echo -n " Loading kernel modules:"
 	load_modules
