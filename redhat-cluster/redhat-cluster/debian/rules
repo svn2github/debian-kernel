@@ -60,31 +60,36 @@ install: build
 	
 	dh_install --sourcedir=debian/tmp --list-missing
 	
-	# install gfs v1 kernel source
-	mkdir -p debian/gfs-source/usr/src/modules/gfs/debian
+	# install gfs and gnbd kernel sources
+	mkdir -p debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian
 	
 	# copy the source
-	cp -a gfs-kernel/src/gfs/* debian/gfs-source/usr/src/modules/gfs/
+	mkdir -p debian/redhat-cluster-source/usr/src/modules/redhat-cluster/gfs
+	cp -a gfs-kernel/src/gfs/* \
+		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/gfs/
+	
+	mkdir -p debian/redhat-cluster-source/usr/src/modules/redhat-cluster/gnbd
+	cp -a gnbd-kernel/src/* \
+		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/gnbd/
 	
 	# prepare the debian dir
 	cd debian ; \
-	cp compat copyright gfs-modules-_KVERS_.postinst changelog \
-		control.modules.in gfs-source/usr/src/modules/gfs/debian
-	cp debian/gfs-source.README.Debian \
-		debian/gfs-source/usr/src/modules/gfs/debian/README.Debian
-	cp debian/gfs-source.rules \
-		debian/gfs-source/usr/src/modules/gfs/debian/rules
-	
-	# hack to fix changelog in the module source package
-	cat debian/changelog | sed -e "s/^redhat-cluster/gfs/" > \
-		debian/gfs-source/usr/src/modules/gfs/debian/changelog
+	cp compat copyright redhat-cluster-modules-_KVERS_.postinst changelog \
+		control.modules.in redhat-cluster-source/usr/src/modules/redhat-cluster/debian
+	cp debian/redhat-cluster-source.README.Debian \
+		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian/README.Debian
+	cp debian/redhat-cluster-source.rules \
+		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian/rules
+	cp debian/redhat-cluster-source.Makefile \
+		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/Makefile
 	
 	# tar it up
-	cd debian/gfs-source/usr/src/ ; tar cjf gfs.tar.bz2 modules/gfs/
-	rm -rf debian/gfs-source/usr/src/modules
+	cd debian/redhat-cluster-source/usr/src/ ;  \
+		tar cjf redhat-cluster.tar.bz2 modules/redhat-cluster/
+	rm -rf debian/redhat-cluster-source/usr/src/modules
 		
-	install -D -m 755 debian/modass.gfs-source \
-		debian/gfs-source/usr/share/modass/overrides/gfs-source
+	install -D -m 755 debian/modass.redhat-cluster-source \
+		debian/redhat-cluster-source/usr/share/modass/overrides/redhat-cluster-source
 		
 	dh_installdirs
 	dh_link

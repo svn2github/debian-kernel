@@ -1,6 +1,5 @@
 Open packaging issues
 --------------------
-- add gnbd-source package containing the gnbd kernel module (#401073, #426769)
 - make initscripts lsb-compliant
 - redo description of gfs-source? (#380002)
 
