@@ -1,3 +1,4 @@
 00_fix_gfs2_quota.dpatch
 01_fix_gfs-kernel-makefile.dpatch
 02_fix_gnbd-kernel-makefile.dpatch
+03_manpages-whatis.dpatch
