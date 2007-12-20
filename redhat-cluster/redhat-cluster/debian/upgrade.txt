@@ -96,11 +96,6 @@ The upgrade procedure is as follows:
       is recommended only for experimental setups.
   
 
-  12. Make sure clvm uses cluster locking:
-
-      sh /usr/share/doc/clvm/examples/clvmd_fix_conf.sh /lib/lvm2/
-
-
 Now the cluster is migrated, and should look like this:
 
 node01:/# cman_tool status
@@ -141,8 +136,6 @@ gfs              2     docroot  00010001 none
 [1 2 3]
 
 
-
-
 TODO
 ----
 - custom kernels: patch required
@@ -150,6 +143,5 @@ TODO
   * cluster.conf changes
   * filesystem locking table changes
   * handling changes
-- double-check with RL upgrade 
-
+- double-check with real upgrade 
 
