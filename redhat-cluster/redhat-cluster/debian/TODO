@@ -1,6 +1,12 @@
 Open packaging issues
 --------------------
 
+- provide upgrade path from cluster suite 1.03 in etch:
+  * upgrade document 
+  * cman preinst: on upgrade from 1.0x, bug the user
+  * debconf template: point the user to the upgrade document, 
+    and let the user proceed at own risk
+
 - update initscripts to use lsb functions
 
 - prod upstream to write missing manpages 

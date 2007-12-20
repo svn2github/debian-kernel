@@ -11,7 +11,7 @@ Package: redhat-cluster-suite
 Section: admin
 Priority: optional
 Architecture: all
-Depends: cman, gfs-tools, gfs2-tools, rgmanager, clvm
+Depends: cman, gfs-tools, gfs2-tools, rgmanager, clvm, redhat-cluster-modules
 Description: Red Hat cluster suite (meta package)
  The only scope for this package is to install the full Red Hat Cluster Suite
  in one shot. It is safe to remove it.

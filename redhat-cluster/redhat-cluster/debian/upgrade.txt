@@ -1,0 +1,155 @@
+-------------------------------------------------------------
+Upgrading the Red Hat Cluster suite from the previous version
+-------------------------------------------------------------
+
+This document describes how to upgrade a Red Hat Cluster from version
+1.03 (as shipped in etch) to version 2.0.
+
+The upgrade procedure consists of stopping the cluster, removing the old
+cluster suite, adding node IDs to the cluster.conf, install and booting
+a new kernel, and finally installing the new cluster suite packages.
+
+The upgrade procedure is as follows:
+
+* Stop client access to the clustered services.
+
+* On each cluster node:
+
+  1. Stop all applications using the cluster infrastructure, like the
+     shared storage
+
+  2. Stop the rgmanager, if installed: 
+
+     killall clurgmgr
+    
+  3. Umount all gfs shares:
+     
+     umount -a -t gfs
+
+     if a gfs share is still blocked by another process, run
+
+     lsof -n | grep <mountpoint> 
+
+     to identify the process in order to terminate it.
+
+
+  4. Stop the cluster lvm daemon:
+
+     /etc/init.d/clvm stop
+
+
+  5. Stop fencing:
+
+     /etc/init.d/fence stop
+
+
+  6. Stop the cluster manager:
+
+     /etc/init.d/cman stop
+
+
+  7. Stop the cluster configuration service:
+
+     /etc/init.d/ccs stop
+
+
+  8. Remove the old Red Hat Cluster software:
+
+	 dpkg --purge ccs libccs-dev cman libcman1 libcman-dev libdlm1 \
+       libdlm-dev fence gfs-tools gnbd-client gnbd-server gulm libgulm1 \
+       libgulm-dev libiddev-dev libmagma1 libmagma-dev magma-plugin-gulm \
+       magma-plugin-sm redhat-cluster-source
+
+     Note: not all packages might be installed, just ignore the warnings
+     dpkg will issue about it.
+
+
+  9. Update the cluster.conf file to contain nodeids:
+
+     Open the file /etc/cluster/cluster.conf in your favorite editor.
+     In each <clusternode> element, insert nodeid="number" after
+     name="name". This should look this way:
+
+     [...]
+     <clusternode name="node1" nodeid="1">
+     [...]
+
+     Note: the nodeid parameter was optional in the old Red Had Cluster
+     suite, but is now mandatory. If you have already nodeid parameters
+     in your cluster.conf, skip this step.
+
+     After saving your changes to the cluster.conf file, copy it to all 
+     the other nodes in the cluster.
+
+
+  10. Update the kernel, and reboot the Node in order to activate the
+      new kernel. You might of course  upgrade the other parts of the 
+      system before rebooting.
+
+
+  11. Install the new version of the Red Hat Cluster suite:
+
+      apt-get install redhat-cluster-suite redhat-cluster-modules
+
+      Note: existing GFS version 1 filesystems are fully supported.
+      The new GFS2 filesystem format is not production-ready and usage 
+      is recommended only for experimental setups.
+  
+
+  12. Make sure clvm uses cluster locking:
+
+      sh /usr/share/doc/clvm/examples/clvmd_fix_conf.sh /lib/lvm2/
+
+
+Now the cluster is migrated, and should look like this:
+
+node01:/# cman_tool status
+Version: 6.1.0
+Config Version: 1
+Cluster Name: whatever
+Cluster Id: 1337
+Cluster Member: Yes
+Cluster Generation: 12
+Membership state: Cluster-Member
+Nodes: 3
+Expected votes: 2
+Total votes: 3
+Quorum: 2  
+Active subsystems: 8
+Flags: Dirty 
+Ports Bound: 0 11  
+Node name: node01
+Node ID: 1
+Multicast addresses: 224.16.1.10
+Node addresses: 172.16.1.10
+
+node01:/# cman_tool nodes
+Node  Sts   Inc   Joined               Name
+   1   M      4   2007-12-10 15:33:03  node01
+   2   M     12   2007-12-10 15:33:04  node02
+   3   M     12   2007-12-10 15:33:04  node03
+
+node01:/# cman_tool services
+type             level name     id       state       
+fence            0     default  00010003 none        
+[1 2 3]
+dlm              1     clvmd    00020003 none        
+[1 2 3]
+dlm              1     docroot  00020001 none        
+[1 2 3]
+gfs              2     docroot  00010001 none        
+[1 2 3]
+
+
+
+
+TODO
+----
+- custom kernels: patch required
+- GULM: 
+  * cluster.conf changes
+  * filesystem locking table changes
+  * handling changes
+- double-check with RL upgrade 
+
+
