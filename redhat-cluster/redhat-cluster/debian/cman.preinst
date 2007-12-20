@@ -2,17 +2,20 @@
 
 set -e
 
-. /usr/share/debconf/confmodule
-db_version 2.0
-
-if [ -n "$2" ] && dpkg --compare-versions "$2" lt 2.0; then
-	db_get cman/upgrade-from-old
-	ANSWER="$RET"
-	db_fset cman/upgrade-from-old seen_in_2.0_upgrade false
-	if [ "$ANSWER" = false ]; then
-		exit 1
-	fi
-fi
+case $1 in
+	upgrade)
+		. /usr/share/debconf/confmodule
+		db_version 2.0
+		if dpkg --compare-versions "$2" lt 2.0 ; then
+			db_fset cman/upgrade-warning seen_in_2.0_upgrade false
+			db_get cman/upgrade-warning
+			if [ "$RET" = "false" ] ; then
+				echo "aborting cman installation."
+				exit 1
+			fi
+		fi
+	;;
+esac
 
 #DEBHELPER#
 

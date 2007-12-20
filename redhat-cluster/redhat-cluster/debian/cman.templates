@@ -1,13 +1,17 @@
-Template: cman/upgrade-from-old
+Template: cman/upgrade-warning
 Type: boolean
 Default: false
-_Description: Really upgrade Cluster Manager?
- An older version of cman installed on the system.
+_Description: Really upgrade the Red Hat Cluster Suite?
+ An older version of the Red Hat Cluster Suite is installed on the
+ system.
  .
- The version that is going to be installed is *NOT* compatible with the old
- one and will break the cluster horribly if not upgraded properly.
+ WARNING: The version of cman that is going to be installed is not 
+ compatible with the currently installed one, upgrading single nodes 
+ without stopping the complete cluster will cause data loss.
  .
- Check https://wiki.debian.org/UpgradingClusterProcedure for the latest
- instructions on how to proceed.
+ In order to upgrade the cluster suite, you need to follow the
+ instructions found on the following Page: 
  .
- Select OK if you wish to continue with the upgrade.
+ http://wiki.debian.org/UpgradeRHCSV1toV2
+ .
+ Select OK if you still wish to continue with the upgrade.

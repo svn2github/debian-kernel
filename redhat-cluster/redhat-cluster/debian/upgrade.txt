@@ -96,46 +96,6 @@ The upgrade procedure is as follows:
       is recommended only for experimental setups.
   
 
-Now the cluster is migrated, and should look like this:
-
-node01:/# cman_tool status
-Version: 6.1.0
-Config Version: 1
-Cluster Name: whatever
-Cluster Id: 1337
-Cluster Member: Yes
-Cluster Generation: 12
-Membership state: Cluster-Member
-Nodes: 3
-Expected votes: 2
-Total votes: 3
-Quorum: 2  
-Active subsystems: 8
-Flags: Dirty 
-Ports Bound: 0 11  
-Node name: node01
-Node ID: 1
-Multicast addresses: 224.16.1.10
-Node addresses: 172.16.1.10
-
-node01:/# cman_tool nodes
-Node  Sts   Inc   Joined               Name
-   1   M      4   2007-12-10 15:33:03  node01
-   2   M     12   2007-12-10 15:33:04  node02
-   3   M     12   2007-12-10 15:33:04  node03
-
-node01:/# cman_tool services
-type             level name     id       state       
-fence            0     default  00010003 none        
-[1 2 3]
-dlm              1     clvmd    00020003 none        
-[1 2 3]
-dlm              1     docroot  00020001 none        
-[1 2 3]
-gfs              2     docroot  00010001 none        
-[1 2 3]
-
-
 TODO
 ----
 - custom kernels: patch required
