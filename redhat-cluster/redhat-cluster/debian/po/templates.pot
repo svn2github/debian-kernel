@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: Source: redhat-cluster@packages.debian.org\n"
-"POT-Creation-Date: 2007-12-03 02:12+0100\n"
+"Report-Msgid-Bugs-To: redhat-cluster@packages.debian.org\n"
+"POT-Creation-Date: 2007-12-23 20:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,33 +19,28 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
-msgid "Really upgrade Cluster Manager?"
-msgstr ""
-
-#. Type: boolean
-#. Description
-#: ../cman.templates:1001
-msgid "An older version of cman installed on the system."
+msgid "Do you want to abort now?"
 msgstr ""
 
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
 msgid ""
-"The version that is going to be installed is *NOT* compatible with the old "
-"one and will break the cluster horribly if not upgraded properly."
+"The new version 2.0 of the Red Hat Cluster Suite is not compatible with  the "
+"currently installed one. Upgrading these packages without stopping  the "
+"complete cluster can cause filesystem corruption on shared storage  devices."
 msgstr ""
 
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
 msgid ""
-"Check https://wiki.debian.org/UpgradingClusterProcedure for the latest "
-"instructions on how to proceed."
+"For instructions on how to safely upgrade the Red Hat Cluster Suite to "
+"version 2.0, please refer to the following document:"
 msgstr ""
 
 #. Type: boolean
 #. Description
 #: ../cman.templates:1001
-msgid "Select OK if you wish to continue with the upgrade."
+msgid "http://wiki.debian.org/UpgradeRHCSV1toV2"
 msgstr ""

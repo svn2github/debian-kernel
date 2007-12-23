@@ -12,7 +12,7 @@ case $1 in
 			db_go
 			
 			db_get cman/upgrade-warning
-			if [ "$RET" = "false" ] ; then
+			if [ "$RET" = "true" ] ; then
 				echo "Aborting cman installation."
 				echo " For upgrade instructions, please refer to" 
 				echo "http://wiki.debian.org/UpgradeRHCSV1toV2"

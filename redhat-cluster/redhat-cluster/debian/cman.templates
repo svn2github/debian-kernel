@@ -1,7 +1,7 @@
 Template: cman/upgrade-warning
 Type: boolean
 Default: false
-Description: Do you want to abort now?
+_Description: Do you want to abort now?
  The new version 2.0 of the Red Hat Cluster Suite is not compatible with 
  the currently installed one. Upgrading these packages without stopping 
  the complete cluster can cause filesystem corruption on shared storage 
