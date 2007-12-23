@@ -7,10 +7,15 @@ case $1 in
 		. /usr/share/debconf/confmodule
 		db_version 2.0
 		if dpkg --compare-versions "$2" lt 2.0 ; then
-			db_fset cman/upgrade-warning seen_in_2.0_upgrade false
+			db_fset cman/upgrade-warning seen false
+			db_input critical cman/upgrade-warning || true
+			db_go
+			
 			db_get cman/upgrade-warning
 			if [ "$RET" = "false" ] ; then
-				echo "aborting cman installation."
+				echo "Aborting cman installation."
+				echo " For upgrade instructions, please refer to" 
+				echo "http://wiki.debian.org/UpgradeRHCSV1toV2"
 				exit 1
 			fi
 		fi

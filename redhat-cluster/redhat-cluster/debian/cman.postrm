@@ -8,15 +8,8 @@ case "$1" in
 			. /usr/share/debconf/confmodule
 			db_purge
 		fi
-		;;
-	
-	*)
-		echo "prerm called with unknown argument \`$1'" >&2
-		exit 1
-		;;
-
+	;;
 esac
-
 
 #DEBHELPER#
 
