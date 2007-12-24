@@ -13,6 +13,8 @@ export OPENAIS_BUILD=$(if $(findstring debug,$(DEB_BUILD_OPTIONS)),DEBUG)
 
 setup: $(STAMPS_DIR)/setup
 
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
 $(STAMPS_DIR)/setup: SOURCE_FILES = $(filter-out debian, $(wildcard * .[^.]*))
 $(STAMPS_DIR)/setup: DIR = $(BUILD_DIR)/build
 $(STAMPS_DIR)/setup:
@@ -30,7 +32,11 @@ build: $(STAMPS_DIR)/build
 $(STAMPS_DIR)/build: DIR = $(BUILD_DIR)/build
 $(STAMPS_DIR)/build: $(STAMPS_DIR)/setup
 	dh_testdir
+ifneq (,$(findstring $(DEB_HOST_ARCH), hppa))
+	$(MAKE) -C $(DIR) WORKAROUND=-O1
+else
 	$(MAKE) -C $(DIR)
+endif
 	touch $@
 
 clean:

@@ -1,2 +1,3 @@
 001_makefile
 003_lcr-fixpath
+005_add_hppa_workaround.dpatch
