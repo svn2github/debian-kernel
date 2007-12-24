@@ -1,4 +1,4 @@
-redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
+redhat-cluster (2.20071022-1) unstable; urgency=low
 
   * New upstream release. Closes: #426276
     - Drop Magma. Closes: #374541
@@ -8,8 +8,10 @@ redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
   * Update copyright file.
   * Fix maintainer scripts, add missing ones.
   * Fix debconf template.
-  * Add gfs-source package containing the gfs1 kernel module
-  * Provide module-assistant support in the gfs-source package.
+  * Add redhat-cluster-source package containing the gfs1 and gnbd 
+    kernel modules. Closes: #401073, #426769
+  * Provide module-assistant support in the redhat-cluster-source 
+    package.
     Closes: #366498, #412412
   * Fix gnbd-* packages description. Closes: #319204
   * Lots of bugs fixed:
@@ -21,9 +23,7 @@ redhat-cluster (2.20071022-1) UNRELEASED; urgency=low
     - Call dh_strip during install. Closes: #437899
   * Add handling for missing cluster.conf. Closes: #420229, #381434, #367370
   * Enable XEN support on amd64 too.
-  * Add gnbd kernel module source to redhat-cluster-source. 
-    Closes: #401073, #426769
   * Mention gfs and gnbd kernel modules in the redhat-cluster-modules source
     and binary package descriptions. Closes: #380002
 
- -- Frederik Schüler <fs@debian.org>  Wed, 19 Dec 2007 14:39:28 +0100
+ -- Frederik Schüler <fs@debian.org>  Tue, 25 Dec 2007 00:04:53 +0100
