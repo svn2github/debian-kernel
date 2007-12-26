@@ -2,5 +2,5 @@
 01_fix_gfs-kernel-makefile.dpatch
 02_fix_gnbd-kernel-makefile.dpatch
 03_manpages-whatis.dpatch
-#04_fix-lcrso-file-permissions.dpatch
+04_fix-lcrso-file-permissions.dpatch
 05_fix-ocf-shellfuncs.dpatch

@@ -11,7 +11,7 @@
  
  install: all
  	install -d ${libexecdir}/lcrso
--	install -s ${TARGET} ${libexecdir}/lcrso
+-	install ${TARGET} ${libexecdir}/lcrso
 +	install -m 644 ${TARGET} ${libexecdir}/lcrso
  
  uninstall:
