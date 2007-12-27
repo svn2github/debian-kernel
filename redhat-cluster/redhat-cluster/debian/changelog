@@ -1,8 +1,9 @@
 redhat-cluster (2.20071214-2) unstable; urgency=low
 
   * Add muissing build-dependency on libslang2-dev.
+  * Make redhat-cluster-source package Architecture: all.
 
- -- Frederik Schüler <fs@debian.org>  Wed, 26 Dec 2007 21:16:34 +0100
+ -- Frederik Schüler <fs@debian.org>  Thu, 27 Dec 2007 16:11:39 +0100
 
 redhat-cluster (2.20071214-1) unstable; urgency=low
 

@@ -139,7 +139,7 @@ Description: clustered resource group manager
  applications in the event of planned or unplanned system downtime.
 
 Package: redhat-cluster-source
-Architecture: any
+Architecture: all
 Depends: bzip2
 Description: Red Hat cluster suite - kernel modules source
  This package contains the source necessary for compiling the Red Hat
