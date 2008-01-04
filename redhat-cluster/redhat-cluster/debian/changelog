@@ -1,3 +1,9 @@
+redhat-cluster (2.20071214-3) unstable; urgency=low
+
+  * Build-depend on linux-libc-dev (>=  2.6.23-1).
+
+ -- Frederik Schüler <fs@debian.org>  Fri, 04 Jan 2008 19:47:02 +0100
+
 redhat-cluster (2.20071214-2) unstable; urgency=low
 
   * Add muissing build-dependency on libslang2-dev.
