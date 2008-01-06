@@ -1,3 +1,12 @@
+redhat-cluster (2.20080107-1) unstable; urgency=low
+
+  * New upstream CVS snapshot.
+    - fixes hppa FTBFS.
+  * Drop merged patches.
+  * Fix spelling of "Linux" in some descriptions.
+
+ -- Frederik Schüler <fs@debian.org>  Mon, 07 Jan 2008 00:45:58 +0100
+
 redhat-cluster (2.20071214-3) unstable; urgency=low
 
   * Build-depend on linux-libc-dev (>=  2.6.23-1).

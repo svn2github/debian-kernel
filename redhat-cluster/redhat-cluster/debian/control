@@ -113,7 +113,7 @@ Depends: ${shlibs:Depends}
 Recommends: fence-gnbd (= ${binary:Version}), redhat-cluster-modules
 Description: global network block device - client tools
  GNBD allows to use block devices over the network. It is a modified
- version of the linux network block device for the use within a cluster
+ version of the Linux network block device for the use within a cluster
  environment.
  .
  This package contains userspace tools for running GNBD clients.
@@ -125,7 +125,7 @@ Depends: ${shlibs:Depends}
 Recommends: fence-gnbd (= ${binary:Version})
 Description: global network block device - server tools
  GNBD allows to use block devices over the network. It is a modified
- version of the linux network block device for the use within a cluster
+ version of the Linux network block device for the use within a cluster
  environment.
  .
  This package contains userspace tools for running GNBD servers.
@@ -144,4 +144,4 @@ Depends: bzip2
 Description: Red Hat cluster suite - kernel modules source
  This package contains the source necessary for compiling the Red Hat
  cluster suite out-of-tree kernel modules gfs and gnbd against the 
- linux tree.
+ Linux tree.
