@@ -4,8 +4,8 @@ export DH_OPTIONS
 
 include /usr/src/linux-support-$(UPSTREAMVERSION)$(ABINAME)/modules/rules.real.include
 
-BUILD_STAMP = $(STAMPS_DIR)/build_$(ARCH)_$(SUBARCH)_$(FLAVOUR)_$(MODULE)
-SETUP_STAMP = $(STAMPS_DIR)/setup_$(ARCH)_$(SUBARCH)_$(FLAVOUR)_$(MODULE)
+BUILD_STAMP = $(STAMPS_DIR)/build_$(ARCH)_$(FEATURESET)_$(FLAVOUR)_$(MODULE)
+SETUP_STAMP = $(STAMPS_DIR)/setup_$(ARCH)_$(FEATURESET)_$(FLAVOUR)_$(MODULE)
 SOURCE_STAMP = $(STAMPS_DIR)/source_$(MODULE)
 
 ifdef DEBIAN_KERNEL_JOBS
@@ -24,7 +24,7 @@ binary-arch: install-real
 build: $(BUILD_STAMP)
 setup: $(SETUP_STAMP)
 
-$(SETUP_STAMP) $(BUILD_STAMP) install: DIR=$(BUILD_DIR)/build_$(ARCH)_$(SUBARCH)_$(FLAVOUR)_$(MODULE)
+$(SETUP_STAMP) $(BUILD_STAMP) install: DIR=$(BUILD_DIR)/build_$(ARCH)_$(FEATURESET)_$(FLAVOUR)_$(MODULE)
 $(SOURCE_STAMP) $(SETUP_STAMP): SOURCE_DIR=$(BUILD_DIR)/source_$(MODULE)
 
 $(SOURCE_STAMP): TAR = /usr/src/$(MODULE).tar.bz2
