@@ -66,10 +66,13 @@ class Gencontrol(Base):
             vars['longdesc'] = ''
 
         relations = PackageRelation(config_entry_relations.get('source', '%s-source' % module))
-        if config_entry.get('arches', None) or config_entry.get('not-arches', None):
-            for group in relations:
-                for item in group:
-                    item.arches = [arch]
+        arches = config_entry.get('arches', self.config['base',]['arches'])
+        for arch in config_entry.get('not-arches', []):
+            if arch in arches:
+                arches.remove(arch)
+        for group in relations:
+            for item in group:
+                item.arches = arches
         makeflags['MODULESOURCE'] = relations[0][0].name
 
         packages['source']['Build-Depends'].extend(relations)
