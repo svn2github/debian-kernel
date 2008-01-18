@@ -36,22 +36,24 @@ class Gencontrol(Base):
 
     def do_flavour(self, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
         config_entry = self.config['module', 'base']
-        if config_entry.get('modules', True) is False:
-            return
 
         super(Gencontrol, self).do_flavour(packages, makefile, arch, featureset, flavour, vars, makeflags, extra)
 
-        have_modules = False
-
         for module in iter(config_entry['modules']):
-            if self.do_module_check(module, arch, featureset, flavour):
-                self.do_module(module, packages, makefile, arch, featureset, flavour, vars.copy(), makeflags.copy(), extra)
-                have_modules = True
+            if arch not in config_entry.get('arches', [arch]):
+                continue
+            if arch in config_entry.get('not-arches', []):
+                continue
+            if featureset not in config_entry.get('featuresets', [featureset]):
+                continue
+            if featureset in config_entry.get('not-featuresets', []):
+                continue
+            if flavour not in config_entry.get('flavours', [flavour]):
+                continue
+            if flavour in config_entry.get('not-flavours', []):
+                continue
 
-        if not have_modules:
-            for i in self.makefile_targets:
-                pass
-                #makefile.append("%s-%s-%s-%s:" % (i, arch, featureset, flavour))
+            self.do_module(module, packages, makefile, arch, featureset, flavour, vars.copy(), makeflags.copy(), extra)
 
     def do_module(self, module, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
         config_entry = self.config['module', 'base', module]
@@ -101,24 +103,6 @@ class Gencontrol(Base):
         makefile.add("build_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_build)
         makefile.add("setup_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_setup)
 
-    def do_module_check(self, module, arch, featureset, flavour):
-        config_entry = self.config['module', 'base', module]
-
-        if arch not in config_entry.get('arches', [arch]):
-            return False
-        if arch in config_entry.get('not-arches', []):
-            return False
-        if featureset not in config_entry.get('featuresets', [featureset]):
-            return False
-        if featureset in config_entry.get('not-featuresets', []):
-            return False
-        if flavour not in config_entry.get('flavours', [flavour]):
-            return False
-        if flavour in config_entry.get('not-flavours', []):
-            return False
-
-        return True
-
     def process_changelog(self):
         self.package_version = self.changelog[0].version
         self.version = VersionLinux(self.config['version',]['source'])
@@ -154,8 +138,6 @@ class Config(ConfigCoreDump):
         config = ConfigParser(self.schemas_base)
         config.read(self.config_name)
 
-        print config
-
         for section in iter(config):
             real = ('module', section[-1],) + section[1:]
             self[real] = config[section]
@@ -166,8 +148,6 @@ class Config(ConfigCoreDump):
     def _read_module(self, module):
         config = ConfigParser(self.schemas_module)
         config.read("%s/%s" % (module, self.config_name))
-
-        print config
 
         for section in iter(config):
             real = ('module', section[-1], module) + section[1:]
