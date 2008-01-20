@@ -40,19 +40,6 @@ class Gencontrol(Base):
         super(Gencontrol, self).do_flavour(packages, makefile, arch, featureset, flavour, vars, makeflags, extra)
 
         for module in iter(config_entry['modules']):
-            if arch not in config_entry.get('arches', [arch]):
-                continue
-            if arch in config_entry.get('not-arches', []):
-                continue
-            if featureset not in config_entry.get('featuresets', [featureset]):
-                continue
-            if featureset in config_entry.get('not-featuresets', []):
-                continue
-            if flavour not in config_entry.get('flavours', [flavour]):
-                continue
-            if flavour in config_entry.get('not-flavours', []):
-                continue
-
             self.do_module(module, packages, makefile, arch, featureset, flavour, vars.copy(), makeflags.copy(), extra)
 
     def do_module(self, module, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
@@ -65,8 +52,21 @@ class Gencontrol(Base):
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
 
+        if arch not in config_entry.get('arches', [arch]):
+            return
+        if arch in config_entry.get('not-arches', []):
+            return
+        if featureset not in config_entry.get('featuresets', [featureset]):
+            return
+        if featureset in config_entry.get('not-featuresets', []):
+            return
+        if flavour not in config_entry.get('flavours', [flavour]):
+            return
+        if flavour in config_entry.get('not-flavours', []):
+            return
+
         relations = PackageRelation(config_entry_relations.get('source', '%s-source' % module))
-        arches = config_entry.get('arches', self.config['base',]['arches'])
+        arches = config_entry.get('arches', self.config['base',]['arches'])[:]
         for arch in config_entry.get('not-arches', []):
             if arch in arches:
                 arches.remove(arch)
