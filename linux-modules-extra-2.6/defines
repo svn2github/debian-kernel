@@ -7,6 +7,7 @@ modules:
  gspca
  iscsitarget
  kqemu
+ loop-aes
  mol
  squashfs
  unionfs
