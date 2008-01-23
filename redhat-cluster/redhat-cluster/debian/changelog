@@ -1,3 +1,10 @@
+redhat-cluster (2.20080107-2) unstable; urgency=low
+
+  * Fix mount/umount helpers installation. Thanks to 
+    Fabio M. Di Nitto <fabbione@ubuntu.com> for the patch.
+
+ -- Frederik Schüler <fs@debian.org>  Thu, 24 Jan 2008 00:37:35 +0100
+
 redhat-cluster (2.20080107-1) unstable; urgency=low
 
   * New upstream CVS snapshot.
