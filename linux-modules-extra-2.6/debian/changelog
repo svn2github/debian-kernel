@@ -1,14 +1,14 @@
-linux-modules-extra-2.6 (2.6.23-1) UNRELEASED; urgency=low
+linux-modules-extra-2.6 (2.6.24-1) UNRELEASED; urgency=low
 
   [ Daniel Baumann ]
   * Adding Vcs fields in control.
   * Enabling kqemu, finally.
-  * Updating to 2.6.23-1.
+  * Updating to 2.6.24-1.
 
   [ Max Vozeler ]
   * Adding loop-aes (Closes: #461754).
 
- -- Daniel Baumann <daniel@debian.org>  Sun,  2 Dec 2007 22:16:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Mon, 28 Jan 2008 11:55:00 +0100
 
 linux-modules-extra-2.6 (2.6.22-9) unstable; urgency=low
 
