@@ -4,6 +4,7 @@ linux-modules-extra-2.6 (2.6.24-1) UNRELEASED; urgency=low
   * Adding Vcs fields in control.
   * Enabling kqemu, finally.
   * Updating to 2.6.24-1.
+  * Bumping standards version, no other changes needed.
 
   [ Max Vozeler ]
   * Adding loop-aes (Closes: #461754).
