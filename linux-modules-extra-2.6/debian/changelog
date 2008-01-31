@@ -9,6 +9,7 @@ linux-modules-extra-2.6 (2.6.24-1) UNRELEASED; urgency=low
   * Disabling unionfs, doesn't build with 2.6.24.
   * Updating redhat-cluster copyright.
   * Adding virtualbox-ose-guest.
+  * Disabling atl2 on xen flavours.
 
   [ Max Vozeler ]
   * Adding loop-aes (Closes: #461754).
