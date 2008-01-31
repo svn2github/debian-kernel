@@ -2,5 +2,5 @@
 arches:
   i386
 not-flavours: amd64
-not-subarches: xen xen-vserver
+not-featuresets: xen xen-vserver
 desc: QEMU Accelerator

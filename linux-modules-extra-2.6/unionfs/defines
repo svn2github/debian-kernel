@@ -5,4 +5,4 @@ longdesc:
  kernel. It allows to virtually merge the contents of several
  directories and/or stack them, so that apparent file changes in the
  unionfs end in file changes in only one of the source directories.
-not-subarches: vserver xen-vserver
+not-featuresets: vserver xen-vserver
