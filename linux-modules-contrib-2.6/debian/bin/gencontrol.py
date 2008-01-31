@@ -1,15 +1,17 @@
 #!/usr/bin/env python2.4
+
 import sys
 sys.path.append(sys.argv[1] + "/lib/python")
+
+from debian_linux.config import ConfigCoreDump, ConfigParser, SchemaItemList
 from debian_linux.gencontrol import Gencontrol as Base
-from debian_linux import config
 from debian_linux.debian import *
+from debian_linux.utils import Templates
 
 class Gencontrol(Base):
-    def __init__(self, configdir):
-        super(Gencontrol, self).__init__(configdir)
+    def __init__(self, config):
+        super(Gencontrol, self).__init__(Config(config), Templates(["debian/templates"]))
         self.process_changelog()
-        self.config = ConfigReader(self.config)
 
     def do_main_setup(self, vars, makeflags, extra):
         super(Gencontrol, self).do_main_setup(vars, makeflags, extra)
@@ -19,7 +21,7 @@ class Gencontrol(Base):
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
-        makefile.append(("binary-indep:", []))
+        makefile.add("binary-indep")
 
     def do_main_packages(self, packages, extra):
         vars = self.vars
@@ -32,30 +34,16 @@ class Gencontrol(Base):
             for arch in self.config['base',]['arches']],
         )
 
-    def do_flavour(self, packages, makefile, arch, subarch, flavour, vars, makeflags, extra):
-        config_entry = self.config.merge('base', arch, subarch, flavour)
-        if config_entry.get('modules', True) is False:
-            return
+    def do_flavour(self, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
+        config_entry = self.config['module', 'base']
 
-        super(Gencontrol, self).do_flavour(packages, makefile, arch, subarch, flavour, vars, makeflags, extra)
+        super(Gencontrol, self).do_flavour(packages, makefile, arch, featureset, flavour, vars, makeflags, extra)
 
-        have_modules = False
+        for module in iter(config_entry['modules']):
+            self.do_module(module, packages, makefile, arch, featureset, flavour, vars.copy(), makeflags.copy(), extra)
 
-        for module in iter(self.config['base',]['modules']):
-            if self.do_module_check(module, arch, subarch, flavour):
-                self.do_module(module, packages, makefile, arch, subarch, flavour, vars.copy(), makeflags.copy(), extra)
-                have_modules = True
-
-        if not have_modules:
-            for i in self.makefile_targets:
-                makefile.append("%s-%s-%s-%s:" % (i, arch, subarch, flavour))
-
-    def do_flavour_makefile(self, makefile, arch, subarch, flavour, makeflags, extra):
-        for i in self.makefile_targets:
-            makefile.append("%s-%s-%s:: %s-%s-%s-%s" % (i, arch, subarch, i, arch, subarch, flavour))
-
-    def do_module(self, module, packages, makefile, arch, subarch, flavour, vars, makeflags, extra):
-        config_entry = self.config['base', module]
+    def do_module(self, module, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
+        config_entry = self.config['module', 'base', module]
         config_entry_relations = self.config.get(('relations', module), {})
         vars.update(config_entry)
         vars['module'] = module
@@ -63,6 +51,19 @@ class Gencontrol(Base):
 
         if not vars.get('longdesc', None):
             vars['longdesc'] = ''
+
+        if arch not in config_entry.get('arches', [arch]):
+            return
+        if arch in config_entry.get('not-arches', []):
+            return
+        if featureset not in config_entry.get('featuresets', [featureset]):
+            return
+        if featureset in config_entry.get('not-featuresets', []):
+            return
+        if flavour not in config_entry.get('flavours', [flavour]):
+            return
+        if flavour in config_entry.get('not-flavours', []):
+            return
 
         relations = PackageRelation(config_entry_relations.get('source', '%s-source' % module))
         if config_entry.get('arches', None) or config_entry.get('not-arches', None):
@@ -87,93 +88,72 @@ class Gencontrol(Base):
 
         makeflags_string = ' '.join(["%s='%s'" % i for i in makeflags.iteritems()])
 
+        for i in self.makefile_targets:
+            target1 = '_'.join((i, arch, featureset, flavour))
+            target2 = '_'.join((target1, module))
+            makefile.add(target1, [target2])
+
         cmds_binary_arch = []
         cmds_binary_arch.append(("$(MAKE) -f debian/rules.real binary-arch %s" % makeflags_string,))
         cmds_build = []
         cmds_build.append(("$(MAKE) -f debian/rules.real build %s" % makeflags_string,))
         cmds_setup = []
         cmds_setup.append(("$(MAKE) -f debian/rules.real setup %s" % makeflags_string,))
-        for i in self.makefile_targets:
-            makefile.append("%s-%s-%s-%s:: %s-%s-%s-%s-%s" % (i, arch, subarch, flavour, i, arch, subarch, flavour, module))
-        makefile.append(("binary-arch-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_binary_arch))
-        makefile.append(("build-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_build))
-        makefile.append(("setup-%s-%s-%s-%s:" % (arch, subarch, flavour, module), cmds_setup))
-
-    def do_module_check(self, module, arch, subarch, flavour):
-        config_entry = self.config['base', module]
-
-        if arch not in config_entry.get('arches', [arch]):
-            return False
-        if arch in config_entry.get('not-arches', []):
-            return False
-        if subarch not in config_entry.get('subarches', [subarch]):
-            return False
-        if subarch in config_entry.get('not-subarches', []):
-            return False
-        if flavour not in config_entry.get('flavours', [flavour]):
-            return False
-        if flavour in config_entry.get('not-flavours', []):
-            return False
-
-        return True
+        makefile.add("binary-arch_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_binary_arch)
+        makefile.add("build_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_build)
+        makefile.add("setup_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_setup)
 
     def process_changelog(self):
-        changelog = Changelog(version = VersionLinux)
-        self.version = changelog[0].version
-        if self.version.linux_modifier is not None:
-            self.abiname = ''
-        else:
-            self.abiname = '-%s' % self.config['abi',]['abiname']
+        self.package_version = self.changelog[0].version
+        self.version = VersionLinux(self.config['version',]['source'])
+        self.abiname = self.config['version',]['abiname']
         self.vars = self.process_version_linux(self.version, self.abiname)
 
-class ConfigReader(config.ConfigReaderCore):
-    schema_base = {
-#        'base': {
-            'modules': config.SchemaItemList(),
-#        }
+class Config(ConfigCoreDump):
+    config_name = "defines"
+
+    schemas_base = {
+        'base': {
+            'modules': SchemaItemList(),
+        }
     }
 
-    schema_module = {
-#        'base': {
-            'arches': config.SchemaItemList(),
-#        }
+    schemas_module = {
+        'base': {
+            'arches': SchemaItemList(),
+            'flavours':  SchemaItemList(),
+            'not-arches': SchemaItemList(),
+            'not-flavours':  SchemaItemList(),
+            'not-featuresets': SchemaItemList(),
+            'featuresets': SchemaItemList(),
+        }
     }
 
-    def __init__(self, arch):
-        super(ConfigReader, self).__init__(['.'])
+    def __init__(self, config):
+        super(Config, self).__init__(fp = file(config))
 
-        for section in iter(arch):
-            s1 = self.get(section, {})
-            s2 = arch[section].copy()
-            s2.update(s1)
-            self[section] = s2
+        self._read_base()
 
-    def _readBase(self):
-        config_file = config.ConfigParser(self.schema_base, self.getFiles(self.config_name))
+    def _read_base(self):
+        config = ConfigParser(self.schemas_base)
+        config.read(self.config_name)
 
-        modules = config_file['base',]['modules']
+        for section in iter(config):
+            real = ('module', section[-1],) + section[1:]
+            self[real] = config[section]
 
-        for section in iter(config_file):
-            real = list(section)
-            if real[-1] in modules:
-                real.insert(0, 'base')
-            else:
-                real.insert(0, real.pop())
-            self[tuple(real)] = config_file[section]
-
-        for module in modules:
+        for module in config['base',]['modules']:
             self._read_module(module)
 
     def _read_module(self, module):
-        config_file = config.ConfigParser(self.schema_base, self.getFiles("%s/%s" % (module, self.config_name)))
+        config = ConfigParser(self.schemas_module)
+        config.read("%s/%s" % (module, self.config_name))
 
-        for section in iter(config_file):
-            real = list(section)
-            real[0:] = [real.pop(), module]
-            real = tuple(real)
+        for section in iter(config):
+            real = ('module', section[-1], module) + section[1:]
             s = self.get(real, {})
-            s.update(config_file[section])
+            s.update(config[section])
             self[real] = s
 
 if __name__ == '__main__':
-    Gencontrol(sys.argv[1] + "/arch")()
+    Gencontrol(sys.argv[1] + "/config.defines.dump")()
