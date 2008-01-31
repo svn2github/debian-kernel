@@ -5,7 +5,6 @@ modules:
  btrfs
  drbd8
  gspca
- iscsitarget
  kqemu
  loop-aes
  mol
