@@ -1,6 +1,0 @@
-$(BUILD_STAMP):
-	$(MAKE) -C $(CURDIR)/$(DIR) modules KSRC=$(HEADERS_DIR)
-	touch $@
-
-install:
-	install -D -m 0644 $(CURDIR)/$(DIR)/ipw3945.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/ipw3945.ko
