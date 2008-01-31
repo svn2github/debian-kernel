@@ -1,0 +1,5 @@
+[base]
+arches:
+  amd64
+  i386
+desc: VMware guest systems driver
