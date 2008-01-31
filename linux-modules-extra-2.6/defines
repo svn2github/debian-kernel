@@ -9,5 +9,4 @@ modules:
  loop-aes
  mol
  squashfs
- unionfs
  virtualbox-ose
