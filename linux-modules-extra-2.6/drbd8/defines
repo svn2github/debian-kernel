@@ -1,5 +1,7 @@
 [base]
 not-arches:
+ alpha
  mips
  mipsel
+ s390
 desc: Driver for RAID 1 over tcp/ip
