@@ -7,7 +7,6 @@ modules:
  gspca
  kqemu
  loop-aes
- mol
  squashfs
  virtualbox-ose
  virtualbox-ose-guest
