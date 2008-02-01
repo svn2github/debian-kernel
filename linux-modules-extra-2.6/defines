@@ -10,3 +10,4 @@ modules:
  mol
  squashfs
  virtualbox-ose
+ virtualbox-ose-guest
