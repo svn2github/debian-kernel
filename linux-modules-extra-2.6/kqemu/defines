@@ -1,5 +1,6 @@
 [base]
 arches:
+  amd64
   i386
 not-flavours: amd64
 not-featuresets: xen xen-vserver
