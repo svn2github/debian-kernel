@@ -1,5 +1,3 @@
 [base]
-arches:
-  i386
 desc: Driver for the Atheros(R) L2 Fast Ethernet Adapter
 not-featuresets: xen xen-vserver
