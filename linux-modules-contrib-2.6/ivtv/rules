@@ -1,9 +1,0 @@
-$(BUILD_STAMP):
-	$(MAKE) -C $(CURDIR)/$(DIR)/driver KVER=$(KVERS) KDIR=$(HEADERS_DIR) HP_FWLOAD=1 DEBIAN_MAKE_KPKG=1
-	$(MAKE) -C $(CURDIR)/$(DIR)/i2c-drivers KVER=$(KVERS) KDIR=$(HEADERS_DIR) HP_FWLOAD=1 DEBIAN_MAKE_KPKG=1
-
-	touch $@
-
-install:
-	install -D -m 0644 $(CURDIR)/$(DIR)/driver/ivtvfb.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/$(MODULE)/ivtvfb.ko
-	install -D -m 0644 $(CURDIR)/$(DIR)/i2c-drivers/saa717x.ko $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)/contrib/$(MODULE)/saa717x.ko

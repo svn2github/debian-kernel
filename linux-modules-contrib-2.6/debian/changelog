@@ -1,3 +1,9 @@
+linux-modules-contrib-2.6 (2.6.24-2) UNRELEASED; urgency=low
+
+  * Removing ivtv, got completely merged mainline as of 2.6.24.
+
+ -- Daniel Baumann <daniel@debian.org>  Tue,  5 Feb 2008 10:09:00 +0100
+
 linux-modules-contrib-2.6 (2.6.24-1) unstable; urgency=low
 
   * Adding em8300.
