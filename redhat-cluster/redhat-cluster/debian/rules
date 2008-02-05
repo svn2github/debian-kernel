@@ -3,8 +3,6 @@
 # Uncomment this to turn on verbose mode.
 # export DH_VERBOSE=1
 
-include /usr/share/dpatch/dpatch.make
-
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
 xen_arches = amd64 i386
@@ -17,7 +15,7 @@ BUILDROOT := $(shell pwd)
 SOMAJOR=2
 SOMINOR=0
 
-configure: patch configure-stamp
+configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	
@@ -81,6 +79,7 @@ install: build
 		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian/README.Debian
 	cp debian/redhat-cluster-source.rules \
 		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian/rules
+	chmod 755 debian/redhat-cluster-source/usr/src/modules/redhat-cluster/debian/rules
 	cp debian/redhat-cluster-source.Makefile \
 		debian/redhat-cluster-source/usr/src/modules/redhat-cluster/Makefile
 	
@@ -132,7 +131,7 @@ binary-indep: install
 
 binary: binary-arch binary-indep 
 
-clean: unpatch
+clean: 
 	dh_testdir
 	dh_testroot
 	dh_clean
@@ -140,5 +139,4 @@ clean: unpatch
 	 [ ! -f make/defines.mk ] || $(MAKE) distclean
 
 	rm -rf *-stamp
-	rm -rf debian/patched
 

@@ -113,7 +113,7 @@ case "$1" in
 	fence_tool -w -t $FENCED_START_TIMEOUT join
 	echo " done"
 	echo -n " Starting Quorum Disk daemon:"
-	start-stop-daemon --start --quiet --pidfile /var/run/qdiskd.pid --exec /usr/sbin/qdiskd -- -Q
+	start-stop-daemon --start --quiet --pidfile /var/run/qdiskd.pid --exec /usr/sbin/qdiskd -- -Q || true
 	echo " done"
 	;;
   stop)

@@ -1,9 +1,17 @@
-redhat-cluster (2.20080107-3) UNRELEASED; urgency=low
+redhat-cluster (2.20080205-1) unstable; urgency=low
 
-  * Add libnet-snmp-perl and libnet-telnet-perl dependency to cman, needed 
+  * New upstream snapshot.
+    - fix build failures with 2.6.24
+  * Add libnet-snmp-perl and libnet-telnet-perl dependency to cman, needed
     for some fencing scripts.
+  * Merge changes from ubuntu:
+    - drop libcman2 and libdlm 2 postrm, this is handled by
+      debhelper.
+    - Make cman init script not fail if qdiskd fails to start up
+    - drop 00_fix_gfs2_quota.dpatch
+  * Fix modules/redhat-cluster/debian/rules permissions
 
- -- Frederik Schüler <fs@debian.org>  Fri, 25 Jan 2008 19:17:21 +0100
+ -- Frederik Schüler <fs@debian.org>  Tue, 05 Feb 2008 13:59:43 +0100
 
 redhat-cluster (2.20080107-2) unstable; urgency=low
 
