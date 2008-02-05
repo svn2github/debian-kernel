@@ -1,0 +1,5 @@
+[base]
+arches:
+ amd64
+ i386
+desc: Driver for RDC Semiconductor R6040 PCI Fast Ethernet Controller
