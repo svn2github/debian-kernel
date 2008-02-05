@@ -1,6 +1,6 @@
 linux-modules-extra-2.6 (2.6.24-3) unstable; urgency=low
 
-  * Enabling kqemu on amd64.
+  * Enabling kqemu on amd64 (Closes: #433527).
   * Enabling atl2 on all archs.
 
  -- Daniel Baumann <daniel@debian.org>  Mon,  4 Feb 2008 13:43:00 +0100
