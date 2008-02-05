@@ -1,4 +1,4 @@
-linux-modules-contrib-2.6 (2.6.24-1) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.24-1) unstable; urgency=low
 
   * Adding em8300.
   * Adding provides to control.
