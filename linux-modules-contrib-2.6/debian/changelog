@@ -6,6 +6,7 @@ linux-modules-contrib-2.6 (2.6.24-1) UNRELEASED; urgency=low
   * Updating to 2.6.24-1.
   * Bumping standards version, no other changes needed.
   * Removing ipw3945, superseeded by iwlwifi.
+  * Disabling ivtv, doesn't build with 2.6.24.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 28 Jan 2008 11:56:00 +0100
 
