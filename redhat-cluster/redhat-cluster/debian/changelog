@@ -1,3 +1,10 @@
+redhat-cluster (2.20080208-2) unstable; urgency=low
+
+  * Update linux-libc-dev build dependency to version 2.6.24-1, this should
+    fix the various FTBFS.
+
+ -- Frederik Schüler <fs@debian.org>  Fri, 08 Feb 2008 19:48:50 +0100
+
 redhat-cluster (2.20080208-1) unstable; urgency=low
 
   * New upstream snapshot.
