@@ -7,7 +7,6 @@ modules:
  gspca
  kqemu
  loop-aes
- lzma
  r6040
  squashfs
  virtualbox-ose
