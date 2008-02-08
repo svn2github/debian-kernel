@@ -1,3 +1,10 @@
+redhat-cluster (2.20080208-1) unstable; urgency=low
+
+  * Fix bashism in cman init script. Closes: #464634
+  * Fix redhat-cluster-source FTBFS. Closes: #464117
+
+ -- Frederik Schüler <fs@debian.org>  Fri, 08 Feb 2008 11:30:50 +0100
+
 redhat-cluster (2.20080205-1) unstable; urgency=low
 
   * New upstream snapshot.

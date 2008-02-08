@@ -125,7 +125,7 @@ case "$1" in
 	echo -n " Leaving fence domain:"
 	fence_tool -w leave &
 	for sec in $(seq 1 10); do
-		if pidof fence_tool &> /dev/null; then
+		if pidof fence_tool > /dev/null 2>&1; then
 			if [ "$sec" = 10 ]; then
 				kill $(pidof fence_tool) > /dev/null 2>&1
 			else
