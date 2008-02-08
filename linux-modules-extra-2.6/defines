@@ -8,6 +8,7 @@ modules:
  kqemu
  loop-aes
  r6040
+ redhat-cluster
  squashfs
  virtualbox-ose
  virtualbox-ose-guest

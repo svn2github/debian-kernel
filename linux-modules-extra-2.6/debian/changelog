@@ -5,6 +5,7 @@ linux-modules-extra-2.6 (2.6.24-3) unstable; urgency=low
   * Enabling atl2 on all archs.
   * This build is build against the fixed squashfs (Closes: #463594).
   * Adding and enabling r6040 (Closes: #457603).
+  * Enabling redhat-cluster again.
 
   [ Max Vozeler ]
   * Adding long description for loop-aes.
