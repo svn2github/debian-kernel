@@ -1,5 +1,4 @@
 [base]
-not-featuresets: vserver xen-vserver
 desc: Driver for a stackable unification filesystem
 longdesc:
  The unionfs driver provides a unification filesystem. It allows to virtually
