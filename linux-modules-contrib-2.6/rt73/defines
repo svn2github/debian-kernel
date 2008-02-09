@@ -1,2 +1,4 @@
 [base]
-desc: RT73(RT2571W) Wireless Lan Linux Driver
+desc: Driver for Ralink RT73 wireless network card
+longdesc:
+ This is the device driver for Ralink RT73 a/b/g WLAN Card.
