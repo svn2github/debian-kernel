@@ -1,5 +1,8 @@
 [base]
-not-arches:
- s390
-desc: Driver for the Atheros(R) L2 Fast Ethernet Adapter
+not-arches: s390
 not-featuresets: xen xen-vserver
+desc: Driver for the Atheros L2 Fast Ethernet Adapter
+longdesc:
+ atl2 is the Linux Base Driver for the Atheros(R) L2 Fast Ethernet Adapter.
+ The the Atheros(R) L2 Fast Ethernet Adapter is present in a few low
+ cost Asus laptop systems, such as the Asus Eee PC.

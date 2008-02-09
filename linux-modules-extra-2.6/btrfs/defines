@@ -1,10 +1,7 @@
 [base]
-not-arches:
- arm
- hppa
- ia64
- mips
- mipsel
- powerpc
- sparc
-desc: Snapshotting filesystem
+not-arches: arm hppa ia64 mips mipsel powerpc sparc
+desc: Driver for a snapshotting filesystem
+long-desc:
+ Btrfs is a filesystem that is designed to be scalable, efficient and fast.
+ Notable features include very fast offline filesystem check, online filesystem
+ checking, checksumming of all metadata and fast, writable filesystem snapshots.

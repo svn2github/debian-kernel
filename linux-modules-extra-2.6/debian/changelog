@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.24-4) UNRELEASED; urgency=low
 
   * Disabling atl2 on s390.
+  * Adding missing and improving existing long descriptions.
 
  -- Daniel Baumann <daniel@debian.org>  Mon,  4 Feb 2008 13:43:00 +0100
 
