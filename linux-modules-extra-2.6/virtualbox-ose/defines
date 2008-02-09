@@ -2,5 +2,6 @@
 arches: i386
 not-flavours: amd64
 desc: PC virtualization solution
+longdesc:
  VirtualBox is a free PC virtualization solution allowing you to run a wide
  range of PC operating systems on your system.
