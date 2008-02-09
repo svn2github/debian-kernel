@@ -1,6 +1,6 @@
 [base]
 arches: amd64 i386 powerpc
-desc: Driver for webcams and digital cameras based on spca5xx chipset
+desc: Driver for webcams and digicams based on spca5xx chipset
 longdesc:
  The gpsca video for linux (v4l) driver, provides support for webcams and
  digital cameras based on the spca5xx range of chips manufactured by SunPlus,
