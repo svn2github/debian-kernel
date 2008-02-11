@@ -1,6 +1,7 @@
 [base]
 arches: amd64 i386
 desc: ThinkPad hardware/firmware access through sysfs
+longdesc:
  The tp_smapi kernel module exposes some features of the ThinkPad
  hardware/firmware via a sysfs interface. Currently, the main implemented
  functionality is control of battery charging and extended battery status. The
