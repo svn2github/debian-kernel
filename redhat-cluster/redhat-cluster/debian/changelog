@@ -1,3 +1,16 @@
+redhat-cluster (2.20080212-1) unstable; urgency=low
+
+  * New upstream CVS snapshot.
+  * Merge changes from Ubuntu:
+    - debian/copyright: add copyright info and shut up lintian a bit.
+    - link mount.gfs man page to mount.gfs2.
+    - debian/rules: fix order of dh_ to get library dh snippets in place.
+    - debian/TODO list.
+    - drop unrequired maintainer scripts.
+    - debian/control: fix libdlm-dev depends.
+
+ -- Frederik Schüler <fs@debian.org>  Tue, 12 Feb 2008 22:46:46 +0100
+
 redhat-cluster (2.20080208-2) unstable; urgency=low
 
   * Update linux-libc-dev build dependency to version 2.6.24-1, this should

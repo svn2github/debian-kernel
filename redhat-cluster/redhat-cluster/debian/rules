@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 # export DH_VERBOSE=1
 
+include /usr/share/dpatch/dpatch.make
+
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
 xen_arches = amd64 i386
@@ -15,7 +17,7 @@ BUILDROOT := $(shell pwd)
 SOMAJOR=2
 SOMINOR=0
 
-configure: configure-stamp
+configure: patch configure-stamp
 configure-stamp:
 	dh_testdir
 	
@@ -112,9 +114,9 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 endif
 	dh_compress -a
 	dh_fixperms -a
-	dh_installdeb -a
 	dh_makeshlibs -a
 	dh_shlibdeps -a -ldebian/tmp/usr/lib -l/usr/lib/openais
+	dh_installdeb -a
 	dh_gencontrol -a
 	dh_md5sums -a
 	dh_builddeb -a
@@ -131,12 +133,12 @@ binary-indep: install
 
 binary: binary-arch binary-indep 
 
-clean: 
+clean: unpatch
 	dh_testdir
 	dh_testroot
 	dh_clean
-
+	
 	 [ ! -f make/defines.mk ] || $(MAKE) distclean
-
+	
 	rm -rf *-stamp
-
+	rm -rf debian/patched
