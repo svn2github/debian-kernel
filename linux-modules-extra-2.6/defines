@@ -7,6 +7,7 @@ modules:
  gspca
  kqemu
  loop-aes
+ lzma
  r6040
  redhat-cluster
  squashfs
