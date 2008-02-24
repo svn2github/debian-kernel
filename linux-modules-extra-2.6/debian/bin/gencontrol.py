@@ -16,8 +16,8 @@ class Gencontrol(Base):
     def do_main_setup(self, vars, makeflags, extra):
         super(Gencontrol, self).do_main_setup(vars, makeflags, extra)
         makeflags.update({
-            'VERSION_SOURCE': self.version.upstream,
-            'VERSION_DEBIAN': self.version.debian,
+            'VERSION_SOURCE': self.package_version.upstream,
+            'VERSION_DEBIAN': self.package_version.debian,
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
