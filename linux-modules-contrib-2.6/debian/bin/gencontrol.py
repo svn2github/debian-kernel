@@ -4,8 +4,8 @@ import sys
 sys.path.append(sys.argv[1] + "/lib/python")
 
 from debian_linux.config import ConfigCoreDump, ConfigParser, SchemaItemList
-from debian_linux.gencontrol import Gencontrol as Base
 from debian_linux.debian import *
+from debian_linux.gencontrol import Gencontrol as Base
 from debian_linux.utils import Templates
 
 class Gencontrol(Base):
@@ -16,8 +16,8 @@ class Gencontrol(Base):
     def do_main_setup(self, vars, makeflags, extra):
         super(Gencontrol, self).do_main_setup(vars, makeflags, extra)
         makeflags.update({
-            'VERSION_SOURCE': self.version.upstream,
-            'VERSION_DEBIAN': self.version.debian,
+            'VERSION_SOURCE': self.package_version.upstream,
+            'VERSION_DEBIAN': self.package_version.debian,
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
@@ -36,6 +36,10 @@ class Gencontrol(Base):
 
     def do_flavour(self, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
         config_entry = self.config['module', 'base']
+
+        config_base = self.config.merge('base', arch, featureset, flavour)
+        if not config_base.get('modules', True):
+            return
 
         super(Gencontrol, self).do_flavour(packages, makefile, arch, featureset, flavour, vars, makeflags, extra)
 
