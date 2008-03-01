@@ -1,3 +1,31 @@
+redhat-cluster (2.20080229-1) unstable; urgency=low
+
+  [ Christian Perrier ]  
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project.
+    Closes: #461839, #462802
+  * [Debconf translation updates]
+  * German. Closes: #462787
+  * German. Closes: #462801
+  * Norwegian Bokmål. Closes: #462812
+  * Vietnamese. Closes: #462913
+  * Galician. Closes: #462999
+  * Portuguese. Closes: #463012
+  * Finnish. Closes: #463946
+  * Czech. Closes: #464039
+  * Dutch. Closes: #464536
+  * Russian. Closes: #464758
+  * Japanese. Closes: #464870
+  * Italian. Closes: #465070
+  * French. Closes: #465553
+
+  [ Frederik Schüler ]
+  * New upstream snapshot.
+    - switch to git, branch STABLE2.
+    - fix gfs2_tool gettune. Closes: #465790
+
+ -- Frederik Schüler <fs@debian.org>  Fri, 29 Feb 2008 17:33:43 +0100
+
 redhat-cluster (2.20080212-1) unstable; urgency=low
 
   * New upstream CVS snapshot.
