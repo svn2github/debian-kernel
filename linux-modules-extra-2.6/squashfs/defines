@@ -1,5 +1,5 @@
 [base]
-not-arches: arm hppa
+not-arches: hppa
 desc: Driver for compression filesystem
 longdesc:
  Squashfs is a highly compressed read-only filesystem for Linux. It uses zlib
