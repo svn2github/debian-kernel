@@ -4,6 +4,7 @@ modules:
  aufs
  btrfs
  drbd8
+ et131x
  gspca
  kqemu
  loop-aes
