@@ -1,8 +1,10 @@
-linux-modules-extra-2.6 (2.6.24-5) unstable; urgency=low
+linux-modules-extra-2.6 (2.6.24-5) unstable; urgency=high
 
   * Re-enabling squashfs on arm.
+  * Sourcefull rebuild required to fix s390-tape issue.
+  * Rebuild against fixed squashfs (no support for lzma in it anymore).
 
- -- Daniel Baumann <daniel@debian.org>  Thu, 27 Mar 2008 07:46:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Fri, 28 Mar 2008 16:04:00 +0100
 
 linux-modules-extra-2.6 (2.6.24-4) unstable; urgency=low
 
