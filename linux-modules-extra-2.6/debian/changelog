@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.24-6) UNRELEASED; urgency=low
 
   * Enabling virtualbox-ose on amd64.
+  * Enabling virtualbox-ose-guest on amd64.
 
  -- Daniel Baumann <daniel@debian.org>  Fri, 28 Mar 2008 16:21:00 +0100
 

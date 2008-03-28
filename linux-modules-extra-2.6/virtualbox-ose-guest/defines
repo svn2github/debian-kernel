@@ -1,6 +1,5 @@
 [base]
-arches: i386
-not-flavours: amd64
+arches: amd64 i386
 desc: PC virtualization solution
 longdesc:
  VirtualBox is a free PC virtualization solution allowing you to run a wide
