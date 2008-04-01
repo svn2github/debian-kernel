@@ -11,6 +11,7 @@ modules:
  lzma
  r6040
  redhat-cluster
+ sfc
  squashfs
  unionfs
  virtualbox-ose

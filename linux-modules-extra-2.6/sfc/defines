@@ -1,4 +1,5 @@
 [base]
+not-featuresets: xen xen-vserver
 desc: Driver for the sfc Ethernet Adapter
 longdesc:
  sfc is the Linux Driver for the 10 gigabit Ethernet cards based on the
