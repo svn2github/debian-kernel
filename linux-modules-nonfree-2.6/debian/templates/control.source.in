@@ -7,3 +7,4 @@ Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.3
 Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/linux-modules-nonfree-2.6/
 Vcs-Svn: svn://svn.debian.org/kernel/dists/trunk/linux-modules-nonfree-2.6/
+XS-Autobuild: yes
