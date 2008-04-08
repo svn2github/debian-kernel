@@ -1,7 +1,5 @@
 linux-modules-extra-2.6 (2.6.24-7) unstable; urgency=medium
 
-  * Enabling virtualbox-ose on amd64.
-  * Enabling virtualbox-ose-guest on amd64.
   * Enabling tp-smapi.
   * Re-enabling iscsitarget.
   * Adding et131x modules (Closes: #470196).
