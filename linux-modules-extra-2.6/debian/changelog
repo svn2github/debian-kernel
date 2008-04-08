@@ -1,4 +1,4 @@
-linux-modules-extra-2.6 (2.6.24-7) UNRELEASED; urgency=low
+linux-modules-extra-2.6 (2.6.24-7) unstable; urgency=medium
 
   * Enabling virtualbox-ose on amd64.
   * Enabling virtualbox-ose-guest on amd64.
@@ -6,7 +6,7 @@ linux-modules-extra-2.6 (2.6.24-7) UNRELEASED; urgency=low
   * Adding et131x modules (Closes: #470196).
   * Adding sfc modules (Closes: #471461).
 
- -- Daniel Baumann <daniel@debian.org>  Sat, 29 Mar 2008 10:11:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Thu,  3 Apr 2008 10:29:00 +0200
 
 linux-modules-extra-2.6 (2.6.24-6) unstable; urgency=high
 
