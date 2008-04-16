@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.24-8) UNRELEASED; urgency=medium
+
+  * Adding eeepc-acpi.
+
+ -- Daniel Baumann <daniel@debian.org>  Wed, 16 Apr 2008 11:11:00 +0200
+
 linux-modules-extra-2.6 (2.6.24-7) unstable; urgency=medium
 
   * Enabling tp-smapi.
