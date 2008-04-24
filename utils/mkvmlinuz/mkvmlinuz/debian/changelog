@@ -12,8 +12,12 @@ mkvmlinuz (34) unstable; urgency=low
   * Add the Vcs-Browser.
   * Add ppc64 architecture support, thanks to Andreas Jochens.
     (Closes: #476805)
+  * Fix lintian error "missing-dependency-on-libc needed by
+    ./usr/lib/mkvmlinuz/addnote".
+    + Add dh_shlibdeps to debian/rules.
+    + Add ${shlibs:Depends} to debian/control.
 
- -- Aurélien GÉRÔME <ag@debian.org>  Thu, 24 Apr 2008 16:30:15 +0200
+ -- Aurélien GÉRÔME <ag@debian.org>  Thu, 24 Apr 2008 16:51:55 +0200
 
 mkvmlinuz (33) unstable; urgency=low
 
