@@ -6,8 +6,12 @@ mkvmlinuz (34) unstable; urgency=low
     + Finnish, thanks to Esko Arajärvi. (Closes: #475638)
     + Galician, thanks to Jacobo Tarrio. (Closes: #475759)
     + Basque, thanks to Piarres Beobide. (Closes: #476073)
+  * Change my email address in the Uploaders field.
+  * Bump Standards-Version to 3.7.3.
+  * Use the Vcs-Svn field.
+  * Add the Vcs-Browser.
 
- -- Aurélien GÉRÔME <ag@roxor.cx>  Thu, 24 Apr 2008 15:53:40 +0200
+ -- Aurélien GÉRÔME <ag@debian.org>  Thu, 24 Apr 2008 16:08:54 +0200
 
 mkvmlinuz (33) unstable; urgency=low
 

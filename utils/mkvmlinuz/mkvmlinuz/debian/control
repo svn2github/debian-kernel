@@ -2,10 +2,11 @@ Source: mkvmlinuz
 Section: devel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Uploaders: Sven Luther <luther@debian.org>, Aurélien GÉRÔME <ag@roxor.cx>
+Uploaders: Sven Luther <luther@debian.org>, Aurélien GÉRÔME <ag@debian.org>
 Build-Depends: docbook-to-man, debhelper (>= 4.1.16), po-debconf
-Standards-Version: 3.7.2
-XS-Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/trunk/utils/mkvmlinuz/
+Standards-Version: 3.7.3
+Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/trunk/utils/mkvmlinuz/
+Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/utils/mkvmlinuz/
 
 Package: mkvmlinuz
 Architecture: powerpc
