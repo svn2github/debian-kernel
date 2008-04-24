@@ -1,3 +1,14 @@
+mkvmlinuz (34) unstable; urgency=low
+
+  * Add debconf translations:
+    + Dutch, thanks to Bart Cornelis. (Closes: #415493)
+    + Italian, thanks to Luca Monducci. (Closes: #460131)
+    + Finnish, thanks to Esko Arajärvi. (Closes: #475638)
+    + Galician, thanks to Jacobo Tarrio. (Closes: #475759)
+    + Basque, thanks to Piarres Beobide. (Closes: #476073)
+
+ -- Aurélien GÉRÔME <ag@roxor.cx>  Thu, 24 Apr 2008 15:53:40 +0200
+
 mkvmlinuz (33) unstable; urgency=low
 
   * Add Japanese translation thanks to Kobayashi Noritada.
