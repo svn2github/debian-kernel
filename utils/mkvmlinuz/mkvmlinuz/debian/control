@@ -3,13 +3,13 @@ Section: devel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>, Aurélien GÉRÔME <ag@debian.org>
-Build-Depends: docbook-to-man, debhelper (>= 4.1.16), po-debconf
+Build-Depends: docbook-to-man, debhelper (>= 4.1.16), po-debconf, gcc-multilib [ppc64]
 Standards-Version: 3.7.3
 Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/trunk/utils/mkvmlinuz/
 Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/utils/mkvmlinuz/
 
 Package: mkvmlinuz
-Architecture: powerpc
+Architecture: powerpc ppc64
 Depends: bash (>= 3), binutils, debconf | debconf-2.0
 Description: create a kernel to boot a PowerPC machine from Open Firmware
  This little program takes a PowerPC Linux kernel as an uncompressed
