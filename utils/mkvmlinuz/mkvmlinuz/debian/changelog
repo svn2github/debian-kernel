@@ -9,7 +9,7 @@ mkvmlinuz (34) unstable; urgency=low
   * Change my email address in the Uploaders field.
   * Bump Standards-Version to 3.7.3.
   * Use the Vcs-Svn field.
-  * Add the Vcs-Browser.
+  * Add the Vcs-Browser field.
   * Add ppc64 architecture support, thanks to Andreas Jochens.
     (Closes: #476805)
   * Fix lintian error "missing-dependency-on-libc needed by
