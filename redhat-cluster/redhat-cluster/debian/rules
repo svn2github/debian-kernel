@@ -6,6 +6,9 @@
 include /usr/share/dpatch/dpatch.make
 
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+SOURCE   := $(shell dpkg-parsechangelog | sed -ne 's,^Source: *\(.*\)$$,\1,p')
+VERSION_DEBIAN := $(shell dpkg-parsechangelog | sed -ne 's,^Version: *\(.*\)$$,\1,p')
+VERSION  := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,-[^-]*$$,,')
 
 xen_arches = amd64 i386
 ifneq (,$(filter $(DEB_HOST_ARCH), $(xen_arches))) 
@@ -133,9 +136,26 @@ binary-indep: install
 
 binary: binary-arch binary-indep 
 
+DIR_ORIG = ../orig/$(SOURCE)-$(VERSION)
+TAR_ORIG_NAME = $(SOURCE)_$(VERSION).orig.tar.gz
+TAR_ORIG = $(firstword $(wildcard ../$(TAR_ORIG_NAME)) $(wildcard ../orig/$(TAR_ORIG_NAME)))
+
+orig: $(DIR_ORIG)
+	rsync --delete --exclude debian --exclude .svk --exclude .svn --link-dest=$(DIR_ORIG)/ -a $(DIR_ORIG)/ .
+
+$(DIR_ORIG):
+ifeq ($(TAR_ORIG),)
+	$(error Cannot find orig tarball $(TAR_ORIG_NAME))
+else
+	mkdir -p ../orig
+	tar -C ../orig -xzf $(TAR_ORIG)
+endif
+
+maintainerclean:
+	rm -rf $(filter-out debian .svk .svn, $(wildcard * .[^.]*))
+
 clean: unpatch
 	dh_testdir
-	dh_testroot
 	dh_clean
 	
 	 [ ! -f make/defines.mk ] || $(MAKE) distclean
