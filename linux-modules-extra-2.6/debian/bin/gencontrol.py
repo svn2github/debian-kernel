@@ -18,6 +18,8 @@ class Gencontrol(Base):
         makeflags.update({
             'VERSION_SOURCE': self.package_version.upstream,
             'VERSION_REVISION': self.package_version.revision,
+            'UPSTREAMVERSION': self.version.linux_upstream,
+            'ABINAME': self.abiname,
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
