@@ -90,19 +90,14 @@ class Gencontrol(Base):
                 package['Architecture'] = [arch]
                 packages.append(package)
 
-        makeflags_string = ' '.join(["%s='%s'" % i for i in makeflags.iteritems()])
-
         for i in self.makefile_targets:
             target1 = '_'.join((i, arch, featureset, flavour))
             target2 = '_'.join((target1, module))
             makefile.add(target1, [target2])
 
-        cmds_binary_arch = []
-        cmds_binary_arch.append(("$(MAKE) -f debian/rules.real binary-arch %s" % makeflags_string,))
-        cmds_build = []
-        cmds_build.append(("$(MAKE) -f debian/rules.real build %s" % makeflags_string,))
-        cmds_setup = []
-        cmds_setup.append(("$(MAKE) -f debian/rules.real setup %s" % makeflags_string,))
+        cmds_binary_arch = ["$(MAKE) -f debian/rules.real binary-arch %s" % makeflags]
+        cmds_build = ["$(MAKE) -f debian/rules.real build %s" % makeflags]
+        cmds_setup = ["$(MAKE) -f debian/rules.real setup %s" % makeflags]
         makefile.add("binary-arch_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_binary_arch)
         makefile.add("build_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_build)
         makefile.add("setup_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_setup)
