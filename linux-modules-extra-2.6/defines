@@ -15,4 +15,3 @@ modules:
  squashfs
  tp-smapi
  virtualbox-ose
- virtualbox-ose-guest
