@@ -11,7 +11,6 @@ modules:
  iscsitarget
  loop-aes
  lzma
- r6040
  redhat-cluster
  sfc
  squashfs
