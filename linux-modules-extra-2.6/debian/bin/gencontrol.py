@@ -18,6 +18,7 @@ class Gencontrol(Base):
         makeflags.update({
             'VERSION_SOURCE': self.package_version.upstream,
             'VERSION_REVISION': self.package_version.revision,
+            'MAJOR': self.version.linux_major,
             'UPSTREAMVERSION': self.version.linux_upstream,
             'ABINAME': self.abiname,
         })
