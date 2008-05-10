@@ -1,5 +1,6 @@
 linux-modules-extra-2.6 (2.6.25-1) UNRELEASED; urgency=low
 
+  [ Daniel Baumann ]
   * Adding eeepc-acpi.
   * Disabling r6040 due to #476359.
   * Disabling redhat-cluster due to #479721.
@@ -7,7 +8,10 @@ linux-modules-extra-2.6 (2.6.25-1) UNRELEASED; urgency=low
   * Disabling virtualbox-ose-guest due to #480146.
   * Disabling gspca on xen flavours due to #480166.
 
- -- Daniel Baumann <daniel@debian.org>  Tue,  5 May 2008 21:31:00 +0200
+  [ Bastian Blank ]
+  * Update to 2.6.25-2.
+
+ -- Bastian Blank <waldi@debian.org>  Sat, 10 May 2008 11:01:50 +0200
 
 linux-modules-extra-2.6 (2.6.24-7) unstable; urgency=medium
 
