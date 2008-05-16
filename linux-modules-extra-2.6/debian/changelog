@@ -1,4 +1,4 @@
-linux-modules-extra-2.6 (2.6.25-1) UNRELEASED; urgency=low
+linux-modules-extra-2.6 (2.6.25-1) unstable; urgency=low
 
   [ Daniel Baumann ]
   * Adding eeepc-acpi.
@@ -11,7 +11,7 @@ linux-modules-extra-2.6 (2.6.25-1) UNRELEASED; urgency=low
   [ Bastian Blank ]
   * Update to 2.6.25-2.
 
- -- Bastian Blank <waldi@debian.org>  Sat, 10 May 2008 11:01:50 +0200
+ -- Daniel Baumann <daniel@debian.org>  Fri, 16 May 2008 11:47:00 +0200
 
 linux-modules-extra-2.6 (2.6.24-7) unstable; urgency=medium
 
