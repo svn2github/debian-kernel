@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 
 import sys
 sys.path.append(sys.argv[1] + "/lib/python")
@@ -17,7 +17,10 @@ class Gencontrol(Base):
         super(Gencontrol, self).do_main_setup(vars, makeflags, extra)
         makeflags.update({
             'VERSION_SOURCE': self.package_version.upstream,
-            'VERSION_DEBIAN': self.package_version.debian,
+            'VERSION_REVISION': self.package_version.revision,
+            'MAJOR': self.version.linux_major,
+            'UPSTREAMVERSION': self.version.linux_upstream,
+            'ABINAME': self.abiname,
         })
 
     def do_main_makefile(self, makefile, makeflags, extra):
@@ -90,19 +93,14 @@ class Gencontrol(Base):
                 package['Architecture'] = [arch]
                 packages.append(package)
 
-        makeflags_string = ' '.join(["%s='%s'" % i for i in makeflags.iteritems()])
-
         for i in self.makefile_targets:
             target1 = '_'.join((i, arch, featureset, flavour))
             target2 = '_'.join((target1, module))
             makefile.add(target1, [target2])
 
-        cmds_binary_arch = []
-        cmds_binary_arch.append(("$(MAKE) -f debian/rules.real binary-arch %s" % makeflags_string,))
-        cmds_build = []
-        cmds_build.append(("$(MAKE) -f debian/rules.real build %s" % makeflags_string,))
-        cmds_setup = []
-        cmds_setup.append(("$(MAKE) -f debian/rules.real setup %s" % makeflags_string,))
+        cmds_binary_arch = ["$(MAKE) -f debian/rules.real binary-arch %s" % makeflags]
+        cmds_build = ["$(MAKE) -f debian/rules.real build %s" % makeflags]
+        cmds_setup = ["$(MAKE) -f debian/rules.real setup %s" % makeflags]
         makefile.add("binary-arch_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_binary_arch)
         makefile.add("build_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_build)
         makefile.add("setup_%s_%s_%s_%s" % (arch, featureset, flavour, module), cmds = cmds_setup)
@@ -111,7 +109,13 @@ class Gencontrol(Base):
         self.package_version = self.changelog[0].version
         self.version = VersionLinux(self.config['version',]['source'])
         self.abiname = self.config['version',]['abiname']
-        self.vars = self.process_version_linux(self.version, self.abiname)
+        self.vars = {
+            'upstreamversion': self.version.linux_upstream,
+            'version': self.version.linux_version,
+            'source_upstream': self.version.upstream,
+            'major': self.version.linux_major,
+            'abiname': self.abiname,
+        }
 
 class Config(ConfigCoreDump):
     config_name = "defines"

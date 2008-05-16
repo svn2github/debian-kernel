@@ -1,3 +1,9 @@
+linux-modules-contrib-2.6 (2.6.25-1) unstable; urgency=low
+
+  * Updating to 2.6.25-2.
+
+ -- Daniel Baumann <daniel@debian.org>  Fri, 16 May 2008 12:04:00 +0200
+
 linux-modules-contrib-2.6 (2.6.24-2) unstable; urgency=medium
 
   * Removing ivtv, got completely merged mainline as of 2.6.24.
