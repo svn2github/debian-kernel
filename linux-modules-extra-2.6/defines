@@ -11,6 +11,7 @@ modules:
  iscsitarget
  loop-aes
  lzma
+ nilfs
  sfc
  squashfs
  tp-smapi
