@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.25-2) UNRELEASED; urgency=low
 
   * Disabling iscsitarget on alpha, hppa, mips and mipsel.
+  * Disabling nilfs2 on ia64.
 
  -- Daniel Baumann <daniel@debian.org>  Sat, 17 May 2008 09:17:00 +0200
 
