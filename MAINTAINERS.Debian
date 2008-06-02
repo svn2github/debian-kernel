@@ -28,11 +28,9 @@ Kernel packages, sorted by architecture:
   * mipsel
     - Thiemo Seufer
   * powerpc
-    - Sven Luther
   * s390
     - Bastian Blank
   * sparc
-    - Jurij Smakov
 
 Kernel-related packages:
 
