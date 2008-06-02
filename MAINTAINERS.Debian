@@ -31,6 +31,8 @@ Kernel packages, sorted by architecture:
   * s390
     - Bastian Blank
   * sparc
+  * xen
+    - Ian Campbell
 
 Kernel-related packages:
 
