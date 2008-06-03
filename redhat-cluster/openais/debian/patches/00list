@@ -1,3 +1,4 @@
-001_makefile
-003_lcr-fixpath
-005_add_hppa_workaround.dpatch
+000_logsys_fix_linking.dpatch
+001_logsys_OMG_I_CANT_PRINTF.dpatch
+002_makefile.dpatch
+003_default_conf.dpatch

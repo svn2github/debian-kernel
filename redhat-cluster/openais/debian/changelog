@@ -1,3 +1,16 @@
+openais (0.83-1) unstable; urgency=low
+
+  * New upstream version.
+  * Merge (partially) with Ubuntu:
+    - Fix dh_* invokation order in debian/rules.
+    - drop unrequired patches.
+    - Fix executive startup issue if it can't open a logging file.
+    - Fix liblogsys linking issues.
+    - create logrotate script 
+    - add postrm
+
+ -- Frederik Schüler <fs@debian.org>  Tue, 03 Jun 2008 22:44:19 +0200
+
 openais (0.82-3) unstable; urgency=low
 
   * Fix FTBFS on hppa.

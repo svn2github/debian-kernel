@@ -52,8 +52,10 @@ install: $(STAMPS_DIR)/build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
-	$(MAKE) -C $(DIR) install DESTDIR=$(CURDIR)/debian/tmp/
-	dh_install --sourcedir=debian/tmp
+	
+	$(MAKE) -C $(DIR) install DESTDIR=$(CURDIR)/debian/tmp/ STATICLIBS=YES
+	install -m 755 $(DIR)/test/openais-cfgtool $(CURDIR)/debian/tmp/usr/sbin
+	dh_install --sourcedir=debian/tmp --list-missing
 	dh_installchangelogs CHANGELOG
 	dh_installdirs
 	dh_installdocs
@@ -64,8 +66,8 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 endif
 	dh_compress
 	dh_fixperms
-	dh_installdeb
 	dh_makeshlibs -V
+	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
