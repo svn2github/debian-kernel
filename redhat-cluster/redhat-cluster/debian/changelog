@@ -1,8 +1,10 @@
-redhat-cluster (2.20080428-1) UNRELEASED; urgency=low
+redhat-cluster (2.20080603-1) unstable; urgency=low
 
-  * New upstram snapshot, based on 2.02.03.
+  * New upstram snapshot, includes release 2.03.03.
+    - fixes sparc FTBFS. (Closes: #482007)
+    - fixes build with 2.6.25 kernels. (Closes: #479721)
 
- -- Bastian Blank <waldi@debian.org>  Tue, 06 May 2008 12:40:07 +0200
+ -- Frederik Schüler <fs@debian.org>  Wed, 04 Jun 2008 00:04:42 +0200
 
 redhat-cluster (2.20080229-1) unstable; urgency=low
 

@@ -31,8 +31,8 @@ configure-stamp:
 		    --nssincdir=/usr/include/nss \
 		    --nsprincdir=/usr/include/nspr \
 		    --libexecdir=/usr/lib/openais \
-		    --release_major=$(SOMAJOR) \
-		    --release_minor=$(SOMINOR) \
+		    --somajor=$(SOMAJOR) \
+		    --sominor=$(SOMINOR) \
 			--disable_kernel_check
 	
 	# disable kernel modules

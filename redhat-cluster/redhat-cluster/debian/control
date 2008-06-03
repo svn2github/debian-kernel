@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>
 Standards-Version: 3.7.3.0
-Build-Depends: dpatch, debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.82-2), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.24), libvirt-dev (>= 0.3.0) [amd64 i386], libnss3-dev [amd64 i386], libnspr4-dev [amd64 i386], bzip2, libslang2-dev
+Build-Depends: dpatch, debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.83), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.24), libvirt-dev (>= 0.3.0) [amd64 i386], libnss3-dev [amd64 i386], libnspr4-dev [amd64 i386], bzip2, libslang2-dev
 Build-Conflicts: libccs-dev, libcman-dev (<= 2.0), libdlm-dev (<= 2.0), libcman2, libdlm2
 
 Package: redhat-cluster-suite
@@ -24,7 +24,7 @@ Package: cman
 Architecture: any
 Section: admin
 Pre-Depends: debconf | debconf-2.0
-Depends: ${shlibs:Depends}, python, openais (>= 0.82-2), libnet-snmp-perl, libnet-telnet-perl
+Depends: ${shlibs:Depends}, python, openais (>= 0.83), libnet-snmp-perl, libnet-telnet-perl
 Conflicts: magma, libmagma1, libmagma-dev, ccs, fence, libiddev-dev, fence-gnbd, gulm, libgulm1, libgulm-dev, magma-plugins
 Replaces: ccs, fence, fence-gnbd
 Description: Red Hat cluster suite - cluster manager
