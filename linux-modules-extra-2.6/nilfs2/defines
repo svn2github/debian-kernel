@@ -1,5 +1,4 @@
 [base]
-not-arches: ia64
 desc: Driver for a log-structured snapshotting filesystem
 longdesc:
  NILFS is a log-structured file system supporting continuous snapshotting.
