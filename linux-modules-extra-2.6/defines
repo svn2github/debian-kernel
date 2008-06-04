@@ -13,6 +13,7 @@ modules:
  lzma
  nilfs2
  r6040
+ redhat-cluster
  sfc
  squashfs
  tp-smapi
