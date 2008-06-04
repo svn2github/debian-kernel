@@ -12,6 +12,7 @@ modules:
  loop-aes
  lzma
  nilfs2
+ r6040
  sfc
  squashfs
  tp-smapi
