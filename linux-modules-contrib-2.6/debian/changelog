@@ -1,7 +1,7 @@
 linux-modules-contrib-2.6 (2.6.25-1) unstable; urgency=low
 
   * Updating to 2.6.25-2.
-  * Disabling em8300, fails to build with 2.6.25.
+  * Disabling em8300 on xen flavours.
 
  -- Daniel Baumann <daniel@debian.org>  Fri, 16 May 2008 12:04:00 +0200
 
