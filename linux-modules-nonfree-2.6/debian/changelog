@@ -5,6 +5,7 @@ linux-modules-nonfree-2.6 (2.6.25-1) UNRELEASED; urgency=low
   * Remove kqemu.
 
   [ Daniel Baumann ]
+  * Adding fglrx.
   * Adding nvidia-kernel.
   * Adding nvidia-kernel-legacy-71xx.
   * Adding nvidia-kernel-legacy-96xx.
