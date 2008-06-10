@@ -75,10 +75,10 @@ install:
 install-real:
 	$(MAKE) -f debian/rules.real install
 	$(MAKE) -f debian/rules.real install-base \
-		GENCONTROL_ARGS="-v$(VERSION_SOURCE)+$(MODULEVERSION)-$(VERSION_DEBIAN)" \
+		GENCONTROL_ARGS="-v$(VERSION_SOURCE)+$(MODULEVERSION)-$(VERSION_REVISION)" \
 		PACKAGE="$(PACKAGE_NAME)"
 	$(MAKE) -f debian/rules.real install-base \
-		GENCONTROL_ARGS="-v2:$(VERSION_SOURCE)-$(VERSION_DEBIAN)" \
+		GENCONTROL_ARGS="-v2:$(VERSION_SOURCE)-$(VERSION_REVISION)" \
 		PACKAGE="$(PACKAGE_LATEST_NAME)"
 
 -include $(MODULE)/rules
