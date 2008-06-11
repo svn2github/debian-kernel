@@ -1,4 +1,4 @@
-linux-modules-nonfree-2.6 (2.6.25-1) UNRELEASED; urgency=low
+linux-modules-nonfree-2.6 (2.6.25-1) unstable; urgency=low
 
   [ Bastian Blank ]
   * Adopt linux-latest-2.6 changes.
@@ -16,7 +16,7 @@ linux-modules-nonfree-2.6 (2.6.25-1) UNRELEASED; urgency=low
   * Bumping standards version, no other changes needed.
   * Adding autobuild pseudo header in control.
 
- -- Daniel Baumann <daniel@debian.org>  Fri, 16 May 2008 12:23:00 +0200
+ -- Daniel Baumann <daniel@debian.org>  Wed, 11 Jun 2008 06:56:00 +0200
 
 linux-modules-nonfree-2.6 (2.6.21-1) unstable; urgency=low
 
