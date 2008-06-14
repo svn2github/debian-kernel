@@ -1,4 +1,0 @@
-/var/log/ipw3945d/ipw3945d.log {
-    rotate 6
-    weekly
-}
