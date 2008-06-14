@@ -1,4 +1,0 @@
-etc/mkinitrd/scripts
-initrd
-usr/share/initrd-tools/scripts
-usr/sbin

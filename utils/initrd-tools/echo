@@ -1,5 +1,0 @@
-#!/bin/sh
-#
-# $Id: echo,v 1.1 2003/02/22 03:46:45 herbert Exp $
-
-echo "$@"
