@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.25-3) UNRELEASED; urgency=medium
+
+  * Disabling et131x on mips and s390 due to #486478.
+
+ -- Daniel Baumann <daniel@debian.org>  Mon, 16 Jun 2008 13:08:00 +0200
+
 linux-modules-extra-2.6 (2.6.25-2) unstable; urgency=medium
 
   * Disabling iscsitarget on alpha, hppa, mips and mipsel.
