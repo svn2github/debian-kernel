@@ -1,6 +1,6 @@
 linux-modules-contrib-2.6 (2.6.25-2) UNRELEASED; urgency=medium
 
-  * Disabling em8300 on hppa due to #486501.
+  * Disabling em8300 on armel and hppa due to #486501.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 16 Jun 2008 15:23:00 +0200
 
