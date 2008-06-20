@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.25-4) UNRELEASED; urgency=low
+
+  * Upgrading to policy 3.8.0.
+
+ -- Daniel Baumann <daniel@debian.org>  Fri, 20 Jun 2008 20:27:00 +0200
+
 linux-modules-extra-2.6 (2.6.25-3) unstable; urgency=medium
 
   * Disabling et131x on mips and s390 due to #486478.
