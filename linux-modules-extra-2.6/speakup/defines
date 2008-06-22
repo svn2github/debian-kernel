@@ -1,4 +1,5 @@
 [base]
+not-arches: arm armel sparc
 desc: screen review module
 longdesc:
  Speakup allows you to interact with applications and Linux with audible
