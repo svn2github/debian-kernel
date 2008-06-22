@@ -2,6 +2,7 @@ linux-modules-extra-2.6 (2.6.25-4) UNRELEASED; urgency=low
 
   * Upgrading to policy 3.8.0.
   * Disabling speakup on arm, armel, and sparc.
+  * Disabling sfc on mips.
 
  -- Daniel Baumann <daniel@debian.org>  Fri, 20 Jun 2008 20:27:00 +0200
 
