@@ -3,6 +3,7 @@ linux-modules-extra-2.6 (2.6.25-4) unstable; urgency=medium
   * Upgrading to policy 3.8.0.
   * Disabling speakup on arm, armel, and sparc.
   * Disabling sfc on mips and s390.
+  * Disabling et131x on vserver flavours.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 23 Jun 2008 07:29:00 +0200
 

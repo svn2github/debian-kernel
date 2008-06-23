@@ -1,6 +1,6 @@
 [base]
 not-arches: mips s390
-not-featuresets: xen xen-vserver
+not-featuresets: vserver xen xen-vserver
 desc: Driver for the et131x Ethernet Adapter
 longdesc:
  et131x is the Linux Driver for the Agere Systems ET-131x PCI-E Ethernet
