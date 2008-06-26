@@ -1,4 +1,4 @@
-linux-modules-extra-2.6 (2.6.25-4) unstable; urgency=high
+linux-modules-extra-2.6 (2.6.25-5) unstable; urgency=high
 
   * Disabling speakup on s390.
 
