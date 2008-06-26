@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.25-4) unstable; urgency=high
+
+  * Disabling speakup on s390.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 26 Jun 2008 23:10:00 +0200
+
 linux-modules-extra-2.6 (2.6.25-4) unstable; urgency=medium
 
   * Upgrading to policy 3.8.0.
