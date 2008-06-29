@@ -18,7 +18,7 @@ endif
 BUILDROOT := $(shell pwd)
 
 SOMAJOR=2
-SOMINOR=0
+SOMINOR=3
 
 configure: patch configure-stamp
 configure-stamp:
@@ -118,7 +118,7 @@ endif
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
-	dh_shlibdeps -a -ldebian/tmp/usr/lib -l/usr/lib/openais
+	dh_shlibdeps -a -l$(BUILDROOT)/debian/tmp/usr/lib
 	dh_installdeb -a
 	dh_gencontrol -a
 	dh_md5sums -a

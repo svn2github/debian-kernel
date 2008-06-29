@@ -1,3 +1,13 @@
+redhat-cluster (2.20080629-2) unstable; urgency=low
+
+  * New upstram snapshot, includes release 2.03.04.
+  * Build-depend on linux-libc-dev version 2.6.25.
+  * Bump library SONAME to 2.3
+  * Fix bashisms in gfs-tools.init and gfs2-tools.init. 
+    (Closes: #486032, #486033)
+
+ -- Frederik Schüler <fs@debian.org>  Sun, 29 Jun 2008 15:23:06 +0200
+
 redhat-cluster (2.20080603-1) unstable; urgency=low
 
   * New upstram snapshot, includes release 2.03.03.
