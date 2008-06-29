@@ -1,4 +1,4 @@
-redhat-cluster (2.20080629-2) unstable; urgency=low
+redhat-cluster (2.20080629-1) unstable; urgency=low
 
   * New upstram snapshot, includes release 2.03.04.
   * Build-depend on linux-libc-dev version 2.6.25.
@@ -9,7 +9,7 @@ redhat-cluster (2.20080629-2) unstable; urgency=low
   * Bump standards to 3.8.0.
     - Add Homepage field.
 
- -- Frederik Schüler <fs@debian.org>  Sun, 29 Jun 2008 15:46:36 +0200
+ -- Frederik Schüler <fs@debian.org>  Sun, 29 Jun 2008 16:01:55 +0200
 
 redhat-cluster (2.20080603-1) unstable; urgency=low
 
