@@ -5,8 +5,11 @@ redhat-cluster (2.20080629-2) unstable; urgency=low
   * Bump library SONAME to 2.3
   * Fix bashisms in gfs-tools.init and gfs2-tools.init. 
     (Closes: #486032, #486033)
+  * Fix spelling of metapackage in control.
+  * Bump standards to 3.8.0.
+    - Add Homepage field.
 
- -- Frederik Schüler <fs@debian.org>  Sun, 29 Jun 2008 15:23:06 +0200
+ -- Frederik Schüler <fs@debian.org>  Sun, 29 Jun 2008 15:46:36 +0200
 
 redhat-cluster (2.20080603-1) unstable; urgency=low
 
