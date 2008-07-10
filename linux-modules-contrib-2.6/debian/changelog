@@ -1,9 +1,9 @@
-linux-modules-contrib-2.6 (2.6.25-3) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.25-3) unstable; urgency=medium
 
   * Upgrading to policy 3.8.0.
   * Disabling em8300 on mipsel (Closes: #490190).
 
- -- Daniel Baumann <daniel@debian.org>  Fri, 20 Jun 2008 20:27:00 +0200
+ -- Daniel Baumann <daniel@debian.org>  Thu, 10 Jul 2008 23:54:00 +0200
 
 linux-modules-contrib-2.6 (2.6.25-2) unstable; urgency=medium
 
