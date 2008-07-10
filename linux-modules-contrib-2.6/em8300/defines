@@ -1,5 +1,5 @@
 [base]
-not-arches: armel hppa
+not-arches: armel hppa mipsel
 not-featuresets: xen xen-vserver
 desc: Driver for the DXR3/Hollywood+ decoder cards
 longdesc:
