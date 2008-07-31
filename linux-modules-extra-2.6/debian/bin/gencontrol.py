@@ -26,9 +26,7 @@ class Gencontrol(Base):
     def do_main_makefile(self, makefile, makeflags, extra):
         makefile.add("binary-indep")
 
-    def do_main_packages(self, packages, extra):
-        vars = self.vars
-
+    def do_main_packages(self, packages, vars, makeflags, extra):
         packages['source']['Build-Depends'].extend(
             ['linux-support-%s%s' % (self.version.linux_upstream, self.abiname)]
         )
