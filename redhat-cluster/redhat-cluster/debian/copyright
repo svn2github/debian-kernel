@@ -14,7 +14,7 @@ different areas/bits. In non-particular order:
   for some init script fixes and portability patches.
 - A really great and responsive upstream.
 
-Upstream: http://sources.redhat.com/cluster/
+Upstream: http://sources.redhat.com/cluster/wiki
 
 Based on a CVS snapshot from the Ubuntu packages archive.
 

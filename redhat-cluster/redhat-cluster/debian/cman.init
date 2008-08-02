@@ -2,8 +2,10 @@
 
 ### BEGIN INIT INFO
 # Provides:          cluster manager
-# Required-Start:    $network $time
-# Required-Stop:     $network $time
+# Required-Start:    $network $remote_fs
+# Required-Stop:     $network $remote_fs
+# Should-Start:      $named $time $syslog ssh
+# Should-Stop:       $named $time $syslog ssh
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Starts and stops cman
@@ -18,7 +20,11 @@ test -x /usr/sbin/cman_tool || exit 0
 
 # ccsd
 
-CCSD_OPTS=""
+if [ -f /etc/defaults/cman ] ; then
+	. /etc/defaults/cman
+fi
+
+[ -z "$CCSD_OPTS" ] && CCSD_OPTS=
 
 # CMAN_CLUSTER_TIMEOUT -- amount of time to wait for joinging a cluster
 #     before giving up.  If CMAN_CLUSTER_TIMEOUT is positive, then we will
@@ -47,9 +53,9 @@ CCSD_OPTS=""
 [ -z "$FENCED_START_TIMEOUT" ] && FENCED_START_TIMEOUT=300
 
 load_modules() {
-	modprobe configfs 2>&1 || true
-	modprobe dlm 2>&1 || true
-	modprobe lock_dlm 2>&1 || true
+	modprobe configfs 2>&1 || return 1
+	modprobe dlm 2>&1 || return 1
+	modprobe lock_dlm 2>&1 || return 1
 }
 
 mount_configfs() {

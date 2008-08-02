@@ -1,3 +1,13 @@
+redhat-cluster (2.20080801-1) unstable; urgency=low
+
+  * New upstream release version 2.03.06.
+  * debian/control: build-depend on linux-libc-dev >= 2.6.26
+  * Add README.source.
+  * cman, rgmanager: Adjust initscript LSB headers.
+  * debian/copyright: new upstream homepage url.
+
+ -- Frederik Schüler <fs@debian.org>  Sat, 02 Aug 2008 12:51:37 +0200
+
 redhat-cluster (2.20080629-1) unstable; urgency=low
 
   * New upstram snapshot, includes release 2.03.04.
