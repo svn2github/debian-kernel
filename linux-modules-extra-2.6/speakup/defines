@@ -1,5 +1,5 @@
 [base]
-not-arches: arm armel sparc s390
+not-arches: s390
 desc: screen review module
 longdesc:
  Speakup allows you to interact with applications and Linux with audible

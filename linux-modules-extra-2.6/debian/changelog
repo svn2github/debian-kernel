@@ -1,6 +1,10 @@
 linux-modules-extra-2.6 (2.6.26-1) UNRELEASED; urgency=low
 
+  [ Bastian Blank ]
   * Update to 2.6.26-1.
+
+  [ Daniel Baumann ]
+  * Re-enabling speakup on arm, armel, and sparc.
 
  -- Bastian Blank <waldi@debian.org>  Thu, 31 Jul 2008 19:03:25 +0200
 
