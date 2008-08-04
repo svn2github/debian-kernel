@@ -1,8 +1,12 @@
 linux-modules-contrib-2.6 (2.6.26-1) UNRELEASED; urgency=low
 
+  [ Bastian Blank ]
   * Update to 2.6.26-1.
 
- -- Bastian Blank <waldi@debian.org>  Thu, 31 Jul 2008 19:03:25 +0200
+  [ Daniel Baumann ]
+  * Disabling em8300, doesnt build with 2.6.26.
+
+ -- Daniel Baumann <daniel@debian.org>  Mon,  4 Aug 2008 14:32:00 +0200
 
 linux-modules-contrib-2.6 (2.6.25-3) unstable; urgency=medium
 
