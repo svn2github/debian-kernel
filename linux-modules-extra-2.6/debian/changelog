@@ -4,7 +4,7 @@ linux-modules-extra-2.6 (2.6.26-1) UNRELEASED; urgency=low
   * Update to 2.6.26-1.
 
   [ Daniel Baumann ]
-  * Re-enabling speakup on arm, armel, and sparc.
+  * Re-enabling speakup on arm, armel, and sparc (Closes: #492293).
   * Disabling drdb8, doesnt build with 2.6.26.
 
  -- Bastian Blank <waldi@debian.org>  Thu, 31 Jul 2008 19:03:25 +0200
