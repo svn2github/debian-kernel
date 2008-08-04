@@ -1,4 +1,4 @@
-linux-modules-contrib-2.6 (2.6.26-1) UNRELEASED; urgency=low
+linux-modules-contrib-2.6 (2.6.26-1) unstable; urgency=low
 
   [ Bastian Blank ]
   * Update to 2.6.26-1.
