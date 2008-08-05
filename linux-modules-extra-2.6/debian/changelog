@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.26-2) UNRELEASED; urgency=low
+
+  * Disabling atl2 on power and sparc.
+
+ -- Daniel Baumann <daniel@debian.org>  Tue,  5 Aug 2008 14:01:00 +0200
+
 linux-modules-extra-2.6 (2.6.26-1) unstable; urgency=low
 
   [ Bastian Blank ]
