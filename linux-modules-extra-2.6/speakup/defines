@@ -1,6 +1,6 @@
 [base]
 not-arches: s390
-desc: screen review module
+desc: Screen review module
 longdesc:
  Speakup allows you to interact with applications and Linux with audible
  feedback from the console using a synthetic speech device.
