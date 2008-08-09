@@ -3,6 +3,7 @@ modules:
  atl2
  aufs
  btrfs
+ drbd8
  eeepc-acpi
  et131x
  gspca
