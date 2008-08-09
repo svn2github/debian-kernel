@@ -1,5 +1,5 @@
 [base]
-arch: i386
+arches: i386
 flavours: 486 686
 not-featuresets: xen xen-vserver
 desc: Asus Eee PC hotkey support
