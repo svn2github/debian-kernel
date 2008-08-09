@@ -11,6 +11,7 @@ modules:
  iscsitarget
  loop-aes
  lzma
+ mol
  nilfs2
  r6040
  redhat-cluster
