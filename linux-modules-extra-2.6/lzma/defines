@@ -1,5 +1,5 @@
 [base]
-desc: Driver for Lempel Ziv compression method (LZMA)
+desc: Lempel Ziv compression method (LZMA)
 longdesc:
  LZMA is a compression algorithm, based on the famous Lempel Ziv compression
  method.
