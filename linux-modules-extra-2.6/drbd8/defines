@@ -1,5 +1,5 @@
 [base]
-not-arches: alpha mips mipsel s390
+not-arches: alpha mips mipsel
 desc: Driver for RAID 1 over TCP/IP
 longdesc:
  Drbd is a block device which is designed to build high availability clusters by
