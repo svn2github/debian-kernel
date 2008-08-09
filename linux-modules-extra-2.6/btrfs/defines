@@ -1,5 +1,5 @@
 [base]
-not-arches: arm hppa ia64 mips mipsel powerpc sparc
+not-arches: arm hppa ia64 mips mipsel sparc
 desc: Driver for a snapshotting filesystem
 long-desc:
  Btrfs is a filesystem that is designed to be scalable, efficient and fast.
