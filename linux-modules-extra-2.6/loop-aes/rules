@@ -11,7 +11,7 @@ $(SETUP_STAMP):
 
 install: LIB_MODULES = $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)
 install:
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
+	+$(MAKE_CLEAN) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
 
 	# Rename module to loop-aes.ko
 	mv $(LIB_MODULES)/extra/loop-aes/loop.ko $(LIB_MODULES)/extra/loop-aes/loop-aes.ko

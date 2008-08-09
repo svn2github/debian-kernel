@@ -12,6 +12,11 @@ ifdef DEBIAN_KERNEL_JOBS
   JOBS_ARG = -j$(DEBIAN_KERNEL_JOBS)
 endif
 
+setup_env := env -u ABINAME -u ARCH -u FEATURESET -u FLAVOUR -u VERSION -u LOCALVERSION -u MAKEFLAGS
+
+MAKE_CLEAN := $(setup_env) $(MAKE)
+MAKE_SELF := $(MAKE) -f debian/rules.real
+
 MODULEVERSION = $(shell dpkg -s $(MODULESOURCE) | perl -ne 'print $$2 if m/^Version: (\d+:)?(.*?)(-[^-]+)?$$/;')
 ifeq (,$(MODULEVERSION))
 $(error Was not able to retreive version of $(MODULESOURCE))
@@ -45,7 +50,7 @@ $(SETUP_STAMP):
 
 $(BUILD_STAMP): $(SETUP_STAMP)
 $(BUILD_STAMP):
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) $(JOBS_ARG)
+	+$(MAKE_CLEAN) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) $(JOBS_ARG)
 	touch $@
 
 install-base: DH_OPTIONS = -p$(PACKAGE)
@@ -70,14 +75,14 @@ install-real: PACKAGE_LATEST_NAME = $(MODULE)-modules-$(MAJOR)$(LOCALVERSION)
 
 install: $(BUILD_STAMP)
 install:
-	$(MAKE) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
+	+$(MAKE_CLEAN) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
 
 install-real:
-	$(MAKE) -f debian/rules.real install
-	$(MAKE) -f debian/rules.real install-base \
+	+$(MAKE_SELF) install
+	+$(MAKE_SELF) install-base \
 		GENCONTROL_ARGS="-v$(VERSION_SOURCE)+$(MODULEVERSION)-$(VERSION_REVISION)" \
 		PACKAGE="$(PACKAGE_NAME)"
-	$(MAKE) -f debian/rules.real install-base \
+	+$(MAKE_SELF) install-base \
 		GENCONTROL_ARGS="-v2:$(VERSION_SOURCE)-$(VERSION_REVISION)" \
 		PACKAGE="$(PACKAGE_LATEST_NAME)"
 
