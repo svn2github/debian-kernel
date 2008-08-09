@@ -1,5 +1,5 @@
 [base]
-not-arches: mips powerpc s390 sparc
+not-arches: mips s390
 not-featuresets: xen xen-vserver
 desc: Driver for the Atheros L2 Fast Ethernet Adapter
 longdesc:
