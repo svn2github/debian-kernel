@@ -14,7 +14,6 @@ modules:
  nilfs2
  r6040
  redhat-cluster
- sfc
  speakup
  squashfs
  tp-smapi

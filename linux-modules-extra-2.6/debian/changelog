@@ -5,6 +5,7 @@ linux-modules-extra-2.6 (2.6.26-2) UNRELEASED; urgency=low
 
   [ Bastian Blank ]
   * Enable drbd8.
+  * Remove sfc.
 
  -- Daniel Baumann <daniel@debian.org>  Tue,  5 Aug 2008 14:01:00 +0200
 

@@ -1,7 +1,0 @@
-[base]
-not-arches: mips s390
-not-featuresets: xen xen-vserver
-desc: Driver for the sfc Ethernet Adapter
-longdesc:
- sfc is the Linux Driver for the 10 gigabit Ethernet cards based on the
- Solarflare Solarstorm SFC4000 controller.
