@@ -1,6 +1,7 @@
 [base]
+# Needs PCI
 not-arches: m68k s390
-not-featuresets: xen xen-vserver
+not-featuresets: xen
 not-flavours: r4k-ip22
 desc: Atheros L2 Ethernet Adapter driver
 longdesc:
