@@ -1,4 +1,6 @@
 [base]
+# Bug#494447
+not-flavours: s390x
 desc: Stackable unification filesystem
 longdesc:
  Aufs is a stackable unification filesystem such as Unionfs, which unifies
