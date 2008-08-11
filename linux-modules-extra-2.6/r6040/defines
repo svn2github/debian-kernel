@@ -1,7 +1,0 @@
-[base]
-arches: amd64 i386
-desc: RDC Semiconductor R6040 PCI Fast Ethernet Controller driver
-longdesc:
- This is a device driver for RDC Semiconductor R6040 PCI Fast Ethernet
- Controller which can be found in Vortex86SX - Fault Tolerance x86
- System-on-Chip.

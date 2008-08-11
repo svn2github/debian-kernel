@@ -13,7 +13,6 @@ modules:
  lzma
  mol
  nilfs2
- r6040
  redhat-cluster
  speakup
  squashfs
