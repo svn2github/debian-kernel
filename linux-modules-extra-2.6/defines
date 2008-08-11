@@ -7,7 +7,6 @@ modules:
  eeepc-acpi
  et131x
  gspca
- kqemu
  iscsitarget
  loop-aes
  lzma

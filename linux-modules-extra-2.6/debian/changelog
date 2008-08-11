@@ -7,6 +7,7 @@ linux-modules-extra-2.6 (2.6.26-2) UNRELEASED; urgency=low
   * Disable virtualbox-ose-guest. It does not build properly.
   * Disable aufs on s390/s390x, see #494447.
   * Remove r6040.
+  * Disable kqemu, see #494479.
 
  -- Daniel Baumann <daniel@debian.org>  Tue,  5 Aug 2008 14:01:00 +0200
 
