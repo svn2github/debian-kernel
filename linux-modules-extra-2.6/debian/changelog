@@ -1,8 +1,9 @@
 linux-modules-extra-2.6 (2.6.26-3) UNRELEASED; urgency=low
 
-  * Reenable aufs always.
+  * Reenable aufs on s390/s390x.
   * Build against verion 2.6.26-3 (add VServer images).
   * Disable et131x on vserver featureset, see #495918.
+  * Disable aufs on vserver featureset, see #495921.
 
  -- Bastian Blank <waldi@debian.org>  Thu, 21 Aug 2008 11:06:07 +0200
 
