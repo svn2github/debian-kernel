@@ -1,7 +1,7 @@
 [base]
-# Needs PCI
+# Needs PCI, Bug#495918
 not-arches: m68k s390
-not-featuresets: xen 
+not-featuresets: vserver xen 
 not-flavours: r4k-ip22
 desc: et131x Ethernet Adapter driver
 longdesc:
