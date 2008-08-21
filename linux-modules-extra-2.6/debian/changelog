@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.26-3) UNRELEASED; urgency=low
 
-  * Disable aufs on alpha, see #494447.
+  * Reenable aufs always.
+  * Build against verion 2.6.26-3 (add VServer images).
 
  -- Bastian Blank <waldi@debian.org>  Tue, 12 Aug 2008 14:42:42 +0200
 
