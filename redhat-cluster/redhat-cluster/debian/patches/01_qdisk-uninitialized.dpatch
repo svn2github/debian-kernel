@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_qdisk-uninitialized-fix.dpatch by  <Frederik Schüler <fs@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix uninitalized warning
+
+@DPATCH@
+
+--- redhat-cluster/cman/qdisk/main.c.old	2008-08-30 16:39:33.000000000 +0200
++++ redhat-cluster/cman/qdisk/main.c	2008-08-30 16:43:22.000000000 +0200
+@@ -437,7 +437,7 @@
+ static int
+ quorum_init(qd_ctx *ctx, node_info_t *ni, int max, struct h_data *h, int maxh)
+ {
+-	int x = 0, score, maxscore, score_req;
++	int x = 0, score, maxscore, score_req = 0;
+ 
+ 	clulog(LOG_INFO, "Quorum Daemon Initializing\n");
+ 	
