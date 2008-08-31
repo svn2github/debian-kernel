@@ -1,3 +1,9 @@
+linux-modules-extra-2.6 (2.6.26-4) UNRELEASED; urgency=low
+
+  * Removing eeepc-acpi, RoM and included in 2.6.26 itself (Closes: #497319).
+
+ -- Daniel Baumann <daniel@debian.org>  Sun, 31 Aug 2008 23:24:00 +0200
+
 linux-modules-extra-2.6 (2.6.26-3) unstable; urgency=low
 
   * Reenable aufs on s390/s390x.

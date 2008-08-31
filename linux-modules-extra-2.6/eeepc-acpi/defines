@@ -1,7 +1,0 @@
-[base]
-arches: i386
-flavours: 486 686
-not-featuresets: xen xen-vserver
-desc: Asus Eee PC hotkey support
-longdesc:
- The eeepc_acpi module supports the hotkeys found on the Asus Eee PC.
