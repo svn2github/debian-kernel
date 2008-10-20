@@ -1,11 +1,11 @@
 redhat-cluster (2.20080801-4) unstable; urgency=high
 
-  * Add dependency on python-pexpect and install missing fencing 
-    scripts. (Closes: #497423)
+  * Add dependency on python-pexpect and python-openssl; install 
+    missing fencing scripts. (Closes: #497423)
   * Fix RedHat specific service calls in nfsexport resource script. 
     (Closes: #498993)
 
- -- Frederik Schüler <fs@debian.org>  Mon, 20 Oct 2008 11:16:36 +0200
+ -- Frederik Schüler <fs@debian.org>  Mon, 20 Oct 2008 12:26:58 +0200
 
 redhat-cluster (2.20080801-3) unstable; urgency=high
 
