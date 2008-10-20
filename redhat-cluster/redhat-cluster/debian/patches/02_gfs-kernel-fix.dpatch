@@ -1,0 +1,28 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 02_gfs-kernel-fix.dpatch by Frederik Schüler <fs@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: gfs-kernel: bz 458765 - In linux-2.6.26 / 2.03.06, GFS1 can't create more than 4kb file
+## DP: git commit e85d18d96a209bd05688045cb85cecc2df928ab5
+## DP: Author: Abhijith Das <adas@redhat.com>
+
+@DPATCH@
+diff --git a/gfs-kernel/src/gfs/ops_address.c b/gfs-kernel/src/gfs/ops_address.c
+index 98c3384..0a9c7cd 100644
+--- a/gfs-kernel/src/gfs/ops_address.c
++++ b/gfs-kernel/src/gfs/ops_address.c
+@@ -379,9 +379,14 @@ gfs_commit_write(struct file *file, struct page *page,
+ 		if (inode->i_size < file_size)
+ 			i_size_write(inode, file_size);
+ 	} else {
++		loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+ 		error = block_commit_write(page, from, to);
+ 		if (error)
+ 			goto fail;
++		if (pos > inode->i_size) {
++			i_size_write(inode, pos);
++			mark_inode_dirty(inode);
++		}
+ 	}
+ 
+ 	ip->gfs_file_aops.commit_write = NULL;
