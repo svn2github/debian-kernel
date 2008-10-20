@@ -1,2 +1,3 @@
 01_qdisk-uninitialized.dpatch
 02_gfs-kernel-fix.dpatch
+03_redhadism_fix.dpatch

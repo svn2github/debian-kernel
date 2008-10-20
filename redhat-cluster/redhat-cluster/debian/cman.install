@@ -24,3 +24,4 @@ usr/sbin/group_tool
 usr/sbin/groupd
 usr/sbin/fence*
 usr/share/man/man8/fence*
+usr/share/fence/*
