@@ -1,5 +1,6 @@
 [base]
 arches: i386
+not-featuresets: xen
 not-flavours: amd64
 desc: PC virtualization solution
 longdesc:
