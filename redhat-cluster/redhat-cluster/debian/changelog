@@ -1,3 +1,14 @@
+redhat-cluster (2.20081102-1) unstable; urgency=medium
+
+  * New upstream release version 2.03.09.
+    - Upstream code audit fixes several tmpfile race conditions, among 
+      them CVE-2008-4579 and CVE-2008-4580. (Closes: #496410)
+  * Add svedish debconf translation, thanks to Martin Bagge.
+    (Closes: #503610)
+  * Cman: add sg3-utils dependency for scsi_reserve support.
+
+ -- Frederik Schüler <fs@debian.org>  Mon, 03 Nov 2008 13:15:07 +0100
+
 redhat-cluster (2.20080801-4) unstable; urgency=high
 
   * Add dependency on python-pexpect and install missing fencing 
