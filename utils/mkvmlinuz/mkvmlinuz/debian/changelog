@@ -1,3 +1,12 @@
+mkvmlinuz (35) unstable; urgency=low
+
+  * Add debconf translations:
+    + Spanish, thanks to Francisco Javier Cuadrado. (Closes: #497530)
+    + Polish, thanks to Łukasz Paździora. (Closes: #505866)
+  * Bump Standards-Version to 3.8.0.
+
+ -- Aurélien GÉRÔME <ag@debian.org>  Wed, 10 Dec 2008 12:24:06 +0100
+
 mkvmlinuz (34) unstable; urgency=low
 
   * Add debconf translations:
@@ -9,7 +18,7 @@ mkvmlinuz (34) unstable; urgency=low
   * Change my email address in the Uploaders field.
   * Bump Standards-Version to 3.7.3.
   * Use the Vcs-Svn field.
-  * Add the Vcs-Browser field.
+  * Add the Vcs-Browser.
   * Add ppc64 architecture support, thanks to Andreas Jochens.
     (Closes: #476805)
   * Fix lintian error "missing-dependency-on-libc needed by

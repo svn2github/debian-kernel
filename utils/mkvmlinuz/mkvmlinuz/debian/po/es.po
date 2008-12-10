@@ -1,0 +1,46 @@
+# mkvmlinuz translation to Spanish	
+# Copyright (C) 2008
+# This file is distributed under the same license as the lurker package.
+# Changes:
+# - Initial translation
+# Francisco Javier Cuadrado <fcocuadrado@gmail.com>
+#
+# Traductores, si no conoce el formato PO, merece la pena leer la 
+# documentación de gettext, especialmente las secciones dedicadas a este
+# formato, por ejemplo ejecutando:
+#   info -n '(gettext)PO Files'
+#   info -n '(gettext)Header Entry'
+# Equipo de traducción al español, por favor lean antes de traducir
+# los siguientes documentos:
+# - El proyecto de traducción de Debian al español
+#   http://www.debian.org/intl/spanish/coordinacion
+# especialmente las notas de traducción en
+#   http://www.debian.org/intl/spanish/notas
+# - La guía de traducción de po's de debconf:
+#   /usr/share/doc/po-debconf/README-trans
+#   http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mkvmlinuz_34\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-10-31 08:09+0100\n"
+"PO-Revision-Date: 2008-08-22 20:48+0100\n"
+"Last-Translator: Francisco Javier Cuadrado <fcocuadrado@gmail.com>\n"
+"Language-Team: <es@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+msgid "Bootloader to use:"
+msgstr "Cargador de arranque a usar:"
+
+#. Type: select
+#. Description
+#: ../mkvmlinuz.templates:1001
+msgid "Your PowerPC sub-architecture supports more than one bootloader, please select the one you want to use."
+msgstr "Su subarquitectura de PowerPC es compatible con más de un cargador de arranque, por favor seleccione el que quiere usar."
