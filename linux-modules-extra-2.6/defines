@@ -2,7 +2,6 @@
 modules:
  atl2
  aufs
- btrfs
  drbd8
  et131x
  gspca
