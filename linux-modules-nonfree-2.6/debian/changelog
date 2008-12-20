@@ -1,8 +1,9 @@
-linux-modules-nonfree-2.6 (2.6.26-1) UNRELEASED; urgency=low
+linux-modules-nonfree-2.6 (2.6.26-1) unstable; urgency=medium
 
+  [ Bastian Blank ]
   * Update to 2.6.26-1.
 
- -- Bastian Blank <waldi@debian.org>  Thu, 31 Jul 2008 19:03:25 +0200
+ -- Daniel Baumann <danieL@debian.org>  Sat, 20 Dec 2008 12:35:00 +0100
 
 linux-modules-nonfree-2.6 (2.6.25-2) unstable; urgency=high
 
