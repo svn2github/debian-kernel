@@ -1,3 +1,10 @@
+linux-modules-contrib-2.6 (2.6.26-3) unstable; urgency=medium
+
+  * Excluding rt73 on vserver in order to not need to go through NEW at
+    this stage of the release.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 29 Jan 2009 22:24:00 +0100
+
 linux-modules-contrib-2.6 (2.6.26-2) unstable; urgency=low
 
   * Disabling rt73 on powerpc and sparc.
