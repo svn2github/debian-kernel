@@ -1,8 +1,5 @@
 #!/usr/bin/make -f
 
-# Uncomment this to turn on verbose mode.
-# export DH_VERBOSE=1
-
 SOURCE  := $(shell dpkg-parsechangelog | sed -ne 's,^Source: *\(.*\)$$,\1,p')
 VERSION_DEBIAN := $(shell dpkg-parsechangelog | sed -ne 's,^Version: *\(.*\)$$,\1,p')
 VERSION_FILE := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,^[0-9]*:,,' -e 's,-[^-]*$$,,')
@@ -89,7 +86,4 @@ else
 	mkdir -p ../orig
 	tar -C ../orig -xzf $(TAR_ORIG)
 endif
-
-# This is to make dpatch-edit-patch work
-unpatch: clean
 
