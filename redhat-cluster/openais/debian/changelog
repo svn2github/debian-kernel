@@ -3,6 +3,7 @@ openais (1:0.80.5-1) UNRELEASED; urgency=low
   * New upstream release.
     - Go back to stable releases.
   * Use quilt.
+  * Use debhelper compat level 7.
 
  -- Bastian Blank <waldi@debian.org>  Sat, 07 Mar 2009 12:33:48 +0100
 
