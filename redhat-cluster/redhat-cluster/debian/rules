@@ -20,11 +20,22 @@ BUILDROOT := $(shell pwd)
 SOMAJOR=2
 SOMINOR=3
 
-configure: patch configure-stamp
-configure-stamp:
+BUILD_DIR = debian/build
+STAMPS_DIR = debian/stamps
+SOURCE_FILES = $(filter-out .svn .svk debian, $(wildcard * .[^.]*))
+
+setup: $(STAMPS_DIR)/setup
+
+$(STAMPS_DIR)/setup: DIR = $(BUILD_DIR)/build
+$(STAMPS_DIR)/setup: $(BUILD_DIR) $(STAMPS_DIR)
 	dh_testdir
-	
-	./configure --kernel_src=$(BUILDROOT) \
+	@rm -rf $(DIR)
+	mkdir $(DIR)
+	cp -a $(SOURCE_FILES) $(DIR)
+	cd $(DIR); QUILT_PATCHES=$(CURDIR)/debian/patches quilt --quiltrc /dev/null push -a || test $$? = 2
+	touch $@
+	cd $(DIR); \
+		./configure --kernel_src=$(BUILDROOT) \
 		    --kernel_build=$(BUILDROOT) \
 		    --sbindir=/usr/sbin \
 			$(BUILD_XEN) \
@@ -36,24 +47,37 @@ configure-stamp:
 			--disable_kernel_check
 	
 	# disable kernel modules
-	sed -i -e 's/-kernel.* \?=/& 1/g' make/defines.mk
+	sed -i -e 's/-kernel.* \?=/& 1/g' $(DIR)/make/defines.mk
 	
 	touch $@
 
-build: configure build-stamp
-build-stamp:
+build: $(STAMPS_DIR)/build
+
+$(STAMPS_DIR)/build: DIR = $(BUILD_DIR)/build
+$(STAMPS_DIR)/build: $(STAMPS_DIR)/setup
 	dh_testdir
-
-	$(MAKE) all
-
+	$(MAKE) -C $(DIR) all
 	touch $@
 
-install: build
+$(BUILD_DIR) $(STAMPS_DIR):
+	@[ -d $@ ] || mkdir $@
+
+clean:
+	dh_testdir
+	rm -rf $(BUILD_DIR) $(STAMPS_DIR)
+	dh_clean
+
+maintainerclean:
+	rm -rf $(SOURCE_FILES)
+
+install: DIR = $(BUILD_DIR)/build
+install: INSTALL_DIR = $(BUILD_DIR)/install
+install: $(STAMPS_DIR)/build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	
-	$(MAKE) install DESTDIR=$(BUILDROOT)/debian/tmp/
+	$(MAKE) -C $(DIR) install DESTDIR=$(CURDIR)/debian/tmp/
 	
 	# manual craft
 	install -d -m 0755 debian/tmp/etc/cluster
@@ -118,7 +142,7 @@ endif
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
-	dh_shlibdeps -a -l$(BUILDROOT)/debian/tmp/usr/lib
+	dh_shlibdeps -a -l$(CURDIR)/debian/tmp/usr/lib
 	dh_installdeb -a
 	dh_gencontrol -a
 	dh_md5sums -a
@@ -146,19 +170,8 @@ orig: $(DIR_ORIG)
 $(DIR_ORIG):
 ifeq ($(TAR_ORIG),)
 	$(error Cannot find orig tarball $(TAR_ORIG_NAME))
-else
+else   
 	mkdir -p ../orig
 	tar -C ../orig -xzf $(TAR_ORIG)
 endif
 
-maintainerclean:
-	rm -rf $(filter-out debian .svk .svn, $(wildcard * .[^.]*))
-
-clean: unpatch
-	dh_testdir
-	dh_clean
-	
-	 [ ! -f make/defines.mk ] || $(MAKE) distclean
-	
-	rm -rf *-stamp
-	rm -rf debian/patched

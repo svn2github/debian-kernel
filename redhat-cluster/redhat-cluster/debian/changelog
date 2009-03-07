@@ -1,6 +1,7 @@
 redhat-cluster (1:2.03.11-1) UNRELEASED; urgency=low
 
   * New upstream release.
+  * Use quilt.
 
  -- Bastian Blank <waldi@debian.org>  Sat, 07 Mar 2009 12:41:31 +0100
 
