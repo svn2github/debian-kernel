@@ -13,8 +13,10 @@ export OPENAIS_BUILD=$(if $(findstring debug,$(DEB_BUILD_OPTIONS)),DEBUG)
 setup: $(STAMPS_DIR)/setup
 
 $(STAMPS_DIR)/setup: DIR = $(BUILD_DIR)/build
-$(STAMPS_DIR)/setup: $(BUILD_DIR) $(STAMPS_DIR)
+$(STAMPS_DIR)/setup:
 	dh_testdir
+	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
+	@[ -d $(STAMPS_DIR) ] || mkdir $(STAMPS_DIR)
 	@rm -rf $(DIR)
 	mkdir $(DIR)
 	cp -a $(SOURCE_FILES) $(DIR)
@@ -28,9 +30,6 @@ $(STAMPS_DIR)/build: $(STAMPS_DIR)/setup
 	dh_testdir
 	$(MAKE) -C $(DIR)
 	touch $@
-
-$(BUILD_DIR) $(STAMPS_DIR):
-	@[ -d $@ ] || mkdir $@
 
 clean:
 	dh_testdir
