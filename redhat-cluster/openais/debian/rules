@@ -9,16 +9,14 @@ VERSION_FILE := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,^[0-9]*:,,' -e 's,-
 
 BUILD_DIR = debian/build
 STAMPS_DIR = debian/stamps
+SOURCE_FILES = $(filter-out .svn .svk debian, $(wildcard * .[^.]*))
 
 export OPENAIS_BUILD=$(if $(findstring debug,$(DEB_BUILD_OPTIONS)),DEBUG)
 
 setup: $(STAMPS_DIR)/setup
 
-$(STAMPS_DIR)/setup: SOURCE_FILES = $(filter-out .svn .svk debian, $(wildcard * .[^.]*))
 $(STAMPS_DIR)/setup: DIR = $(BUILD_DIR)/build
-$(STAMPS_DIR)/setup:
-	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
-	@[ -d $(STAMPS_DIR) ] || mkdir $(STAMPS_DIR)
+$(STAMPS_DIR)/setup: $(BUILD_DIR) $(STAMPS_DIR)
 	dh_testdir
 	@rm -rf $(DIR)
 	mkdir $(DIR)
@@ -34,13 +32,16 @@ $(STAMPS_DIR)/build: $(STAMPS_DIR)/setup
 	$(MAKE) -C $(DIR)
 	touch $@
 
+$(BUILD_DIR) $(STAMPS_DIR):
+	@[ -d $@ ] || mkdir $@
+
 clean:
 	dh_testdir
 	rm -rf $(BUILD_DIR) $(STAMPS_DIR)
 	dh_clean
 
 maintainerclean:
-	rm -rf $(filter-out .svn debian, $(wildcard * .[^.]*))
+	rm -rf $(SOURCE_FILES)
 
 install: DIR = $(BUILD_DIR)/build
 install: $(STAMPS_DIR)/build
