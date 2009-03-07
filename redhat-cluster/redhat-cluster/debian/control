@@ -5,7 +5,7 @@ Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>
 Standards-Version: 3.8.0
 Homepage: http://sources.redhat.com/cluster/wiki
-Build-Depends: debhelper (>= 4.2.28), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.83), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.26), libvirt-dev (>= 0.3.0) [amd64 i386], libnss3-dev [amd64 i386], libnspr4-dev [amd64 i386], bzip2, libslang2-dev, quilt
+Build-Depends: debhelper (>> 7), libxml2-dev, libncurses5-dev, libopenais-dev (>= 0.83), libvolume-id-dev (>=  0.105-4), linux-libc-dev (>= 2.6.26), libvirt-dev (>= 0.3.0) [amd64 i386], libnss3-dev [amd64 i386], libnspr4-dev [amd64 i386], bzip2, libslang2-dev, quilt
 Build-Conflicts: libccs-dev, libcman-dev (<= 2.0), libdlm-dev (<= 2.0), libcman2, libdlm2
 
 Package: redhat-cluster-suite
