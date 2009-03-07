@@ -21,7 +21,7 @@ $(STAMPS_DIR)/setup: $(BUILD_DIR) $(STAMPS_DIR)
 	@rm -rf $(DIR)
 	mkdir $(DIR)
 	cp -a $(SOURCE_FILES) $(DIR)
-	dpatch -d $(DIR) apply-all
+	cd $(DIR); QUILT_PATCHES=$(CURDIR)/debian/patches quilt --quiltrc /dev/null push -a || test $$? = 2
 	touch $@
 
 build: $(STAMPS_DIR)/build
