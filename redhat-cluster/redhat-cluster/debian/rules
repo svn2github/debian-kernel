@@ -1,28 +1,28 @@
 #!/usr/bin/make -f
 
-# Uncomment this to turn on verbose mode.
-# export DH_VERBOSE=1
-
-include /usr/share/dpatch/dpatch.make
-
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 SOURCE   := $(shell dpkg-parsechangelog | sed -ne 's,^Source: *\(.*\)$$,\1,p')
 VERSION_DEBIAN := $(shell dpkg-parsechangelog | sed -ne 's,^Version: *\(.*\)$$,\1,p')
 VERSION_FILE := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,^[0-9]*:,,' -e 's,-[^-]*$$,,')
 
-xen_arches = amd64 i386
-ifneq (,$(filter $(DEB_HOST_ARCH), $(xen_arches))) 
-  BUILD_XEN = --enable_xen
-endif
-
-BUILDROOT := $(shell pwd)
-
-SOMAJOR=2
-SOMINOR=3
-
 BUILD_DIR = debian/build
 STAMPS_DIR = debian/stamps
 SOURCE_FILES = $(filter-out .svn .svk debian, $(wildcard * .[^.]*))
+
+CONFIGURE_ARGS := \
+	--disable_kernel_check \
+	--kernel_src=$(CURDIR) \
+	--kernel_build=$(CURDIR) \
+	--libexecdir=/usr/lib/openais \
+	--nsprincdir=/usr/include/nspr \
+	--nssincdir=/usr/include/nss \
+	--sbindir=/usr/sbin \
+	--without_kernel_modules
+
+ifneq (,$(filter $(DEB_HOST_ARCH), amd64 i386)) 
+CONFIGURE_ARGS += \
+	--enable_xen
+endif
 
 setup: $(STAMPS_DIR)/setup
 
@@ -33,22 +33,7 @@ $(STAMPS_DIR)/setup: $(BUILD_DIR) $(STAMPS_DIR)
 	mkdir $(DIR)
 	cp -a $(SOURCE_FILES) $(DIR)
 	cd $(DIR); QUILT_PATCHES=$(CURDIR)/debian/patches quilt --quiltrc /dev/null push -a || test $$? = 2
-	touch $@
-	cd $(DIR); \
-		./configure --kernel_src=$(BUILDROOT) \
-		    --kernel_build=$(BUILDROOT) \
-		    --sbindir=/usr/sbin \
-			$(BUILD_XEN) \
-		    --nssincdir=/usr/include/nss \
-		    --nsprincdir=/usr/include/nspr \
-		    --libexecdir=/usr/lib/openais \
-		    --somajor=$(SOMAJOR) \
-		    --sominor=$(SOMINOR) \
-			--disable_kernel_check
-	
-	# disable kernel modules
-	sed -i -e 's/-kernel.* \?=/& 1/g' $(DIR)/make/defines.mk
-	
+	cd $(DIR); ./configure $(CONFIGURE_ARGS)
 	touch $@
 
 build: $(STAMPS_DIR)/build
