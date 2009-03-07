@@ -8,7 +8,7 @@ include /usr/share/dpatch/dpatch.make
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 SOURCE   := $(shell dpkg-parsechangelog | sed -ne 's,^Source: *\(.*\)$$,\1,p')
 VERSION_DEBIAN := $(shell dpkg-parsechangelog | sed -ne 's,^Version: *\(.*\)$$,\1,p')
-VERSION  := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,-[^-]*$$,,')
+VERSION_FILE := $(shell echo "$(VERSION_DEBIAN)" | sed -e 's,^[0-9]*:,,' -e 's,-[^-]*$$,,')
 
 xen_arches = amd64 i386
 ifneq (,$(filter $(DEB_HOST_ARCH), $(xen_arches))) 
@@ -136,8 +136,8 @@ binary-indep: install
 
 binary: binary-arch binary-indep 
 
-DIR_ORIG = ../orig/$(SOURCE)-$(VERSION)
-TAR_ORIG_NAME = $(SOURCE)_$(VERSION).orig.tar.gz
+DIR_ORIG = ../orig/$(SOURCE)-$(VERSION_FILE)
+TAR_ORIG_NAME = $(SOURCE)_$(VERSION_FILE).orig.tar.gz
 TAR_ORIG = $(firstword $(wildcard ../$(TAR_ORIG_NAME)) $(wildcard ../orig/$(TAR_ORIG_NAME)))
 
 orig: $(DIR_ORIG)
