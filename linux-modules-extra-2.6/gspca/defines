@@ -1,8 +1,0 @@
-[base]
-arches: amd64 i386 powerpc
-not-featuresets: xen xen-vserver
-desc: Driver for webcams and digicams based on spca5xx chipset
-longdesc:
- The gpsca Video for Linux (v4l) driver, provides support for webcams and
- digital cameras based on the spca5xx range of chips manufactured by SunPlus,
- Sonix, Z-star, Vimicro, Conexant, Etoms, Mars-semi, Pixart and Transvision.
