@@ -1,9 +1,0 @@
-[base]
-# Needs PCI, Bug#495918
-not-arches: m68k s390
-not-featuresets: vserver xen 
-not-flavours: r4k-ip22
-desc: et131x Ethernet Adapter driver
-longdesc:
- et131x is the Linux Driver for the Agere Systems ET-131x PCI-E Ethernet
- Controller.
