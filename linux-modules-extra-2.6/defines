@@ -3,8 +3,6 @@ modules:
  atl2
  aufs
  drbd8
- et131x
- gspca
  iscsitarget
  loop-aes
  lzma
@@ -12,7 +10,6 @@ modules:
  nilfs2
  redhat-cluster
  speakup
- squashfs
  tp-smapi
  virtualbox-ose
  virtualbox-ose-guest
