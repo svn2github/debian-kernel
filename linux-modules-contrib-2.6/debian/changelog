@@ -1,3 +1,9 @@
+linux-modules-contrib-2.6 (2.6.29-1) unstable; urgency=low
+
+  * Enabling open-vm.
+
+ -- Daniel Baumann <daniel@debian.org>  Thu, 26 Mar 2009 22:52:00 +0100
+
 linux-modules-contrib-2.6 (2.6.26-3) unstable; urgency=medium
 
   * Manually triggering rebuild against fixed r73 (Closes: #513022).
