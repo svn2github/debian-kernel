@@ -1,0 +1,5 @@
+[base]
+desc: B.A.T.M.A.N. kernelland gateway
+longdesc:
+ This package contains the set of loadable kernel modules for the
+ B.A.T.M.A.N. Gateway
