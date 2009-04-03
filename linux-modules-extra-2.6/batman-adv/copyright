@@ -1,0 +1,19 @@
+Format-Specification: http://wiki.debian.org/Proposals/CopyrightFormat
+Upstream-Name: B.A.T.M.A.N. Advanced
+Upstream-Source: http://www.open-mesh.net/
+Upstream-Maintainer: Marek Lindner <lindner_marek@yahoo.de>
+ Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
+
+Files: *
+Copyright: Copyright 2006-2008, Marek Lindner <lindner_marek@yahoo.de>
+Copyright: Copyright 2006-2008, Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
+License: GPL-2
+ On Debian systems the full text of the GNU General Public License can be found
+ in the `/usr/share/common-licenses/GPL-2' file.
+
+Files: debian/*
+Copyright: Copyright 2008-2009, Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
+Copyright: Copyright 2008-2009, Sven Eckelmann <sven.eckelmann@gmx.de>
+License: GPL-2
+ On Debian systems the full text of the GNU General Public License can be found
+ in the `/usr/share/common-licenses/GPL-2' file.
