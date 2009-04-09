@@ -12,7 +12,7 @@ linux-modules-extra-2.6 (2.6.29-1) unstable; urgency=low
   * Disabling iscsitarget, doesn't build with 2.6.29.
   * Disabling redhat-cluster, doesn't build with 2.6.29.
 
- -- Daniel Baumann <daniel@debian.org>  Thu, 26 Mar 2009 22:45:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Thu,  9 Apr 2009 19:43:00 +0200
 
 linux-modules-extra-2.6 (2.6.26-6) unstable; urgency=medium
 
