@@ -2,8 +2,6 @@
 modules:
  atl2
  aufs
- batman-adv
- batmand-gateway
  drbd8
  iscsitarget
  loop-aes
