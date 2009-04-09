@@ -7,7 +7,6 @@ modules:
  lzma
  mol
  nilfs2
- redhat-cluster
  speakup
  tp-smapi
  virtualbox-ose
