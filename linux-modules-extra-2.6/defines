@@ -3,7 +3,6 @@ modules:
  atl2
  aufs
  drbd8
- iscsitarget
  loop-aes
  lzma
  mol
