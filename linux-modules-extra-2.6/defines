@@ -2,6 +2,7 @@
 modules:
  atl2
  aufs
+ batman-adv
  drbd8
  loop-aes
  lzma
