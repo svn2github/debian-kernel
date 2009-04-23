@@ -1,5 +1,5 @@
 Package: @module@-modules-@upstreamversion@@abiname@@localversion@
-Section: contrib/admin
+Section: contrib/kernel
 Priority: optional
 Depends: linux-modules-@upstreamversion@@abiname@@localversion@
 Provides: @module@-modules
@@ -10,7 +10,7 @@ Description: @desc@ modules for Linux @upstreamversion@ on @class@
  @longdesc@
 
 Package: @module@-modules-@major@@localversion@
-Section: contrib/admin
+Section: contrib/kernel
 Priority: optional
 Depends: @module@-modules-@upstreamversion@@abiname@@localversion@, linux-latest-modules-@upstreamversion@@abiname@@localversion@
 Description: @desc@ modules for Linux @major@ on @class@

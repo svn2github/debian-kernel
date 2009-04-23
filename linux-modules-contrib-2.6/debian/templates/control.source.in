@@ -1,5 +1,5 @@
 Source: linux-modules-contrib-@major@
-Section: contrib/devel
+Section: contrib/kernel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Daniel Baumann <daniel@debian.org>
