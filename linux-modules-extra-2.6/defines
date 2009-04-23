@@ -1,6 +1,5 @@
 [base]
 modules:
- atl2
  aufs
  batman-adv
  batmand-gateway
