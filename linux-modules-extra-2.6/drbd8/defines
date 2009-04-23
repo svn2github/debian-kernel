@@ -1,5 +1,5 @@
 [base]
-not-arches: alpha mips mipsel
+not-arches: alpha mips mipsel powerpc sparc
 desc: RAID 1 over TCP/IP
 longdesc:
  Drbd is a block device which is designed to build high availability clusters by
