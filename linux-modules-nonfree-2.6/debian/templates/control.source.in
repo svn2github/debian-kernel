@@ -1,5 +1,5 @@
 Source: linux-modules-nonfree-@major@
-Section: non-free/devel
+Section: non-free/kernel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Daniel Baumann <daniel@debian.org>
