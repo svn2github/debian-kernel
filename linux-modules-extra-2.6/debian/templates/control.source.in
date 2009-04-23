@@ -1,5 +1,5 @@
 Source: linux-modules-extra-@major@
-Section: devel
+Section: kernel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Bastian Blank <waldi@debian.org>, Daniel Baumann <daniel@debian.org>
