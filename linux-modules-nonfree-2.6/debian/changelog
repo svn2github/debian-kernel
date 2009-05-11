@@ -1,6 +1,7 @@
 linux-modules-nonfree-2.6 (2.6.29-1) unstable; urgency=low
 
   * Removing unicorn, not part of debian anymore.
+  * Bumping to abiname 2.6.29-2.
 
  -- Daniel Baumann <daniel@debian.org>  Thu, 26 Mar 2009 22:54:00 +0100
 
