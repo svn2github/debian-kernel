@@ -1,9 +1,8 @@
-linux-modules-contrib-2.6 (2.6.29-1) unstable; urgency=low
+linux-modules-contrib-2.6 (2.6.29-1) unstable; urgency=medium
 
-  * Enabling open-vm.
   * Re-enabling rt73 on vserver.
 
- -- Daniel Baumann <daniel@debian.org>  Thu, 26 Mar 2009 22:52:00 +0100
+ -- Daniel Baumann <daniel@debian.org>  Fri, 12 Jun 2009 21:34:00 +0100
 
 linux-modules-contrib-2.6 (2.6.26-3) unstable; urgency=medium
 
