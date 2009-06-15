@@ -1,5 +1,0 @@
-[base]
-not-arches: powerpc sparc
-desc: Driver for Ralink RT73 wireless network card
-longdesc:
- This is the device driver for Ralink RT73 a/b/g WLAN Card.
