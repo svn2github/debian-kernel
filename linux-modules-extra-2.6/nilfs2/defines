@@ -1,4 +1,0 @@
-[base]
-desc: Log-structured snapshotting filesystem
-longdesc:
- NILFS is a log-structured file system supporting continuous snapshotting.

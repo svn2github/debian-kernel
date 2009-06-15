@@ -7,7 +7,6 @@ modules:
  loop-aes
  lzma
  mol
- nilfs2
  speakup
  tp-smapi
  virtualbox-ose
