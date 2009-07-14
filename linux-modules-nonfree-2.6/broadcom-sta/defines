@@ -1,0 +1,7 @@
+[base]
+arches: i386
+not-flavours: amd64
+desc: Driver for Broadcom wireless network cards
+longdesc:
+ The Broadcom STA driver supports wireless network cards based on the BCM4311-,
+ BCM4312-, BCM4321-, and BCM4322 chipsets.
