@@ -1,9 +1,9 @@
-linux-modules-nonfree-2.6 (2.6.30-1) UNRELEASED; urgency=low
+linux-modules-nonfree-2.6 (2.6.30-1) unstable; urgency=low
 
   * Updating kernel version to 2.6.30-1.
   * Adding broadcom-sta.
 
- -- Daniel Baumann <daniel@debian.org>  Mon, 15 Jun 2009 10:22:00 +0200
+ -- Daniel Baumann <daniel@debian.org>  Tue, 14 Jul 2009 15:28:00 +0200
 
 linux-modules-nonfree-2.6 (2.6.29-3) unstable; urgency=low
 
