@@ -6,7 +6,6 @@ modules:
  drbd8
  loop-aes
  lzma
- mol
  speakup
  tp-smapi
  virtualbox-ose
