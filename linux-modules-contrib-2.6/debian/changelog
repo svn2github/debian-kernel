@@ -2,6 +2,7 @@ linux-modules-contrib-2.6 (2.6.30-1) UNRELEASED; urgency=low
 
   * Updating kernel version to 2.6.30-1.
   * Removing rt73, driver was rewritten in 2.6.30 mainline.
+  * Syncing open-vm copyright file.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 15 Jun 2009 10:22:00 +0200
 
