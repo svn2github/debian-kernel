@@ -3,7 +3,6 @@ modules:
  aufs
  batman-adv
  batmand-gateway
- drbd8
  loop-aes
  lzma
  speakup
