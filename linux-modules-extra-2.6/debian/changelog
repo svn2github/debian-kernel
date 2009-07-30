@@ -1,6 +1,7 @@
 linux-modules-extra-2.6 (2.6.30-3) UNRELEASED; urgency=low
 
   * Removing drbd8, no maintainer support anymore (see #539219).
+  * Re-enabling aufs, should work now with linux-2.6 2.6.30-4.
 
  -- Daniel Baumann <daniel@debian.org>  Wed, 29 Jul 2009 22:54:00 +0200
 

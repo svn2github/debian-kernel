@@ -1,5 +1,4 @@
 [base]
-not-arches: armel
 desc: Stackable unification filesystem
 longdesc:
  Aufs is a stackable unification filesystem such as Unionfs, which unifies
