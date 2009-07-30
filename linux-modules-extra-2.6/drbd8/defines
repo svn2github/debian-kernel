@@ -1,9 +1,0 @@
-[base]
-not-arches: alpha mips mipsel powerpc sparc
-desc: RAID 1 over TCP/IP
-longdesc:
- Drbd is a block device which is designed to build high availability clusters by
- providing a virtual shared device which keeps disks in nodes synchronised using
- TCP/IP. This simulates RAID 1 but avoiding the use of uncommon hardware (shared
- SCSI buses or Fibre Channel).
- It is currently limited to fail-over HA clusters.
