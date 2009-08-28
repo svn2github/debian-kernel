@@ -10,23 +10,23 @@ Security support:
 Kernel packages, sorted by architecture:
 
   * alpha
-    - Norbert Tretkowski
+    - Norbert Tretkowski, SteveLangasek
   * amd64
-    - Frederik Schueler
+    - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
     - Martin Michlmayr
   * hppa
     - Kyle McMartin
   * i386
-    - Maximilian Attems
+    - Maximilian Attems, Ben Hutchings
   * ia64
     - Dann Frazier
   * m68k
     - Christian T. Steigies
   * mips
-    - Thiemo Seufer
+    - Martin Michlmayr
   * mipsel
-    - Thiemo Seufer
+    - Martin Michlmayr
   * powerpc
   * s390
     - Bastian Blank
@@ -45,7 +45,6 @@ Kernel-related packages:
   * linux-modules-nonfree-2.6:
     - Daniel Baumann
   * mkvmlinuz
-    - Sven Luther
   * module-init-tools
     - Marco d'Itri
   * udev
