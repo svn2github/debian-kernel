@@ -1,9 +1,0 @@
-[base]
-arches: amd64 i386
-not-flavours: amd64
-not-featuresets: xen xen-vserver
-desc: QEMU Accelerator
-longdesc:
- The QEMU Accelerator Module increases the speed of QEMU when a PC is emulated
- on a PC. It runs most of the target application code directly on the host
- processor to achieve near native performance.

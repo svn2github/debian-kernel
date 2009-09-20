@@ -1,6 +1,0 @@
-[base]
-not-arches: alpha hppa mips mipsel
-desc: iSCSI Enterprise Target
-longdesc:
- iSCSI Enterprise Target is for building an iSCSI storage system. It is aimed at
- developing an iSCSI target satisfying enterprise requirements.

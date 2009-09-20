@@ -4,6 +4,7 @@ linux-modules-extra-2.6 (2.6.30-4) UNRELEASED; urgency=low
   * Updating package to debhelper 7.
   * Updating package to standards 3.8.3.
   * Rewriting copyright file in machine-interpretable format.
+  * Removing defines for unused modules.
 
  -- Daniel Baumann <daniel@debian.org>  Sun, 20 Sep 2009 12:23:49 +0200
 

@@ -1,5 +1,0 @@
-[base]
-desc: Redhat Cluster infrastructure
-longdesc:
- Red Hat cluster suite contains drivers for a gfs (shared-disk cluster file
- system) and gnbd (share block devices to many machines over a network).
