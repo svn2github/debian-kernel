@@ -4,6 +4,8 @@ linux-modules-nonfree-2.6 (2.6.30-2) UNRELEASED; urgency=low
   * Updating package to debhelper 7.
   * Updating package to standards 3.8.3.
   * Rewriting copyright file in machine-interpretable format.
+  * Removing nvidia stubs, giving up on their maintainers to ever
+    cooperate so that we have it integrated.
 
  -- Daniel Baumann <daniel@debian.org>  Sun, 20 Sep 2009 11:55:16 +0200
 
