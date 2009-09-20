@@ -5,6 +5,7 @@ linux-modules-contrib-2.6 (2.6.30-1) UNRELEASED; urgency=low
   * Syncing open-vm copyright file.
   * Updating kernel version to 2.6.30-2.
   * Updating package to debhelper 7.
+  * Updating package to standards 3.8.3.
 
  -- Daniel Baumann <daniel@debian.org>  Mon, 15 Jun 2009 10:22:00 +0200
 
