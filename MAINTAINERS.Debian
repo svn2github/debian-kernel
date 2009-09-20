@@ -39,11 +39,7 @@ Kernel-related packages:
   * initramfs-tools:
     - Maximilian Attems
   * linux-modules-extra-2.6:
-    - Bastian Blank, Daniel Baumann
-  * linux-modules-contrib-2.6:
-    - Daniel Baumann
-  * linux-modules-nonfree-2.6:
-    - Daniel Baumann
+    - Bastian Blank
   * mkvmlinuz
   * module-init-tools
     - Marco d'Itri
