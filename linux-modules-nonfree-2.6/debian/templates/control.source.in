@@ -2,7 +2,6 @@ Source: linux-modules-nonfree-@major@
 Section: non-free/kernel
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Uploaders: Daniel Baumann <daniel@debian.org>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/linux-modules-nonfree-2.6/
