@@ -1,6 +1,0 @@
-$(BUILD_STAMP):
-	$(MAKE) -f $(DIR)/Makefile
-	touch $@
-
-install:
-	$(MAKE) -f $(DIR)/Makefile install
