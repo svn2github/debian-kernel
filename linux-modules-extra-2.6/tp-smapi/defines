@@ -1,9 +1,0 @@
-[base]
-arches: amd64 i386
-desc: ThinkPad hardware/firmware access
-longdesc:
- The tp_smapi kernel module exposes some features of the ThinkPad
- hardware/firmware via a sysfs interface. Currently, the main implemented
- functionality is control of battery charging and extended battery status. The
- underlying hardware interfaces are SMAPI and direct access to the embedded
- controller.

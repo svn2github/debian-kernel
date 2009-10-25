@@ -1,7 +1,0 @@
-[base]
-arches: i386
-not-flavours: amd64
-desc: Display driver for AMD/ATI Radeon and FireGL graphics cards
-longdesc:
- The AMD/ATI display driver supports graphic cards based on the
- r5xx and r6xx chipsets.

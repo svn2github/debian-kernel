@@ -1,7 +1,0 @@
-[base]
-not-arches: armel hppa mipsel
-not-featuresets: xen xen-vserver
-desc: Driver for the DXR3/Hollywood+ decoder cards
-longdesc:
- Drivers for MPEG decoder cards based on Sigma Designs' EM8300 chip (such as the
- Creative Labs DXR3 or the Sigma Designs Hollywood+).

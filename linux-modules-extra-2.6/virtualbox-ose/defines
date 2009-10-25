@@ -1,9 +1,0 @@
-[base]
-arches: amd64 i386
-not-featuresets: xen
-desc: PC virtualization solution
-longdesc:
- VirtualBox is a free PC virtualization solution allowing you to run a wide
- range of PC operating systems on your system.
- .
- These modules are needed in order to use virtualbox-ose on the host system.

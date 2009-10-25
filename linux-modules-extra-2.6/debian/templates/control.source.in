@@ -1,9 +1,0 @@
-Source: linux-modules-extra-@major@
-Section: kernel
-Priority: optional
-Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Uploaders: Bastian Blank <waldi@debian.org>
-Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
-Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/linux-modules-extra-2.6/
-Vcs-Svn: svn://svn.debian.org/kernel/dists/trunk/linux-modules-extra-2.6/

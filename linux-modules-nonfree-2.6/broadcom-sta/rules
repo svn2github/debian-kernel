@@ -1,5 +1,0 @@
-$(SETUP_STAMP):
-	@rm -rf $(DIR)
-	mkdir -p $(DIR)
-	cp -al $(SOURCE_DIR)/i386/* $(DIR)
-	touch $@

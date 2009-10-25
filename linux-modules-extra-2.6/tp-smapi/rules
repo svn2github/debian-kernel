@@ -1,7 +1,0 @@
-install: LIB_MODULES = $(PACKAGE_DIR)/lib/modules/$(REAL_VERSION)
-install:
-	+$(MAKE_CLEAN) -C $(HEADERS_DIR) M=$(CURDIR)/$(DIR) modules_install INSTALL_MOD_PATH=$(PACKAGE_DIR) INSTALL_MOD_DIR=extra/$(MODULE)
-
-	# Add hdaps.ko symlink to updates/
-	mkdir -p $(LIB_MODULES)/updates
-	ln -s ../extra/tp-smapi/hdaps.ko $(LIB_MODULES)/updates/hdaps.ko
