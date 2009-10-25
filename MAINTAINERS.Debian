@@ -2,6 +2,11 @@ The following people maintain the Debian kernels and some
 kernel-related packages:
 
 General kernel work:
+  - Maximilian Attems
+  - Bastian Blank
+  - Dann Frazier
+  - Ben Hutchings
+  - Moritz Muehlenhoff
 
 Security support:
   - Dann Frazier
@@ -14,7 +19,7 @@ Kernel packages, sorted by architecture:
   * amd64
     - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
-    - Martin Michlmayr
+    - Martin Michlmayr, Vincent Sanders
   * hppa
     - Kyle McMartin
   * i386
@@ -36,10 +41,10 @@ Kernel packages, sorted by architecture:
 
 Kernel-related packages:
 
+  * firmware-nonfree
+    - Bastian Blank, Ben Hutchings
   * initramfs-tools:
     - Maximilian Attems
-  * linux-modules-extra-2.6:
-    - Bastian Blank
   * mkvmlinuz
   * module-init-tools
     - Marco d'Itri
