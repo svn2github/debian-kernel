@@ -15,7 +15,7 @@ Security support:
 Kernel packages, sorted by architecture:
 
   * alpha
-    - Norbert Tretkowski, SteveLangasek
+    - Norbert Tretkowski, Steve Langasek
   * amd64
     - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
