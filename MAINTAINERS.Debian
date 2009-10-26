@@ -19,7 +19,7 @@ Kernel packages, sorted by architecture:
   * amd64
     - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
-    - Martin Michlmayr, Vincent Sanders
+    - Martin Michlmayr
   * hppa
     - Kyle McMartin
   * i386
