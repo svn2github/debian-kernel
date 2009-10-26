@@ -29,9 +29,9 @@ Kernel packages, sorted by architecture:
   * m68k
     - Christian T. Steigies
   * mips
-    - Martin Michlmayr
+    - Martin Michlmayr, Aurelien Jarno
   * mipsel
-    - Martin Michlmayr
+    - Martin Michlmayr, Aurelien Jarno
   * powerpc
   * s390
     - Bastian Blank
