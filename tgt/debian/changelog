@@ -1,6 +1,6 @@
 tgt (1:0.9.10-1) UNRELEASED; urgency=low
 
-  * New upstream version
+  * New upstream version (Closes: #501149)
     - Adds -D_GNU_SOURCE to compiler options (Closes: #526562)
   * Add myself to Uploaders
   * Fix syntax of usage messages (Closes: #493375)
