@@ -1,0 +1,668 @@
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH] Use GPL-compatible digest code instead of OpenSSL
+
+usr/iscsi/chap.c uses SHA1 and MD5 functions from OpenSSL.  The GPLv2
+and OpenSSL licences are incompatible, so these need to be replaced
+with an alternate implementation.
+
+This adds implementations based on those in libgcrypt11, which is
+under LGPL.  Ideally we would use the shared library instead, but
+that would require substantial changes to pre-allocate the hash
+contexts.
+
+--- tgt.orig/usr/iscsi/chap.c
++++ tgt/usr/iscsi/chap.c
+@@ -28,9 +28,8 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+-#include <openssl/sha.h>
+-#include <openssl/md5.h>
+ 
++#include "digest.h"
+ #include "iscsid.h"
+ #include "tgtd.h"
+ 
+--- tgt.orig/usr/Makefile
++++ tgt/usr/Makefile
+@@ -14,10 +14,9 @@
+ CFLAGS += -DISCSI
+ TGTD_OBJS += $(addprefix iscsi/, conn.o param.o session.o \
+ 		iscsid.o target.o chap.o transport.o iscsi_tcp.o \
+-		isns.o)
++		isns.o digest.o)
+ TGTD_OBJS += bs_rdwr.o bs_aio.o
+ 
+-LIBS += -lcrypto
+ ifneq ($(ISCSI_RDMA),)
+ CFLAGS += -DISCSI_RDMA
+ TGTD_OBJS += iscsi/iscsi_rdma.o
+--- /dev/null
++++ tgt/usr/iscsi/digest.c
+@@ -0,0 +1,594 @@
++/* digest.c - MD5 and SHA1 hash algorithms
++ * Copyright (C) 1995,1996,1998,1999,2001,2002,
++ *               2003,2008  Free Software Foundation, Inc.
++ *
++ * This file is derived from Libgcrypt (files cipher/bithelp.h,
++ * cipher/md5.c, cipher/sha1.c).
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++ * 02110-1301 USA
++ */
++
++
++#include <string.h>
++
++#include <endian.h>
++
++#include "digest.h"
++
++
++/****************
++ * Rotate the 32 bit unsigned integer X by N bits left/right
++ */
++#if defined(__GNUC__) && defined(__i386__)
++static inline uint32_t
++rol( uint32_t x, int n)
++{
++	__asm__("roll %%cl,%0"
++		:"=r" (x)
++		:"0" (x),"c" (n));
++	return x;
++}
++#else
++#define rol(x,n) ( ((x) << (n)) | ((x) >> (32-(n))) )
++#endif
++
++
++/*
++ * MD5 algorithm by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995. 
++ * heavily modified for GnuPG by Werner Koch <wk@gnupg.org>.
++ * NOTE: This is *not* the same as the one from glibc.
++ */
++
++void
++MD5_Init( MD5_CTX *ctx )
++{
++  ctx->A = 0x67452301;
++  ctx->B = 0xefcdab89;
++  ctx->C = 0x98badcfe;
++  ctx->D = 0x10325476;
++
++  ctx->nblocks = 0;
++  ctx->count = 0;
++}
++
++
++/* These are the four functions used in the four steps of the MD5 algorithm
++   and defined in the RFC 1321.  The first function is a little bit optimized
++   (as found in Colin Plumbs public domain implementation).  */
++/* #define FF(b, c, d) ((b & c) | (~b & d)) */
++#define FF(b, c, d) (d ^ (b & (c ^ d)))
++#define FG(b, c, d) FF (d, b, c)
++#define FH(b, c, d) (b ^ c ^ d)
++#define FI(b, c, d) (c ^ (b | ~d))
++
++
++/****************
++ * transform n*64 bytes
++ */
++static void
++md5_transform ( MD5_CTX *ctx, const uint8_t *data )
++{
++  uint32_t correct_words[16];
++  register uint32_t A = ctx->A;
++  register uint32_t B = ctx->B;
++  register uint32_t C = ctx->C;
++  register uint32_t D = ctx->D;
++  uint32_t *cwp = correct_words;
++    
++#if __BYTE_ORDER == __BIG_ENDIAN
++  { 
++    int i;
++    uint8_t *p2, *p1;
++    for(i=0, p1=data, p2=(uint8_t*)correct_words; i < 16; i++, p2 += 4 )
++      {
++        p2[3] = *p1++;
++	p2[2] = *p1++;
++	p2[1] = *p1++;
++	p2[0] = *p1++;
++      }
++  }
++#else
++  memcpy( correct_words, data, 64 );
++#endif
++
++
++#define OP(a, b, c, d, s, T) \
++  do			         	   \
++    {					   \
++      a += FF (b, c, d) + (*cwp++) + T;    \
++      a = rol(a, s);			   \
++      a += b;				   \
++    }					   \
++  while (0)
++
++  /* Before we start, one word about the strange constants.
++     They are defined in RFC 1321 as
++
++     T[i] = (int) (4294967296.0 * fabs (sin (i))), i=1..64
++  */
++
++  /* Round 1.  */
++  OP (A, B, C, D,  7, 0xd76aa478);
++  OP (D, A, B, C, 12, 0xe8c7b756);
++  OP (C, D, A, B, 17, 0x242070db);
++  OP (B, C, D, A, 22, 0xc1bdceee);
++  OP (A, B, C, D,  7, 0xf57c0faf);
++  OP (D, A, B, C, 12, 0x4787c62a);
++  OP (C, D, A, B, 17, 0xa8304613);
++  OP (B, C, D, A, 22, 0xfd469501);
++  OP (A, B, C, D,  7, 0x698098d8);
++  OP (D, A, B, C, 12, 0x8b44f7af);
++  OP (C, D, A, B, 17, 0xffff5bb1);
++  OP (B, C, D, A, 22, 0x895cd7be);
++  OP (A, B, C, D,  7, 0x6b901122);
++  OP (D, A, B, C, 12, 0xfd987193);
++  OP (C, D, A, B, 17, 0xa679438e);
++  OP (B, C, D, A, 22, 0x49b40821);
++
++#undef OP
++#define OP(f, a, b, c, d, k, s, T)  \
++    do								      \
++      { 							      \
++	a += f (b, c, d) + correct_words[k] + T;		      \
++	a = rol(a, s);						      \
++	a += b; 						      \
++      } 							      \
++    while (0)
++
++  /* Round 2.  */
++  OP (FG, A, B, C, D,  1,  5, 0xf61e2562);
++  OP (FG, D, A, B, C,  6,  9, 0xc040b340);
++  OP (FG, C, D, A, B, 11, 14, 0x265e5a51);
++  OP (FG, B, C, D, A,  0, 20, 0xe9b6c7aa);
++  OP (FG, A, B, C, D,  5,  5, 0xd62f105d);
++  OP (FG, D, A, B, C, 10,  9, 0x02441453);
++  OP (FG, C, D, A, B, 15, 14, 0xd8a1e681);
++  OP (FG, B, C, D, A,  4, 20, 0xe7d3fbc8);
++  OP (FG, A, B, C, D,  9,  5, 0x21e1cde6);
++  OP (FG, D, A, B, C, 14,  9, 0xc33707d6);
++  OP (FG, C, D, A, B,  3, 14, 0xf4d50d87);
++  OP (FG, B, C, D, A,  8, 20, 0x455a14ed);
++  OP (FG, A, B, C, D, 13,  5, 0xa9e3e905);
++  OP (FG, D, A, B, C,  2,  9, 0xfcefa3f8);
++  OP (FG, C, D, A, B,  7, 14, 0x676f02d9);
++  OP (FG, B, C, D, A, 12, 20, 0x8d2a4c8a);
++
++  /* Round 3.  */
++  OP (FH, A, B, C, D,  5,  4, 0xfffa3942);
++  OP (FH, D, A, B, C,  8, 11, 0x8771f681);
++  OP (FH, C, D, A, B, 11, 16, 0x6d9d6122);
++  OP (FH, B, C, D, A, 14, 23, 0xfde5380c);
++  OP (FH, A, B, C, D,  1,  4, 0xa4beea44);
++  OP (FH, D, A, B, C,  4, 11, 0x4bdecfa9);
++  OP (FH, C, D, A, B,  7, 16, 0xf6bb4b60);
++  OP (FH, B, C, D, A, 10, 23, 0xbebfbc70);
++  OP (FH, A, B, C, D, 13,  4, 0x289b7ec6);
++  OP (FH, D, A, B, C,  0, 11, 0xeaa127fa);
++  OP (FH, C, D, A, B,  3, 16, 0xd4ef3085);
++  OP (FH, B, C, D, A,  6, 23, 0x04881d05);
++  OP (FH, A, B, C, D,  9,  4, 0xd9d4d039);
++  OP (FH, D, A, B, C, 12, 11, 0xe6db99e5);
++  OP (FH, C, D, A, B, 15, 16, 0x1fa27cf8);
++  OP (FH, B, C, D, A,  2, 23, 0xc4ac5665);
++
++  /* Round 4.  */
++  OP (FI, A, B, C, D,  0,  6, 0xf4292244);
++  OP (FI, D, A, B, C,  7, 10, 0x432aff97);
++  OP (FI, C, D, A, B, 14, 15, 0xab9423a7);
++  OP (FI, B, C, D, A,  5, 21, 0xfc93a039);
++  OP (FI, A, B, C, D, 12,  6, 0x655b59c3);
++  OP (FI, D, A, B, C,  3, 10, 0x8f0ccc92);
++  OP (FI, C, D, A, B, 10, 15, 0xffeff47d);
++  OP (FI, B, C, D, A,  1, 21, 0x85845dd1);
++  OP (FI, A, B, C, D,  8,  6, 0x6fa87e4f);
++  OP (FI, D, A, B, C, 15, 10, 0xfe2ce6e0);
++  OP (FI, C, D, A, B,  6, 15, 0xa3014314);
++  OP (FI, B, C, D, A, 13, 21, 0x4e0811a1);
++  OP (FI, A, B, C, D,  4,  6, 0xf7537e82);
++  OP (FI, D, A, B, C, 11, 10, 0xbd3af235);
++  OP (FI, C, D, A, B,  2, 15, 0x2ad7d2bb);
++  OP (FI, B, C, D, A,  9, 21, 0xeb86d391);
++
++  /* Put checksum in context given as argument.  */
++  ctx->A += A;
++  ctx->B += B;
++  ctx->C += C;
++  ctx->D += D;
++}
++
++
++
++/* The routine updates the message-digest context to
++ * account for the presence of each of the characters inBuf[0..inLen-1]
++ * in the message whose digest is being computed.
++ */
++void
++MD5_Update( MD5_CTX *hd, const void *inbuf_arg , size_t inlen)
++{
++  const uint8_t *inbuf = inbuf_arg;
++  
++  if( hd->count == 64 )  /* flush the buffer */
++    {
++      md5_transform( hd, hd->buf );
++      hd->count = 0;
++      hd->nblocks++;
++    }
++  if( !inbuf )
++    return;
++
++  if( hd->count )
++    {
++      for( ; inlen && hd->count < 64; inlen-- )
++        hd->buf[hd->count++] = *inbuf++;
++      MD5_Update( hd, NULL, 0 );
++      if( !inlen )
++        return;
++    }
++
++  while( inlen >= 64 ) 
++    {
++      md5_transform( hd, inbuf );
++      hd->count = 0;
++      hd->nblocks++;
++      inlen -= 64;
++      inbuf += 64;
++    }
++  for( ; inlen && hd->count < 64; inlen-- )
++    hd->buf[hd->count++] = *inbuf++;
++
++}
++
++
++
++/* The routine final terminates the message-digest computation and
++ * ends with the desired message digest in mdContext->digest[0...15].
++ * The handle is prepared for a new MD5 cycle.
++ * Returns 16 bytes representing the digest.
++ */
++
++void
++MD5_Final( uint8_t *p, MD5_CTX *hd )
++{
++  uint32_t t, msb, lsb;
++  
++  MD5_Update(hd, NULL, 0); /* flush */;
++
++  t = hd->nblocks;
++  /* multiply by 64 to make a byte count */
++  lsb = t << 6;
++  msb = t >> 26;
++  /* add the count */
++  t = lsb;
++  if( (lsb += hd->count) < t )
++    msb++;
++  /* multiply by 8 to make a bit count */
++  t = lsb;
++  lsb <<= 3;
++  msb <<= 3;
++  msb |= t >> 29;
++
++  if( hd->count < 56 )  /* enough room */
++    {
++      hd->buf[hd->count++] = 0x80; /* pad */
++      while( hd->count < 56 )
++        hd->buf[hd->count++] = 0;  /* pad */
++    }
++  else  /* need one extra block */
++    {
++      hd->buf[hd->count++] = 0x80; /* pad character */
++      while( hd->count < 64 )
++        hd->buf[hd->count++] = 0;
++      MD5_Update(hd, NULL, 0);  /* flush */;
++      memset(hd->buf, 0, 56 ); /* fill next block with zeroes */
++    }
++  /* append the 64 bit count */
++  hd->buf[56] = lsb	   ;
++  hd->buf[57] = lsb >>  8;
++  hd->buf[58] = lsb >> 16;
++  hd->buf[59] = lsb >> 24;
++  hd->buf[60] = msb	   ;
++  hd->buf[61] = msb >>  8;
++  hd->buf[62] = msb >> 16;
++  hd->buf[63] = msb >> 24;
++  md5_transform( hd, hd->buf );
++
++#if __BYTE_ORDER == __BIG_ENDIAN
++#define X(a) do { *p++ = hd->a      ; *p++ = hd->a >> 8;      \
++	          *p++ = hd->a >> 16; *p++ = hd->a >> 24; } while(0)
++#else /* little endian */
++#define X(a) do { *(uint32_t*)p = (*hd).a ; p += 4; } while(0)
++#endif
++  X(A);
++  X(B);
++  X(C);
++  X(D);
++#undef X
++}
++
++
++void
++SHA1_Init (SHA_CTX *hd)
++{
++  hd->h0 = 0x67452301;
++  hd->h1 = 0xefcdab89;
++  hd->h2 = 0x98badcfe;
++  hd->h3 = 0x10325476;
++  hd->h4 = 0xc3d2e1f0;
++  hd->nblocks = 0;
++  hd->count = 0;
++}
++
++
++/* Round function macros. */
++#define K1  0x5A827999L
++#define K2  0x6ED9EBA1L
++#define K3  0x8F1BBCDCL
++#define K4  0xCA62C1D6L
++#define F1(x,y,z)   ( z ^ ( x & ( y ^ z ) ) )
++#define F2(x,y,z)   ( x ^ y ^ z )
++#define F3(x,y,z)   ( ( x & y ) | ( z & ( x | y ) ) )
++#define F4(x,y,z)   ( x ^ y ^ z )
++#define M(i) ( tm =    x[ i    &0x0f]  \
++                     ^ x[(i-14)&0x0f]  \
++	 	     ^ x[(i-8) &0x0f]  \
++                     ^ x[(i-3) &0x0f], \
++                     (x[i&0x0f] = rol(tm, 1)))
++#define R(a,b,c,d,e,f,k,m)  do { e += rol( a, 5 )     \
++	                              + f( b, c, d )  \
++		 		      + k	      \
++			 	      + m;	      \
++				 b = rol( b, 30 );    \
++			       } while(0)
++
++
++/*
++ * Transform NBLOCKS of each 64 bytes (16 32-bit words) at DATA.
++ */
++static void
++sha1_transform (SHA_CTX *hd, const uint8_t *data, size_t nblocks)
++{
++  register uint32_t a, b, c, d, e; /* Local copies of the chaining variables.  */
++  register uint32_t tm;            /* Helper.  */
++  uint32_t x[16];                  /* The array we work on. */
++  
++  /* Loop over all blocks.  */
++  for ( ;nblocks; nblocks--)
++    {
++#if __BYTE_ORDER == __BIG_ENDIAN
++      memcpy (x, data, 64);
++      data += 64;
++#else
++      {
++        int i;
++        uint8_t *p;
++
++        for(i=0, p=(uint8_t*)x; i < 16; i++, p += 4 )
++          {
++            p[3] = *data++;
++            p[2] = *data++;
++            p[1] = *data++;
++            p[0] = *data++;
++          }
++      }
++#endif
++      /* Get the values of the chaining variables. */
++      a = hd->h0;
++      b = hd->h1;
++      c = hd->h2;
++      d = hd->h3;
++      e = hd->h4;
++
++      /* Transform. */
++      R( a, b, c, d, e, F1, K1, x[ 0] );
++      R( e, a, b, c, d, F1, K1, x[ 1] );
++      R( d, e, a, b, c, F1, K1, x[ 2] );
++      R( c, d, e, a, b, F1, K1, x[ 3] );
++      R( b, c, d, e, a, F1, K1, x[ 4] );
++      R( a, b, c, d, e, F1, K1, x[ 5] );
++      R( e, a, b, c, d, F1, K1, x[ 6] );
++      R( d, e, a, b, c, F1, K1, x[ 7] );
++      R( c, d, e, a, b, F1, K1, x[ 8] );
++      R( b, c, d, e, a, F1, K1, x[ 9] );
++      R( a, b, c, d, e, F1, K1, x[10] );
++      R( e, a, b, c, d, F1, K1, x[11] );
++      R( d, e, a, b, c, F1, K1, x[12] );
++      R( c, d, e, a, b, F1, K1, x[13] );
++      R( b, c, d, e, a, F1, K1, x[14] );
++      R( a, b, c, d, e, F1, K1, x[15] );
++      R( e, a, b, c, d, F1, K1, M(16) );
++      R( d, e, a, b, c, F1, K1, M(17) );
++      R( c, d, e, a, b, F1, K1, M(18) );
++      R( b, c, d, e, a, F1, K1, M(19) );
++      R( a, b, c, d, e, F2, K2, M(20) );
++      R( e, a, b, c, d, F2, K2, M(21) );
++      R( d, e, a, b, c, F2, K2, M(22) );
++      R( c, d, e, a, b, F2, K2, M(23) );
++      R( b, c, d, e, a, F2, K2, M(24) );
++      R( a, b, c, d, e, F2, K2, M(25) );
++      R( e, a, b, c, d, F2, K2, M(26) );
++      R( d, e, a, b, c, F2, K2, M(27) );
++      R( c, d, e, a, b, F2, K2, M(28) );
++      R( b, c, d, e, a, F2, K2, M(29) );
++      R( a, b, c, d, e, F2, K2, M(30) );
++      R( e, a, b, c, d, F2, K2, M(31) );
++      R( d, e, a, b, c, F2, K2, M(32) );
++      R( c, d, e, a, b, F2, K2, M(33) );
++      R( b, c, d, e, a, F2, K2, M(34) );
++      R( a, b, c, d, e, F2, K2, M(35) );
++      R( e, a, b, c, d, F2, K2, M(36) );
++      R( d, e, a, b, c, F2, K2, M(37) );
++      R( c, d, e, a, b, F2, K2, M(38) );
++      R( b, c, d, e, a, F2, K2, M(39) );
++      R( a, b, c, d, e, F3, K3, M(40) );
++      R( e, a, b, c, d, F3, K3, M(41) );
++      R( d, e, a, b, c, F3, K3, M(42) );
++      R( c, d, e, a, b, F3, K3, M(43) );
++      R( b, c, d, e, a, F3, K3, M(44) );
++      R( a, b, c, d, e, F3, K3, M(45) );
++      R( e, a, b, c, d, F3, K3, M(46) );
++      R( d, e, a, b, c, F3, K3, M(47) );
++      R( c, d, e, a, b, F3, K3, M(48) );
++      R( b, c, d, e, a, F3, K3, M(49) );
++      R( a, b, c, d, e, F3, K3, M(50) );
++      R( e, a, b, c, d, F3, K3, M(51) );
++      R( d, e, a, b, c, F3, K3, M(52) );
++      R( c, d, e, a, b, F3, K3, M(53) );
++      R( b, c, d, e, a, F3, K3, M(54) );
++      R( a, b, c, d, e, F3, K3, M(55) );
++      R( e, a, b, c, d, F3, K3, M(56) );
++      R( d, e, a, b, c, F3, K3, M(57) );
++      R( c, d, e, a, b, F3, K3, M(58) );
++      R( b, c, d, e, a, F3, K3, M(59) );
++      R( a, b, c, d, e, F4, K4, M(60) );
++      R( e, a, b, c, d, F4, K4, M(61) );
++      R( d, e, a, b, c, F4, K4, M(62) );
++      R( c, d, e, a, b, F4, K4, M(63) );
++      R( b, c, d, e, a, F4, K4, M(64) );
++      R( a, b, c, d, e, F4, K4, M(65) );
++      R( e, a, b, c, d, F4, K4, M(66) );
++      R( d, e, a, b, c, F4, K4, M(67) );
++      R( c, d, e, a, b, F4, K4, M(68) );
++      R( b, c, d, e, a, F4, K4, M(69) );
++      R( a, b, c, d, e, F4, K4, M(70) );
++      R( e, a, b, c, d, F4, K4, M(71) );
++      R( d, e, a, b, c, F4, K4, M(72) );
++      R( c, d, e, a, b, F4, K4, M(73) );
++      R( b, c, d, e, a, F4, K4, M(74) );
++      R( a, b, c, d, e, F4, K4, M(75) );
++      R( e, a, b, c, d, F4, K4, M(76) );
++      R( d, e, a, b, c, F4, K4, M(77) );
++      R( c, d, e, a, b, F4, K4, M(78) );
++      R( b, c, d, e, a, F4, K4, M(79) );
++
++      /* Update the chaining variables. */
++      hd->h0 += a;
++      hd->h1 += b;
++      hd->h2 += c;
++      hd->h3 += d;
++      hd->h4 += e;
++    }
++}
++
++
++/* Update the message digest with the contents
++ * of INBUF with length INLEN.
++ */
++void
++SHA1_Update(SHA_CTX *hd, const void *inbuf_arg, size_t inlen)
++{
++  const uint8_t *inbuf = inbuf_arg;
++  size_t nblocks;
++
++  if (hd->count == 64)  /* Flush the buffer. */
++    {
++      sha1_transform( hd, hd->buf, 1 );
++      hd->count = 0;
++      hd->nblocks++;
++    }
++  if (!inbuf)
++    return;
++
++  if (hd->count)
++    {
++      for (; inlen && hd->count < 64; inlen--)
++        hd->buf[hd->count++] = *inbuf++;
++      SHA1_Update (hd, NULL, 0);
++      if (!inlen)
++        return;
++    }
++
++  nblocks = inlen / 64;
++  if (nblocks)
++    {
++      sha1_transform (hd, inbuf, nblocks);
++      hd->count = 0;
++      hd->nblocks += nblocks;
++      inlen -= nblocks * 64;
++      inbuf += nblocks * 64;
++    }
++
++  /* Save remaining bytes.  */
++  for (; inlen && hd->count < 64; inlen--)
++    hd->buf[hd->count++] = *inbuf++;
++}
++
++
++/* The routine final terminates the computation and
++ * returns the digest.
++ * The handle is prepared for a new cycle, but adding bytes to the
++ * handle will the destroy the returned buffer.
++ * Returns: 20 bytes representing the digest.
++ */
++
++void
++SHA1_Final(uint8_t *p, SHA_CTX *hd)
++{
++  uint32_t t, msb, lsb;
++
++  SHA1_Update(hd, NULL, 0); /* flush */;
++
++  t = hd->nblocks;
++  /* multiply by 64 to make a byte count */
++  lsb = t << 6;
++  msb = t >> 26;
++  /* add the count */
++  t = lsb;
++  if( (lsb += hd->count) < t )
++    msb++;
++  /* multiply by 8 to make a bit count */
++  t = lsb;
++  lsb <<= 3;
++  msb <<= 3;
++  msb |= t >> 29;
++
++  if( hd->count < 56 )  /* enough room */
++    {
++      hd->buf[hd->count++] = 0x80; /* pad */
++      while( hd->count < 56 )
++        hd->buf[hd->count++] = 0;  /* pad */
++    }
++  else  /* need one extra block */
++    {
++      hd->buf[hd->count++] = 0x80; /* pad character */
++      while( hd->count < 64 )
++        hd->buf[hd->count++] = 0;
++      SHA1_Update(hd, NULL, 0);  /* flush */;
++      memset(hd->buf, 0, 56 ); /* fill next block with zeroes */
++    }
++  /* append the 64 bit count */
++  hd->buf[56] = msb >> 24;
++  hd->buf[57] = msb >> 16;
++  hd->buf[58] = msb >>  8;
++  hd->buf[59] = msb	   ;
++  hd->buf[60] = lsb >> 24;
++  hd->buf[61] = lsb >> 16;
++  hd->buf[62] = lsb >>  8;
++  hd->buf[63] = lsb	   ;
++  sha1_transform( hd, hd->buf, 1 );
++
++#if __BYTE_ORDER == __BIG_ENDIAN
++#define X(a) do { *(uint32_t*)p = hd->h##a ; p += 4; } while(0)
++#else /* little endian */
++#define X(a) do { *p++ = hd->h##a >> 24; *p++ = hd->h##a >> 16;	 \
++                  *p++ = hd->h##a >> 8; *p++ = hd->h##a; } while(0)
++#endif
++  X(0);
++  X(1);
++  X(2);
++  X(3);
++  X(4);
++#undef X
++}
+--- /dev/null
++++ tgt/usr/iscsi/digest.h
+@@ -0,0 +1,29 @@
++#ifndef DIGEST_H
++#define DIGEST_H
++
++#include <stdint.h>
++
++typedef struct {
++    uint32_t A,B,C,D;	  /* chaining variables */
++    uint32_t nblocks;
++    uint8_t  buf[64];
++    int      count;
++} MD5_CTX;
++
++void MD5_Init(MD5_CTX *);
++void MD5_Update(MD5_CTX *, const void *, size_t);
++void MD5_Final(uint8_t *, MD5_CTX *);
++
++typedef struct 
++{
++  uint32_t h0,h1,h2,h3,h4;
++  uint32_t nblocks;
++  uint8_t  buf[64];
++  int      count;
++} SHA_CTX;
++
++void SHA1_Init(SHA_CTX *);
++void SHA1_Update(SHA_CTX *, const void *, size_t);
++void SHA1_Final(uint8_t *p, SHA_CTX *);
++
++#endif
