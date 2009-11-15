@@ -1,7 +1,10 @@
 README
+doc/README.fcoe
 doc/README.ibmvstgt
 doc/README.iscsi
+doc/README.iser
 doc/README.lu_configuration
-doc/README.passthrough
+doc/README.mmc
 doc/TODO
+doc/targets.conf.example
 doc/tmf.txt

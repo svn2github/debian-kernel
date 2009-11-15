@@ -13,14 +13,14 @@ build: build-stamp
 
 build-stamp: 
 	dh_testdir
-	$(MAKE) -C usr/ ISCSI=1
+	$(MAKE) ISCSI=1
 	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-	-$(MAKE) -C usr/ clean
+	$(MAKE) clean
 	dh_clean 
 
 install: build
