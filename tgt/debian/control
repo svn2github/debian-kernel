@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Frederik Schüler <fs@debian.org>, Ben Hutchings <ben@decadent.org.uk>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.2
+Standards-Version: 3.8.3
+Homepage: http://stgt.berlios.de/
 
 Package: tgt
 Architecture: any
