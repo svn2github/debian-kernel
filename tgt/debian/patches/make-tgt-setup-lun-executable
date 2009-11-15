@@ -1,0 +1,17 @@
+--- tgt.orig/scripts/tgt-setup-lun
++++ tgt/scripts/tgt-setup-lun
+@@ -1,3 +1,5 @@
++#!/bin/bash
++
+ # LUN assignment script
+ #
+ # Copyright (C) 2007 Erez Zilber <erezz@voltaire.com>
+@@ -17,8 +19,6 @@
+ # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ # 02110-1301 USA
+ 
+-#!/bin/bash
+-
+ usage()
+ {
+ 	name=$(basename $0);
