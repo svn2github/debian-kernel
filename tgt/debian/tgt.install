@@ -1,5 +1,0 @@
-scripts/tgt-admin usr/sbin
-scripts/tgt-setup-lun usr/sbin
-usr/tgtd usr/sbin
-usr/tgtadm usr/sbin
-usr/tgtimg usr/sbin
