@@ -13,7 +13,7 @@ build: build-stamp
 
 build-stamp: 
 	dh_testdir
-	$(MAKE) ISCSI=1
+	$(MAKE) FCOE=1 ISCSI=1
 	touch $@
 
 clean:
@@ -27,7 +27,7 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k 
-	$(MAKE) ISCSI=1 DESTDIR=$(CURDIR)/debian/tgt install
+	$(MAKE) FCOE=1 ISCSI=1 DESTDIR=$(CURDIR)/debian/tgt install
 
 binary-indep: build install
 
