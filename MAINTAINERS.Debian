@@ -21,7 +21,6 @@ Kernel packages, sorted by architecture:
   * arm
     - Martin Michlmayr
   * hppa
-    - Kyle McMartin
   * i386
     - Maximilian Attems, Ben Hutchings
   * ia64
