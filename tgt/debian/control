@@ -3,13 +3,13 @@ Section: net
 Priority: optional
 Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
 Uploaders: Frederik Schüler <fs@debian.org>, Ben Hutchings <ben@decadent.org.uk>
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 7), libibverbs-dev, librdmacm-dev
 Standards-Version: 3.8.3
 Homepage: http://stgt.berlios.de/
 
 Package: tgt
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libconfig-general-perl
 Description: Linux SCSI target user-space tools
  The Linux target framework (tgt) allows a Linux system to provide SCSI
  devices (targets) over networked SCSI transports.
@@ -22,3 +22,5 @@ Description: Linux SCSI target user-space tools
  .
   - FCoE (Fibre Channel over Ethernet)
   - iSCSI (SCSI over IP)
+  - iSER (iSCSI over RDMA, using Infiniband)
+ .

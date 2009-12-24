@@ -1,5 +1,15 @@
-tgt (1:0.9.10-1) UNRELEASED; urgency=low
+tgt (1:1.0.0-1) unstable; urgency=low
+  
+  * New upstream release.
+    - Drop GPL digest patch, upstream has other implementation.
+  * Add dependency on libconfig-general-perl. (Closes: #560710)
+  * Build iSER driver, too.
 
+ -- Frederik Schüler <fs@debian.org>  Thu, 24 Dec 2009 16:34:17 +0100
+
+tgt (1:0.9.11-1) unstable; urgency=low
+
+  [ Ben Hutchings ]
   * New upstream version (Closes: #501149)
     - Adds -D_GNU_SOURCE to compiler options (Closes: #526562)
   * Add myself to Uploaders
@@ -13,7 +23,10 @@ tgt (1:0.9.10-1) UNRELEASED; urgency=low
     - Mention 'SCSI' in the short description
     - Update list of drivers
 
- -- Ben Hutchings <ben@decadent.org.uk>  Sun, 15 Nov 2009 10:45:07 +0000
+  [ Frederik Schüler ]
+  * Switch to debhelper 7.
+
+ -- Frederik Schüler <fs@debian.org>  Wed, 09 Dec 2009 10:29:39 +0100
 
 tgt (20070924-1) unstable; urgency=low
 
