@@ -1,0 +1,95 @@
+[base]
+desc: various drivers in the Linux kernel
+longdesc:
+ This package contains firmware which was previously included in the
+ Linux kernel and which is compliant with the Debian Free Software
+ Guidelines.
+ .
+ Most firmware previously included in the Linux kernel is non-free
+ and has been moved to the firmware-linux-nonfree package.
+files:
+ av7110/bootcode.bin
+ cis/3CCFEM556.cis
+ cis/3CXEM556.cis
+ cis/COMpad2.cis
+ cis/COMpad4.cis
+ cis/DP83903.cis
+ cis/LA-PCM.cis
+ cis/MT5634ZLX.cis
+ cis/NE2K.cis
+ cis/PCMLM28.cis
+ cis/PE-200.cis
+ cis/RS-COM-2P.cis
+ cis/SW_555_SER.cis
+ cis/SW_7xx_SER.cis
+ cis/SW_8xx_SER.cis
+ cis/tamarack.cis
+ dsp56k/bootstrap.bin
+ keyspan_pda/keyspan_pda.fw
+ keyspan_pda/xircom_pgs.fw
+ usbdux_firmware.bin
+ usbduxfast_firmware.bin
+uri: http://git.kernel.org/?p=linux/kernel/git/dwmw2/linux-firmware.git
+
+[av7110/bootcode.bin_base]
+desc: AV7110 DVB card firmware
+
+[cis/3CCFEM556.cis_base]
+desc: 3Com Megahertz 3CCFEM556 CIS fix
+
+[cis/3CXEM556.cis_base]
+desc: 3Com Megahertz 3CXEM556 CIS fix
+
+[cis/COMpad2.cis_base]
+desc: Advantech COMpad-32/85 CIS fix
+
+[cis/COMpad4.cis_base]
+desc: Advantech COMpad-32/85B-4 CIS fix
+
+[cis/DP83903.cis_base]
+desc: NSC DP83903 PCMCIA Ethernet card CIS fix
+
+[cis/LA-PCM.cis_base]
+desc: Allied Telesis LA-PCM CIS fix
+
+[cis/MT5634ZLX.cis_base]
+desc: MultiTech PCMCIA 56K DataFax CIS fix
+
+[cis/NE2K.cis_base]
+desc: NDC PCMCIA Ethernet card CIS fix
+
+[cis/PCMLM28.cis_base]
+desc: EN2218-LAN/MODEM CIS fix
+
+[cis/PE-200.cis_base]
+desc: PreMax PE-200 CIS fix
+
+[cis/RS-COM-2P.cis_base]
+desc: RS-COM 2P CIS fix
+
+[cis/SW_555_SER.cis_base]
+desc: Sierra Aircard 555 CIS fix
+
+[cis/SW_7xx_SER.cis_base]
+desc: Sierra Wireless AC710/AC750 CIS fix
+
+[cis/SW_8xx_SER.cis_base]
+desc: Sierra Wireless AC850/AC860 CIS fix
+
+[cis/tamarack.cis_base]
+desc: Tamarack PCMCIA Ethernet card CIS fix
+
+[dsp56k/bootstrap.bin_base]
+desc: Atari Falcon DSP56001 firmware
+
+[keyspan_pda/keyspan_pda.fw_base]
+desc: Keyspan USA-19 firmware
+
+[keyspan_pda/xircom_pgs.fw_base]
+desc: Xircom PGSDB9/Entrega PortGear firmware
+
+[usbdux_firmware.bin_base]
+desc: USB-DUX firmware
+
+[usbduxfast_firmware.bin_base]
+desc: USB-DUXfast firmware

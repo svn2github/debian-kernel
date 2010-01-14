@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+SHELL := sh -e
+
+CONTROL_FILES += debian/bin/gencontrol.py defines $(wildcard */defines) $(wildcard */copyright) $(wildcard */LICENSE*)
+
+include debian/rules.defs
+include /usr/src/linux-support-$(KERNELVERSION)/modules/rules.include
+
+GENCONTROL = debian/bin/gencontrol.py $(KERNELVERSION)
+
+maintainerclean:
+	-rm debian/control debian/control.md5sum debian/rules.gen
+	-rm debian/*.copyright
+	-rm debian/*.hook.*
+	-rm debian/*.preinst
+	-rm debian/*.postinst
+	-rm debian/*.templates
