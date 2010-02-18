@@ -1,3 +1,9 @@
+tgt (1:1.0.0-2) unstable; urgency=low
+
+  * Depend on sg3-utils. (Closes: #565168)
+
+ -- Frederik Schüler <fs@debian.org>  Tue, 19 Jan 2010 19:36:40 +0100
+
 tgt (1:1.0.0-1) unstable; urgency=low
   
   * New upstream release.
