@@ -88,6 +88,12 @@ Licence: GPLv3
 
 Copyright Sierra Wireless
 
+These binary files are understood to be the preferred form for
+modification.  They follow the PCMCIA Card Information Structure (CIS)
+format.  The pcmcia-cs project <http://pcmcia-cs.sourceforge.net/>
+distributes tools for converting between CIS and an unofficial text
+format.
+
 --------------------------------------------------------------------------
 
 Driver: dvb-ttpci -- AV7110 cards
@@ -114,4 +120,5 @@ Provided from the author, Bernd Porr <BerndPorr@f2s.com>
 --------------------------------------------------------------------------
 
 On Debian systems the text of the GPL version 2 can be found in
-/usr/share/common-licenses/GPL-2.
+/usr/share/common-licenses/GPL-2, and the text of the GPL version 3
+can be found in /usr/share/common-licenses/GPL-3.
