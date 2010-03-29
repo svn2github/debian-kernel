@@ -1,0 +1,4 @@
+version=3
+opts="uversionmangle=s/-/./g" http://stgt.sourceforge.net/releases/tgt-([[:digit:].-]*)\.tar\.gz
+
+

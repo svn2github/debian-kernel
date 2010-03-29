@@ -10,10 +10,10 @@ Upstream Authors:
 
 Copyright: 
 
-    Copyright (C) 2005-2007 FUJITA Tomonori and Mike Christie
+    Copyright © 2005-2007 FUJITA Tomonori and Mike Christie
 
     Digest implementations for iSCSI are
-    Copyright (C) 1995,1996,1998,1999,2001,2002,2003,2008
+    Copyright © 1995,1996,1998,1999,2001,2002,2003,2008
     Free Software Foundation, Inc.
 
 License:
@@ -34,7 +34,7 @@ License:
 On Debian systems, the complete text of the GNU General Public License
 version 2 can be found in `/usr/share/common-licenses/GPL-2'.
 
-The Debian packaging is (C) 2007, Frederik Schüler <fs@debian.org> and
+The Debian packaging is © 2007, Frederik Schüler <fs@debian.org> and
 is licensed under the GPL, version 2 or (at your option) any later
 version.
 
