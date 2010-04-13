@@ -1,3 +1,10 @@
+tgt (1:1.0.3-2) unstable; urgency=low
+
+  * Fix Format string vulnerability CVE-2010-0743.
+    (Closes: #576086)
+
+ -- Frederik Schüler <fs@debian.org>  Tue, 13 Apr 2010 10:54:19 +0200
+
 tgt (1:1.0.3-1) unstable; urgency=low
 
   * New upstream release.

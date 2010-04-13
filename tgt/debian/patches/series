@@ -1,2 +1,3 @@
 make-tgt-setup-lun-executable
 conf-makefile
+CVE-2010-0743.patch
