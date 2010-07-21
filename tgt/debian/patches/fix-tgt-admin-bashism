@@ -1,0 +1,32 @@
+From: Chris Cheney <ccheney@debian.org>
+Date: Tue, 20 Jul 2010 04:44:14 -0500
+Subject: Bug#589716: tgtd target will not start unless it's configured with
+ "allow-in-use yes"
+
+Package: tgt
+Version: 1:1.0.4-1
+Severity: important
+
+"tgt-admin will not start a target unless we specify the "allow-in-use
+yes" directive in the target declaration. It complains that the device
+is in use, although I am positive it is not. Specifying "allow-in-use
+yes" is not recommended, and doing so is not really satisfactory."
+
+This appears to have been caused by a faulty system call which appears
+to be corrected by the below patch.
+
+Thanks,
+
+Chris
+
+--- tgt-1.0.4/scripts/tgt-admin 2010-04-29 01:16:34.000000000 -0500
++++ tgt-1.0.4/scripts/tgt-admin 2010-07-20 04:32:55.603760363 -0500
+@@ -1166,7 +1166,7 @@
+ 	# Check if userspace uses this device
+ 	my $lsof_check = check_exe("lsof");
+ 	if ($lsof_check ne 1) {
+-		system("lsof $backing_store &>/dev/null");
++		system("lsof $backing_store > /dev/null 2>&1");
+ 		my $exit_value  = $? >> 8;
+ 		if ($exit_value eq 0) {
+ 			execute("# Device $backing_store is used (already tgtd target?).");
