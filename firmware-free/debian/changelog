@@ -1,4 +1,4 @@
-firmware-free (2.6.32.1) UNRELEASED; urgency=low
+firmware-free (3) UNRELEASED; urgency=low
 
   * Initial release.  Replaces firmware-linux-free built from the
     linux-2.6 source package.
