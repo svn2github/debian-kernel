@@ -19,6 +19,7 @@ files:
  cis/NE2K.cis
  cis/PCMLM28.cis
  cis/PE-200.cis
+ cis/PE520.cis
  cis/RS-COM-2P.cis
  cis/SW_555_SER.cis
  cis/SW_7xx_SER.cis
@@ -63,6 +64,9 @@ desc: EN2218-LAN/MODEM CIS fix
 
 [cis/PE-200.cis_base]
 desc: PreMax PE-200 CIS fix
+
+[cis/PE520.cis_base]
+desc: LanPro EP-4000A CIS fix
 
 [cis/RS-COM-2P.cis_base]
 desc: RS-COM 2P CIS fix
