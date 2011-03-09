@@ -20,25 +20,14 @@ def main(source_dir, dest_dirs):
                      r'|\bPermission\s+is\s+hereby\s+granted\b[^.]+\sto'
                      r'\s+deal\s+in\s+the\s+Software\s+without'
                      r'\s+restriction\b'
-                     r'|\bredistributable\s+in\s+binary\s+form\b',
+                     r'|\bredistributable\s+in\s+binary\s+form\b'
+                     r'|^GPL(?:v2|\+)?\b',
                      section.licence):
-            # Suitable for main if source is available; non-free otherwise
-            maybe_free = True
-            pass
-        elif re.match(r'^(?:D|Red)istributable\b', section.licence):
-            # Only suitable for non-free
-            pass
-        elif re.match(r'^GPL(?:v2|\+)?\b', section.licence):
-            # Suitable for main if source is available; not distributable
-            # otherwise
-            continue
-        else:
-            # Probably not distributable
-            continue
-        for file_info in section.files.values():
-            if not (maybe_free and
-                    (file_info.source or file_info.binary.endswith('.cis'))):
-                update_file(source_dir, dest_dirs, file_info.binary)
+            # Suitable for main if source is available or binary is
+            # preferred form for modification
+            for file_info in section.files.values():
+                if file_info.source or file_info.binary.endswith('.cis'):
+                    update_file(source_dir, dest_dirs, file_info.binary)
 
 def update_file(source_dir, dest_dirs, filename):
     source_file = os.path.join(source_dir, filename)
@@ -59,7 +48,7 @@ if __name__ == '__main__':
 Usage: %s <linux-firmware-dir> <dest-dir>...
 
 Report changes or additions in linux-firmware.git that may be suitable
-for inclusion in firmware-nonfree.
+for inclusion in firmware-free.
 
 Specify the per-package subdirectories as <dest-dir>...
 ''' % sys.argv[0]

@@ -1,3 +1,9 @@
+tgt (1:1.0.4-2squeeze1) stable-security; urgency=high
+
+  * iscsi: fix buffer overflow before login (CVE-2011-0001)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Mon, 24 Jan 2011 20:21:11 +1000
+
 tgt (1:1.0.4-2) unstable; urgency=low
 
   * Fix bashism in tgt-admin, thanks to Chris Cheney (Closes: #589716)
