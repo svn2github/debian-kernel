@@ -36,12 +36,14 @@ File: cis/DP83903.cis
 File: cis/NE2K.cis
 File: cis/tamarack.cis
 File: cis/PE-200.cis
+File: cis/PE520.cis
 Source: cis/src/LA-PCM.cis
 Source: cis/src/PCMLM28.cis
 Source: cis/src/DP83903.cis
 Source: cis/src/NE2K.cis
 Source: cis/src/tamarack.cis
 Source: cis/src/PE-200.cis
+Source: cis/src/PE520.cis
 
 Licence: Dual GPLv2/MPL
 
