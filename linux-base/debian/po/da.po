@@ -140,3 +140,30 @@ msgid ""
 msgstr ""
 "Vi anbefaler, at du identificerer disse enheder efter UUID eller etiket. På "
 "MIPS-systemer skal rootenheden dog være identificeret med navn."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Opstartsindlæseren (boot loader) skal måske opgraderes"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Kernepakker opdaterer ikke længere en opstartsindlæser som standard."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Hvis opstartsindlæseren (boot loader) skal opdateres, når en ny kerne er "
+"installeret, bør opstartsindlæserens pakke installere et skript i "
+"/etc/kernel/postinst.d. Alternativt kan du angive kommandoen til opdatering "
+"af opstartsindlæseren ved at angive variablen 'postinst_hook' i "
+"/etc/kernel-img.conf."

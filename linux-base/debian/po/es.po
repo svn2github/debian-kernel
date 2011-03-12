@@ -178,3 +178,30 @@ msgstr ""
 "Se recomienda identificar estos dispositivos mediante la etiqueta o el UUID. "
 "Por otra parte, en los sistemas MIPS tiene que identificar el dispositivo "
 "raíz por su nombre."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Puede ser necesario actualizar el gestor de arranque"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Los paquetes del núcleo ya no actualizan el gestor de arranque por omisión."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"El paquete del gestor de arranque debería instalar un script en "
+"«/etc/kernel/postinst.d» si tiene que actualizarse cada vez que se instala "
+"un nuevo núcleo. También puede especificar la orden a ejecutar para "
+"actualizar el gestor de arranque configurando la variable «postinst_hook» "
+"en el fichero de configuración «/etc/kernel-img.conf»."

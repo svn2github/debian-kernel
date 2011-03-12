@@ -124,3 +124,25 @@ msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
 msgstr "En general, hauríeu d'identificar aquests dispositius per UUID o etiqueta. Als sistemes MIPS, però, el dispositiu arrel s'ha d'identificar pel seu nom."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "És possible que calga actualitzar el carregador"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Els paquets del nucli ja no actualitzen el carregador per defecte."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr "Si s'ha d'actualitzar el carregador cada vegada que s'instaŀla un nou nucli, el paquet del carregador hauria d'instaŀlar un script en /etc/kernel/postinst.d. Alternativament, podeu especificar l'ordre per a actualitzar el carregador establint la variable «postinst_hook» en /etc/kernel-img.conf."

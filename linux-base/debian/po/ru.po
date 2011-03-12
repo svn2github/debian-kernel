@@ -144,3 +144,30 @@ msgid ""
 msgstr ""
 "Обычно вы можете определить эти устройства по их UUID или метке. Однако, на "
 "системах MIPS корневое устройство должно быть определено по имени."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Может потребоваться обновление системного загрузчика"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Пакеты ядра больше не обновляют системный загрузчик по умолчанию"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Если системный загрузчик требует обновления после установки нового ядра, "
+"то пакет системного загрузчика должен устанавливать сценарий в каталог "
+"/etc/kernel/postinst.d. Или же вы можете задать команду обновления "
+"системного загрузчика, указав её в переменной postinst_hook в файле "
+"/etc/kernel-img.conf."

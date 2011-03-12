@@ -142,3 +142,30 @@ msgid ""
 msgstr ""
 "Generellt sett ska dessa enheter identifierac med UUID eller ettikett. Dock "
 "måste rotenheten identifieras med namn på Mips-system."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Uppstartshanteraren kan behöva uppgraderas"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Kärnpaket uppdaterar inte längre uppstartshanterare."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Om uppstartshanteraren behöver uppdateras när en ny kärna installeras ska "
+"uppstartshanteraren installera ett skript i /etc/kernel/postinst.d. "
+"Alternativt kan du ange kommandot som används för att uppdatera "
+"uppstartshanteraren genom att sätta variabeln \"postinst_hook\" i /etc/"
+"kernel-img.conf."

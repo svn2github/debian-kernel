@@ -143,3 +143,31 @@ msgstr ""
 "Generalmente questi dispositivi dovrebbero venire identificati tramite UUID "
 "o etichette. Tuttavia, nei sistemi MIPS il dispositivo di root deve essere "
 "identificato dal nome."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Potrebbe essere necessario aggiornare il boot loader"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr ""
+"I pacchetti del kernel non provvedono più all'aggiornamento del boot loader "
+"predefinito."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Se il boot loader necessita di essere aggiornato ad ogni installazione di "
+"nuovi kernel, il pacchetto relativo dovrebbe installare uno script in /etc/"
+"kernel/postinst.d. In alternativa, è possibile specificare il comando di "
+"aggiornamento tramite la variabile «postinst_hook» in /etc/kernel-img.conf."

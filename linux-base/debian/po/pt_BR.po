@@ -149,3 +149,32 @@ msgstr ""
 "Geralmente você deveria identificar estes dispositivos pelo UUID ou rótulo "
 "(\"label\"). Entretanto, em sistemas MIPS o dispositivo raiz deve ser "
 "identificado pelo nome."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr ""
+"O carregador de inicialização (\"boot loader\") pode precisar ser atualizado"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr ""
+"Pacotes do kernel já não atualizam o carregador de inicialização padrão."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Se o carregador de inicialização precisa ser atualizado sempre que um novo "
+"kernel é instalado, o pacote do carregador de inicialização deveria instalar "
+"um script em /etc/kernel/postinst.d. Alternativamente, você pode especificar "
+"o comando para atualizar o carregador de inicialização definindo a variável "
+"'postinst_hook' em /etc/kernel-img.conf."

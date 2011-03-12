@@ -153,3 +153,32 @@ msgstr ""
 "Normalement, vous devriez identifier ces partitions par leur UUID ou leur "
 "étiquette (« label »). Toutefois, pour l'architecture MIPS, la partition "
 "racine (« root ») doit être identifiée par son nom."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Le programme d'amorçage peut nécessiter une mise à niveau"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr ""
+"Les paquets du noyau ne s'occupent plus de la mise à jour d'un programme "
+"d'amorçage par défaut."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Si le programme d'amorçage doit être mis à jour à chaque fois qu'un nouveau "
+"noyau est installé, le paquet du programme d'amorçage doit installer un script "
+"dans /etc/kernel/postinst.d. Sinon, vous pouvez indiquer la commande de mise à "
+"jour du programme d'amorçage en configurant la variable « postinst_hook » dans "
+"/etc/kernel-img.conf."

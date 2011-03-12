@@ -115,3 +115,22 @@ msgstr ""
 #: ../linux-base.templates:6001
 msgid "You should generally identify these devices by UUID or label. However, on MIPS systems the root device must be identified by name."
 msgstr "一般にこれらのデバイスは、UUID またはラベルで識別すべきです。ただし、MIPS システムではルートデバイスは名前で識別しなければなりません。"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "ブートローダは、アップグレードする必要があるかもしれません"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "カーネルパッケージは、デフォルトブートローダをもはやアップデートしません。"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+#: ../templates/temp.image.plain/templates:5001
+msgid "If the boot loader needs to be updated whenever a new kernel is installed, the boot loader package should install a script in /etc/kernel/postinst.d.  Alternately, you can specify the command to update the boot loader by setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr "新しいカーネルがインストールされるときに、いつでもブートローダがアップデートされる必要があるなら、ブートローダパッケージは /etc/kernel/postinst.d にスクリプトをインストールしなければなりません。あるいは、/etc/kernel-img.conf にある 'postinst_hook'  変数を設定することによって、ブートローダをアップデートするコマンドを指定できます。"

@@ -140,3 +140,25 @@ msgid ""
 msgstr ""
 "Nói chung bạn nên xác định thiết bị này theo UUID hay nhãn. Tuy nhiên, trên "
 "hệ thống MIPS thiết bị gốc phải được xác định theo tên."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Có thể là cần phải nâng cấp bộ nạp khởi động"
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Gói hạt nhân không còn nâng cấp lại bộ nạp khởi động mặc định."
+
+#. Type: error
+#. Description
+#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr "Nếu bộ nạp khởi động cần phải được cập nhật khi nào cài đặt một hạt nhân mới thì gói bộ nạp khởi động nên cài đặt một văn lệnh vào « /etc/kernel/postinst.d ». Hoặc bạn có thể ghi rõ câu lệnh cập nhật bộ nạp khởi động bằng cách lập biến « postinst_hook » (hàm móc hậu xử lý) trong tập tin cấu hình « /etc/kernel-img.conf »."
