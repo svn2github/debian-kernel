@@ -1,0 +1,16 @@
+Source: linux-base
+Section: kernel
+Priority: optional
+Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
+Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>, maximilian attems <maks@debian.org>, Ben Hutchings <ben@decadent.org.uk>
+Standards-Version: 3.9.1
+Build-Depends: debhelper (>> 7)
+Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/sid/linux-base/
+Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/sid/linux-base/?op=log
+
+Package: linux-base
+Architecture: all
+Depends: libuuid-perl, ${misc:Depends}, util-linux (>= 2.16-1) | udev (<< 146-1)
+Description: Linux image base package
+ This package contains files and support scripts for all Linux
+ images.
