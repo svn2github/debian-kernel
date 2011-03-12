@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2009-2010 Ben Hutchings
+# Copyright 2009-2011 Ben Hutchings
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1159,9 +1159,10 @@ my %bdev_map;
 my %id_map;
 
 sub scan_config_files {
+    my $bdev_regex = shift;
     my @configs;
 
-    # Find all IDE/SCSI disks mentioned in configurations
+    # Find all matching devices mentioned in configurations
     for my $config (@config_files) {
 	# Is the file present?
 	my $path = $config->{path};
@@ -1198,11 +1199,10 @@ sub scan_config_files {
 	    $needs_update = defined($id_map_text) && $id_map_text ne '';
 	} elsif (exists($config->{list})) {
 	    for my $bdev (&{$config->{list}}($file)) {
-		# Match standard IDE and SCSI device names, plus wildcards
-		# in disk device names to allow for mdadm insanity.
-		if ($bdev =~ m{^/dev/(?:[hs]d[a-z\?\*][\d\?\*]*|
-                                        s(?:cd|r)\d+)$}x &&
-		    ($bdev =~ m/[\?\*]/ || -b $bdev)) {
+		# Check whether the device name matches the given
+		# regex.  Also check that the device node exists,
+		# unless the name is a wildcard.
+		if ($bdev =~ $bdev_regex && ($bdev =~ m/[\?\*]/ || -b $bdev)) {
 		    $bdev_map{$bdev} = {};
 		    push @matched_bdevs, $bdev;
 		}
@@ -1453,11 +1453,13 @@ sub update_all {
 sub transition {
     use Debconf::Client::ConfModule ':all';
 
+    my $bdev_regex = shift;
+
 retry:
     %bdev_map = ();
     %id_map = ();
 
-    my @found_configs = scan_config_files();
+    my @found_configs = scan_config_files($bdev_regex);
     my @matched_configs = grep({$_->{needs_update}} @found_configs);
     my @auto_configs = grep({defined($_->{config}->{update})} @matched_configs);
     my $found_boot_loader =
@@ -1680,13 +1682,30 @@ sub is_fresh_installation {
 my $deb_arch = `dpkg --print-architecture`;
 chomp $deb_arch;
 
-if ($deb_arch ne 's390') {
+my $reconfigure = ($ARGV[0] eq 'reconfigure' ||
+		   defined($ENV{DEBCONF_RECONFIGURE}));
+if ($deb_arch ne 's390' && ($reconfigure || !is_fresh_installation())) {
+    my @bdev_regex = ();
+
     my $libata_transition_ver =
 	($deb_arch eq 'i386' || $deb_arch eq 'amd64') ? '2.6.32-10' : '2.6.32-11';
-    if ($ARGV[0] eq 'reconfigure' || defined($ENV{DEBCONF_RECONFIGURE}) ||
-	(!is_fresh_installation() &&
-	 version_lessthan($ARGV[1], $libata_transition_ver))) {
-	DebianKernel::DiskId::transition();
+    if ($reconfigure || version_lessthan($ARGV[1], $libata_transition_ver)) {
+	# Match standard IDE and SCSI device names, plus wildcards
+	# in disk device names to allow for mdadm insanity.
+	push @bdev_regex, '[hs]d[a-z\?\*][\d\?\*]*$';
+	push @bdev_regex, 's(?:cd|r)\d+$';
+    }
+
+    # hpsa took over some controllers from cciss in 2.6.37, so their
+    # targets are also treated (and named) like SCSI devices now.
+    if ($reconfigure || version_lessthan($ARGV[1], '3')) {
+	push @bdev_regex, 'cciss/';
+	push @bdev_regex, 'sd[a-z\?\*][\d\?\*]*$';
+    }
+
+    if (@bdev_regex) {
+	DebianKernel::DiskId::transition('^/dev/(?:' .
+					 join('|', @bdev_regex) . ')');
     }
 }
 

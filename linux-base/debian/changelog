@@ -1,3 +1,10 @@
+linux-base (3) UNRELEASED; urgency=low
+
+  * Update device names for the cciss/hpsa transition, similarly to the
+    libata transition (Closes: #617256)
+
+ -- Ben Hutchings <ben@decadent.org.uk>  Sat, 12 Mar 2011 18:57:42 +0000
+
 linux-base (3~experimental) experimental; urgency=low
 
   * Separate linux-base from the linux-2.6 source package
