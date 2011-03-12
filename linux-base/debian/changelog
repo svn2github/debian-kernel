@@ -1,5 +1,5 @@
-linux-base (3~experimental) UNRELEASED; urgency=low
+linux-base (3~experimental) experimental; urgency=low
 
   * Separate linux-base from the linux-2.6 source package
 
- -- Ben Hutchings <ben@decadent.org.uk>  Sat, 12 Mar 2011 08:02:30 +0000
+ -- Ben Hutchings <ben@decadent.org.uk>  Sat, 12 Mar 2011 08:50:41 +0000
