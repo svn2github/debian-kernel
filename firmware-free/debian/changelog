@@ -1,4 +1,4 @@
-firmware-free (3) UNRELEASED; urgency=low
+firmware-free (3) unstable; urgency=low
 
   * Update to linux-support 2.6.38-1
 
