@@ -1179,14 +1179,16 @@ sub scan_config_files {
 
 	# Are any of the related packages wanted or installed?
 	my $wanted = 0;
+	my $unpacked = 0;
 	my $installed = 0;
 	my $packages = $config->{packages};
 	for (`dpkg-query 2>/dev/null --showformat '\${status}\\n' -W $packages`)
 	{
 	    $wanted = 1 if /^install /;
 	    $installed = 1 if / installed\n$/;
+	    $unpacked = 1 if / (installed|unpacked)\n$/;
 	}
-	if (!$wanted && !$installed) {
+	if (!$wanted && !$unpacked) {
 	    next;
 	}
 
@@ -1217,6 +1219,7 @@ sub scan_config_files {
 			devices => \@matched_bdevs,
 			id_map_text => $id_map_text,
 			installed => $installed,
+			unpacked => $unpacked,
 			needs_update => $needs_update};
     }
 
@@ -1411,7 +1414,9 @@ sub update_config {
 	link($path, $old_path) or die "$!";
 	rename("$path.new", $path) or die "$!";
 
-	# If the package is installed, run the post-update function
+	# If the package is installed, run the post-update function.
+	# If the package is only unpacked, assume that its own postinst
+	# will cover this.
 	if ($match->{installed} && $match->{config}->{post_update}) {
 	    &{$match->{config}->{post_update}}();
 	}
@@ -1463,7 +1468,7 @@ retry:
     my @matched_configs = grep({$_->{needs_update}} @found_configs);
     my @auto_configs = grep({defined($_->{config}->{update})} @matched_configs);
     my $found_boot_loader =
-	grep({$_->{config}->{is_boot_loader} && $_->{installed}} @found_configs);
+	grep({$_->{config}->{is_boot_loader} && $_->{unpacked}} @found_configs);
     my %update_map = ();
 
     # We can skip all of this if we didn't find any configuration
