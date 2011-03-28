@@ -10,8 +10,8 @@ binary-indep:
 	dh_testdir
 	dh_testroot
 	dh_prep
-	dh_install debian/bin/perf /usr/bin
-	dh_installman debian/perf.1
+	dh_install
+	dh_installman
 	dh_installdebconf
 	dh_installchangelogs
 	dh_installdocs
