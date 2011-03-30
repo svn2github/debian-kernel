@@ -1,0 +1,173 @@
+#!/usr/bin/perl
+
+# Copyright 2011 Ben Hutchings
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+use strict;
+use warnings;
+
+sub version_split {
+    # Split into numbers, hyphens with optional non-numeric suffixes
+    # (for pre-releases), and strings of any other characters
+    my $version = shift;
+    return $version =~ /(?:\d+|-\D*|[^-\d]+)/g;
+}
+
+sub version_cmp {
+    my ($left_ver, $right_ver) = @_;
+    my @left_comp = version_split($left_ver);
+    my @right_comp = version_split($right_ver);
+
+    for (my $i = 0; ; $i++) {
+	my $left = $left_comp[$i];
+	my $right = $right_comp[$i];
+	# Do the components indicate pre-releases?
+	my $left_pre = defined($left) && $left =~ /^-(?:rc|trunk)$/;
+	my $right_pre = defined($right) && $right =~ /^-(?:rc|trunk)$/;
+	# Are the components numeric?
+	my $left_num = defined($left) && $left =~ /^\d+/;
+	my $right_num = defined($right) && $right =~ /^\d+/;
+
+	# Pre-releases sort before anything, even end-of-string
+	if ($left_pre or $right_pre) {
+	    return -1 if !$right_pre;
+	    return 1 if !$left_pre;
+	}
+	# End-of-string sorts before anything else.
+	# End-of-string on both sides means equality.
+	if (!defined($left) or !defined($right)) {
+	    return -1 if defined($right);
+	    return defined($left) || 0;
+	}
+	# Use numeric comparison if both sides numeric.
+	# Otherwise use ASCII comparison.
+	if ($left_num && $right_num) {
+	    return -1 if $left < $right;
+	    return 1 if $left > $right;
+	} else {
+	    # Note that '.' > '-' thus 2.6.x.y > 2.6.x-z for any y, z.
+	    return -1 if $left lt $right;
+	    return 1 if $left gt $right;
+	}
+    }
+}
+
+sub usage {
+    my $fh = shift;
+    print $fh (<< 'EOT');
+Usage: $0 compare VERSION1 OP VERSION2
+       $0 sort [--reverse] VERSION1 VERSION2 ...
+
+The version arguments should be kernel version strings as shown by
+'uname -r' and used in filenames.
+
+The valid comparison operators are: lt le eq ge gt
+EOT
+}
+
+sub usage_error {
+    usage(*STDERR{IO});
+    exit 2;
+}
+
+sub compare_versions {
+    my %op_map = qw(lt < le <= eq == ge >= gt >);
+
+    # Check arguments
+    if (@_ != 3) {
+	usage_error();
+    }
+    my ($left, $op, $right) = @_;
+    if (!exists($op_map{$op})) {
+	usage_error();
+    }
+
+    my $sign = version_cmp($left, $right);
+    exit !eval("$sign ${op_map{$op}} 0");
+}
+
+sub sort_versions {
+    # Check for --reverse option
+    my $sign = 1;
+    if (@_ >= 1 and $_[0] eq '--reverse') {
+	$sign = -1;
+	shift;
+    }
+
+    for (sort({version_cmp($a, $b) * $sign} @_)) {
+	print "$_\n";
+    }
+    exit 0;
+}
+
+sub test_version_cmp {
+    use Test;
+    plan test => 27;
+    # Simple numeric comparison
+    ok(version_cmp('2', '2'), 0);
+    ok(version_cmp('2', '3'), -1);
+    ok(version_cmp('3', '2'), 1);
+    # Multiple components
+    ok(version_cmp('2.6.32', '2.6.32'), 0);
+    ok(version_cmp('2.6.32', '2.6.33'), -1);
+    ok(version_cmp('2.6.33', '2.6.32'), 1);
+    # Extra components (non-numeric, non-pre-release) > null
+    ok(version_cmp('2.6.32-local', '2.6.32-local'), 0);
+    ok(version_cmp('2.6.32', '2.6.32-local'), -1);
+    ok(version_cmp('2.6.32-local', '2.6.32'), 1);
+    # Extra numeric components > null
+    ok(version_cmp('2.6.32', '2.6.32.1'), -1);
+    ok(version_cmp('2.6.32.1', '2.6.32'), 1);
+    ok(version_cmp('2.6.32', '2.6.32-1'), -1);
+    ok(version_cmp('2.6.32-1', '2.6.32'), 1);
+    # Extra pre-release components < null
+    ok(version_cmp('2.6.33-rc1', '2.6.33-rc1'), 0);
+    ok(version_cmp('2.6.33-rc1', '2.6.33'), -1);
+    ok(version_cmp('2.6.33', '2.6.33-rc1'), 1);
+    ok(version_cmp('2.6.33-trunk', '2.6.33-trunk'), 0);
+    ok(version_cmp('2.6.33-rc1', '2.6.33-trunk'), -1);
+    ok(version_cmp('2.6.33-trunk', '2.6.33'), -1);
+    # Pre-release < numeric
+    ok(version_cmp('2.6.32-1', '2.6.32-trunk'), 1);
+    ok(version_cmp('2.6.32-trunk', '2.6.32-1'), -1);
+    # Pre-release < non-numeric non-pre-release
+    ok(version_cmp('2.6.32-local', '2.6.32-trunk'), 1);
+    ok(version_cmp('2.6.32-trunk', '2.6.32-local'), -1);
+    # Numeric < non-numeric non-pre-release
+    ok(version_cmp('2.6.32-1', '2.6.32-local'), -1);
+    ok(version_cmp('2.6.32-local', '2.6.32-1'), 1);
+    # Hyphen < dot
+    ok(version_cmp('2.6.32-2', '2.6.32.1'), -1);
+    ok(version_cmp('2.6.32.1', '2.6.32-2'), 1);
+    exit 0;
+}
+
+if (@ARGV == 0) {
+    usage_error();
+}
+
+my $command = shift;
+if ($command eq 'help' or grep({$_ eq '--help'} $command, @ARGV)) {
+    usage(*STDOUT{IO});
+    exit 0;
+} elsif ($command eq 'compare') {
+    compare_versions(@ARGV);
+} elsif ($command eq 'sort') {
+    sort_versions(@ARGV);
+} elsif ($command eq 'test') {
+    test_version_cmp();
+}
+usage_error();
