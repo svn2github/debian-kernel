@@ -1,1 +1,1 @@
-debian/bin/perf usr/bin
+bin/perf usr/bin
