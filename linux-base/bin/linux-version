@@ -25,7 +25,7 @@ sub usage {
     my $fh = shift;
     print $fh (<< 'EOT');
 Usage: $0 compare VERSION1 OP VERSION2
-       $0 sort [--reverse] VERSION1 VERSION2 ...
+       $0 sort [--reverse] [VERSION1 VERSION2 ...]
        $0 list [--paths]
 
 The version arguments should be kernel version strings as shown by
@@ -64,8 +64,19 @@ sub sort_versions {
 	shift;
     }
 
-    for (sort({version_cmp($a, $b) * $sign} @_)) {
-	print "$_\n";
+    # Collect versions from argv or stdin (with optional suffix after a space)
+    my @versions;
+    if (@_) {
+	@versions = map({[$_, "\n"]} @_);
+    } else {
+	while (<STDIN>) {
+	    /^([^ ]*)(.*\n?)$/ or die;
+	    push @versions, [$1, $2];
+	}
+    }
+
+    for (sort({version_cmp($a->[0], $b->[0]) * $sign} @versions)) {
+	print @$_;
     }
     exit 0;
 }
