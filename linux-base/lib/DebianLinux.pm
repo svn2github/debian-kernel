@@ -18,11 +18,12 @@ package DebianLinux;
 
 use strict;
 use warnings;
+use POSIX qw(uname);
 
 BEGIN {
     use Exporter ();
     our @ISA = qw(Exporter);
-    our @EXPORT_OK = qw(version_cmp);
+    our @EXPORT_OK = qw(version_cmp image_list);
 }
 
 sub version_split {
@@ -69,6 +70,24 @@ sub version_cmp {
 	    return 1 if $left gt $right;
 	}
     }
+}
+
+# Find kernel image name stem for this architecture
+my $image_stem;
+if ((uname())[4] =~ /^(?:mips|parisc|powerpc|ppc)/) {
+    $image_stem = 'vmlinux';
+} else {
+    $image_stem = 'vmlinuz';
+}
+
+sub image_list {
+    my @results;
+    my $prefix = "/boot/$image_stem-";
+
+    for (glob("$prefix*")) {
+	push @results, [substr($_, length($prefix)), $_];
+    }
+    return @results;
 }
 
 1;

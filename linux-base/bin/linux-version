@@ -19,13 +19,14 @@
 use strict;
 use warnings;
 
-use DebianLinux qw(version_cmp);
+use DebianLinux qw(version_cmp image_list);
 
 sub usage {
     my $fh = shift;
     print $fh (<< 'EOT');
 Usage: $0 compare VERSION1 OP VERSION2
        $0 sort [--reverse] VERSION1 VERSION2 ...
+       $0 list [--paths]
 
 The version arguments should be kernel version strings as shown by
 'uname -r' and used in filenames.
@@ -69,6 +70,26 @@ sub sort_versions {
     exit 0;
 }
 
+sub list_versions {
+    my $show_paths;
+
+    if (@_ == 1 and $_[0] eq '--paths') {
+	$show_paths = 1;
+    } elsif (@_ != 0) {
+	usage_error();
+    }
+
+    for (image_list()) {
+	my ($version, $path) = @$_;
+	if ($show_paths) {
+	    print "$version $path\n";
+	} else {
+	    print "$version\n";
+	}
+    }
+    exit 0;
+}
+
 if (@ARGV == 0) {
     usage_error();
 }
@@ -81,5 +102,7 @@ if ($command eq 'help' or grep({$_ eq '--help'} $command, @ARGV)) {
     compare_versions(@ARGV);
 } elsif ($command eq 'sort') {
     sort_versions(@ARGV);
+} elsif ($command eq 'list') {
+    list_versions(@ARGV);
 }
 usage_error();
