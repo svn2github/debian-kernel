@@ -19,51 +19,7 @@
 use strict;
 use warnings;
 
-sub version_split {
-    # Split into numbers, hyphens with optional non-numeric suffixes
-    # (for pre-releases), and strings of any other characters
-    my $version = shift;
-    return $version =~ /(?:\d+|-\D*|[^-\d]+)/g;
-}
-
-sub version_cmp {
-    my ($left_ver, $right_ver) = @_;
-    my @left_comp = version_split($left_ver);
-    my @right_comp = version_split($right_ver);
-
-    for (my $i = 0; ; $i++) {
-	my $left = $left_comp[$i];
-	my $right = $right_comp[$i];
-	# Do the components indicate pre-releases?
-	my $left_pre = defined($left) && $left =~ /^-(?:rc|trunk)$/;
-	my $right_pre = defined($right) && $right =~ /^-(?:rc|trunk)$/;
-	# Are the components numeric?
-	my $left_num = defined($left) && $left =~ /^\d+/;
-	my $right_num = defined($right) && $right =~ /^\d+/;
-
-	# Pre-releases sort before anything, even end-of-string
-	if ($left_pre or $right_pre) {
-	    return -1 if !$right_pre;
-	    return 1 if !$left_pre;
-	}
-	# End-of-string sorts before anything else.
-	# End-of-string on both sides means equality.
-	if (!defined($left) or !defined($right)) {
-	    return -1 if defined($right);
-	    return defined($left) || 0;
-	}
-	# Use numeric comparison if both sides numeric.
-	# Otherwise use ASCII comparison.
-	if ($left_num && $right_num) {
-	    return -1 if $left < $right;
-	    return 1 if $left > $right;
-	} else {
-	    # Note that '.' > '-' thus 2.6.x.y > 2.6.x-z for any y, z.
-	    return -1 if $left lt $right;
-	    return 1 if $left gt $right;
-	}
-    }
-}
+use DebianLinux qw(version_cmp);
 
 sub usage {
     my $fh = shift;
@@ -113,48 +69,6 @@ sub sort_versions {
     exit 0;
 }
 
-sub test_version_cmp {
-    use Test;
-    plan test => 27;
-    # Simple numeric comparison
-    ok(version_cmp('2', '2'), 0);
-    ok(version_cmp('2', '3'), -1);
-    ok(version_cmp('3', '2'), 1);
-    # Multiple components
-    ok(version_cmp('2.6.32', '2.6.32'), 0);
-    ok(version_cmp('2.6.32', '2.6.33'), -1);
-    ok(version_cmp('2.6.33', '2.6.32'), 1);
-    # Extra components (non-numeric, non-pre-release) > null
-    ok(version_cmp('2.6.32-local', '2.6.32-local'), 0);
-    ok(version_cmp('2.6.32', '2.6.32-local'), -1);
-    ok(version_cmp('2.6.32-local', '2.6.32'), 1);
-    # Extra numeric components > null
-    ok(version_cmp('2.6.32', '2.6.32.1'), -1);
-    ok(version_cmp('2.6.32.1', '2.6.32'), 1);
-    ok(version_cmp('2.6.32', '2.6.32-1'), -1);
-    ok(version_cmp('2.6.32-1', '2.6.32'), 1);
-    # Extra pre-release components < null
-    ok(version_cmp('2.6.33-rc1', '2.6.33-rc1'), 0);
-    ok(version_cmp('2.6.33-rc1', '2.6.33'), -1);
-    ok(version_cmp('2.6.33', '2.6.33-rc1'), 1);
-    ok(version_cmp('2.6.33-trunk', '2.6.33-trunk'), 0);
-    ok(version_cmp('2.6.33-rc1', '2.6.33-trunk'), -1);
-    ok(version_cmp('2.6.33-trunk', '2.6.33'), -1);
-    # Pre-release < numeric
-    ok(version_cmp('2.6.32-1', '2.6.32-trunk'), 1);
-    ok(version_cmp('2.6.32-trunk', '2.6.32-1'), -1);
-    # Pre-release < non-numeric non-pre-release
-    ok(version_cmp('2.6.32-local', '2.6.32-trunk'), 1);
-    ok(version_cmp('2.6.32-trunk', '2.6.32-local'), -1);
-    # Numeric < non-numeric non-pre-release
-    ok(version_cmp('2.6.32-1', '2.6.32-local'), -1);
-    ok(version_cmp('2.6.32-local', '2.6.32-1'), 1);
-    # Hyphen < dot
-    ok(version_cmp('2.6.32-2', '2.6.32.1'), -1);
-    ok(version_cmp('2.6.32.1', '2.6.32-2'), 1);
-    exit 0;
-}
-
 if (@ARGV == 0) {
     usage_error();
 }
@@ -167,7 +81,5 @@ if ($command eq 'help' or grep({$_ eq '--help'} $command, @ARGV)) {
     compare_versions(@ARGV);
 } elsif ($command eq 'sort') {
     sort_versions(@ARGV);
-} elsif ($command eq 'test') {
-    test_version_cmp();
 }
 usage_error();
