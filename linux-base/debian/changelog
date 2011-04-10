@@ -1,6 +1,7 @@
 linux-base (3.3) UNRELEASED; urgency=low
 
   * debian/control: Fix VCS URLs (Closes: #620609)
+  * Add Slovak debconf template translation (Slavko) (Closes: #622118)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Sun, 03 Apr 2011 02:58:29 +0100
 
