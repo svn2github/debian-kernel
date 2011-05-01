@@ -23,7 +23,7 @@ use DebianLinux qw(version_cmp image_list);
 
 sub usage {
     my $fh = shift;
-    print $fh (<< 'EOT');
+    print $fh (<< "EOT");
 Usage: $0 compare VERSION1 OP VERSION2
        $0 sort [--reverse] [VERSION1 VERSION2 ...]
        $0 list [--paths]
