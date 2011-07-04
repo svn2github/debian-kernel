@@ -6,7 +6,7 @@ Uploaders: Bastian Blank <waldi@debian.org>, Frederik Schüler <fs@debian.org>, 
 Standards-Version: 3.9.1
 Build-Depends: debhelper (>> 7)
 Vcs-Svn: svn://svn.debian.org/svn/kernel/dists/trunk/linux-base/
-Vcs-Browser: http://svn.debian.org/wsvn/kernel/dists/trunk/linux-base/?op=log
+Vcs-Browser: http://svn.debian.org/viewvc/kernel/dists/trunk/linux-base/
 
 Package: linux-base
 Architecture: all
