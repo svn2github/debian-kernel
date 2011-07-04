@@ -1280,7 +1280,8 @@ sub scan_devices {
     # Sort each device's IDs in reverse lexical order so that UUIDs are
     # preferred.
     for my $bdev (keys(%bdev_map)) {
-	if ($bdev_map{$bdev}->{type} eq 'LVM2_member') {
+	if (!defined($bdev_map{$bdev}->{type}) ||
+	    $bdev_map{$bdev}->{type} eq 'LVM2_member') {
 	    @{$bdev_map{$bdev}->{ids}} = ();
 	} else {
 	    @{$bdev_map{$bdev}->{ids}} =
