@@ -1,7 +1,9 @@
 linux-base (3.3) UNRELEASED; urgency=low
 
   * debian/control: Fix VCS URLs (Closes: #620609)
-  * Add Slovak debconf template translation (Slavko) (Closes: #622118)
+  * Update debconf template translations:
+    - Slovak (Slavko) (Closes: #622118)
+    - Dutch (Jeroen Schot) (Closes: #629389)
   * linux-version: Fix interpolation of command name in help, thanks to
     Jakub Wilk (Closes: #624795)
   * debian/postinst: Fix warning produced when checking a device that
