@@ -26,6 +26,7 @@ files:
  cis/SW_8xx_SER.cis
  cis/tamarack.cis
  dsp56k/bootstrap.bin
+ isci/isci_firmware.bin
  keyspan_pda/keyspan_pda.fw
  keyspan_pda/xircom_pgs.fw
  usbdux_firmware.bin
@@ -85,6 +86,9 @@ desc: Tamarack PCMCIA Ethernet card CIS fix
 
 [dsp56k/bootstrap.bin_base]
 desc: Atari Falcon DSP56001 firmware
+
+[isci/isci_firmware.bin_base]
+desc: Intel C600 SAS/SATA controller default parameters
 
 [keyspan_pda/keyspan_pda.fw_base]
 desc: Keyspan USA-19 firmware

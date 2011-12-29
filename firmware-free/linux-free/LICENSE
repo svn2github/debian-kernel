@@ -135,6 +135,18 @@ Provided from the author, Bernd Porr <BerndPorr@f2s.com>
 
 --------------------------------------------------------------------------
 
+Driver: isci -- Intel C600 SAS controller driver
+
+File: isci/isci_firmware.bin
+Source: isci/create_fw.c
+Source: isci/create_fw.h
+Source: isci/probe_roms.h
+Source: isci/Makefile
+
+Licence: GPLv2
+
+--------------------------------------------------------------------------
+
 On Debian systems the text of the GPL version 2 can be found in
 /usr/share/common-licenses/GPL-2, and the text of the GPL version 3
 can be found in /usr/share/common-licenses/GPL-3.
