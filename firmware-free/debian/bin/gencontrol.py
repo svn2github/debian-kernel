@@ -10,7 +10,7 @@ from debian_linux.debian import PackageDescription as PackageDescriptionBase
 import debian_linux.gencontrol
 from debian_linux.gencontrol import Makefile, MakeFlags, PackagesList
 from debian_linux.utils import SortedDict, TextWrapper
-from debian_linux.utils import Templates as TemplatesBase
+from debian_linux.utils import Templates as TemplatesBase, read_control
 
 class PackageDescription(PackageDescriptionBase):
     __slots__ = ()
@@ -92,7 +92,7 @@ class Templates(TemplatesBase):
             if os.path.exists(filename):
                 f = file(filename)
                 if prefix == 'control':
-                    return self._read_control(f)
+                    return read_control(f)
                 elif prefix == 'templates':
                     return self._read_templates(f)
                 return f.read()
@@ -159,9 +159,6 @@ class GenControl(debian_linux.gencontrol.Gencontrol):
         vars.update(config_entry)
 
         makeflags = MakeFlags()
-
-        for i in ('build', 'binary-arch', 'setup'):
-            makefile.add("%s_%%" % i, cmds = ["@true"])
 
         for package in config_entry['packages']:
             self.do_package(packages, makefile, package, vars.copy(), makeflags.copy())
