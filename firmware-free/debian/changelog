@@ -1,6 +1,8 @@
 firmware-free (3.1) UNRELEASED; urgency=low
 
   * Update to linux-support 3.1.0-1
+    - Remove build-dependency, as this is only used when preparing the
+      source package
   * Add isci parameter blob
   * Add makefiles and scripts for av7110, dsp56k and keyspan_pda firmware
 

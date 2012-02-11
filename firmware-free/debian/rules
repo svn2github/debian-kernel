@@ -37,7 +37,7 @@ else
 endif
 
 debian/control-real: $(GENCONTROL) $(CONTROL_FILES)
-	$(GENCONTROL) $(KERNELVERSION) /usr/src/linux-support-$(KERNELVERSION)
+	$(GENCONTROL) /usr/src/linux-support-$(KERNELVERSION)
 	md5sum $^ > debian/control.md5sum
 	@echo
 	@echo This target is made to fail intentionally, to make sure

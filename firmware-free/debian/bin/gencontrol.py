@@ -2,7 +2,7 @@
 
 import os, re, sys
 
-sys.path.append(sys.argv[2] + "/lib/python")
+sys.path.append(sys.argv[1] + "/lib/python")
 
 from debian_linux.config import ConfigParser, SchemaItemList
 from debian_linux.debian import Package, PackageRelation
@@ -134,10 +134,9 @@ class Templates(TemplatesBase):
 
 
 class GenControl(debian_linux.gencontrol.Gencontrol):
-    def __init__(self, kernelversion):
+    def __init__(self):
         self.config = Config()
         self.templates = Templates()
-        self.kernelversion = kernelversion
 
     def __call__(self):
         packages = PackagesList()
@@ -151,7 +150,6 @@ class GenControl(debian_linux.gencontrol.Gencontrol):
     def do_source(self, packages):
         source = self.templates["control.source"]
         packages['source'] = self.process_package(source[0], ())
-        packages['source']['Build-Depends'].append('linux-support-%s' % self.kernelversion)
 
     def do_main(self, packages, makefile):
         config_entry = self.config['base',]
@@ -336,4 +334,4 @@ class Config(dict):
             self[real] = s
 
 if __name__ == '__main__':
-    GenControl(sys.argv[1])()
+    GenControl()()
