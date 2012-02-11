@@ -5,6 +5,8 @@ firmware-free (3.1) UNRELEASED; urgency=low
       source package
   * Add isci parameter blob
   * Add makefiles and scripts for av7110, dsp56k and keyspan_pda firmware
+  * debian/control: Set Multi-Arch: foreign to allow for installation
+    of foreign linux-image packages
 
  -- Ben Hutchings <ben@decadent.org.uk>  Thu, 29 Dec 2011 19:09:09 +0100
 

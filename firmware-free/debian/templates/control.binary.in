@@ -6,4 +6,5 @@ Suggests: initramfs-tools, linux-image
 Description: Binary firmware for @desc@
  @longdesc@
 Homepage: @uri@
+Multi-Arch: ${firmware:Multi-Arch}
 
