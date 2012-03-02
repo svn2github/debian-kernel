@@ -32,6 +32,11 @@ Kernel packages, sorted by source architecture:
     - Jurij Smakov
   * x86
     - Maximilian Attems, Ben Hutchings, Frederik Schueler
+
+Kernel packages, other specialisations:
+
+  * rt
+    - Uwe Kleine-König
   * xen
     - Ian Campbell
 
