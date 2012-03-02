@@ -19,14 +19,14 @@ Kernel packages, sorted by architecture:
   * amd64
     - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
-    - Martin Michlmayr
+    - Arnaud Patard, Hector Oron, Martin Michlmayr
   * hppa
   * i386
     - Maximilian Attems, Ben Hutchings
   * ia64
     - Dann Frazier
   * m68k
-    - Christian T. Steigies
+    - Thorsten Glaser, Christian T. Steigies
   * mips
     - Aurelien Jarno
   * mipsel
@@ -35,6 +35,7 @@ Kernel packages, sorted by architecture:
   * s390
     - Bastian Blank
   * sparc
+    - Jurij Smakov
   * xen
     - Ian Campbell
 
