@@ -12,30 +12,26 @@ Security support:
   - Dann Frazier
   - Moritz Muehlenhoff
 
-Kernel packages, sorted by architecture:
+Kernel packages, sorted by source architecture:
 
   * alpha
     - Norbert Tretkowski, Steve Langasek
-  * amd64
-    - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * arm
     - Arnaud Patard, Hector Oron, Martin Michlmayr
   * hppa
-  * i386
-    - Maximilian Attems, Ben Hutchings
   * ia64
     - Dann Frazier
   * m68k
     - Thorsten Glaser, Christian T. Steigies
   * mips
     - Aurelien Jarno
-  * mipsel
-    - Aurelien Jarno
   * powerpc
   * s390
     - Bastian Blank
   * sparc
     - Jurij Smakov
+  * x86
+    - Maximilian Attems, Ben Hutchings, Frederik Schueler
   * xen
     - Ian Campbell
 
