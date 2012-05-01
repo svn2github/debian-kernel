@@ -1,0 +1,179 @@
+# Translation of linux-base debconf templates to Polish.
+# Copyright (C) 2011
+# This file is distributed under the same license as the linux-base package.
+#
+# Michał Kułach <michal.kulach@gmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
+"POT-Creation-Date: 2011-03-12 08:45+0000\n"
+"PO-Revision-Date: 2012-04-28 22:43+0200\n"
+"Last-Translator: Michał Kułach <michal.kulach@gmail.com>\n"
+"Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.2\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid "Update disk device IDs in system configuration?"
+msgstr ""
+"Zaktualizować identyfikatory urządzeń dyskowych w konfiguracji systemu?"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"The new Linux kernel version provides different drivers for some PATA (IDE) "
+"controllers. The names of some hard disk, CD-ROM, and tape devices may "
+"change."
+msgstr ""
+"Nowa wersja jądra Linux zawiera inne sterowniki do niektórych kontrolerów "
+"PATA (IDE). Nazwy niektórych dysków twardych, CD-ROM-ów i napędów taśmowych "
+"mogą się zmienić."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"It is now recommended to identify disk devices in configuration files by "
+"label or UUID (unique identifier) rather than by device name, which will "
+"work with both old and new kernel versions."
+msgstr ""
+"Zaleca się identyfikować urządzenia dyskowe w plikach konfiguracyjnych za "
+"pomocą etykiet lub unikalnych identyfikatorów (UUID) zamiast nazw urządzeń. "
+"Sugerowana metoda będzie działać zarówno ze starymi jak i nowszymi wersjami "
+"jądra."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"If you choose to not update the system configuration automatically, you must "
+"update device IDs yourself before the next system reboot or the system may "
+"become unbootable."
+msgstr ""
+"Jeśli opcja automatycznej aktualizacji konfiguracji systemu nie zostanie "
+"wybrana, konieczne będzie ręczne zaktualizowanie identyfikatorów dysków przed "
+"ponownym uruchomieniem systemu, w przeciwnym wypadku, system może nie "
+"uruchomić się ponownie."
+
+#. Type: boolean
+#. Description
+#. Type: boolean
+#. Description
+#: ../templates:3001 ../templates:4001
+msgid "Apply configuration changes to disk device IDs?"
+msgstr "Zastosować zmiany konfiguracji do identyfikatorów urządzeń dyskowych?"
+
+#. Type: boolean
+#. Description
+#: ../templates:3001
+msgid "These devices will be assigned UUIDs or labels:"
+msgstr "Następującym urządzeniom zostaną przypisane UUID-y lub etykiety:"
+
+#. Type: boolean
+#. Description
+#. Type: boolean
+#. Description
+#: ../templates:3001 ../templates:4001
+msgid "These configuration files will be updated:"
+msgstr "Następujące pliki konfiguracyjne zostaną zaktualizowane:"
+
+#. Type: boolean
+#. Description
+#. Type: boolean
+#. Description
+#: ../templates:3001 ../templates:4001
+msgid "The device IDs will be changed as follows:"
+msgstr "Identyfikatory urządzeń zmienią się następująco:"
+
+#. Type: error
+#. Description
+#: ../templates:5001
+msgid "Configuration files still contain deprecated device names"
+msgstr "Pliki konfiguracyjne wciąż zawierają przestarzałe nazwy"
+
+#. Type: error
+#. Description
+#: ../templates:5001
+msgid ""
+"The following configuration files still use some device names that may "
+"change when using the new kernel:"
+msgstr ""
+"Następujące pliki konfiguracyjne mogą wciąż używać nazwy urządzeń, które mogą "
+"ulec zmianie po użyciu nowego jądra:"
+
+#. Type: error
+#. Description
+#: ../templates:6001
+msgid "Boot loader configuration check needed"
+msgstr "Konieczne sprawdzenie konfiguracji programu rozruchowego"
+
+#. Type: error
+#. Description
+#: ../templates:6001
+msgid ""
+"The boot loader configuration for this system was not recognized. These "
+"settings in the configuration may need to be updated:"
+msgstr ""
+"Konfiguracja programu rozruchowego systemu nie została rozpoznana. "
+"Następujące ustawienia w konfiguracji mogą wymagać zaktualizowania:"
+
+#. Type: error
+#. Description
+#: ../templates:6001
+msgid ""
+" * The root device ID passed as a kernel parameter;\n"
+" * The boot device ID used to install and update the boot loader."
+msgstr ""
+" * identyfikator urządzenia z katalogiem głównym \"/\" podany\n"
+"   jako parametr jądra,\n"
+" * identyfikator urządzenia rozruchowego \"/boot\" używanego\n"
+"   do instalacji i zaktualizowania programu rozruchowego."
+
+#. Type: error
+#. Description
+#: ../templates:6001
+msgid ""
+"You should generally identify these devices by UUID or label. However, on "
+"MIPS systems the root device must be identified by name."
+msgstr ""
+"Najczęściej powinno się identyfikować te urządzenia za pomocą UUID-u lub "
+"etykiety. Na komputerach MIPS, katalog główny musi być jednak identyfikowany "
+"za pomocą nazwy."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "Program rozruchowy może wymagać zaktualizowania"
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid "Kernel packages no longer update a default boot loader."
+msgstr "Pakiety jądra nie aktualizują dłużej domyślnego programu rozruchowego."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid ""
+"If the boot loader needs to be updated whenever a new kernel is installed, "
+"the boot loader package should install a script in /etc/kernel/postinst.d.  "
+"Alternately, you can specify the command to update the boot loader by "
+"setting the 'postinst_hook' variable in /etc/kernel-img.conf."
+msgstr ""
+"Jeśli program rozruchowy musi zostać zaktualizowany podczas każdej instalacji "
+"nowego jądra, pakiet programu rozruchowego powinien zawierać skrypt w "
+"/etc/kernel/postinst.d. Innym rozwiązaniem jest podanie polecenia do "
+"aktualizacji programu rozruchowego, przez ustawienie zmiennej "
+"\"postinst_hook\" w /etc/kernel-img.conf."
+
+
