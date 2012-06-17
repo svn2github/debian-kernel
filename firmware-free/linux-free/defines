@@ -32,6 +32,7 @@ files:
  usbdux_firmware.bin
  usbduxfast_firmware.bin
  usbduxsigma_firmware.bin
+support: initramfs-tools
 uri: http://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git
 
 [av7110/bootcode.bin_base]

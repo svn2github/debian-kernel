@@ -10,6 +10,8 @@ firmware-free (3.1) UNRELEASED; urgency=low
   * Add firmware for ITL USB-DUXsigma
   * Set the upstream homepage URL to the current gitweb page for
     linux-firmware.git
+  * Update initramfs on installation, since it may need to include the
+    firmware for 3c574_cs, 3c589_cs, isci or pcnet_cs (Closes: #555949)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Thu, 29 Dec 2011 19:09:09 +0100
 
