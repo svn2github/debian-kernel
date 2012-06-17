@@ -31,8 +31,13 @@ def main(source_dir):
             # Suitable for main if source is available or binary is
             # preferred form for modification
             for file_info in section.files.values():
+                sources = set()
                 if file_info.source or file_info.binary.endswith('.cis'):
                     update_file(source_dir, dest_dirs, file_info.binary)
+                    for source in file_info.source:
+                        sources.add(source)
+                for source in sources:
+                    update_file(source_dir, dest_dirs, source)
 
 def update_file(source_dir, dest_dirs, filename):
     source_file = os.path.join(source_dir, filename)
