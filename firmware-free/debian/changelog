@@ -1,4 +1,4 @@
-firmware-free (3.1) UNRELEASED; urgency=low
+firmware-free (3.1) unstable; urgency=low
 
   * Update to linux-support 3.2.0-2
     - Remove build-dependency, as this is only used when preparing the
@@ -13,7 +13,7 @@ firmware-free (3.1) UNRELEASED; urgency=low
   * Update initramfs on installation, since it may need to include the
     firmware for 3c574_cs, 3c589_cs, isci or pcnet_cs (Closes: #555949)
 
- -- Ben Hutchings <ben@decadent.org.uk>  Thu, 29 Dec 2011 19:09:09 +0100
+ -- Ben Hutchings <ben@decadent.org.uk>  Sun, 17 Jun 2012 04:19:31 +0100
 
 firmware-free (3) unstable; urgency=low
 
