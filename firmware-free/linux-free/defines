@@ -31,6 +31,7 @@ files:
  keyspan_pda/xircom_pgs.fw
  usbdux_firmware.bin
  usbduxfast_firmware.bin
+ usbduxsigma_firmware.bin
 uri: http://git.kernel.org/?p=linux/kernel/git/dwmw2/linux-firmware.git
 
 [av7110/bootcode.bin_base]
@@ -102,3 +103,6 @@ desc: USB-DUX firmware
 
 [usbduxfast_firmware.bin_base]
 desc: USB-DUXfast firmware
+
+[usbduxsigma_firmware.bin_base]
+desc: USB-DUXsigma firmware
