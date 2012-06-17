@@ -89,6 +89,7 @@ desc: Atari Falcon DSP56001 firmware
 
 [isci/isci_firmware.bin_base]
 desc: Intel C600 SAS/SATA controller default parameters
+version: 1.3
 
 [keyspan_pda/keyspan_pda.fw_base]
 desc: Keyspan USA-19 firmware
