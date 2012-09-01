@@ -77,8 +77,8 @@ _Description: Boot loader configuration check needed
 
 Template: linux-base/disk-id-update-failed
 Type: error
-# Not yet translated
-Description: Failed to update disk device IDs
+#flag:translate!:3
+_Description: Failed to update disk device IDs
  An error occurred while attempting to update the system configuration:
  .
  ${output}
