@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: linux-2.6 2.6.32-11\n"
-"Report-Msgid-Bugs-To: linux-2.6@packages.debian.org\n"
-"POT-Creation-Date: 2010-08-07 10:32+0200\n"
+"Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: 2010-08-08 14:22+0200\n"
 "Last-Translator: Holger Wansing <linux@wansing-online.de>\n"
 "Language-Team: Debian German <debian-l10n-german@lists.debian.org>\n"
@@ -18,13 +18,13 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid "Update disk device IDs in system configuration?"
 msgstr "Laufwerk-Geräte-IDs in der Systemkonfiguration aktualisieren?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "The new Linux kernel version provides different drivers for some PATA (IDE) "
 "controllers. The names of some hard disk, CD-ROM, and tape devices may "
@@ -36,7 +36,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "It is now recommended to identify disk devices in configuration files by "
 "label or UUID (unique identifier) rather than by device name, which will "
@@ -49,7 +49,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "If you choose to not update the system configuration automatically, you must "
 "update device IDs yourself before the next system reboot or the system may "
@@ -64,13 +64,13 @@ msgstr ""
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
 msgstr "Konfigurationsänderungen für Laufwerk-Geräte-IDs anwenden?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001
+#: ../templates:3001
 msgid "These devices will be assigned UUIDs or labels:"
 msgstr "Diese Geräte werden über UUIDs oder Kennungen identifiziert:"
 
@@ -78,7 +78,7 @@ msgstr "Diese Geräte werden über UUIDs oder Kennungen identifiziert:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "These configuration files will be updated:"
 msgstr "Diese Konfigurationsdateien werden aktualisiert:"
 
@@ -86,19 +86,19 @@ msgstr "Diese Konfigurationsdateien werden aktualisiert:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "The device IDs will be changed as follows:"
 msgstr "Die Geräte-IDs werden wie folgt geändert:"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid "Configuration files still contain deprecated device names"
 msgstr "Konfigurationsdateien enthalten noch veraltete Gerätenamen"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
@@ -108,13 +108,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid "Boot loader configuration check needed"
 msgstr "Überprüfung der Bootloader-Konfiguration erforderlich"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "The boot loader configuration for this system was not recognized. These "
 "settings in the configuration may need to be updated:"
@@ -124,7 +124,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
@@ -136,7 +136,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
@@ -147,20 +147,40 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
 msgid "Boot loader may need to be upgraded"
 msgstr "Bootloader muss unter Umständen aktualisiert werden"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:8001
 msgid "Kernel packages no longer update a default boot loader."
-msgstr "Kernel-Pakete werden nicht mehr länger den Standard-Bootloader "
-"aktualisieren."
+msgstr ""
+"Kernel-Pakete werden nicht mehr länger den Standard-Bootloader aktualisieren."
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+#: ../templates:8001
 msgid ""
 "If the boot loader needs to be updated whenever a new kernel is installed, "
 "the boot loader package should install a script in /etc/kernel/postinst.d.  "
@@ -168,7 +188,7 @@ msgid ""
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
 "Falls der Bootloader aktualisiert werden muss, wenn ein neuer Kernel "
-"installiert wird, sollte das Bootloader-Paket ein Skript in "
-"/etc/kernel/postinst.d installieren. Alternativ können Sie den Befehl für "
-"die Aktualisierung des Bootloaders über das Setzen der Variable "
-"»postinst_hook« in /etc/kernel-img.conf festlegen."
+"installiert wird, sollte das Bootloader-Paket ein Skript in /etc/kernel/"
+"postinst.d installieren. Alternativ können Sie den Befehl für die "
+"Aktualisierung des Bootloaders über das Setzen der Variable »postinst_hook« "
+"in /etc/kernel-img.conf festlegen."

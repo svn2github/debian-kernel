@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: linux-base 3.6\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: 2012-09-01 14:36+0100\n"
 "Last-Translator: Américo Monteiro <a_monteiro@netcabo.pt>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
@@ -127,7 +127,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
@@ -192,8 +192,7 @@ msgid ""
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
 "Se o gestor de arranque necessitar ser actualizado sempre que um novo kernel "
-"for instalado, o pacote do gestor de arranque deve instalar um script em /etc/"
-"kernel/postinst.d. Em alternativa, você pode especificar o comando para "
+"for instalado, o pacote do gestor de arranque deve instalar um script em /"
+"etc/kernel/postinst.d. Em alternativa, você pode especificar o comando para "
 "actualizar o gestor de arranque ao definir a variável 'postinst_hook' em /"
 "etc/kernel-img.conf."
-

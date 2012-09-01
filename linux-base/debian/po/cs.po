@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: linux-2.6 2.6.32-18\n"
-"Report-Msgid-Bugs-To: linux-2.6@packages.debian.org\n"
-"POT-Creation-Date: 2010-07-25 10:32+0200\n"
+"Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: 2010-07-26 18:02+0200\n"
 "Last-Translator: Michal Simunek <michal.simunek@gmail.com>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -18,13 +18,13 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid "Update disk device IDs in system configuration?"
 msgstr "Aktualizovat v nastavení systému ID diskových zařízení?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "The new Linux kernel version provides different drivers for some PATA (IDE) "
 "controllers. The names of some hard disk, CD-ROM, and tape devices may "
@@ -36,7 +36,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "It is now recommended to identify disk devices in configuration files by "
 "label or UUID (unique identifier) rather than by device name, which will "
@@ -48,7 +48,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "If you choose to not update the system configuration automatically, you must "
 "update device IDs yourself before the next system reboot or the system may "
@@ -62,13 +62,13 @@ msgstr ""
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
 msgstr "Použít změny v nastavení ID diskových zařízení?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001
+#: ../templates:3001
 msgid "These devices will be assigned UUIDs or labels:"
 msgstr "Těmto zařízením bude přiřazeno UUID či popisek:"
 
@@ -76,7 +76,7 @@ msgstr "Těmto zařízením bude přiřazeno UUID či popisek:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "These configuration files will be updated:"
 msgstr "Tyto konfigurační soubory budou aktualizovány:"
 
@@ -84,19 +84,19 @@ msgstr "Tyto konfigurační soubory budou aktualizovány:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "The device IDs will be changed as follows:"
 msgstr "ID diskových zařízení se změní následovně:"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid "Configuration files still contain deprecated device names"
 msgstr "Konfigurační soubory stále obsahují zastaralé názvy zařízení"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
@@ -106,13 +106,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid "Boot loader configuration check needed"
 msgstr "Je vyžadováno ověření nastavení zavaděče"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "The boot loader configuration for this system was not recognized. These "
 "settings in the configuration may need to be updated:"
@@ -122,7 +122,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
@@ -132,7 +132,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
@@ -142,19 +142,39 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
 msgid "Boot loader may need to be upgraded"
 msgstr "Zavaděč může být nutné aktualizovat"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:8001
 msgid "Kernel packages no longer update a default boot loader."
 msgstr "Jaderný balíček již neaktualizuje výchozí zavaděč."
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+#: ../templates:8001
 msgid ""
 "If the boot loader needs to be updated whenever a new kernel is installed, "
 "the boot loader package should install a script in /etc/kernel/postinst.d.  "
@@ -162,6 +182,6 @@ msgid ""
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
 "Pokud je nutné aktualizovat zavaděč kdykoli je nainstalováno nové jádro, "
-"balíček zavaděče nainstalovuje skript v /etc/kernel/postinst.d. "
-"Můžete také zadat příkaz k aktualizaci zavaděče nastavením proměnné "
-"'postinst_hook' v /etc/kernel-img.conf."
+"balíček zavaděče nainstalovuje skript v /etc/kernel/postinst.d. Můžete také "
+"zadat příkaz k aktualizaci zavaděče nastavením proměnné 'postinst_hook' v /"
+"etc/kernel-img.conf."

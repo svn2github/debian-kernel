@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2011-03-12 08:45+0000\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: 2012-04-28 22:43+0200\n"
 "Last-Translator: Michał Kułach <michal.kulach@gmail.com>\n"
 "Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
@@ -60,8 +60,8 @@ msgid ""
 "become unbootable."
 msgstr ""
 "Jeśli opcja automatycznej aktualizacji konfiguracji systemu nie zostanie "
-"wybrana, konieczne będzie ręczne zaktualizowanie identyfikatorów dysków przed "
-"ponownym uruchomieniem systemu, w przeciwnym wypadku, system może nie "
+"wybrana, konieczne będzie ręczne zaktualizowanie identyfikatorów dysków "
+"przed ponownym uruchomieniem systemu, w przeciwnym wypadku, system może nie "
 "uruchomić się ponownie."
 
 #. Type: boolean
@@ -107,8 +107,8 @@ msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
 msgstr ""
-"Następujące pliki konfiguracyjne mogą wciąż używać nazwy urządzeń, które mogą "
-"ulec zmianie po użyciu nowego jądra:"
+"Następujące pliki konfiguracyjne mogą wciąż używać nazwy urządzeń, które "
+"mogą ulec zmianie po użyciu nowego jądra:"
 
 #. Type: error
 #. Description
@@ -151,6 +151,26 @@ msgstr ""
 
 #. Type: error
 #. Description
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
+msgstr ""
+
+#. Type: error
+#. Description
 #: ../templates:8001
 msgid "Boot loader may need to be upgraded"
 msgstr "Program rozruchowy może wymagać zaktualizowania"
@@ -170,10 +190,8 @@ msgid ""
 "Alternately, you can specify the command to update the boot loader by "
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
-"Jeśli program rozruchowy musi zostać zaktualizowany podczas każdej instalacji "
-"nowego jądra, pakiet programu rozruchowego powinien zawierać skrypt w "
-"/etc/kernel/postinst.d. Innym rozwiązaniem jest podanie polecenia do "
-"aktualizacji programu rozruchowego, przez ustawienie zmiennej "
+"Jeśli program rozruchowy musi zostać zaktualizowany podczas każdej "
+"instalacji nowego jądra, pakiet programu rozruchowego powinien zawierać "
+"skrypt w /etc/kernel/postinst.d. Innym rozwiązaniem jest podanie polecenia "
+"do aktualizacji programu rozruchowego, przez ustawienie zmiennej "
 "\"postinst_hook\" w /etc/kernel-img.conf."
-
-

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: linux-base\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2011-03-12 08:45+0000\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,6 +122,26 @@ msgstr ""
 msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
 msgstr ""
 
 #. Type: error

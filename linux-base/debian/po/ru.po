@@ -6,28 +6,28 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: linux-2.6 2.6.32-18\n"
-"Report-Msgid-Bugs-To: linux-2.6@packages.debian.org\n"
-"POT-Creation-Date: 2010-07-25 10:32+0200\n"
+"Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
+"POT-Creation-Date: 2012-09-01 15:54+0100\n"
 "PO-Revision-Date: 2010-08-01 17:11+0400\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ru\n"
 "X-Generator: Lokalize 1.0\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid "Update disk device IDs in system configuration?"
 msgstr "Обновить идентификаторы дисковых устройств в настройках системы?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "The new Linux kernel version provides different drivers for some PATA (IDE) "
 "controllers. The names of some hard disk, CD-ROM, and tape devices may "
@@ -39,7 +39,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "It is now recommended to identify disk devices in configuration files by "
 "label or UUID (unique identifier) rather than by device name, which will "
@@ -51,7 +51,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "If you choose to not update the system configuration automatically, you must "
 "update device IDs yourself before the next system reboot or the system may "
@@ -59,20 +59,19 @@ msgid ""
 msgstr ""
 "Если вы не выберете автоматическое обновление системных настроек, то должны "
 "обновить идентификаторы устройств самостоятельно до следующей перезагрузки, "
-"иначе "
-"система не запустится."
+"иначе система не запустится."
 
 #. Type: boolean
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
 msgstr "Применить изменение настроек для идентификаторов дисковых устройств?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001
+#: ../templates:3001
 msgid "These devices will be assigned UUIDs or labels:"
 msgstr "Следующим устройствам будут назначены UUID или метки:"
 
@@ -80,7 +79,7 @@ msgstr "Следующим устройствам будут назначены 
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "These configuration files will be updated:"
 msgstr "Следующие файлы настройки будут обновлены:"
 
@@ -88,19 +87,19 @@ msgstr "Следующие файлы настройки будут обновл
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "The device IDs will be changed as follows:"
 msgstr "Идентификаторы устройств будут изменены следующим образом:"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid "Configuration files still contain deprecated device names"
 msgstr "Файлы настройки всё ещё содержат устаревшие имена устройств"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
@@ -110,13 +109,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid "Boot loader configuration check needed"
 msgstr "Требуется проверка настроек системного загрузчика"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "The boot loader configuration for this system was not recognized. These "
 "settings in the configuration may need to be updated:"
@@ -126,7 +125,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
@@ -137,7 +136,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
@@ -147,27 +146,47 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
 msgid "Boot loader may need to be upgraded"
 msgstr "Может потребоваться обновление системного загрузчика"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:8001
 msgid "Kernel packages no longer update a default boot loader."
 msgstr "Пакеты ядра больше не обновляют системный загрузчик по умолчанию"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+#: ../templates:8001
 msgid ""
 "If the boot loader needs to be updated whenever a new kernel is installed, "
 "the boot loader package should install a script in /etc/kernel/postinst.d.  "
 "Alternately, you can specify the command to update the boot loader by "
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
-"Если системный загрузчик требует обновления после установки нового ядра, "
-"то пакет системного загрузчика должен устанавливать сценарий в каталог "
-"/etc/kernel/postinst.d. Или же вы можете задать команду обновления "
-"системного загрузчика, указав её в переменной postinst_hook в файле "
-"/etc/kernel-img.conf."
+"Если системный загрузчик требует обновления после установки нового ядра, то "
+"пакет системного загрузчика должен устанавливать сценарий в каталог /etc/"
+"kernel/postinst.d. Или же вы можете задать команду обновления системного "
+"загрузчика, указав её в переменной postinst_hook в файле /etc/kernel-img."
+"conf."
