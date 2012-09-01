@@ -1,33 +1,33 @@
-# Translation of linux-2.6 debconf messages to Portuguese
-# Copyright (C) 2010 the linux-2.6's copyright holder
-# This file is distributed under the same license as the linux-2.6 package.
+# Translation of linux-base debconf messages to Portuguese
+# Copyright (C) 2010 the linux-base's copyright holder
+# This file is distributed under the same license as the linux-base package.
 #
-# Américo Monteiro <a_monteiro@netcabo.pt>, 2010.
+# Américo Monteiro <a_monteiro@netcabo.pt>, 2010, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6 2.6.32-18\n"
-"Report-Msgid-Bugs-To: linux-2.6@packages.debian.org\n"
-"POT-Creation-Date: 2010-07-25 10:32+0200\n"
-"PO-Revision-Date: 2010-07-27 10:33+0100\n"
+"Project-Id-Version: linux-base 3.6\n"
+"Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-01 14:36+0100\n"
 "Last-Translator: Américo Monteiro <a_monteiro@netcabo.pt>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.0\n"
+"X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid "Update disk device IDs in system configuration?"
 msgstr ""
 "Actualizar os IDs dos dispositivos de disco na configuração do sistema?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "The new Linux kernel version provides different drivers for some PATA (IDE) "
 "controllers. The names of some hard disk, CD-ROM, and tape devices may "
@@ -39,7 +39,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "It is now recommended to identify disk devices in configuration files by "
 "label or UUID (unique identifier) rather than by device name, which will "
@@ -51,7 +51,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:2001
+#: ../templates:2001
 msgid ""
 "If you choose to not update the system configuration automatically, you must "
 "update device IDs yourself before the next system reboot or the system may "
@@ -65,14 +65,14 @@ msgstr ""
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
 msgstr ""
 "Aplicar estas alterações de configuração aos IDs de dispositivos de discos?"
 
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001
+#: ../templates:3001
 msgid "These devices will be assigned UUIDs or labels:"
 msgstr "A estes dispositivos serão atribuídos UUIDs ou etiquetas:"
 
@@ -80,7 +80,7 @@ msgstr "A estes dispositivos serão atribuídos UUIDs ou etiquetas:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "These configuration files will be updated:"
 msgstr "Estes ficheiros de configuração irão ser actualizados:"
 
@@ -88,36 +88,36 @@ msgstr "Estes ficheiros de configuração irão ser actualizados:"
 #. Description
 #. Type: boolean
 #. Description
-#: ../linux-base.templates:3001 ../linux-base.templates:4001
+#: ../templates:3001 ../templates:4001
 msgid "The device IDs will be changed as follows:"
 msgstr "Os IDs de dispositivos irão ser alterados de acordo com o seguinte:"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid "Configuration files still contain deprecated device names"
 msgstr ""
 "Os ficheiros de configuração ainda contêm nomes obsoletos de dispositivos"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:5001
+#: ../templates:5001
 msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
 msgstr ""
 "Os seguintes ficheiros de configuração ainda usam alguns nomes de "
-"dispositivos que podem ser alterados quando usar o novo kernel:"
+"dispositivos que podem mudar quando usar o novo kernel:"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid "Boot loader configuration check needed"
 msgstr "Necessária verificação da configuração do gestor de arranque"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "The boot loader configuration for this system was not recognized. These "
 "settings in the configuration may need to be updated:"
@@ -132,13 +132,13 @@ msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
 msgstr ""
-" * O ID do dispositivo root passado como parâmetro do kernel\n"
+" * O ID do dispositivo root passado como parâmetro do kernel;\n"
 " * O ID do dispositivo boot usado para instalar e actualizar o gestor de "
-"arranque"
+"arranque."
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:6001
+#: ../templates:6001
 msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
@@ -149,28 +149,51 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
-msgid "Boot loader may need to be upgraded"
-msgstr "O gestor de arranque pode precisar de ser actualizado"
+#: ../templates:7001
+msgid "Failed to update disk device IDs"
+msgstr "Falhou ao actualizar os IDs de dispositivo dos discos"
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001
+#: ../templates:7001
+msgid "An error occurred while attempting to update the system configuration:"
+msgstr "Ocorreu um erro ao tentar actualizar a configuração do sistema:"
+
+#. Type: error
+#. Description
+#: ../templates:7001
+msgid ""
+"You can either correct this error and retry the automatic update, or choose "
+"to update the system configuration yourself."
+msgstr ""
+"Você pode corrigir este erro e tentar de novo a actualização automática, ou "
+"escolher ser você mesmo a actualizar a configuração do sistema."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid "Boot loader may need to be upgraded"
+msgstr "O gestor de arranque pode necessitar ser actualizado"
+
+#. Type: error
+#. Description
+#: ../templates:8001
 msgid "Kernel packages no longer update a default boot loader."
 msgstr ""
 "Os pacotes do kernel já não actualizam um gestor de arranque predefinido."
 
 #. Type: error
 #. Description
-#: ../linux-base.templates:8001 ../templates/temp.image.plain/templates:5001
+#: ../templates:8001
 msgid ""
 "If the boot loader needs to be updated whenever a new kernel is installed, "
 "the boot loader package should install a script in /etc/kernel/postinst.d.  "
 "Alternately, you can specify the command to update the boot loader by "
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
-"Se o gestor de arranque precisa de ser actualizado sempre que um novo kernel "
-"é instalado, o pacote do gestor de arranque deve instalar um script em "
-"/etc/kernel/postinst.d. Em alternativa, você pode especificar o comando para "
-"actualizar o gestor de arranque ao definir a variável 'postinst_hook' em "
-"/etc/kernel-img.conf."
+"Se o gestor de arranque necessitar ser actualizado sempre que um novo kernel "
+"for instalado, o pacote do gestor de arranque deve instalar um script em /etc/"
+"kernel/postinst.d. Em alternativa, você pode especificar o comando para "
+"actualizar o gestor de arranque ao definir a variável 'postinst_hook' em /"
+"etc/kernel-img.conf."
+

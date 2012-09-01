@@ -1,6 +1,8 @@
 linux-base (3.6) UNRELEASED; urgency=low
 
-  * Add Polish debconf template translation (Michał Kułach) (Closes: #670775)
+  * Update debconf template translations:
+    - Add Polish (Michał Kułach) (Closes: #670775)
+    - Portugese (Américo Monteiro) (Closes: #686431)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 01 May 2012 01:54:46 +0100
 
