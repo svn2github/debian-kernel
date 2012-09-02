@@ -1,13 +1,13 @@
 # Translation of linux-2.6 debconf template to Swedish
-# Copyright (C) 2010 Martin Bagge <brother@bsnet.se>
+# Copyright (C) 2012 Martin Bagge <brother@bsnet.se>
 # This file is distributed under the same license as the linux-2.6 package.
 #
-# Martin Bagge <brother@bsnet.se>, 2010
+# Martin Bagge <brother@bsnet.se>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: linux-2.6\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
 "PO-Revision-Date: 2010-08-07 05:01+0100\n"
 "Last-Translator: Martin Bagge / brother <brother@bsnet.se>\n"
 "Language-Team: Swedish <debian-l10n-swedish@lists.debian.org>\n"
@@ -147,13 +147,13 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Misslyckades med uppdateringen av ID för diskenheter"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
-msgstr ""
+msgstr "Ett fel inträffade när systeminställningarna skulle uppdateras:"
 
 #. Type: error
 #. Description
@@ -162,6 +162,8 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Du kan korrigera detta och sedan försöka köra den automatiska uppdateringen "
+"igen eller välja att uppdatera systeminställningarna själv."
 
 #. Type: error
 #. Description
