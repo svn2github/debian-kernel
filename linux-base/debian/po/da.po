@@ -1,16 +1,16 @@
-# Danish translation linux-2.6.
-# Copyright (C) 2010 linux-2.6 & Joe Hansen.
-# This file is distributed under the same license as the linux-2.6 package.
-# Joe Hansen <joedalton2@yahoo.dk>, 2010.
+# Danish translation linux-base.
+# Copyright (C) 2012 linux-base & Joe Hansen.
+# This file is distributed under the same license as the linux-base package.
+# Joe Hansen <joedalton2@yahoo.dk>, 2010, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6\n"
+"Project-Id-Version: linux-base\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-10-07 05:26+0100\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-01 05:26+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
-"Language-Team: Danish <debian-l10n-danish@lists.debian.org> \n"
+"Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -145,13 +145,13 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Kunne ikke opdatere diskenheds-id'er"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
-msgstr ""
+msgstr "Der opstod en fejl under forsøget på at opdatere systemets konfiguration:"
 
 #. Type: error
 #. Description
@@ -160,6 +160,8 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Du kan enten korrigere denne fejl og prøve den automatiske opdatering igen, "
+"eller vælge selv at opdatere systemets konfiguration."
 
 #. Type: error
 #. Description
