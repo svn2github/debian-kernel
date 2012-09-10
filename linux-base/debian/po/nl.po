@@ -1,14 +1,14 @@
 # Dutch translation of the linux-base debconf templates
-# Copyright (C) 2011 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2011, 2012 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the linux-base package.
-# Jeroen Schot <schot@a-eskwadraat.nl>, 2011.
+# Jeroen Schot <schot@a-eskwadraat.nl>, 2011, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-base 3.2\n"
+"Project-Id-Version: linux-base 3.6\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2011-06-06 11:35+0200\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-03 17:04+0200\n"
 "Last-Translator: Jeroen Schot <schot@a-eskwadraat.nl>\n"
 "Language-Team: Debian l10n Dutch <debian-l10n-dutch@lists.debian.org>\n"
 "Language: nl\n"
@@ -147,13 +147,14 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Bijwerken van de apparaat-ID's mislukt"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
 msgstr ""
+"Er is een fout opgetreden tijdens het bijwerken van de systeemconfiguratie."
 
 #. Type: error
 #. Description
@@ -162,6 +163,8 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"U kunt ofwel deze fout corrigeren en het automatisch bijwerken opnieuw "
+"proberen, of de systeemconfiguratie zelf bijwerken."
 
 #. Type: error
 #. Description

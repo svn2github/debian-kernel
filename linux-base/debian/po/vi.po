@@ -1,5 +1,6 @@
 # Vietnamese Debconf translation for Linux 2.6.
 # Copyright © 2010 Free Software Foundation, Inc.
+# Nguyen Vu Hung <vuhung16plus@gmail.com>, 2012
 # Clytie Siddall <clytie@riverland.net.au>, 2010.
 #
 msgid ""
@@ -7,9 +8,9 @@ msgstr ""
 "Project-Id-Version: linux-2.6 2.6.32-26\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
 "POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-10-27 15:21+1030\n"
-"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
-"Language-Team: Vietnamese <vi-VN@googlegroups.com>, Vietnamese <debian-l10n-vietnamese@lists.debian.org>\n"
+"PO-Revision-Date: 2012-09-01 09:23+0700\n"
+"Last-Translator: Nguyen Vu Hung <vuhung16plus@gmail.com>\n"
+"Language-Team: Du an MOST <du-an-most@lists.hanoilug.org>, Vietnamese <debian-l10n-vietnamese@lists.debian.org>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,7 +22,7 @@ msgstr ""
 #. Description
 #: ../templates:2001
 msgid "Update disk device IDs in system configuration?"
-msgstr "Cập nhật các mã số thiết bị đĩa trong cấu hình hệ thống ?"
+msgstr "Cập nhật ID đĩa trong cấu hình hệ thống?"
 
 #. Type: boolean
 #. Description
@@ -31,8 +32,8 @@ msgid ""
 "controllers. The names of some hard disk, CD-ROM, and tape devices may "
 "change."
 msgstr ""
-"Phiên bản hạt nhân Linux mới cung cấp các trình điều khiển khác nhau cho một "
-"số bộ điều khiển PATA (IDE). Vì thế có thể thay đổi tên của một số thiết bị "
+"Phiên bản nhân Linux mới cung cấp các trình điều khiển khác nhau cho một số "
+"bộ điều khiển PATA (IDE). Vì thế có thể thay đổi tên của một số thiết bị "
 "loại đĩa cứng, đĩa CD và băng."
 
 #. Type: boolean
@@ -43,9 +44,9 @@ msgid ""
 "label or UUID (unique identifier) rather than by device name, which will "
 "work with both old and new kernel versions."
 msgstr ""
-"Giờ khuyến khích xác định thiết bị đĩa (trong tập tin cấu hình) theo nhãn "
-"hay UUID (mã số duy nhất) hơn là theo tên thiết bị, mà có tác động trong "
-"phiên bản hạt nhân cả hai cũ và mới."
+"Khuyến khích xác định thiết bị đĩa (trong tập tin cấu hình) theo nhãn hay "
+"UUID (mã số duy nhất) hơn là theo tên thiết bị có tác động trong phiên bản "
+"nhân cũ và mới."
 
 #. Type: boolean
 #. Description
@@ -55,9 +56,9 @@ msgid ""
 "update device IDs yourself before the next system reboot or the system may "
 "become unbootable."
 msgstr ""
-"Nếu bạn chọn không tự động cập nhật cấu hình hệ thống thì bạn cần phải tự "
-"cập nhật các mã số thiết bị trước lần khởi động hệ thống kế tiếp: không thì "
-"hệ thống có thể không khởi động được."
+"Nếu bạn chọn không tự động cập nhật cấu hình hệ thống, bạn cần phải tự cập "
+"nhật ID thiết bị trước lần khởi động hệ thống kế tiếp. Nếu không, hệ thống "
+"có thể không khởi động được."
 
 #. Type: boolean
 #. Description
@@ -65,7 +66,7 @@ msgstr ""
 #. Description
 #: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
-msgstr "Áp dụng thay đổi cấu hình cho các mã số thiết bị đĩa ?"
+msgstr "Áp dụng thay đổi cấu hình cho các mã số thiết bị đĩa?"
 
 #. Type: boolean
 #. Description
@@ -79,7 +80,7 @@ msgstr "UUID hay nhãn sẽ được gán cho những thiết bị này:"
 #. Description
 #: ../templates:3001 ../templates:4001
 msgid "These configuration files will be updated:"
-msgstr "Sắp cập nhật những tập tin cấu hình này:"
+msgstr "Sẽ cập nhật những tập tin cấu hình này:"
 
 #. Type: boolean
 #. Description
@@ -87,13 +88,13 @@ msgstr "Sắp cập nhật những tập tin cấu hình này:"
 #. Description
 #: ../templates:3001 ../templates:4001
 msgid "The device IDs will be changed as follows:"
-msgstr "Các mã số thiết bị sẽ được thay đổi như theo sau :"
+msgstr "ID thiết bị sẽ được thay đổi như theo sau :"
 
 #. Type: error
 #. Description
 #: ../templates:5001
 msgid "Configuration files still contain deprecated device names"
-msgstr "Tập tin cấu hình vẫn còn chứa tên thiết bị bị phản đối"
+msgstr "Tập tin cấu hình vẫn chứa tên thiết bị chưa được chấp nhận"
 
 #. Type: error
 #. Description
@@ -128,8 +129,8 @@ msgid ""
 " * The root device ID passed as a kernel parameter;\n"
 " * The boot device ID used to install and update the boot loader."
 msgstr ""
-" * Mã số thiết bị gốc được gửi dưới dạng một tham số hạt nhân\n"
-" * Mã số thiết bị khởi động được dùng để cài đặt và cập nhật bộ nạp khởi động"
+" * ID thiết bị gốc được gửi dưới dạng một tham số hạt nhân;\n"
+" * ID thiết bị khởi động được dùng để cài đặt và cập nhật bộ nạp khởi động"
 
 #. Type: error
 #. Description
@@ -138,20 +139,20 @@ msgid ""
 "You should generally identify these devices by UUID or label. However, on "
 "MIPS systems the root device must be identified by name."
 msgstr ""
-"Nói chung bạn nên xác định thiết bị này theo UUID hay nhãn. Tuy nhiên, trên "
-"hệ thống MIPS thiết bị gốc phải được xác định theo tên."
+"Bạn nên xác định thiết bị này theo UUID hoặc nhãn. Tuy nhiên, trên hệ thống "
+"MIPS thiết bị gốc phải được xác định theo tên."
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Cập nhật ID đĩa thất bại"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
-msgstr ""
+msgstr "Lỗi cập nhật cấu hình hệ thống"
 
 #. Type: error
 #. Description
@@ -160,18 +161,20 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Bạn có thể tự sửa lỗi này và thử lại cập nhật tự động, hoặc tự cập nhật hệ "
+"thống."
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid "Boot loader may need to be upgraded"
-msgstr "Có thể là cần phải nâng cấp bộ nạp khởi động"
+msgstr "Có thể là cần nâng cấp bộ nạp khởi động"
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid "Kernel packages no longer update a default boot loader."
-msgstr "Gói hạt nhân không còn nâng cấp lại bộ nạp khởi động mặc định."
+msgstr "Gói nhân không còn nâng cấp lại bộ nạp khởi động mặc định."
 
 #. Type: error
 #. Description
@@ -182,8 +185,7 @@ msgid ""
 "Alternately, you can specify the command to update the boot loader by "
 "setting the 'postinst_hook' variable in /etc/kernel-img.conf."
 msgstr ""
-"Nếu bộ nạp khởi động cần phải được cập nhật khi nào cài đặt một hạt nhân mới "
-"thì gói bộ nạp khởi động nên cài đặt một văn lệnh vào « /etc/kernel/postinst."
-"d ». Hoặc bạn có thể ghi rõ câu lệnh cập nhật bộ nạp khởi động bằng cách lập "
-"biến « postinst_hook » (hàm móc hậu xử lý) trong tập tin cấu hình « /etc/"
-"kernel-img.conf »."
+"Nếu bộ nạp khởi động cần phải được cập nhật khi nào cài đặt một nhân mới thì "
+"gói bộ nạp khởi động nên cài đặt một văn lệnh vào /etc/kernel/postinst.d. "
+"Hoặc bạn có thể ghi rõ câu lệnh cập nhật bộ nạp khởi động bằng cách lập biến "
+"'postinst_hook' trong tập tin cấu hình /etc/kernel-img.conf."

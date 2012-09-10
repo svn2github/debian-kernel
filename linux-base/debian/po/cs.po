@@ -1,14 +1,14 @@
-# Czech PO debconf template translation of linux-2.6.
-# Copyright (C) 2010 Michal Simunek <michal.simunek@gmail.com>
-# This file is distributed under the same license as the linux-2.6 package.
-# Michal Simunek <michal.simunek@gmail.com>, 2010.
+# Czech PO debconf template translation of linux-base.
+# Copyright (C) 2012 Michal Simunek <michal.simunek@gmail.com>
+# This file is distributed under the same license as the linux-base package.
+# Michal Simunek <michal.simunek@gmail.com>, 2010 - 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6 2.6.32-18\n"
+"Project-Id-Version: linux-base 3.6\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-07-26 18:02+0200\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-03 18:02+0200\n"
 "Last-Translator: Michal Simunek <michal.simunek@gmail.com>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "Language: cs\n"
@@ -144,13 +144,13 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Aktualizace ID diskových zařízení selhala"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
-msgstr ""
+msgstr "Došlo k chybě při pokusu o aktualizaci nastavení systému:"
 
 #. Type: error
 #. Description
@@ -159,6 +159,8 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Můžete buď tuto chybu opravit a znovu provést automatickou aktualizaci, či "
+"provést aktualizaci nastavení systému sami."
 
 #. Type: error
 #. Description

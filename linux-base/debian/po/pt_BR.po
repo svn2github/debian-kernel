@@ -1,15 +1,16 @@
-# linux-2.6 Brazilian Portuguese debconf template translation.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the linux-2.6 package.
+# Debconf translations for linux-base
+# Copyright (C) 2012 THE linux-base'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the linux-base package.
 # Flamarion Jorge <jorge.flamarion@gmail.com>, 2010.
+# Adriano Rafael Gomes <adrianorg@gmail.com>, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6\n"
+"Project-Id-Version: linux-base 3.5\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-10-02 12:29-0300\n"
-"Last-Translator: Flamarion Jorge <jorge.flamarion@gmail.com>\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-02 21:44-0300\n"
+"Last-Translator: Adriano Rafael Gomes <adrianorg@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <debian-l10n-portuguese@lists.debian."
 "org>\n"
 "Language: pt_BR\n"
@@ -17,7 +18,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"pt_BR utf-8\n"
 
 #. Type: boolean
 #. Description
@@ -108,7 +108,7 @@ msgid ""
 "The following configuration files still use some device names that may "
 "change when using the new kernel:"
 msgstr ""
-"O seguintes arquivos de configuração ainda usam alguns nomes de dispositivo "
+"Os seguintes arquivos de configuração ainda usam alguns nomes de dispositivo "
 "que podem mudar ao usar o novo kernel:"
 
 #. Type: error
@@ -156,12 +156,13 @@ msgstr ""
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
 msgstr ""
+"A atualização dos identificadores de dispositivo de disco (\"IDs\") falhou"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
-msgstr ""
+msgstr "Ocorreu um erro ao tentar atualizar a configuração do sistema:"
 
 #. Type: error
 #. Description
@@ -170,6 +171,8 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Você pode corrigir esse erro e tentar a atualização automática novamente, ou "
+"escolher atualizar a configuração do sistema você mesmo."
 
 #. Type: error
 #. Description

@@ -2,13 +2,22 @@ linux-base (3.6) UNRELEASED; urgency=low
 
   * Enable translation of the debconf 'Failed to update disk device IDs'
     error template, thanks to David Prévot (Closes: #686211)
-  * Update debconf template translations:
+  * Update debconf template translations (Closes: #686705):
     - Add Polish (Michał Kułach) (Closes: #670775)
     - Portugese (Américo Monteiro) (Closes: #686431)
     - Slovak (Slavko) (Closes: #686384)
     - Russian (Yuri Kozlov) (Closes: #686480)
     - Danish (Joe Dalton) (Closes: #686459)
     - Swedish (Martin Bagge) (Closes: #686445)
+    - Czech (Michal Šimůnek) (Closes: #686610)
+    - Dutch (Jeroen Schot) (Closes: #686662)
+    - German (Holger Wansing) (Closes: #686687)
+    - Italian (Luca Bruno) (Closes: #686704)
+    - Vietnamese (Nguyễn Vũ Hưng)
+    - French (David Prévot)
+    - Brazilian Portugese (Adriano Rafael Gomes) (Closes: #686717)
+    - Japanese (Nobuhiro Iwamatsu) (Closes: #686720)
+    - Spanish (Omar Campagne) (Closes: #686748)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 01 May 2012 01:54:46 +0100
 

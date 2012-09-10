@@ -1,14 +1,14 @@
-# Translation of linux-2.6 templates to german.
-# Copyright (C) 2010 Holger Wansing.
-# This file is distributed under the same license as the linux-2.6 package.
-# Holger Wansing <linux@wansing-online.de>, 2010.
+# Translation of linux-base templates to german.
+# Copyright (C) 2010 - 2012 Holger Wansing.
+# This file is distributed under the same license as the linux-base package.
+# Holger Wansing <linux@wansing-online.de>, 2010, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6 2.6.32-11\n"
+"Project-Id-Version: linux-base 3.6\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
-"POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-08-08 14:22+0200\n"
+"POT-Creation-Date: 2012-08-31 13:51-0400\n"
+"PO-Revision-Date: 2012-09-04 20:51+0200\n"
 "Last-Translator: Holger Wansing <linux@wansing-online.de>\n"
 "Language-Team: Debian German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
@@ -120,7 +120,8 @@ msgid ""
 "settings in the configuration may need to be updated:"
 msgstr ""
 "Die Bootloader-Konfiguration für dieses System konnte nicht erkannt werden. "
-"Folgende Einstellungen in der Konfiguration müssen aktualisiert werden:"
+"Folgende Einstellungen in der Konfiguration müssen unter Umständen "
+"aktualisiert werden:"
 
 #. Type: error
 #. Description
@@ -149,13 +150,15 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Aktualisieren der Laufwerk-Geräte-IDs fehlgeschlagen"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
 msgstr ""
+"Beim Versuch, die Systemkonfiguration zu aktualisieren, ist ein Fehler "
+"aufgetreten:"
 
 #. Type: error
 #. Description
@@ -164,6 +167,9 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Sie können entweder diesen Fehler korrigieren und die automatische "
+"Aktualisierung erneut versuchen oder die Systemkonfiguration selbst "
+"aktualisieren."
 
 #. Type: error
 #. Description

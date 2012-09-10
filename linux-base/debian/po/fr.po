@@ -1,21 +1,21 @@
-# Translation of linux-2.6 debconf templates to French
-# Copyright (C) 2010 Debian French l10n team <debian-l10n-french@lists.debian.org>
-# This file is distributed under the same license as the linux-2.6 package.
+# Translation of linux-base debconf templates to French
+# Copyright (C) 2010, 2012 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the linux-base package.
 #
-# David Prévot <david@tilapin.org>, 2010.
+# David Prévot <david@tilapin.org>, 2010, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: linux-2.6 2.6.32-11\n"
+"Project-Id-Version: linux-base 3.5\n"
 "Report-Msgid-Bugs-To: linux-base@packages.debian.org\n"
 "POT-Creation-Date: 2012-09-01 15:54+0100\n"
-"PO-Revision-Date: 2010-07-26 12:24-0400\n"
+"PO-Revision-Date: 2012-08-31 14:23-0400\n"
 "Last-Translator: David Prévot <david@tilapin.org>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.0\n"
+"X-Generator: Lokalize 1.4\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #. Type: boolean
@@ -36,7 +36,7 @@ msgid ""
 msgstr ""
 "La nouvelle version du noyau Linux fournit des pilotes différents pour "
 "certains contrôleurs PATA (IDE). Les noms de certains disques durs, lecteurs "
-"de CD-ROM et de bandes peuvent être modifiés."
+"de CD et de bandes peuvent être modifiés."
 
 #. Type: boolean
 #. Description
@@ -71,7 +71,8 @@ msgstr ""
 #: ../templates:3001 ../templates:4001
 msgid "Apply configuration changes to disk device IDs?"
 msgstr ""
-"Appliquer les changements de configuration aux identifiants des partitions ?"
+"Appliquer les modifications de configuration aux identifiants des "
+"partitions ?"
 
 #. Type: boolean
 #. Description
@@ -158,13 +159,15 @@ msgstr ""
 #. Description
 #: ../templates:7001
 msgid "Failed to update disk device IDs"
-msgstr ""
+msgstr "Échec de mise à jour des identifiants des partitions"
 
 #. Type: error
 #. Description
 #: ../templates:7001
 msgid "An error occurred while attempting to update the system configuration:"
 msgstr ""
+"Une erreur est survenue lors de la tentative de mise à jour de la "
+"configuration du système :"
 
 #. Type: error
 #. Description
@@ -173,6 +176,9 @@ msgid ""
 "You can either correct this error and retry the automatic update, or choose "
 "to update the system configuration yourself."
 msgstr ""
+"Vous pouvez soit corriger cette erreur et réessayer la mise à jour "
+"automatique, soit choisir de mettre à jour la configuration du système vous-"
+"même."
 
 #. Type: error
 #. Description
