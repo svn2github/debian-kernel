@@ -40,7 +40,7 @@ uri: http://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git
 desc: AV7110 DVB card firmware
 
 [carl9170-1.fw_base]
-desc: Atheros AR9170 free firmware for use with carl9170 (Closes: #635840)
+desc: Atheros AR9170 free firmware for use with carl9170
 
 [cis/3CCFEM556.cis_base]
 desc: 3Com Megahertz 3CCFEM556 CIS fix
