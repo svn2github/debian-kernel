@@ -1171,7 +1171,7 @@ sub scan_config_files {
 	}
 	my $file = new FileHandle($path, 'r');
 	if (!defined($file)) {
-	    if ($! == POSIX::ENOENT) {
+	    if ($! == POSIX::ENOENT || $! == POSIX::ENOTDIR) {
 		next;
 	    }
 	    die "$!";
