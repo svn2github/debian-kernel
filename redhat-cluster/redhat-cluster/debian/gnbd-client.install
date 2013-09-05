@@ -1,5 +1,0 @@
-etc/cluster/gnbdimports.conf
-usr/sbin/gnbd_import
-usr/sbin/gnbd_monitor
-usr/sbin/gnbd_recvd
-usr/share/man/man8/gnbd_import.8

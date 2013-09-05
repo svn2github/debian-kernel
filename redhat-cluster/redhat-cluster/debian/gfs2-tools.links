@@ -1,9 +1,0 @@
-usr/sbin/fsck.gfs2 usr/sbin/gfs2_fsck
-usr/sbin/mkfs.gfs2 usr/sbin/gfs2_mkfs
-usr/sbin/mkfs.gfs2 usr/sbin/gfs2_jadd
-usr/sbin/mkfs.gfs2 usr/sbin/gfs2_grow
-sbin/mount.gfs2 usr/sbin/gfs2_mount
-sbin/umount.gfs2 usr/sbin/gfs2_umount
-usr/share/man/man8/gfs2_fsck.8.gz usr/share/man/man8/fsck.gfs2.8.gz
-usr/share/man/man8/mkfs.gfs2.8.gz usr/share/man/man8/gfs2_mkfs.8.gz
-usr/share/man/man8/gfs2_mount.8.gz usr/share/man/man8/mount.gfs2.8.gz

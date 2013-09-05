@@ -1,3 +1,0 @@
-etc/udev/rules.d/45-dlm.rules
-usr/lib/libdlm_lt.so.2.3
-usr/lib/libdlm.so.2.3

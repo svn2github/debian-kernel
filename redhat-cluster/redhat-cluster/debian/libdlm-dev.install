@@ -1,7 +1,0 @@
-usr/include/libdlm.h
-usr/lib/libdlm.a
-usr/lib/libdlm_lt.a
-usr/sbin/dlm_tool
-usr/share/man/man8/dlm_tool.8
-usr/share/man/man3/dlm_*.3
-usr/share/man/man3/libdlm.3

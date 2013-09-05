@@ -1,8 +1,0 @@
-etc/cluster/gnbdexports.conf
-usr/sbin/gnbd_clusterd
-usr/sbin/gnbd_export
-usr/sbin/gnbd_get_uid
-usr/sbin/gnbd_serv
-usr/share/man/man8/gnbd.8
-usr/share/man/man8/gnbd_export.8
-usr/share/man/man8/gnbd_serv.8
