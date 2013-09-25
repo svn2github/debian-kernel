@@ -2,7 +2,7 @@ Package: firmware-@package@
 Architecture: all
 Replaces: @?replaces@
 Conflicts: @?conflicts@
-Suggests: initramfs-tools, linux-image
+Suggests: initramfs-tools
 Description: Binary firmware for @desc@
  @longdesc@
 Homepage: @uri@
