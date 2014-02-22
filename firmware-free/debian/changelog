@@ -3,6 +3,7 @@ firmware-free (3.3) UNRELEASED; urgency=low
   * To allow auto-removal of linux-image-* packages, do not suggest
     virtual package linux-image (Closes: #724563)
   * Update to linux-support 3.13-1
+  * Fix wrapping of file lists in package description (Closes: #677970)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Wed, 25 Sep 2013 04:42:22 +0100
 
