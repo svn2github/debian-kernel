@@ -2,6 +2,7 @@ Package: firmware-@package@
 Architecture: all
 Replaces: @?replaces@
 Conflicts: @?conflicts@
+Depends: ${misc:Depends}
 Suggests: initramfs-tools
 Description: Binary firmware for @desc@
  @longdesc@
