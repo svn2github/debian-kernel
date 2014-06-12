@@ -15,23 +15,22 @@ Security support:
 Kernel packages, sorted by source architecture:
 
   * alpha
-    - Norbert Tretkowski, Steve Langasek
   * arm
-    - Arnaud Patard, Hector Oron, Martin Michlmayr
+    - Arnaud Patard, Hector Oron, Ian Campbell
+  * arm64
+    - Ian Campbell
   * hppa
   * ia64
-    - Dann Frazier
   * m68k
     - Thorsten Glaser, Christian T. Steigies
   * mips
-    - Aurelien Jarno
+    - Aurelien Jarno, Andi Barth
   * powerpc
   * s390
     - Bastian Blank
   * sparc
-    - Jurij Smakov
   * x86
-    - Maximilian Attems, Ben Hutchings, Frederik Schueler
+    - Maximilian Attems, Ben Hutchings
 
 Kernel packages, other specialisations:
 
@@ -42,14 +41,15 @@ Kernel packages, other specialisations:
 
 Kernel-related packages:
 
-  * firmware-nonfree
+  * firmware-free, firmware-nonfree
     - Bastian Blank, Ben Hutchings
   * initramfs-tools:
-    - Maximilian Attems
+    - Maximilian Attems, Michael Prokop
+  * dracut:
+    - Thomas Lange
   * mkvmlinuz
-  * module-init-tools
+    - Milan Kupcevic
+  * kmod
     - Marco d'Itri
   * udev
-    - Marco d'Itri
-  * yaird
-    - Jonas Smedegaard
+    - systemd maintainers
