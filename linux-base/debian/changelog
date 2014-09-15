@@ -21,6 +21,8 @@ linux-base (3.6) UNRELEASED; urgency=low
   * debian/postinst: When checking which configuration files are present,
     treat ENOTDIR like ENOENT (Closes: #698203)
   * Run version_cmp() unit tests at build time
+  * linux-version: Fix sorting of version strings containing -trunk
+    (Closes: #761614)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 01 May 2012 01:54:46 +0100
 

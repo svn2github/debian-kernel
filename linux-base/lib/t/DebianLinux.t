@@ -5,7 +5,7 @@ use Test;
 use DebianLinux qw(version_cmp);
 
 BEGIN {
-    plan test => 27;
+    plan test => 34;
 }
 
 # Simple numeric comparison
@@ -38,6 +38,14 @@ ok(version_cmp('2.6.32-trunk', '2.6.32-1'), -1);
 # Pre-release < non-numeric non-pre-release
 ok(version_cmp('2.6.32-local', '2.6.32-trunk'), 1);
 ok(version_cmp('2.6.32-trunk', '2.6.32-local'), -1);
+# Pre-release cases including flavour (#761614)
+ok(version_cmp('2.6.33-trunk-flavour', '2.6.33-trunk-flavour'), 0);
+ok(version_cmp('2.6.33-rc1', '2.6.33-trunk-flavour'), -1);
+ok(version_cmp('2.6.33-rc1-flavour', '2.6.33-trunk-flavour'), -1);
+ok(version_cmp('2.6.32-1-flavour', '2.6.32-trunk-flavour'), 1);
+ok(version_cmp('2.6.32-trunk-flavour', '2.6.32-1-flavour'), -1);
+ok(version_cmp('2.6.32-local', '2.6.32-trunk-flavour'), 1);
+ok(version_cmp('2.6.32-trunk-flavour', '2.6.32-local'), -1);
 # Numeric < non-numeric non-pre-release
 ok(version_cmp('2.6.32-1', '2.6.32-local'), -1);
 ok(version_cmp('2.6.32-local', '2.6.32-1'), 1);
