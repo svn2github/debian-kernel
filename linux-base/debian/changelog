@@ -20,6 +20,7 @@ linux-base (3.6) UNRELEASED; urgency=low
     - Spanish (Omar Campagne) (Closes: #686748)
   * debian/postinst: When checking which configuration files are present,
     treat ENOTDIR like ENOENT (Closes: #698203)
+  * Run version_cmp() unit tests at build time
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 01 May 2012 01:54:46 +0100
 
