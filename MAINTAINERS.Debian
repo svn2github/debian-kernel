@@ -15,17 +15,20 @@ Security support:
 Kernel packages, sorted by source architecture:
 
   * alpha
+    - (Michael Cree)
   * arm
     - Arnaud Patard, Hector Oron, Ian Campbell
   * arm64
     - Ian Campbell
-  * hppa
   * ia64
   * m68k
     - (Thorsten Glaser), Christian T. Steigies
   * mips
     - Aurelien Jarno, (Andi Barth)
+  * parisc
+    - (Helge Deller)
   * powerpc
+    - Aurelien Jarno, (Mauricio Faria de Oliveira)
   * s390
     - Bastian Blank
   * sparc
