@@ -22,15 +22,17 @@ Kernel packages, sorted by source architecture:
   * hppa
   * ia64
   * m68k
-    - Thorsten Glaser, Christian T. Steigies
+    - (Thorsten Glaser), Christian T. Steigies
   * mips
-    - Aurelien Jarno, Andi Barth
+    - Aurelien Jarno, (Andi Barth)
   * powerpc
   * s390
     - Bastian Blank
   * sparc
   * x86
     - Maximilian Attems, Ben Hutchings
+
+Names in parentheses are not officially on the kernel team (yet).
 
 Kernel packages, other specialisations:
 
