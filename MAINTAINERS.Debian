@@ -21,17 +21,23 @@ Kernel packages, sorted by source architecture:
   * arm64
     - Ian Campbell
   * ia64
+    - no maintainer
   * m68k
     - (Thorsten Glaser), Christian T. Steigies
   * mips
     - Aurelien Jarno, (Andi Barth)
+  * or1k
+    - no maintainer
   * parisc
     - (Helge Deller)
   * powerpc
     - Aurelien Jarno, (Mauricio Faria de Oliveira)
   * s390
     - Bastian Blank
+  * sh4
+    - no maintainer
   * sparc
+    - no maintainer
   * x86
     - Maximilian Attems, Ben Hutchings
 
